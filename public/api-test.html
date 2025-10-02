@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FileCraft API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>FileCraft API Connection Test</h1>
+    
+    <div>
+        <button onclick="testHealthEndpoint()">Test Health Endpoint</button>
+        <button onclick="testImageConversion()">Test Image Conversion</button>
+        <button onclick="clearResults()">Clear Results</button>
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080';
+        
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        async function testHealthEndpoint() {
+            addResult('🧪 Testing Health Endpoint...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addResult(`✅ Health Check Success: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    addResult(`❌ Health Check Failed: ${response.status} ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Health Check Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testImageConversion() {
+            addResult('🧪 Testing Image Conversion...', 'info');
+            
+            // Create a simple 1x1 pixel PNG
+            const canvas = document.createElement('canvas');
+            canvas.width = 1;
+            canvas.height = 1;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'red';
+            ctx.fillRect(0, 0, 1, 1);
+            
+            canvas.toBlob(async (blob) => {
+                try {
+                    const formData = new FormData();
+                    formData.append('image', blob, 'test.png');
+                    formData.append('target_format', 'jpeg');
+                    
+                    const url = `${API_BASE}/api/v1/images/convert?quality=80&optimization_level=medium`;
+                    addResult(`📡 Sending request to: ${url}`, 'info');
+                    
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        const resultBlob = await response.blob();
+                        addResult(`✅ Image Conversion Success: Received ${resultBlob.size} bytes`, 'success');
+                        addResult(`📊 Response Headers: ${JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2)}`, 'info');
+                    } else {
+                        const errorText = await response.text();
+                        addResult(`❌ Image Conversion Failed: ${response.status} ${response.statusText}<br>Response: ${errorText}`, 'error');
+                    }
+                    
+                } catch (error) {
+                    addResult(`❌ Image Conversion Error: ${error.message}`, 'error');
+                    console.error('Full error:', error);
+                }
+            }, 'image/png');
+        }
+        
+        // Auto-run health check on page load
+        window.onload = () => {
+            testHealthEndpoint();
+        };
+    </script>
+</body>
+</html>
