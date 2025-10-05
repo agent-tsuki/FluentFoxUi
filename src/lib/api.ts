@@ -4,12 +4,15 @@
 
 import axios, { AxiosResponse, AxiosProgressEvent } from 'axios';
 
-// Base API configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+// Base API configuration with environment-specific defaults
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
+  (process.env.NODE_ENV === 'production' 
+    ? 'https://your-backend-api-url.com' 
+    : 'http://localhost:8080');
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 300000, // 5 minutes for large file processing
+  timeout: process.env.NODE_ENV === 'production' ? 60000 : 300000, // 1 min prod, 5 min dev
   headers: {
     'Content-Type': 'application/json',
   },
