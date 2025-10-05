@@ -5,9 +5,11 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "build:prod": "NODE_ENV=production next build",
     "start": "next start",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
+    "lint:check": "eslint . --ext .ts,.tsx",
     "type-check": "tsc --noEmit",
     "build:analyze": "ANALYZE=true npm run build"
   },

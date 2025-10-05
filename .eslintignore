@@ -1,0 +1,32 @@
+# ESLint ignore patterns for production builds
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Environment files
+.env*
+
+# Config files
+next-env.d.ts
+next.config.js
+next.config.ts
+
+# Backup and old files
+*.backup
+*-old.*
+api-old.ts.backup
+
+# Build outputs
+.next/
+.vercel/
+.turbo/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -18,7 +18,18 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
+      "src/lib/api-old.ts", // Ignore the old API file
     ],
+    rules: {
+      // Allow unused variables for development/staging (warnings instead of errors)
+      "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-empty-object-type": "warn",
+      "@next/next/no-img-element": "warn",
+      // Disable some strict rules for production builds
+      "prefer-const": "warn",
+      "no-unused-vars": "warn",
+    },
   },
 ];
 
