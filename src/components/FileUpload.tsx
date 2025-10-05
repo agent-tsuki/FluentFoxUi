@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
+import { useDropzone, FileRejection } from 'react-dropzone';
 import { Upload, File, X, AlertCircle } from 'lucide-react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 
 interface FileWithPreview extends File {
   preview?: string;
@@ -37,10 +37,9 @@ export function FileUpload({
   className,
 }: FileUploadProps) {
   const [files, setFiles] = useState<FileWithPreview[]>([]);
-  const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
 
   const onDrop = useCallback(
-    (acceptedFiles: File[], rejectedFiles: any[]) => {
+    (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
       // Handle rejected files
       if (rejectedFiles.length > 0) {
         console.log('Rejected files:', rejectedFiles);
@@ -198,9 +197,11 @@ export function FileUpload({
                   {/* File Preview/Icon */}
                   <div className="flex-shrink-0">
                     {file.preview ? (
-                      <img
+                      <Image
                         src={file.preview}
                         alt={file.name}
+                        width={48}
+                        height={48}
                         className="w-12 h-12 object-cover rounded"
                         onLoad={() => URL.revokeObjectURL(file.preview!)}
                       />
@@ -224,14 +225,6 @@ export function FileUpload({
                         {formatFileSize(file.size)}
                       </span>
                     </div>
-                    
-                    {/* Progress Bar */}
-                    {uploadProgress[file.id] !== undefined && (
-                      <Progress 
-                        value={uploadProgress[file.id]} 
-                        className="mt-2 h-2"
-                      />
-                    )}
                   </div>
 
                   {/* Remove Button */}

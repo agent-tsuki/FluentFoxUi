@@ -15,7 +15,6 @@ import {
   convertVideo, 
   convertAudio, 
   encodeFileToBase64,
-  compressFile,
   testConnection,
   ConversionResponse 
 } from '@/lib/api';
@@ -50,6 +49,42 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
   const [audioFormat, setAudioFormat] = useState('mp3');
   const [audioBitrate, setAudioBitrate] = useState('192k');
 
+  // Download function
+  const handleDownload = (result: ConversionResponse) => {
+    if (!result.success || !result.data?.base64 || !result.data?.filename) {
+      toast.error('No file data available for download');
+      return;
+    }
+
+    try {
+      // Convert base64 to blob
+      const binaryString = atob(result.data.base64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      
+      const blob = new Blob([bytes], { 
+        type: result.data.format || 'application/octet-stream' 
+      });
+      
+      // Create download link
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = result.data.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast.success(`Downloaded ${result.data.filename}`);
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error('Failed to download file');
+    }
+  };
+
   // Connection test function
   const handleConnectionTest = async () => {
     try {
@@ -59,19 +94,19 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
       console.log('🔍 Connection Test Results:', result);
       
       if (result.axios && result.fetch) {
-        toast.success('✅ Connection successful (both axios and fetch)');
+        toast.success('Connection successful (both axios and fetch)');
       } else if (result.fetch) {
-        toast.success('✅ Connection successful (fetch only - axios blocked)');
+        toast.success('Connection successful (fetch only - axios blocked)');
       } else if (result.axios) {
-        toast.success('✅ Connection successful (axios only)');
+        toast.success('Connection successful (axios only)');
       } else {
-        toast.error('❌ Connection failed (both axios and fetch)');
+        toast.error('Connection failed (both axios and fetch)');
       }
       
       // Log detailed results
       console.table({
-        'Axios': result.axios ? '✅ Working' : '❌ Failed',
-        'Fetch': result.fetch ? '✅ Working' : '❌ Failed',
+        'Axios': result.axios ? 'Working' : 'Failed',
+        'Fetch': result.fetch ? 'Working' : 'Failed',
         'Axios Error': result.details.axios?.error || 'None',
         'Fetch Error': result.details.fetch?.error || 'None',
       });
@@ -143,9 +178,11 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
     const newResults: ConversionResponse[] = [];
 
     try {
+      // Only show one initial message
+      toast.info(`Converting ${imageFiles.length} image file(s)...`);
+
       for (let i = 0; i < imageFiles.length; i++) {
         const file = imageFiles[i];
-        toast.info(`Converting ${file.name}...`);
 
         const result = await convertImage(
           file,
@@ -169,6 +206,7 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
       }
 
       setResults([...results, ...newResults]);
+      // Only show one success message at the end
       toast.success(`Successfully converted ${imageFiles.length} image(s)`);
     } catch (error) {
       console.error('Conversion error:', error);
@@ -191,9 +229,11 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
     const newResults: ConversionResponse[] = [];
 
     try {
+      // Only show one initial message
+      toast.info(`Converting ${videoFiles.length} video file(s)...`);
+
       for (let i = 0; i < videoFiles.length; i++) {
         const file = videoFiles[i];
-        toast.info(`Converting ${file.name}...`);
 
         const result = await convertVideo(
           file,
@@ -213,6 +253,7 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
       }
 
       setResults([...results, ...newResults]);
+      // Only show one success message at the end
       toast.success(`Successfully converted ${videoFiles.length} video(s)`);
     } catch (error) {
       console.error('Conversion error:', error);
@@ -235,9 +276,11 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
     const newResults: ConversionResponse[] = [];
 
     try {
+      // Only show one initial message
+      toast.info(`Converting ${audioFiles.length} audio file(s)...`);
+
       for (let i = 0; i < audioFiles.length; i++) {
         const file = audioFiles[i];
-        toast.info(`Converting ${file.name}...`);
 
         const result = await convertAudio(
           file,
@@ -256,6 +299,7 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
       }
 
       setResults([...results, ...newResults]);
+      // Only show one success message at the end
       toast.success(`Successfully converted ${audioFiles.length} audio file(s)`);
     } catch (error) {
       console.error('Conversion error:', error);
@@ -277,9 +321,11 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
     const newResults: ConversionResponse[] = [];
 
     try {
+      // Only show one initial message
+      toast.info(`Encoding ${files.length} file(s) to Base64...`);
+
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        toast.info(`Encoding ${file.name} to Base64...`);
 
         const result = await encodeFileToBase64(
           file,
@@ -295,6 +341,7 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
       }
 
       setResults([...results, ...newResults]);
+      // Only show one success message at the end
       toast.success(`Successfully encoded ${files.length} file(s) to Base64`);
     } catch (error) {
       console.error('Encoding error:', error);
@@ -545,7 +592,11 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
                   <span className="text-sm">{result.message}</span>
                 </div>
                 {result.success && result.data && (
-                  <Button size="sm" variant="outline">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => handleDownload(result)}
+                  >
                     <Download className="w-4 h-4 mr-2" />
                     Download
                   </Button>

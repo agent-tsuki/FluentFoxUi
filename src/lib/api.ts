@@ -27,7 +27,7 @@ api.interceptors.request.use(
     });
     return config;
   },
-  (error) => {
+  (error: unknown) => {
     console.error('❌ Request Error:', error);
     return Promise.reject(error);
   }
@@ -43,13 +43,19 @@ api.interceptors.response.use(
     });
     return response;
   },
-  (error) => {
+  (error: unknown) => {
+    const axiosError = error as { 
+      message?: string; 
+      code?: string; 
+      response?: { status?: number }; 
+      config?: { url?: string; baseURL?: string } 
+    };
     console.error('❌ Response Error:', {
-      message: error.message,
-      code: error.code,
-      status: error.response?.status,
-      url: error.config?.url,
-      fullURL: `${error.config?.baseURL}${error.config?.url}`,
+      message: axiosError.message,
+      code: axiosError.code,
+      status: axiosError.response?.status,
+      url: axiosError.config?.url,
+      fullURL: `${axiosError.config?.baseURL}${axiosError.config?.url}`,
     });
     return Promise.reject(error);
   }
@@ -72,7 +78,7 @@ export interface ProcessingStatus {
   task_id: string;
   status: 'pending' | 'processing' | 'completed' | 'failed';
   progress?: number;
-  result?: any;
+  result?: unknown;
   error?: string;
 }
 
@@ -106,7 +112,7 @@ export const apiEndpoints = {
 export const uploadFileForProcessing = async (
   endpoint: string,
   file: File,
-  options?: Record<string, any>,
+  options?: Record<string, unknown>,
   onProgress?: (progress: number) => void
 ): Promise<ConversionResponse> => {
   const formData = new FormData();
@@ -115,8 +121,8 @@ export const uploadFileForProcessing = async (
   // Add options if provided
   if (options) {
     Object.entries(options).forEach(([key, value]) => {
-      if (value !== undefined) {
-        formData.append(key, value.toString());
+      if (value !== undefined && value !== null) {
+        formData.append(key, String(value));
       }
     });
   }
@@ -365,17 +371,18 @@ export const convertImage = async (
     const filenameMatch = contentDisposition.match(/filename="(.+)"/);
     filename = filenameMatch ? filenameMatch[1] : `converted_${file.name}`;
     
-  } catch (axiosError: any) {
-    console.warn('⚠️ Axios failed, trying fetch fallback:', axiosError.message);
+  } catch (axiosError: unknown) {
+    const errorDetails = axiosError as { message?: string; code?: string };
+    console.warn('⚠️ Axios failed, trying fetch fallback:', errorDetails.message);
     
     // If axios fails with ERR_BLOCKED_BY_CLIENT or network error, try fetch
-    if (axiosError.code === 'ERR_BLOCKED_BY_CLIENT' || axiosError.code === 'ERR_NETWORK') {
+    if (errorDetails.code === 'ERR_BLOCKED_BY_CLIENT' || errorDetails.code === 'ERR_NETWORK') {
       try {
         resultBlob = await fetchWithFallback(fullUrl, formData, onProgress);
         filename = `converted_${file.name}`;
       } catch (fetchError) {
         console.error('❌ Both axios and fetch failed:', fetchError);
-        throw new Error(`Image conversion failed: ${axiosError.message}. Fallback also failed: ${fetchError}`);
+        throw new Error(`Image conversion failed: ${errorDetails.message}. Fallback also failed: ${fetchError}`);
       }
     } else {
       throw axiosError;
@@ -642,11 +649,21 @@ export const compressFile = async (
 };
 
 // Network connectivity test
-export const testConnection = async (): Promise<{ axios: boolean; fetch: boolean; details: any }> => {
+export const testConnection = async (): Promise<{ 
+  axios: boolean; 
+  fetch: boolean; 
+  details: {
+    axios?: { status?: number; data?: unknown; error?: string; code?: string };
+    fetch?: { status?: number; data?: unknown; error?: string };
+  }
+}> => {
   const results = {
     axios: false,
     fetch: false,
-    details: {} as any,
+    details: {} as {
+      axios?: { status?: number; data?: unknown; error?: string; code?: string };
+      fetch?: { status?: number; data?: unknown; error?: string };
+    },
   };
 
   // Test with axios
@@ -654,8 +671,9 @@ export const testConnection = async (): Promise<{ axios: boolean; fetch: boolean
     const axiosResponse = await api.get(apiEndpoints.healthCheck);
     results.axios = axiosResponse.status === 200;
     results.details.axios = { status: axiosResponse.status, data: axiosResponse.data };
-  } catch (error: any) {
-    results.details.axios = { error: error.message, code: error.code };
+  } catch (error: unknown) {
+    const axiosError = error as { message?: string; code?: string };
+    results.details.axios = { error: axiosError.message, code: axiosError.code };
   }
 
   // Test with fetch
@@ -666,15 +684,16 @@ export const testConnection = async (): Promise<{ axios: boolean; fetch: boolean
       status: fetchResponse.status, 
       data: fetchResponse.ok ? await fetchResponse.json() : null 
     };
-  } catch (error: any) {
-    results.details.fetch = { error: error.message };
+  } catch (error: unknown) {
+    const fetchError = error as { message?: string };
+    results.details.fetch = { error: fetchError.message };
   }
 
   return results;
 };
 
 // Health check
-export const checkHealth = async (): Promise<any> => {
+export const checkHealth = async (): Promise<unknown> => {
   try {
     const response = await api.get(apiEndpoints.healthCheck);
     return response.data;

@@ -22,7 +22,7 @@ import {
   Star
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { toast, Toaster } from 'sonner';
+import { Toaster } from 'sonner';
 
 interface FileWithPreview extends File {
   preview?: string;
@@ -128,11 +128,9 @@ export default function Home() {
               <ConversionPanel 
                 files={files} 
                 onConversionComplete={(result) => {
-                  if (result.success) {
-                    toast.success('Conversion completed successfully!');
-                  } else {
-                    toast.error('Conversion failed. Please try again.');
-                  }
+                  // Handle individual file completion if needed
+                  // Toast messages are handled by ConversionPanel itself
+                  console.log('File conversion completed:', result.message);
                 }}
               />
             </div>
