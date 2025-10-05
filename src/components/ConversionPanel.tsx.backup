@@ -8,21 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Download, 
-  Settings, 
-  Zap, 
-  Image as ImageIcon, 
-  Video, 
-  Music, 
-  FileArchive, 
-  Hash, 
-  Globe, 
-  Code, 
-  Lock,
-  Cpu,
-  FileText
-} from 'lucide-react';
+import { Download, Settings, Zap, Image as ImageIcon, Video, Music, FileArchive, Hash, Globe, Code, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
   convertImage, 
@@ -69,20 +55,17 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
 
   // Image conversion options
   const [imageFormat, setImageFormat] = useState('png');
-  const [imageQuality, setImageQuality] = useState(85);
+  const [imageQuality, setImageQuality] = useState(80);
   const [imageWidth, setImageWidth] = useState<number | undefined>();
   const [imageHeight, setImageHeight] = useState<number | undefined>();
-  const [optimizationType, setOptimizationType] = useState('balanced');
 
   // Video conversion options
   const [videoFormat, setVideoFormat] = useState('mp4');
-  const [videoQuality, setVideoQuality] = useState('hd');
-  const [videoCodec, setVideoCodec] = useState('h264');
+  const [videoQuality, setVideoQuality] = useState('medium');
 
   // Audio conversion options
   const [audioFormat, setAudioFormat] = useState('mp3');
-  const [audioBitrate, setAudioBitrate] = useState(128);
-  const [audioQualityPreset, setAudioQualityPreset] = useState('cd');
+  const [audioBitrate, setAudioBitrate] = useState('192k');
 
   // Encoding/Decoding options
   const [encodingFormat, setEncodingFormat] = useState('base64');
@@ -95,84 +78,6 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
   const [compressionLevel, setCompressionLevel] = useState(6);
   const [compressionQuality, setCompressionQuality] = useState(70);
 
-  // Format definitions
-  const imageFormats = [
-    { value: 'jpeg', label: 'JPEG' },
-    { value: 'jpg', label: 'JPG' },
-    { value: 'png', label: 'PNG' },
-    { value: 'webp', label: 'WebP' },
-    { value: 'bmp', label: 'BMP' },
-    { value: 'gif', label: 'GIF' },
-    { value: 'tiff', label: 'TIFF' },
-    { value: 'avif', label: 'AVIF' },
-    { value: 'heic', label: 'HEIC' },
-    { value: 'ico', label: 'ICO' },
-  ];
-
-  const videoFormats = [
-    { value: 'mp4', label: 'MP4' },
-    { value: 'mkv', label: 'MKV' },
-    { value: 'webm', label: 'WebM' },
-    { value: 'avi', label: 'AVI' },
-    { value: 'mov', label: 'MOV' },
-    { value: 'wmv', label: 'WMV' },
-    { value: 'flv', label: 'FLV' },
-    { value: 'ogv', label: 'OGV' },
-  ];
-
-  const audioFormats = [
-    { value: 'wav', label: 'WAV' },
-    { value: 'mp3', label: 'MP3' },
-    { value: 'aac', label: 'AAC' },
-    { value: 'ogg', label: 'OGG' },
-    { value: 'flac', label: 'FLAC' },
-    { value: 'm4a', label: 'M4A' },
-    { value: 'opus', label: 'OPUS' },
-    { value: 'webm', label: 'WebM Audio' },
-  ];
-
-  const videoQualities = [
-    { value: 'mobile', label: 'Mobile (480p)' },
-    { value: 'sd', label: 'SD (720p)' },
-    { value: 'hd', label: 'HD (1080p)' },
-    { value: 'full_hd', label: 'Full HD (1080p)' },
-    { value: '2k', label: '2K (1440p)' },
-    { value: '4k', label: '4K (2160p)' },
-    { value: '8k', label: '8K (4320p)' },
-  ];
-
-  const audioQualityPresets = [
-    { value: 'phone', label: 'Phone Quality' },
-    { value: 'radio', label: 'Radio Quality' },
-    { value: 'cd', label: 'CD Quality' },
-    { value: 'hd', label: 'HD Quality' },
-    { value: 'studio', label: 'Studio Quality' },
-  ];
-
-  const hashAlgorithms = [
-    { value: 'md5', label: 'MD5' },
-    { value: 'sha1', label: 'SHA1' },
-    { value: 'sha256', label: 'SHA256' },
-    { value: 'sha512', label: 'SHA512' },
-    { value: 'blake2b', label: 'BLAKE2b' },
-    { value: 'blake2s', label: 'BLAKE2s' },
-  ];
-
-  const optimizationTypes = [
-    { value: 'size', label: 'Optimize for Size' },
-    { value: 'quality', label: 'Optimize for Quality' },
-    { value: 'balanced', label: 'Balanced' },
-  ];
-
-  const getFilesForType = (type: string) => {
-    return files.filter(file => {
-      if (type === 'image') return file.type.startsWith('image/');
-      if (type === 'video') return file.type.startsWith('video/');
-      if (type === 'audio') return file.type.startsWith('audio/');
-      return true; // All other tabs can handle any file type
-    });
-  };
-
   // Download function
   const handleDownload = (result: ConversionResponse) => {
     if (!result.success || !result.data?.base64 || !result.data?.filename) {
@@ -181,6 +86,7 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
     }
 
     try {
+      // Convert base64 to blob
       const binaryString = atob(result.data.base64);
       const bytes = new Uint8Array(binaryString.length);
       for (let i = 0; i < binaryString.length; i++) {
@@ -191,6 +97,7 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
         type: result.data.format || 'application/octet-stream' 
       });
       
+      // Create download link
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -213,22 +120,81 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
       toast.info('Testing connection...');
       const result = await testConnection();
       
+      console.log('🔍 Connection Test Results:', result);
+      
       if (result.axios && result.fetch) {
-        toast.success('Connection successful');
+        toast.success('Connection successful (both axios and fetch)');
       } else if (result.fetch) {
-        toast.success('Connection successful (fetch only)');
+        toast.success('Connection successful (fetch only - axios blocked)');
       } else if (result.axios) {
         toast.success('Connection successful (axios only)');
       } else {
-        toast.error('Connection failed');
+        toast.error('Connection failed (both axios and fetch)');
       }
+      
+      // Log detailed results
+      console.table({
+        'Axios': result.axios ? 'Working' : 'Failed',
+        'Fetch': result.fetch ? 'Working' : 'Failed',
+        'Axios Error': result.details.axios?.error || 'None',
+        'Fetch Error': result.details.fetch?.error || 'None',
+      });
+      
     } catch (error) {
       console.error('Connection test failed:', error);
       toast.error('Connection test failed');
     }
   };
 
-  // Image conversion handler
+  const imageFormats = [
+    { value: 'png', label: 'PNG' },
+    { value: 'jpg', label: 'JPEG' },
+    { value: 'webp', label: 'WebP' },
+    { value: 'avif', label: 'AVIF' },
+    { value: 'bmp', label: 'BMP' },
+    { value: 'tiff', label: 'TIFF' },
+  ];
+
+  const videoFormats = [
+    { value: 'mp4', label: 'MP4' },
+    { value: 'avi', label: 'AVI' },
+    { value: 'mov', label: 'MOV' },
+    { value: 'mkv', label: 'MKV' },
+    { value: 'webm', label: 'WebM' },
+  ];
+
+  const audioFormats = [
+    { value: 'mp3', label: 'MP3' },
+    { value: 'wav', label: 'WAV' },
+    { value: 'ogg', label: 'OGG' },
+    { value: 'flac', label: 'FLAC' },
+    { value: 'm4a', label: 'M4A' },
+  ];
+
+  const videoQualities = [
+    { value: 'low', label: 'Low (480p)' },
+    { value: 'medium', label: 'Medium (720p)' },
+    { value: 'high', label: 'High (1080p)' },
+    { value: 'ultra', label: 'Ultra (4K)' },
+  ];
+
+  const audioBitrates = [
+    { value: '128k', label: '128 kbps' },
+    { value: '192k', label: '192 kbps' },
+    { value: '256k', label: '256 kbps' },
+    { value: '320k', label: '320 kbps' },
+  ];
+
+  const getFilesForType = (type: string) => {
+    return files.filter(file => {
+      if (type === 'image') return file.type.startsWith('image/');
+      if (type === 'video') return file.type.startsWith('video/');
+      if (type === 'audio') return file.type.startsWith('audio/');
+      if (type === 'base64') return true; // Base64 can handle any file type
+      return false;
+    });
+  };
+
   const handleImageConversion = async () => {
     const imageFiles = getFilesForType('image');
     if (imageFiles.length === 0) {
@@ -241,7 +207,8 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
     const newResults: ConversionResponse[] = [];
 
     try {
-      toast.info(`Converting ${imageFiles.length} image(s)...`);
+      // Only show one initial message
+      toast.info(`Converting ${imageFiles.length} image file(s)...`);
 
       for (let i = 0; i < imageFiles.length; i++) {
         const file = imageFiles[i];
@@ -268,6 +235,7 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
       }
 
       setResults([...results, ...newResults]);
+      // Only show one success message at the end
       toast.success(`Successfully converted ${imageFiles.length} image(s)`);
     } catch (error) {
       console.error('Conversion error:', error);
@@ -278,7 +246,6 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
     }
   };
 
-  // Video conversion handler
   const handleVideoConversion = async () => {
     const videoFiles = getFilesForType('video');
     if (videoFiles.length === 0) {
@@ -291,7 +258,8 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
     const newResults: ConversionResponse[] = [];
 
     try {
-      toast.info(`Converting ${videoFiles.length} video(s)...`);
+      // Only show one initial message
+      toast.info(`Converting ${videoFiles.length} video file(s)...`);
 
       for (let i = 0; i < videoFiles.length; i++) {
         const file = videoFiles[i];
@@ -300,8 +268,8 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
           file,
           {
             format: videoFormat,
-            quality: videoQuality,
-            codec: videoCodec,
+            quality: videoQuality, // This maps to quality_preset in the API
+            codec: 'auto',
           },
           (fileProgress) => {
             const totalProgress = ((i / videoFiles.length) * 100) + (fileProgress / videoFiles.length);
@@ -314,6 +282,7 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
       }
 
       setResults([...results, ...newResults]);
+      // Only show one success message at the end
       toast.success(`Successfully converted ${videoFiles.length} video(s)`);
     } catch (error) {
       console.error('Conversion error:', error);
@@ -324,7 +293,6 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
     }
   };
 
-  // Audio conversion handler
   const handleAudioConversion = async () => {
     const audioFiles = getFilesForType('audio');
     if (audioFiles.length === 0) {
@@ -337,6 +305,7 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
     const newResults: ConversionResponse[] = [];
 
     try {
+      // Only show one initial message
       toast.info(`Converting ${audioFiles.length} audio file(s)...`);
 
       for (let i = 0; i < audioFiles.length; i++) {
@@ -347,7 +316,6 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
           {
             format: audioFormat,
             bitrate: audioBitrate,
-            quality_preset: audioQualityPreset,
           },
           (fileProgress) => {
             const totalProgress = ((i / audioFiles.length) * 100) + (fileProgress / audioFiles.length);
@@ -360,6 +328,7 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
       }
 
       setResults([...results, ...newResults]);
+      // Only show one success message at the end
       toast.success(`Successfully converted ${audioFiles.length} audio file(s)`);
     } catch (error) {
       console.error('Conversion error:', error);
@@ -370,7 +339,6 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
     }
   };
 
-  // Encoding handler
   const handleEncoding = async () => {
     if (files.length === 0) {
       toast.error('No files selected');
@@ -426,7 +394,6 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
     }
   };
 
-  // Decoding handler
   const handleDecoding = async () => {
     if (files.length === 0) {
       toast.error('No files selected');
@@ -477,7 +444,6 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
     }
   };
 
-  // Hashing handler
   const handleHashing = async () => {
     if (files.length === 0) {
       toast.error('No files selected');
@@ -515,7 +481,6 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
     }
   };
 
-  // Compression handler
   const handleCompression = async () => {
     if (files.length === 0) {
       toast.error('No files selected');
@@ -556,7 +521,6 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
     }
   };
 
-  // Text operation handler
   const handleTextOperation = async (operation: 'encode' | 'decode' | 'hash') => {
     if (!textInput.trim()) {
       toast.error('Please enter some text');
@@ -650,10 +614,10 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
           <div>
             <CardTitle className="flex items-center gap-2">
               <Settings className="w-5 h-5" />
-              FileCraft Conversion Panel
+              Conversion Settings
             </CardTitle>
             <CardDescription>
-              Professional file conversion, encoding, and processing tools
+              Choose your conversion options and start processing
             </CardDescription>
           </div>
           <Button
@@ -686,7 +650,7 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
               Encode
             </TabsTrigger>
             <TabsTrigger value="decode" className="flex items-center gap-1">
-              <Lock className="w-3 h-3" />
+              <Code className="w-3 h-3" />
               Decode
             </TabsTrigger>
             <TabsTrigger value="hash" className="flex items-center gap-1">
@@ -694,16 +658,15 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
               Hash
             </TabsTrigger>
             <TabsTrigger value="compress" className="flex items-center gap-1">
-              <Cpu className="w-3 h-3" />
+              <FileArchive className="w-3 h-3" />
               Compress
             </TabsTrigger>
             <TabsTrigger value="text" className="flex items-center gap-1">
-              <FileText className="w-3 h-3" />
+              <Globe className="w-3 h-3" />
               Text
             </TabsTrigger>
           </TabsList>
 
-          {/* Image Tab */}
           <TabsContent value="image" className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -755,11 +718,10 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
               disabled={isProcessing || getFilesForType('image').length === 0}
               className="w-full"
             >
-              Convert Images ({getFilesForType('image').length} files)
+              Convert Images
             </Button>
           </TabsContent>
 
-          {/* Video Tab */}
           <TabsContent value="video" className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -798,11 +760,10 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
               disabled={isProcessing || getFilesForType('video').length === 0}
               className="w-full"
             >
-              Convert Videos ({getFilesForType('video').length} files)
+              Convert Videos
             </Button>
           </TabsContent>
 
-          {/* Audio Tab */}
           <TabsContent value="audio" className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -821,15 +782,15 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
                 </Select>
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Quality Preset</label>
-                <Select value={audioQualityPreset} onValueChange={setAudioQualityPreset}>
+                <label className="text-sm font-medium mb-2 block">Bitrate</label>
+                <Select value={audioBitrate} onValueChange={setAudioBitrate}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {audioQualityPresets.map((preset) => (
-                      <SelectItem key={preset.value} value={preset.value}>
-                        {preset.label}
+                    {audioBitrates.map((bitrate) => (
+                      <SelectItem key={bitrate.value} value={bitrate.value}>
+                        {bitrate.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -841,11 +802,10 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
               disabled={isProcessing || getFilesForType('audio').length === 0}
               className="w-full"
             >
-              Convert Audio ({getFilesForType('audio').length} files)
+              Convert Audio
             </Button>
           </TabsContent>
 
-          {/* Encode Tab */}
           <TabsContent value="encode" className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -868,7 +828,7 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
                   <Input
                     type="text"
                     value={jwtSecret}
-                    onChange={(e) => setJwtSecret(e.target.value)}
+                    onChange={(e: any) => setJwtSecret(e.target.value)}
                     placeholder="Enter JWT secret key"
                   />
                 </div>
@@ -879,11 +839,10 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
               disabled={isProcessing || files.length === 0}
               className="w-full"
             >
-              Encode Files ({encodingFormat.toUpperCase()}) - {files.length} files
+              Encode Files ({encodingFormat.toUpperCase()})
             </Button>
           </TabsContent>
 
-          {/* Decode Tab */}
           <TabsContent value="decode" className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -906,7 +865,7 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
                   <Input
                     type="text"
                     value={jwtSecret}
-                    onChange={(e) => setJwtSecret(e.target.value)}
+                    onChange={(e: any) => setJwtSecret(e.target.value)}
                     placeholder="Enter JWT secret key"
                   />
                 </div>
@@ -917,11 +876,10 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
               disabled={isProcessing || files.length === 0}
               className="w-full"
             >
-              Decode Files ({decodingFormat.toUpperCase()}) - {files.length} files
+              Decode Files ({decodingFormat.toUpperCase()})
             </Button>
           </TabsContent>
 
-          {/* Hash Tab */}
           <TabsContent value="hash" className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -931,11 +889,12 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {hashAlgorithms.map((algorithm) => (
-                      <SelectItem key={algorithm.value} value={algorithm.value}>
-                        {algorithm.label}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="md5">MD5</SelectItem>
+                    <SelectItem value="sha1">SHA1</SelectItem>
+                    <SelectItem value="sha256">SHA256</SelectItem>
+                    <SelectItem value="sha512">SHA512</SelectItem>
+                    <SelectItem value="blake2b">BLAKE2b</SelectItem>
+                    <SelectItem value="blake2s">BLAKE2s</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -945,11 +904,10 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
               disabled={isProcessing || files.length === 0}
               className="w-full"
             >
-              Generate Hash ({hashAlgorithm.toUpperCase()}) - {files.length} files
+              Generate Hash ({hashAlgorithm.toUpperCase()})
             </Button>
           </TabsContent>
 
-          {/* Compress Tab */}
           <TabsContent value="compress" className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -959,7 +917,7 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
                   min="1"
                   max="9"
                   value={compressionLevel}
-                  onChange={(e) => setCompressionLevel(Number(e.target.value))}
+                  onChange={(e: any) => setCompressionLevel(Number(e.target.value))}
                 />
               </div>
               <div>
@@ -969,7 +927,7 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
                   min="10"
                   max="95"
                   value={compressionQuality}
-                  onChange={(e) => setCompressionQuality(Number(e.target.value))}
+                  onChange={(e: any) => setCompressionQuality(Number(e.target.value))}
                 />
               </div>
             </div>
@@ -978,11 +936,10 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
               disabled={isProcessing || files.length === 0}
               className="w-full"
             >
-              Smart Compress Files - {files.length} files
+              Smart Compress Files
             </Button>
           </TabsContent>
 
-          {/* Text Tab */}
           <TabsContent value="text" className="space-y-4">
             <div className="space-y-4">
               <div>
@@ -990,7 +947,7 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
                 <textarea
                   className="w-full h-32 p-3 border rounded-lg resize-none"
                   value={textInput}
-                  onChange={(e) => setTextInput(e.target.value)}
+                  onChange={(e: any) => setTextInput(e.target.value)}
                   placeholder="Enter text to encode/decode/hash..."
                 />
               </div>
@@ -1034,32 +991,30 @@ export function ConversionPanel({ files, onConversionComplete }: ConversionPanel
           </div>
         )}
 
-        {/* Results Section */}
+        {/* Results */}
         {results.length > 0 && (
           <div className="mt-6 space-y-3">
-            <h4 className="font-medium">Conversion Results ({results.length})</h4>
-            <div className="max-h-64 overflow-y-auto space-y-2">
-              {results.map((result, index) => (
-                <div key={index} className="flex items-center justify-between p-3 rounded-lg border">
-                  <div className="flex items-center gap-3">
-                    <Badge variant={result.success ? "default" : "destructive"}>
-                      {result.success ? 'Success' : 'Failed'}
-                    </Badge>
-                    <span className="text-sm">{result.message}</span>
-                  </div>
-                  {result.success && result.data && (
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => handleDownload(result)}
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download
-                    </Button>
-                  )}
+            <h4 className="font-medium">Conversion Results</h4>
+            {results.map((result, index) => (
+              <div key={index} className="flex items-center justify-between p-3 rounded-lg border">
+                <div className="flex items-center gap-3">
+                  <Badge variant={result.success ? "default" : "destructive"}>
+                    {result.success ? 'Success' : 'Failed'}
+                  </Badge>
+                  <span className="text-sm">{result.message}</span>
                 </div>
-              ))}
-            </div>
+                {result.success && result.data && (
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => handleDownload(result)}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </Button>
+                )}
+              </div>
+            ))}
           </div>
         )}
       </CardContent>
