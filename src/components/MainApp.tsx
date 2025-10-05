@@ -136,11 +136,11 @@ export function MainApp() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/10">
       <ConversionNav onNavigate={handleNavigation} />
-      <div className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8">
         {renderCurrentView()}
-      </div>
+      </main>
     </div>
   );
 }
@@ -149,156 +149,281 @@ export function MainApp() {
 
 function HomeView() {
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-7xl mx-auto space-y-12">
       {/* Hero Section */}
-      <div className="text-center space-y-4">
-        <div className="flex items-center justify-center space-x-2">
-          <div className="p-3 bg-primary rounded-lg text-primary-foreground">
-            <Sparkles className="w-8 h-8" />
-          </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            FileCraft Pro
-          </h1>
+      <div className="text-center space-y-8 py-16 relative">
+        {/* Background decoration */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
         </div>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Your all-in-one solution for file conversion, text processing, and data transformation.
-          Fast, secure, and powerful tools for developers and creators.
-        </p>
+        
+        <div className="space-y-6 animate-fade-in">
+          <div className="flex items-center justify-center">
+            <div className="relative animate-float">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary/60 rounded-3xl blur-lg opacity-60 animate-pulse"></div>
+              <div className="relative p-6 bg-gradient-to-br from-primary via-primary to-primary/80 rounded-3xl text-primary-foreground shadow-2xl">
+                <Sparkles className="w-16 h-16" />
+              </div>
+            </div>
+          </div>
+          <div className="space-y-4">
+            <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent leading-tight animate-slide-up">
+              FileCraft Pro
+            </h1>
+            <p className="text-xl md:text-2xl lg:text-3xl text-muted-foreground max-w-4xl mx-auto leading-relaxed animate-slide-up" style={{animationDelay: '0.2s'}}>
+              Transform your files with <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent font-bold">lightning speed</span>
+            </p>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto animate-slide-up" style={{animationDelay: '0.4s'}}>
+              The ultimate toolkit for 
+              <span className="text-primary font-semibold"> developers</span>, 
+              <span className="text-green-600 font-semibold"> creators</span>, and 
+              <span className="text-blue-600 font-semibold"> professionals</span>
+            </p>
+          </div>
+        </div>
+
+        {/* CTA Buttons */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-8 animate-slide-up" style={{animationDelay: '0.6s'}}>
+          <Button 
+            size="lg" 
+            className="px-10 py-7 text-xl font-medium shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+          >
+            <Sparkles className="w-6 h-6 mr-3" />
+            Start Converting Now
+          </Button>
+          <Button 
+            variant="outline" 
+            size="lg" 
+            className="px-10 py-7 text-xl font-medium border-2 hover:bg-primary/5 transition-all duration-300 hover:scale-105"
+          >
+            Explore Features
+          </Button>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-12 animate-slide-up" style={{animationDelay: '0.8s'}}>
+          <div className="text-center">
+            <div className="text-3xl md:text-4xl font-bold text-primary">1M+</div>
+            <div className="text-muted-foreground">Files Converted</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl md:text-4xl font-bold text-green-600">99.9%</div>
+            <div className="text-muted-foreground">Uptime</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl md:text-4xl font-bold text-blue-600">24/7</div>
+            <div className="text-muted-foreground">Support</div>
+          </div>
+        </div>
       </div>
 
       {/* Features Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <FeatureCard
-          icon={FileText}
-          title="Text Processing"
-          description="Encode, decode, and hash text with multiple algorithms"
-          color="bg-blue-500"
-          available={true}
-        />
-        <FeatureCard
-          icon={ImageIcon}
-          title="Image Conversion"
-          description="Convert between JPEG, PNG, WebP, AVIF, and more"
-          color="bg-green-500"
-          available={true}
-        />
-        <FeatureCard
-          icon={Video}
-          title="Video Processing"
-          description="Transform videos to MP4, WebM, AVI with quality control"
-          color="bg-purple-500"
-          available={true}
-        />
-        <FeatureCard
-          icon={Music}
-          title="Audio Conversion"
-          description="Convert audio files to MP3, WAV, FLAC, and other formats"
-          color="bg-orange-500"
-          available={true}
-        />
-        <FeatureCard
-          icon={Hash}
-          title="Cryptographic Hashing"
-          description="Generate secure hashes with MD5, SHA256, BLAKE2b"
-          color="bg-red-500"
-          available={true}
-        />
-        <FeatureCard
-          icon={FileArchive}
-          title="Smart Compression"
-          description="Intelligent file compression with size optimization"
-          color="bg-indigo-500"
-          available={true}
-        />
+      <div className="space-y-8">
+        <div className="text-center space-y-4">
+          <h2 className="text-3xl md:text-4xl font-bold">Powerful Tools at Your Fingertips</h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Everything you need for file conversion and data processing, all in one place.
+          </p>
+        </div>
+        
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <FeatureCard
+            icon={FileText}
+            title="Text Processing"
+            description="Encode, decode, and hash text with multiple algorithms including Base64, JWT, and cryptographic hashes"
+            color="from-blue-500 to-blue-600"
+            textColor="text-blue-600"
+            available={true}
+          />
+          <FeatureCard
+            icon={ImageIcon}
+            title="Image Conversion"
+            description="Convert between JPEG, PNG, WebP, AVIF, and more with quality control and batch processing"
+            color="from-green-500 to-green-600"
+            textColor="text-green-600"
+            available={true}
+          />
+          <FeatureCard
+            icon={Video}
+            title="Video Processing"
+            description="Transform videos to MP4, WebM, AVI with advanced quality control and format optimization"
+            color="from-purple-500 to-purple-600"
+            textColor="text-purple-600"
+            available={true}
+          />
+          <FeatureCard
+            icon={Music}
+            title="Audio Conversion"
+            description="Convert audio files to MP3, WAV, FLAC, and other formats with bitrate control"
+            color="from-orange-500 to-orange-600"
+            textColor="text-orange-600"
+            available={true}
+          />
+          <FeatureCard
+            icon={Hash}
+            title="Cryptographic Hashing"
+            description="Generate secure hashes with MD5, SHA256, BLAKE2b for data integrity verification"
+            color="from-red-500 to-red-600"
+            textColor="text-red-600"
+            available={true}
+          />
+          <FeatureCard
+            icon={FileArchive}
+            title="Smart Compression"
+            description="Intelligent file compression with size optimization and format-specific algorithms"
+            color="from-indigo-500 to-indigo-600"
+            textColor="text-indigo-600"
+            available={true}
+          />
+        </div>
       </div>
 
       {/* Stats Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-center">Why Choose FileCraft Pro?</CardTitle>
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-3xl"></div>
+        <Card className="relative border-0 shadow-xl bg-background/80 backdrop-blur">
+          <CardHeader className="text-center pb-8">
+            <CardTitle className="text-3xl font-bold">Why Choose FileCraft Pro?</CardTitle>
+            <CardDescription className="text-lg">
+              Built for performance, security, and reliability
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-3 gap-12 text-center">
+              <div className="space-y-4">
+                <div className="flex items-center justify-center">
+                  <div className="p-4 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-2xl text-white shadow-lg">
+                    <Zap className="w-8 h-8" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold">Lightning Fast</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Optimized processing algorithms deliver results in seconds, not minutes
+                </p>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center justify-center">
+                  <div className="p-4 bg-gradient-to-br from-green-500 to-green-700 rounded-2xl text-white shadow-lg">
+                    <Shield className="w-8 h-8" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold">Secure & Private</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Your data is processed securely with enterprise-grade encryption and never stored
+                </p>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center justify-center">
+                  <div className="p-4 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl text-white shadow-lg">
+                    <Clock className="w-8 h-8" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold">Always Available</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  24/7 availability with 99.9% uptime and real-time processing
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quick Start Section */}
+      <Card className="border-0 shadow-xl">
+        <CardHeader className="text-center pb-8">
+          <CardTitle className="text-3xl font-bold">Get Started in Minutes</CardTitle>
+          <CardDescription className="text-lg">
+            Transform your files in just four simple steps
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-3 gap-8 text-center">
-            <div className="space-y-2">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="text-center space-y-4">
               <div className="flex items-center justify-center">
-                <Zap className="w-8 h-8 text-yellow-500" />
+                <div className="relative">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-xl font-bold flex items-center justify-center shadow-lg">
+                    1
+                  </div>
+                  <div className="absolute inset-0 bg-primary/20 rounded-full animate-pulse"></div>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold">Lightning Fast</h3>
-              <p className="text-sm text-muted-foreground">
-                Optimized processing algorithms for maximum speed
+              <h4 className="text-lg font-semibold">Choose Your Tool</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Select from our intuitive dropdown menus to find the perfect conversion tool for your needs
               </p>
             </div>
-            <div className="space-y-2">
+
+            <div className="text-center space-y-4">
               <div className="flex items-center justify-center">
-                <Shield className="w-8 h-8 text-green-500" />
+                <div className="relative">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white text-xl font-bold flex items-center justify-center shadow-lg">
+                    2
+                  </div>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold">Secure & Private</h3>
-              <p className="text-sm text-muted-foreground">
-                Your data is processed securely and never stored
+              <h4 className="text-lg font-semibold">Input Your Data</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Upload files or paste text directly into our secure, user-friendly interface
               </p>
             </div>
-            <div className="space-y-2">
+
+            <div className="text-center space-y-4">
               <div className="flex items-center justify-center">
-                <Clock className="w-8 h-8 text-blue-500" />
+                <div className="relative">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white text-xl font-bold flex items-center justify-center shadow-lg">
+                    3
+                  </div>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold">Always Available</h3>
-              <p className="text-sm text-muted-foreground">
-                24/7 availability with real-time processing
+              <h4 className="text-lg font-semibold">Process & Convert</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Watch as our advanced algorithms process your files with lightning speed and precision
+              </p>
+            </div>
+
+            <div className="text-center space-y-4">
+              <div className="flex items-center justify-center">
+                <div className="relative">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 text-white text-xl font-bold flex items-center justify-center shadow-lg">
+                    4
+                  </div>
+                </div>
+              </div>
+              <h4 className="text-lg font-semibold">Download & Share</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Get your converted files instantly with full compatibility across all platforms
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Quick Start Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Start Guide</CardTitle>
-          <CardDescription>
-            Get started with FileCraft Pro in just a few clicks
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <h4 className="font-medium flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">1</div>
-                Choose Your Tool
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                Select from our dropdown menus to find the conversion tool you need
-              </p>
+      {/* Footer */}
+      <footer className="mt-24 pt-16 pb-8 border-t bg-gradient-to-r from-muted/20 to-muted/10">
+        <div className="text-center space-y-6">
+          <div className="flex items-center justify-center space-x-3">
+            <div className="p-2 bg-gradient-to-br from-primary to-primary/70 rounded-lg text-primary-foreground">
+              <Sparkles className="w-6 h-6" />
             </div>
-            <div className="space-y-2">
-              <h4 className="font-medium flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">2</div>
-                Input Your Data
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                Upload files or enter text directly into our secure interface
-              </p>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-medium flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">3</div>
-                Process & Download
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                Click process and download your converted files instantly
-              </p>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-medium flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">4</div>
-                Share & Enjoy
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                Use your converted files anywhere with full compatibility
-              </p>
-            </div>
+            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              FileCraft Pro
+            </span>
           </div>
-        </CardContent>
-      </Card>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Built with ❤️ for creators, developers, and professionals who demand the best in file processing.
+          </p>
+          <div className="flex justify-center space-x-8 text-sm text-muted-foreground">
+            <span>© 2024 FileCraft Pro</span>
+            <span>•</span>
+            <span>Privacy Policy</span>
+            <span>•</span>
+            <span>Terms of Service</span>
+            <span>•</span>
+            <span>Support</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
@@ -308,27 +433,39 @@ function FeatureCard({
   title, 
   description, 
   color, 
+  textColor,
   available 
 }: { 
   icon: any; 
   title: string; 
   description: string; 
   color: string; 
+  textColor?: string;
   available: boolean;
 }) {
   return (
-    <Card className={`transition-all hover:shadow-lg ${!available ? 'opacity-75' : ''}`}>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className={`p-3 rounded-lg ${color} text-white`}>
-            <Icon className="w-6 h-6" />
+    <Card className={`group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-0 shadow-md ${!available ? 'opacity-75' : ''}`}>
+      <CardHeader className="space-y-4">
+        <div className="flex items-start justify-between">
+          <div className={`relative p-4 rounded-xl bg-gradient-to-br ${color} text-white shadow-lg group-hover:shadow-xl transition-shadow`}>
+            <Icon className="w-7 h-7" />
+            <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
           </div>
-          <Badge variant={available ? "default" : "secondary"}>
+          <Badge 
+            variant={available ? "default" : "secondary"}
+            className={available ? "bg-green-100 text-green-800 hover:bg-green-100" : ""}
+          >
             {available ? "Available" : "Coming Soon"}
           </Badge>
         </div>
-        <CardTitle className="text-lg">{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <div className="space-y-2">
+          <CardTitle className="text-xl font-semibold group-hover:text-primary transition-colors">
+            {title}
+          </CardTitle>
+          <CardDescription className="text-muted-foreground leading-relaxed">
+            {description}
+          </CardDescription>
+        </div>
       </CardHeader>
     </Card>
   );
