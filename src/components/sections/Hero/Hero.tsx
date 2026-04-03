@@ -1,27 +1,9 @@
-import { useEffect, useState } from 'react'
-import type { FlashCardData } from '@/types'
-import { flashcardService } from '@/api/services/flashcardService'
-import { FlashCard } from './FlashCard'
+import Lottie from 'lottie-react'
+import studentAnimation from '@/assets/animations/student.json'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 
 export function Hero() {
-  const [cards, setCards] = useState<FlashCardData[]>([])
-  const [activeCard, setActiveCard] = useState(0)
-
-  useEffect(() => {
-    flashcardService.getAll().then(setCards)
-  }, [])
-
-  // Cycle through flashcards every 3s for demo
-  useEffect(() => {
-    if (cards.length === 0) return
-    const id = setInterval(() => {
-      setActiveCard((prev) => (prev + 1) % cards.length)
-    }, 3000)
-    return () => clearInterval(id)
-  }, [cards])
-
   return (
     <section className="relative max-w-7xl mx-auto px-8 py-20 md:py-32 grid md:grid-cols-2 gap-16 items-center">
       {/* Left — Copy */}
@@ -62,15 +44,15 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Right — Flashcard */}
+      {/* Right — Animation */}
       <div className="relative flex justify-center items-center">
-        {cards.length > 0 && (
-          <FlashCard
-            card={cards[activeCard]}
-            dotCount={cards.length}
-            activeDot={activeCard}
+        <div className="w-full max-w-[650px]">
+          <Lottie 
+            animationData={studentAnimation} 
+            loop={true} 
+            className="w-full h-auto"
           />
-        )}
+        </div>
         {/* Decorative blur */}
         <div className="absolute -z-10 top-0 right-0 w-64 h-64 bg-tertiary/5 rounded-full blur-3xl" />
       </div>

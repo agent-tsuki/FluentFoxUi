@@ -189,6 +189,8 @@ export interface UserProfile {
   targetLevel: JlptLevel
   joinedDate: string
   isPro: boolean
+  gender?: 'male' | 'female'
+  profileImage?: string
 }
 
 export interface ProfileUpdatePayload {

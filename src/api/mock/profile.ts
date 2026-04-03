@@ -11,4 +11,5 @@ export const mockUserProfile: UserProfile = {
   targetLevel: 'N3',
   joinedDate: 'January 2023',
   isPro: true,
+  gender: 'male',
 }

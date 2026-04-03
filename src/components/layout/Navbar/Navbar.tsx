@@ -4,17 +4,17 @@ import type { NavItem } from '@/types'
 import { navigationService } from '@/api/services/navigationService'
 import { useModal } from '@/context/ModalContext'
 import { useAuth } from '@/context/AuthContext'
-import { useUI } from '@/context/UIContext'
 import { NavDropdown } from './NavDropdown'
 import { Button } from '@/components/ui/Button'
 import { FoxLogo } from './FoxLogo'
 import { Icon } from '@/components/ui/Icon'
+import { useUI } from '@/context/UIContext'
 
 export function Navbar() {
   const [navItems, setNavItems] = useState<NavItem[]>([])
   const { openModal } = useModal()
   const { user, logout } = useAuth()
-  const { mouseFollowerEnabled, toggleMouseFollower } = useUI()
+  const { setIsProfileOverlayOpen, setOverlayProfile, setTriggerRect } = useUI()
 
   useEffect(() => {
     navigationService.getNavItems().then(setNavItems)
@@ -55,11 +55,25 @@ export function Navbar() {
         {user ? (
           <div className="relative group">
             {/* Avatar button */}
-            <button className="flex items-center gap-2 cursor-pointer">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-500 to-amber-400 flex items-center justify-center text-white font-bold text-sm shadow-md select-none">
-                {user.firstName.charAt(0).toUpperCase()}
+            <button 
+              onClick={(e) => {
+                setOverlayProfile(user)
+                setTriggerRect(e.currentTarget.getBoundingClientRect())
+                setIsProfileOverlayOpen(true)
+              }}
+              className="flex items-center gap-2 cursor-pointer group/avatar"
+            >
+              <div className="w-10 h-10 rounded-full border-2 border-orange-500/20 group-hover/avatar:border-orange-500 transition-colors shadow-md overflow-hidden bg-slate-100 dark:bg-slate-800">
+                <img 
+                  src={
+                    user.profileImage || 
+                    (user.gender === 'female' ? '/avatars/women/geisha_1.png' : '/avatars/men/warrior.png')
+                  } 
+                  alt="Avatar"
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <Icon name="keyboard_arrow_down" className="text-slate-500 dark:text-slate-400 text-sm" />
+              <Icon name="keyboard_arrow_down" className="text-slate-500 dark:text-slate-400 text-sm group-hover/avatar:text-orange-500" />
             </button>
 
             {/* Invisible bridge */}
@@ -88,19 +102,6 @@ export function Navbar() {
                 <Icon name="dashboard" className="text-base" />
                 Dashboard
               </Link>
-
-              <button
-                onClick={toggleMouseFollower}
-                className="w-full flex items-center justify-between px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300 text-sm transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <Icon name="mouse" className="text-base" />
-                  Cursor Effect
-                </div>
-                <div className={`w-8 h-4 rounded-full transition-colors duration-300 relative ${mouseFollowerEnabled ? 'bg-orange-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
-                  <div className={`absolute top-1 w-2 h-2 bg-white rounded-full transition-all duration-300 ${mouseFollowerEnabled ? 'left-5' : 'left-1'}`} />
-                </div>
-              </button>
 
               <button
                 onClick={logout}

@@ -1,19 +1,34 @@
 import type { UserProfile } from '@/types'
 import { Icon } from '@/components/ui/Icon'
+import { useUI } from '@/context/UIContext'
 
 interface ProfileHeroProps {
   profile: UserProfile
 }
 
 export function ProfileHero({ profile }: ProfileHeroProps) {
-  const initials = `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`.toUpperCase()
+  const { setIsProfileOverlayOpen, setOverlayProfile, setTriggerRect } = useUI()
 
   return (
     <div className="bg-surface-container-low rounded-xl p-8 flex flex-col sm:flex-row items-center sm:items-start gap-8">
       {/* Avatar */}
-      <div className="relative shrink-0">
-        <div className="w-28 h-28 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-on-primary text-3xl font-extrabold shadow-xl select-none font-headline">
-          {initials}
+      <div 
+        className="relative shrink-0 cursor-pointer group/hero-avatar"
+        onClick={(e) => {
+          setOverlayProfile(profile)
+          setTriggerRect(e.currentTarget.getBoundingClientRect())
+          setIsProfileOverlayOpen(true)
+        }}
+      >
+        <div className="w-28 h-28 rounded-full border-4 border-primary/10 group-hover/hero-avatar:border-primary transition-all shadow-xl overflow-hidden bg-surface-container-highest">
+          <img 
+            src={
+              profile.profileImage || 
+              (profile.gender === 'female' ? '/avatars/women/geisha_1.png' : '/avatars/men/warrior.png')
+            } 
+            alt={`${profile.firstName} ${profile.lastName}`}
+            className="w-full h-full object-cover group-hover/hero-avatar:scale-110 transition-transform duration-500"
+          />
         </div>
         {profile.isPro && (
           <span className="absolute -bottom-1 -right-1 bg-primary text-on-primary text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-tighter shadow-md">
