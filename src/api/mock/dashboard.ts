@@ -1,0 +1,98 @@
+import type { DashboardData } from '@/types'
+
+export const mockDashboardData: DashboardData = {
+  stats: {
+    studyHours: 312,
+    cardsReviewed: 8_540,
+    globalRank: 'Top 8%',
+    currentStreak: 27,
+    jlptProgress: 68,
+    targetLevel: 'N3',
+  },
+
+  skillBalance: {
+    kanji: 78,
+    grammar: 62,
+    listening: 45,
+    vocabulary: 71,
+    reading: 55,
+    speaking: 33,
+  },
+
+  milestones: [
+    {
+      id: 'kanji-master',
+      icon: 'translate',
+      title: 'Kanji Streak',
+      subtitle: '780 / 1000 characters practiced',
+      progressValue: 780,
+      progressMax: 1000,
+      colorClass: 'text-primary',
+    },
+    {
+      id: 'streak-king',
+      icon: 'local_fire_department',
+      title: 'Streak King',
+      subtitle: 'Consistency is the bridge to mastery',
+      progressValue: 27,
+      progressMax: 100,
+      colorClass: 'text-tertiary',
+    },
+    {
+      id: 'grammar-pro',
+      icon: 'menu_book',
+      title: 'Grammar Pro',
+      subtitle: 'All N5 grammar particles completed',
+      progressValue: 100,
+      progressMax: 100,
+      colorClass: 'text-secondary',
+    },
+  ],
+
+  studyLog: [
+    {
+      id: 'log-1',
+      icon: 'translate',
+      iconColorClass: 'text-primary bg-primary/5',
+      title: 'Advanced Kanji Radicals',
+      subtitle: 'Unit 14 · Historical Context',
+      date: 'Apr 3, 2026',
+      duration: '45 min',
+      status: 'completed',
+      xp: 12,
+    },
+    {
+      id: 'log-2',
+      icon: 'headset',
+      iconColorClass: 'text-tertiary bg-tertiary/5',
+      title: 'NHK News Listening',
+      subtitle: 'Natural Speed · Economy',
+      date: 'Apr 2, 2026',
+      duration: '20 min',
+      status: 'completed',
+      xp: 8,
+    },
+    {
+      id: 'log-3',
+      icon: 'menu_book',
+      iconColorClass: 'text-secondary bg-secondary/5',
+      title: 'Honorific Keigo Basics',
+      subtitle: 'Polite Form Application',
+      date: 'Apr 1, 2026',
+      duration: '12 min',
+      status: 'in-progress',
+      xp: null,
+    },
+    {
+      id: 'log-4',
+      icon: 'quiz',
+      iconColorClass: 'text-primary bg-primary/5',
+      title: 'JLPT N3 Practice Quiz',
+      subtitle: 'Mixed · Kanji & Grammar',
+      date: 'Mar 31, 2026',
+      duration: '30 min',
+      status: 'completed',
+      xp: 20,
+    },
+  ],
+}

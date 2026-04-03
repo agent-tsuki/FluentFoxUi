@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Google Fonts are loaded via index.html */
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.japanese-text {
+  font-family: 'Hiragino Kaku Gothic Pro', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+/* Disable selection globally */
+body {
+  -webkit-user-select: none; /* Safari */
+  user-select: none; /* Standard syntax */
+}
+
+/* ─── Quiz animations ─────────────────────────────────────────────────────── */
+
+@keyframes quiz-char-drop {
+  0%   { opacity: 0; transform: translateY(-32px) scale(0.92); }
+  60%  { opacity: 1; transform: translateY(6px) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes quiz-shake {
+  0%, 100% { transform: translateX(0); }
+  15%       { transform: translateX(-10px); }
+  30%       { transform: translateX(10px); }
+  45%       { transform: translateX(-8px); }
+  60%       { transform: translateX(8px); }
+  75%       { transform: translateX(-4px); }
+  90%       { transform: translateX(4px); }
+}
+
+@keyframes quiz-correct-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.6); }
+  50%  { box-shadow: 0 0 0 16px rgba(74, 222, 128, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+}
+
+@keyframes quiz-wrong-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+  50%  { box-shadow: 0 0 0 16px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+@keyframes quiz-option-rise {
+  0%   { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes quiz-score-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.4); }
+  70%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+@keyframes quiz-streak-flame {
+  0%, 100% { transform: scaleY(1) rotate(-2deg); }
+  50%       { transform: scaleY(1.15) rotate(2deg); }
+}
+
+@keyframes quiz-results-enter {
+  0%   { opacity: 0; transform: translateY(30px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes progress-fill {
+  from { width: var(--progress-from); }
+  to   { width: var(--progress-to); }
+}
+
+@keyframes cursor-ring-spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-quiz-char-drop  { animation: quiz-char-drop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.animate-quiz-shake      { animation: quiz-shake 0.5s ease forwards; }
+.animate-quiz-correct    { animation: quiz-correct-pulse 0.6s ease forwards; }
+.animate-quiz-wrong      { animation: quiz-wrong-pulse 0.6s ease forwards; }
+.animate-score-pop       { animation: quiz-score-pop 0.4s ease forwards; }
+.animate-streak-flame    { animation: quiz-streak-flame 0.8s ease-in-out infinite; }
+.animate-results-enter   { animation: quiz-results-enter 0.55s cubic-bezier(0.34, 1.4, 0.64, 1) forwards; }
+
+/* Staggered option rise */
+.option-rise {
+  opacity: 0;
+  animation: quiz-option-rise 0.4s ease forwards;
+}
+.option-rise:nth-child(1) { animation-delay: 0.05s; }
+.option-rise:nth-child(2) { animation-delay: 0.12s; }
+.option-rise:nth-child(3) { animation-delay: 0.19s; }
+.option-rise:nth-child(4) { animation-delay: 0.26s; }
+
+/* ─── Card flip ───────────────────────────────────────────────────────────── */
+
+.card-3d-wrap {
+  perspective: 900px;
+}
+
+.card-3d-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-3d-wrap.flipped .card-3d-inner {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.card-face-back {
+  transform: rotateY(180deg);
+}
+
+/* ─── Mouse follower ─────────────────────────────────────────────────────── */
+
+.mouse-follower {
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  mix-blend-mode: multiply;
+  will-change: transform;
+  transition: opacity 0.3s ease;
+}
