@@ -35,4 +35,11 @@ export const authService = {
     await new Promise((r) => setTimeout(r, 500))
     return { success: true, message: 'A new code has been sent.' }
   },
+
+  // Replace with: fetch('/api/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) })
+  forgotPassword: async (_email: string): Promise<OtpResponse> => {
+    await new Promise((r) => setTimeout(r, 800))
+    // Always return success to avoid user enumeration
+    return { success: true, message: 'If that email is registered, a reset link has been sent.' }
+  },
 }

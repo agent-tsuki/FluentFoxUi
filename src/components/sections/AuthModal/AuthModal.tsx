@@ -7,18 +7,18 @@ import { ModalSidebar } from './ModalSidebar'
 import { SignUpForm } from './SignUpForm'
 import { LoginForm } from './LoginForm'
 import { OtpForm } from './OtpForm'
+import { ForgotPasswordForm } from './ForgotPasswordForm'
 import { CloseButton } from '@/components/ui/CloseButton'
 
 export function AuthModal() {
   const { isOpen, activeTab, closeModal, setActiveTab } = useModal()
   const { setUser } = useAuth()
 
-  // OTP step state — local to the modal lifecycle
   const [step, setStep] = useState<AuthStep>('form')
   const [pendingEmail, setPendingEmail] = useState('')
   const [pendingUser, setPendingUser] = useState<AuthResponse['user']>(undefined)
 
-  // Reset to form step whenever modal opens/tab changes
+  // Reset to form step whenever modal opens or tab changes
   useEffect(() => {
     if (isOpen) setStep('form')
   }, [isOpen, activeTab])
@@ -39,28 +39,25 @@ export function AuthModal() {
 
   if (!isOpen) return null
 
-  // Called by SignUpForm after successful submission → switch to OTP step
   const handleSignUpSuccess = (response: AuthResponse) => {
-    if (response.user?.email) {
-      setPendingEmail(response.user.email)
-    }
+    if (response.user?.email) setPendingEmail(response.user.email)
     setPendingUser(response.user)
     setStep('otp')
   }
 
-  // Called by LoginForm after successful login → close modal
   const handleLoginSuccess = (response: AuthResponse) => {
     if (response.user) setUser(response.user)
     closeModal()
   }
 
-  // Called by OtpForm "Verify & Join" success → close modal
   const handleOtpSuccess = () => {
     if (pendingUser) setUser(pendingUser)
     closeModal()
   }
 
-  const isOtpStep = step === 'otp'
+  const isOtpStep    = step === 'otp'
+  const isForgotStep = step === 'forgot'
+  const isFullWidth  = isOtpStep || isForgotStep
 
   const tabs = [
     { id: 'login' as const, label: 'Login' },
@@ -74,20 +71,20 @@ export function AuthModal() {
     >
       <div className="bg-surface-container-lowest w-full max-w-2xl rounded-xl shadow-[0_40px_80px_rgba(25,28,29,0.12)] overflow-hidden flex flex-col md:flex-row border border-outline-variant/10 relative">
 
-        {/* Branding sidebar — hide on OTP step (compact, centred layout) */}
-        {!isOtpStep && <ModalSidebar />}
+        {/* Branding sidebar — hidden on OTP/forgot steps */}
+        {!isFullWidth && <ModalSidebar />}
 
         {/* Form panel */}
-        <div className={`flex-1 overflow-y-auto max-h-[90vh] relative ${isOtpStep ? 'p-10' : 'p-8 md:p-12'}`}>
+        <div className={`flex-1 overflow-y-auto max-h-[90vh] relative ${isFullWidth ? 'p-10' : 'p-8 md:p-12'}`}>
           {isOtpStep ? (
-            // ── OTP view ──────────────────────────────────────────────────
             <OtpForm
               email={pendingEmail}
               onSuccess={handleOtpSuccess}
               onBack={() => setStep('form')}
             />
+          ) : isForgotStep ? (
+            <ForgotPasswordForm onBack={() => setStep('form')} />
           ) : (
-            // ── Login / Sign Up view ───────────────────────────────────────
             <>
               {/* Tab nav */}
               <div className="flex gap-8 mb-10 border-b border-surface-container-high">
@@ -110,7 +107,10 @@ export function AuthModal() {
               {activeTab === 'signup' ? (
                 <SignUpForm onSuccess={handleSignUpSuccess} />
               ) : (
-                <LoginForm onSuccess={handleLoginSuccess} />
+                <LoginForm
+                  onSuccess={handleLoginSuccess}
+                  onForgotPassword={() => setStep('forgot')}
+                />
               )}
             </>
           )}

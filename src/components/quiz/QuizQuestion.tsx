@@ -3,7 +3,7 @@ import type { QuizQuestionData } from '@/types'
 
 interface QuizQuestionProps {
   question: QuizQuestionData
-  phase: 'showing' | 'correct' | 'wrong'
+  phase: 'showing' | 'correct' | 'wrong' | 'finished'
 }
 
 export function QuizQuestion({ question, phase }: QuizQuestionProps) {

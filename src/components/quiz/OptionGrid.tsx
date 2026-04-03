@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { QuizQuestionData } from '@/types'
 
-type Phase = 'showing' | 'correct' | 'wrong'
+type Phase = 'showing' | 'correct' | 'wrong' | 'finished'
 
 interface OptionGridProps {
   question: QuizQuestionData

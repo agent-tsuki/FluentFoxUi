@@ -257,7 +257,7 @@ export interface DashboardData {
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
 export type AuthTab = 'login' | 'signup'
-export type AuthStep = 'form' | 'otp'
+export type AuthStep = 'form' | 'otp' | 'forgot'
 
 export interface SignUpPayload {
   firstName: string

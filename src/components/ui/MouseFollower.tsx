@@ -3,8 +3,11 @@ import { useUI } from '@/context/UIContext'
 
 /**
  * MouseFollower — a subtle ink-drop cursor that trails the real cursor.
- * Renders a small circle + a larger ring that follows with slight lag.
- * Only visible on pointer devices (hidden on touch).
+ * Renders a small dot + a larger lagged ring.
+ * Only visible on pointer (non-touch) devices.
+ *
+ * Optimisation: the RAF loop fully stops when the cursor hasn't moved for
+ * 2 seconds and restarts on the next mousemove — no idle CPU burn.
  */
 export function MouseFollower() {
   const { mouseFollowerEnabled } = useUI()
@@ -13,41 +16,60 @@ export function MouseFollower() {
 
   useEffect(() => {
     if (!mouseFollowerEnabled) return
+    if (!window.matchMedia('(pointer: fine)').matches) return
 
-    // Current mouse position
     let mx = -100, my = -100
-    // Ring position (lags behind)
     let rx = -100, ry = -100
     let raf = 0
+    let idleTimer = 0
+    let running = false
 
-    function onMove(e: MouseEvent) {
-      mx = e.clientX
-      my = e.clientY
+    function startLoop() {
+      if (running) return
+      running = true
+      tick()
+    }
+
+    function stopLoop() {
+      running = false
+      cancelAnimationFrame(raf)
     }
 
     function tick() {
-      // Instant dot
+      if (!running) return
+
       if (dotRef.current) {
         dotRef.current.style.transform = `translate(${mx - 4}px, ${my - 4}px)`
       }
-      // Lerped ring
+
       rx += (mx - rx) * 0.14
       ry += (my - ry) * 0.14
       if (ringRef.current) {
         ringRef.current.style.transform = `translate(${rx - 18}px, ${ry - 18}px)`
       }
+
       raf = requestAnimationFrame(tick)
     }
 
-    // Only activate on non-touch devices
-    if (window.matchMedia('(pointer: fine)').matches) {
-      window.addEventListener('mousemove', onMove, { passive: true })
-      raf = requestAnimationFrame(tick)
+    function onMove(e: MouseEvent) {
+      mx = e.clientX
+      my = e.clientY
+
+      // Restart the loop on movement
+      startLoop()
+
+      // Schedule loop stop after 2 s of no movement
+      clearTimeout(idleTimer)
+      idleTimer = window.setTimeout(stopLoop, 2000)
     }
+
+    window.addEventListener('mousemove', onMove, { passive: true })
+    startLoop()
 
     return () => {
       window.removeEventListener('mousemove', onMove)
-      cancelAnimationFrame(raf)
+      clearTimeout(idleTimer)
+      stopLoop()
     }
   }, [mouseFollowerEnabled])
 
@@ -55,15 +77,15 @@ export function MouseFollower() {
 
   return (
     <>
-      {/* Dot */}
       <div
         ref={dotRef}
+        aria-hidden
         className="mouse-follower w-2 h-2 rounded-full bg-primary/70"
         style={{ transform: 'translate(-100px,-100px)' }}
       />
-      {/* Ring */}
       <div
         ref={ringRef}
+        aria-hidden
         className="mouse-follower w-9 h-9 rounded-full border border-primary/30"
         style={{ transform: 'translate(-100px,-100px)' }}
       />

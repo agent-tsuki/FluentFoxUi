@@ -17,7 +17,14 @@ export const mockAuthError: AuthResponse = {
   message: 'Invalid credentials. Please try again.',
 }
 
-// Mock OTP — in production the real code is sent via email
+// Mock OTP — in production the real code is sent via email.
+// This constant must NEVER reach a production build.
+if (import.meta.env.PROD) {
+  throw new Error(
+    '[FluentFox] MOCK_OTP_CODE is present in a production build. ' +
+    'Replace authService with real API calls before deploying.',
+  )
+}
 export const MOCK_OTP_CODE = '123456'
 
 export const mockOtpSuccess = { success: true, message: 'Email verified. Welcome aboard!' }

@@ -1,8 +1,9 @@
-import { useRef, useState, type ClipboardEvent, type KeyboardEvent } from 'react'
+import { useRef, useState, useEffect, type ClipboardEvent, type KeyboardEvent } from 'react'
 import { authService } from '@/api/services/authService'
 import { Icon } from '@/components/ui/Icon'
 
 const OTP_LENGTH = 6
+const RESEND_COOLDOWN = 60 // seconds
 
 interface OtpFormProps {
   email: string
@@ -15,7 +16,29 @@ export function OtpForm({ email, onSuccess, onBack }: OtpFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [resendMsg, setResendMsg] = useState('')
+  const [resendCooldown, setResendCooldown] = useState(0)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
+  const cooldownTimer = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // Start cooldown timer
+  const startCooldown = () => {
+    setResendCooldown(RESEND_COOLDOWN)
+    cooldownTimer.current = setInterval(() => {
+      setResendCooldown((prev) => {
+        if (prev <= 1) {
+          if (cooldownTimer.current) clearInterval(cooldownTimer.current)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (cooldownTimer.current) clearInterval(cooldownTimer.current)
+    }
+  }, [])
 
   // ── helpers ──────────────────────────────────────────────────────────────
 
@@ -32,7 +55,7 @@ export function OtpForm({ email, onSuccess, onBack }: OtpFormProps) {
 
   const handleChange = (index: number, raw: string) => {
     setError('')
-    const char = raw.replace(/\D/g, '').slice(-1) // digits only, last char
+    const char = raw.replace(/\D/g, '').slice(-1)
     updateDigits(index, char)
     if (char && index < OTP_LENGTH - 1) focusAt(index + 1)
   }
@@ -84,12 +107,14 @@ export function OtpForm({ email, onSuccess, onBack }: OtpFormProps) {
   }
 
   const handleResend = async () => {
+    if (resendCooldown > 0) return
     setResendMsg('')
     setError('')
     const result = await authService.resendOtp(email)
     setResendMsg(result.message)
     setDigits(Array(OTP_LENGTH).fill(''))
     focusAt(0)
+    startCooldown()
   }
 
   // ── render ───────────────────────────────────────────────────────────────
@@ -104,12 +129,10 @@ export function OtpForm({ email, onSuccess, onBack }: OtpFormProps) {
         <Icon name="mark_email_unread" className="text-3xl" filled />
       </div>
 
-      {/* Headline */}
       <h2 className="text-3xl font-headline font-extrabold text-on-surface tracking-tighter mb-4">
         Verify Your Email
       </h2>
 
-      {/* Subtext */}
       <p className="text-on-surface-variant text-sm leading-relaxed mb-10 px-4">
         We've sent a 6-digit code to{' '}
         <span className="font-semibold text-on-surface">{email}</span>. Enter it below to
@@ -119,10 +142,10 @@ export function OtpForm({ email, onSuccess, onBack }: OtpFormProps) {
       {/* OTP inputs — split 3 + spacer + 3 */}
       <div className="flex justify-center items-center gap-2 mb-10">
         {Array.from({ length: OTP_LENGTH }).map((_, i) => (
-          <>
-            {i === 3 && <div key="spacer" className="w-4" />}
+          // Using React.Fragment with explicit key to fix fragment key warning
+          <span key={i} className="contents">
+            {i === 3 && <div className="w-4" aria-hidden />}
             <input
-              key={i}
               ref={(el) => { inputRefs.current[i] = el }}
               type="text"
               inputMode="numeric"
@@ -133,15 +156,14 @@ export function OtpForm({ email, onSuccess, onBack }: OtpFormProps) {
               onPaste={i === 0 ? handlePaste : undefined}
               className={`${inputBase} ${error ? 'ring-2 ring-error' : ''}`}
               autoFocus={i === 0}
+              aria-label={`Digit ${i + 1}`}
             />
-          </>
+          </span>
         ))}
       </div>
 
       {/* Error */}
-      {error && (
-        <p className="text-error text-xs font-medium mb-4">{error}</p>
-      )}
+      {error && <p className="text-error text-xs font-medium mb-4">{error}</p>}
 
       {/* Resend success */}
       {resendMsg && !error && (
@@ -165,9 +187,10 @@ export function OtpForm({ email, onSuccess, onBack }: OtpFormProps) {
           <button
             type="button"
             onClick={handleResend}
-            className="text-primary font-bold hover:underline underline-offset-4 decoration-primary/30 transition-all"
+            disabled={resendCooldown > 0}
+            className="text-primary font-bold hover:underline underline-offset-4 decoration-primary/30 transition-all disabled:text-on-surface-variant disabled:no-underline disabled:cursor-not-allowed"
           >
-            Resend Code
+            {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend Code'}
           </button>
         </p>
 

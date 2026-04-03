@@ -1,4 +1,3 @@
-"use client";
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { KanaChar } from '@/types';
@@ -59,23 +58,23 @@ const sampleWords: Record<string, { word: string; meaning: string }> = {
 };
 
 export function CharCard({ char, size = 'lg', interactive = true }: CharCardProps) {
-  const [flipped, setFlipped]   = useState(false);
-  const [hovered, setHovered]   = useState(false);
+  const [flipped, setFlipped] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const flipTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   if (char.isEmpty) {
     return <div className="opacity-0 pointer-events-none" aria-hidden />;
   }
 
-  const isLg      = size === 'lg';
-  const base      = char.isCompound ? char.character[0]      : char.character;
-  const small     = char.isCompound ? char.character.slice(1): '';
+  const isLg     = size === 'lg';
+  const base     = char.isCompound ? char.character[0]       : char.character;
+  const small    = char.isCompound ? char.character.slice(1) : '';
   const sampleWord = sampleWords[char.romaji];
 
   const toggle = () => {
     if (!interactive) return;
     if (flipped) {
-      clearTimeout(flipTimeout.current!);
+      if (flipTimeout.current) clearTimeout(flipTimeout.current);
       flipTimeout.current = null;
       setFlipped(false);
     } else {
@@ -87,14 +86,18 @@ export function CharCard({ char, size = 'lg', interactive = true }: CharCardProp
     }
   };
 
-  // Glow intensity: idle → hover → flipped (static cards stay subtle)
-  const glowOpacity = !interactive ? 0.06 : flipped ? 0.55 : hovered ? 0.28 : 0.08;
+  // Solid card background — no backdrop-filter (major GPU cost with 46+ cards)
+  const cardBg = flipped
+    ? 'rgba(255, 248, 244, 0.98)'
+    : hovered
+    ? 'rgba(255, 252, 249, 0.98)'
+    : 'rgba(255, 255, 255, 0.96)';
 
   const cardShadow = flipped
-    ? '0 20px 56px rgba(255,115,64,0.22), 0 6px 20px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.95)'
+    ? '0 20px 56px rgba(255,115,64,0.18), 0 6px 20px rgba(0,0,0,0.06)'
     : hovered
-    ? '0 14px 40px rgba(255,115,64,0.13), 0 4px 14px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.95)'
-    : '0 2px 16px rgba(0,0,0,0.055), 0 1px 4px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.9)';
+    ? '0 14px 40px rgba(255,115,64,0.10), 0 4px 14px rgba(0,0,0,0.05)'
+    : '0 2px 16px rgba(0,0,0,0.045), 0 1px 4px rgba(0,0,0,0.035)';
 
   return (
     <motion.div
@@ -110,33 +113,29 @@ export function CharCard({ char, size = 'lg', interactive = true }: CharCardProp
       whileTap={interactive ? { scale: 0.95 } : undefined}
       transition={{ type: 'spring', stiffness: 420, damping: 22 }}
     >
-      {/* ── Ambient glow orb ───────────────────────────── */}
-      <motion.div
+      {/* ── Ambient glow — CSS transition instead of Framer Motion ── */}
+      <div
         aria-hidden
-        className="absolute pointer-events-none"
+        className="absolute pointer-events-none transition-opacity duration-300"
         style={{
           inset: '-24%',
           borderRadius: '50%',
           background: 'radial-gradient(circle at 50% 58%, #FF7340 0%, transparent 65%)',
           filter: 'blur(22px)',
           zIndex: 0,
+          opacity: !interactive ? 0.06 : flipped ? 0.45 : hovered ? 0.22 : 0.06,
         }}
-        animate={{ opacity: glowOpacity }}
-        transition={{ duration: 0.38, ease: 'easeOut' }}
       />
 
-      {/* ── Glass card surface ─────────────────────────── */}
-      <motion.div
-        className="absolute inset-0 rounded-[22px] overflow-hidden"
+      {/* ── Card surface (solid bg — no backdrop-filter) ── */}
+      <div
+        className="absolute inset-0 rounded-[22px] overflow-hidden transition-shadow duration-300"
         style={{
-          background: 'rgba(255,255,255,0.84)',
-          backdropFilter: 'blur(18px)',
-          WebkitBackdropFilter: 'blur(18px)',
+          background: cardBg,
           border: '1px solid rgba(255,255,255,0.92)',
+          boxShadow: cardShadow,
           zIndex: 1,
         }}
-        animate={{ boxShadow: cardShadow }}
-        transition={{ duration: 0.32, ease: 'easeOut' }}
       >
         {/* Top-edge shine strip */}
         <div
@@ -146,7 +145,7 @@ export function CharCard({ char, size = 'lg', interactive = true }: CharCardProp
         />
 
         <AnimatePresence mode="wait" initial={false}>
-          {/* ── FRONT: character ──────────────────────── */}
+          {/* ── FRONT: character ── */}
           {!flipped ? (
             <motion.div
               key="front"
@@ -156,7 +155,6 @@ export function CharCard({ char, size = 'lg', interactive = true }: CharCardProp
               exit={{ opacity: 0, y: -7 }}
               transition={{ duration: 0.16, ease: 'easeOut' }}
             >
-              {/* Character */}
               <div className="flex-1 flex items-center justify-center">
                 {char.isCompound ? (
                   <div className="flex items-baseline">
@@ -185,39 +183,19 @@ export function CharCard({ char, size = 'lg', interactive = true }: CharCardProp
 
               {/* Romaji row */}
               <div className="pb-4 flex items-center justify-center gap-2">
-                <span
-                  aria-hidden
-                  style={{
-                    display: 'block',
-                    width: isLg ? 14 : 10,
-                    height: 1,
-                    borderRadius: 1,
-                    background: '#FF7340',
-                    opacity: 0.55,
-                  }}
-                />
+                <span aria-hidden style={{ display: 'block', width: isLg ? 14 : 10, height: 1, borderRadius: 1, background: '#FF7340', opacity: 0.55 }} />
                 <span
                   className={`${isLg ? 'text-[11px]' : 'text-[9px]'} font-semibold tracking-[0.18em] uppercase`}
                   style={{ color: '#FF7340' }}
                 >
                   {char.romaji}
                 </span>
-                <span
-                  aria-hidden
-                  style={{
-                    display: 'block',
-                    width: isLg ? 14 : 10,
-                    height: 1,
-                    borderRadius: 1,
-                    background: '#FF7340',
-                    opacity: 0.55,
-                  }}
-                />
+                <span aria-hidden style={{ display: 'block', width: isLg ? 14 : 10, height: 1, borderRadius: 1, background: '#FF7340', opacity: 0.55 }} />
               </div>
             </motion.div>
 
           ) : (
-            /* ── BACK: example word ───────────────────── */
+            /* ── BACK: example word ── */
             <motion.div
               key="back"
               className="w-full h-full flex flex-col items-center justify-center p-4 text-center"
@@ -227,10 +205,9 @@ export function CharCard({ char, size = 'lg', interactive = true }: CharCardProp
               exit={{ opacity: 0, y: -7 }}
               transition={{ duration: 0.16, ease: 'easeOut' }}
             >
-              {/* Faint orange tint overlay on back */}
               <div
                 aria-hidden
-                className="absolute inset-0 pointer-events-none"
+                className="absolute inset-0 pointer-events-none rounded-[22px]"
                 style={{ background: 'rgba(255,115,64,0.04)' }}
               />
 
@@ -242,18 +219,10 @@ export function CharCard({ char, size = 'lg', interactive = true }: CharCardProp
                   >
                     {sampleWord.word}
                   </span>
-
-                  {/* Divider */}
                   <div
                     aria-hidden
-                    style={{
-                      width: isLg ? 28 : 20,
-                      height: 1.5,
-                      borderRadius: 2,
-                      background: 'linear-gradient(90deg, transparent, #FF7340, transparent)',
-                    }}
+                    style={{ width: isLg ? 28 : 20, height: 1.5, borderRadius: 2, background: 'linear-gradient(90deg, transparent, #FF7340, transparent)' }}
                   />
-
                   <span
                     className={`${isLg ? 'text-[11px]' : 'text-[9px]'} italic relative`}
                     style={{ color: '#18182A', opacity: 0.48 }}
@@ -272,7 +241,7 @@ export function CharCard({ char, size = 'lg', interactive = true }: CharCardProp
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </div>
     </motion.div>
   );
 }

@@ -7,9 +7,10 @@ import { XAuthButton } from './XAuthButton'
 
 interface LoginFormProps {
   onSuccess: (response: AuthResponse) => void
+  onForgotPassword: () => void
 }
 
-export function LoginForm({ onSuccess }: LoginFormProps) {
+export function LoginForm({ onSuccess, onForgotPassword }: LoginFormProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -75,9 +76,13 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       </div>
 
       <div className="text-right">
-        <a href="#" className="text-[10px] text-primary font-bold uppercase tracking-wider hover:underline">
+        <button
+          type="button"
+          onClick={onForgotPassword}
+          className="text-[10px] text-primary font-bold uppercase tracking-wider hover:underline"
+        >
           Forgot password?
-        </a>
+        </button>
       </div>
 
       {/* Error */}

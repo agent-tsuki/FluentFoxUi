@@ -9,6 +9,27 @@ interface SignUpFormProps {
   onSuccess: (response: AuthResponse) => void
 }
 
+type StrengthLevel = 'weak' | 'fair' | 'strong' | 'very-strong'
+
+function getPasswordStrength(pw: string): StrengthLevel {
+  if (pw.length < 8) return 'weak'
+  let score = 0
+  if (pw.length >= 12) score++
+  if (/[A-Z]/.test(pw)) score++
+  if (/[0-9]/.test(pw)) score++
+  if (/[^A-Za-z0-9]/.test(pw)) score++
+  if (score <= 1) return 'fair'
+  if (score === 2) return 'strong'
+  return 'very-strong'
+}
+
+const strengthConfig: Record<StrengthLevel, { label: string; bars: number; color: string }> = {
+  weak:        { label: 'Weak',        bars: 1, color: 'bg-error' },
+  fair:        { label: 'Fair',        bars: 2, color: 'bg-amber-400' },
+  strong:      { label: 'Strong',      bars: 3, color: 'bg-green-400' },
+  'very-strong': { label: 'Very Strong', bars: 4, color: 'bg-green-500' },
+}
+
 export function SignUpForm({ onSuccess }: SignUpFormProps) {
   const [form, setForm] = useState<SignUpPayload>({
     firstName: '',
@@ -26,13 +47,22 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
   const labelClass =
     'block text-[10px] uppercase tracking-widest font-bold text-on-surface-variant px-1'
 
+  const passwordStrength = form.password.length > 0 ? getPasswordStrength(form.password) : null
+  const strengthMeta = passwordStrength ? strengthConfig[passwordStrength] : null
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError('')
+
+    if (form.password.length < 8) {
+      setError('Password must be at least 8 characters.')
+      return
+    }
     if (form.password !== confirmPassword) {
       setError('Passwords do not match.')
       return
     }
+
     setLoading(true)
     try {
       const result = await authService.signUp(form)
@@ -41,16 +71,6 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
       } else {
         setError(result.message)
       }
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleSocial = async (provider: 'google' | 'apple') => {
-    setLoading(true)
-    try {
-      const result = await authService.socialAuth(provider)
-      if (result.success) onSuccess(result)
     } finally {
       setLoading(false)
     }
@@ -65,6 +85,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
           <input
             type="text"
             required
+            maxLength={50}
             placeholder="Haruki"
             value={form.firstName}
             onChange={(e) => setForm({ ...form, firstName: e.target.value })}
@@ -76,6 +97,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
           <input
             type="text"
             required
+            maxLength={50}
             placeholder="Murakami"
             value={form.lastName}
             onChange={(e) => setForm({ ...form, lastName: e.target.value })}
@@ -90,6 +112,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
         <input
           type="email"
           required
+          maxLength={254}
           placeholder="haruki@FluentFox.jp"
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -104,7 +127,9 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
           <input
             type={showPassword ? 'text' : 'password'}
             required
-            placeholder="••••••••••••"
+            minLength={8}
+            maxLength={128}
+            placeholder="Min. 8 characters"
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
             className={inputClass}
@@ -117,6 +142,25 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
             <Icon name={showPassword ? 'visibility_off' : 'visibility'} className="text-lg" />
           </button>
         </div>
+
+        {/* Strength meter */}
+        {strengthMeta && (
+          <div className="space-y-1 px-1">
+            <div className="flex gap-1">
+              {[1, 2, 3, 4].map((bar) => (
+                <div
+                  key={bar}
+                  className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                    bar <= strengthMeta.bars ? strengthMeta.color : 'bg-surface-container-highest'
+                  }`}
+                />
+              ))}
+            </div>
+            <p className="text-[10px] text-on-surface-variant font-medium">
+              Password strength: <span className="font-bold">{strengthMeta.label}</span>
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Confirm password */}
@@ -125,10 +169,11 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
         <input
           type="password"
           required
+          maxLength={128}
           placeholder="••••••••••••"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          className={inputClass}
+          className={`${inputClass} ${confirmPassword && form.password !== confirmPassword ? 'ring-2 ring-error/40' : ''}`}
         />
       </div>
 
@@ -155,18 +200,10 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
         <div className="flex-grow border-t border-surface-container-high" />
       </div>
 
-      {/* Social */}
+      {/* Social — wired up but backends not yet implemented */}
       <div className="flex gap-4">
-        {/*This button for google authentication*/}
-        <GoogleAuthButton 
-          onClick={() => null } 
-          disabled={loading} 
-        />
-        {/*This button for x authentication*/}
-        <XAuthButton
-          onClick={() => null } 
-          disabled={loading} 
-        />
+        <GoogleAuthButton onClick={() => null} disabled={loading} />
+        <XAuthButton onClick={() => null} disabled={loading} />
       </div>
 
       {/* Legal */}

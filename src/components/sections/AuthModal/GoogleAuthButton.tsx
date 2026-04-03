@@ -12,7 +12,7 @@ export function GoogleAuthButton({ onClick, disabled }: { onClick: () => void; d
     // Reset everything first
     auraControls.stop();
     dotControls.stop();
-    letterControls.forEach((ctrl, i) => {
+    letterControls.forEach((ctrl) => {
       ctrl.stop();
       ctrl.set({ scale: 1, y: 0, color: "#374151" }); // gray-700
     });

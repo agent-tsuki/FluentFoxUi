@@ -2,6 +2,53 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Theme CSS Custom Properties ────────────────────────────────────────────
+   Values are space-separated R G B channels so Tailwind opacity modifiers
+   like bg-surface/80 work correctly.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Surface scale */
+  --surface:                   248 249 250;
+  --background:                248 249 250;
+  --surface-dim:               217 218 219;
+  --surface-bright:            248 249 250;
+  --surface-container-lowest:  255 255 255;
+  --surface-container-low:     243 244 245;
+  --surface-container:         237 238 239;
+  --surface-container-high:    231 232 233;
+  --surface-container-highest: 225 227 228;
+
+  /* Text */
+  --on-surface:         25 28 29;
+  --on-surface-variant: 93 63 61;
+
+  /* Outline */
+  --outline:         146 110 108;
+  --outline-variant: 231 188 186;
+}
+
+html.dark {
+  /* Surface scale — warm dark brown (matches fox orange brand) */
+  --surface:                   25 20 18;
+  --background:                20 16 14;
+  --surface-dim:               20 16 14;
+  --surface-bright:            53 47 45;
+  --surface-container-lowest:  15 11 9;
+  --surface-container-low:     30 26 24;
+  --surface-container:         38 34 32;
+  --surface-container-high:    49 45 43;
+  --surface-container-highest: 59 55 53;
+
+  /* Text */
+  --on-surface:         236 228 225;
+  --on-surface-variant: 210 188 185;
+
+  /* Outline */
+  --outline:         156 132 130;
+  --outline-variant: 83 67 65;
+}
+
 /* Google Fonts are loaded via index.html */
 
 .material-symbols-outlined {
