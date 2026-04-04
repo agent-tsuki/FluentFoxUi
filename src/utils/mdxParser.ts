@@ -19,6 +19,22 @@ export function parseMarkdownBlock(lines: string[]): string {
       continue;
     }
 
+    // Skip horizontal rules
+    if (t === '---' || t === '***' || t === '___') {
+      if (inTable) { html += '</tbody></table></div>'; inTable = false; }
+      continue;
+    }
+
+    if (t.startsWith('![')) {
+      const imgMatch = t.match(/^!\[([^\]]*)]\(([^)]+)\)/);
+      if (imgMatch) {
+        const alt = imgMatch[1];
+        const src = imgMatch[2];
+        html += `<div class="my-6"><img src="${src}" alt="${alt}" class="w-full h-auto object-contain max-h-[420px]" loading="lazy" /></div>`;
+      }
+      continue;
+    }
+
     if (t.startsWith('|') && t.endsWith('|')) {
       if (!inTable) {
         html += '<div class="overflow-x-auto my-6"><table class="w-full text-left border-collapse border border-outline-variant/30 rounded-lg shadow-sm bg-surface-container-low text-sm"><tbody class="divide-y divide-outline-variant/20">';
@@ -32,8 +48,8 @@ export function parseMarkdownBlock(lines: string[]): string {
       cells.forEach(c => {
         const tag = isHeader ? 'th' : 'td';
         const classes = isHeader 
-          ? 'py-3 px-4 font-bold text-xs uppercase tracking-widest text-on-surface-variant bg-surface-container-highest/30' 
-          : 'py-3 px-4 text-on-surface font-medium border-r border-outline-variant/10 last:border-0';
+          ? 'py-2 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-widest text-on-surface-variant bg-surface-container-highest/30 leading-tight' 
+          : 'py-2 px-3 text-on-surface text-xs sm:text-sm font-medium border-r border-outline-variant/10 last:border-0 leading-snug';
         html += `<${tag} class="${classes}">${parseInlineMarkdown(c)}</${tag}>`;
       });
       html += '</tr>';
@@ -79,20 +95,38 @@ export function parseFrontmatter(text: string) {
   return fm;
 }
 
-export function parseSegments(line: string): JapaneseSegment[] {
+export function parseSegments(line: string, chapterVocab: any[] = []): JapaneseSegment[] {
   const segments: JapaneseSegment[] = [];
-  const regex = /<InteractiveWord\s+kanji="([^"]+)"\s+reading="([^"]+)"\s+meaning="([^"]+)"\s*\/>/g;
+  const regex = /<InteractiveWord\s+kanji="([^"]+)"\s+reading="([^"]+)"\s+meaning="([^"]+)"\s*\/>|([\u4E00-\u9FFF\u3040-\u309F\u30A0-\u30FF]+)[（(]([\u3040-\u309F\u30A0-\u30FFa-zA-Z]+)[)）]/g;
+  
   let lastIndex = 0;
   let match;
   while ((match = regex.exec(line)) !== null) {
     if (match.index > lastIndex) {
       segments.push(line.slice(lastIndex, match.index));
     }
-    segments.push({
-      kanji: match[1],
-      reading: match[2],
-      meaning: match[3]
-    });
+    
+    if (match[1]) {
+      // Legacy <InteractiveWord> Match
+      segments.push({
+        kanji: match[1],
+        reading: match[2],
+        meaning: match[3]
+      });
+    } else if (match[4]) {
+      // Ruby Format Match e.g. お手洗（てあら）
+      const baseWord = match[4];
+      const rubyReading = match[5];
+      
+      const vocab = chapterVocab.find(v => v.kanji.includes(baseWord) || baseWord.includes(v.kanji) || v.reading.includes(rubyReading));
+      
+      segments.push({
+        kanji: baseWord,
+        reading: rubyReading,
+        meaning: vocab ? vocab.meaning : 'Vocabulary'
+      });
+    }
+    
     lastIndex = regex.lastIndex;
   }
   if (lastIndex < line.length) {
@@ -114,9 +148,32 @@ export function parseMdxToChapter(mdx: string): GrammarChapter {
 
   const bodyEnd = mdx.indexOf('---', 3);
   const bodyText = bodyEnd !== -1 ? mdx.slice(bodyEnd + 3) : mdx;
-
   const sections = bodyText.split('\n## ');
   
+  // PASS 1: Parse Vocabulary First
+  for (const sec of sections) {
+    const sectionText = sec.trim();
+    if (sectionText.startsWith('Chapter')) {
+      const rows = sectionText.match(/\|\s*<InteractiveWord[^\n]+/g) || [];
+      for (const row of rows) {
+         const cells = row.split('|').filter((c: string) => c.trim().length > 0);
+         if (cells.length >= 1) {
+             const wordCell = cells[0];
+             const compMatch = wordCell.match(/kanji="([^"]+)"\s+reading="([^"]+)"\s+meaning="([^"]+)"/);
+             if (compMatch) {
+                 chapter.sidebar.vocab.push({
+                    kanji: compMatch[1],
+                    reading: compMatch[2],
+                    meaning: compMatch[3],
+                    romaji: ''
+                 });
+             }
+         }
+      }
+    }
+  }
+
+  // PASS 2: Parse Concepts and Rules
   for (const sec of sections) {
     const sectionText = sec.trim();
     if (sectionText.startsWith('Concept')) {
@@ -124,9 +181,9 @@ export function parseMdxToChapter(mdx: string): GrammarChapter {
       const header = sectionText.slice(0, firstLineBreak);
       const content = sectionText.slice(firstLineBreak + 1);
       
-      const conceptMatch = header.match(/Concept \d+: (.*)/);
+      const conceptMatch = header.match(/Concept (\d+): (.*)/);
       if (!conceptMatch) continue;
-      
+
       const concept: GrammarConcept = {
         id: conceptMatch[1],
         title: conceptMatch[2],
@@ -174,7 +231,7 @@ export function parseMdxToChapter(mdx: string): GrammarChapter {
                
                const englishInline = jpMatch[2].replace(/[()]/g, '').trim();
                currentExample = {
-                  japanese: parseSegments(jpMatch[1].trim()),
+                  japanese: parseSegments(jpMatch[1].trim(), chapter.sidebar.vocab),
                   english: englishInline
                };
             } else if (currentExample && line.trim().startsWith('*')) {
@@ -195,33 +252,14 @@ export function parseMdxToChapter(mdx: string): GrammarChapter {
       chapter.concepts.push(concept);
     }
     else if (sectionText.startsWith('Sidebar:')) {
-      const rest = sectionText.split('\n');
-      const titleMatch = sectionText.match(/### (.*)/);
-      if (titleMatch) {
-         const titleLineIdx = rest.findIndex(l => l.startsWith('###'));
-         chapter.sidebar.culturalInsight = {
-            title: titleMatch[1].replace(/[🚩🎓]/g, '').trim(),
-            content: parseMarkdownBlock(rest.slice(titleLineIdx + 1))
-         };
-      }
-    }
-    else if (sectionText.startsWith('Chapter')) {
-      const rows = sectionText.match(/\|\s*<InteractiveWord[^\n]+/g) || [];
-      for (const row of rows) {
-         const cells = row.split('|').filter((c: string) => c.trim().length > 0);
-         if (cells.length >= 1) {
-             const wordCell = cells[0];
-             const compMatch = wordCell.match(/kanji="([^"]+)"\s+reading="([^"]+)"\s+meaning="([^"]+)"/);
-             if (compMatch) {
-                chapter.sidebar.vocab.push({
-                   kanji: compMatch[1],
-                   reading: compMatch[2],
-                   meaning: compMatch[3],
-                   romaji: ''
-                });
-             }
-         }
-      }
+      // Extract the subtitle after "Sidebar: " for the card title
+      const sidebarTitle = sectionText.split('\n')[0].replace(/^Sidebar:\s*/, '').trim() || 'Notes & Insights';
+      // Render ALL content lines (### headings, bullets, etc.) through parseMarkdownBlock
+      const contentLines = sectionText.split('\n').slice(1); // skip the "Sidebar: ..." heading line
+      chapter.sidebar.culturalInsight = {
+        title: sidebarTitle,
+        content: parseMarkdownBlock(contentLines)
+      };
     }
   }
 
