@@ -9,6 +9,7 @@ interface GrammarSidebarProps {
 }
 
 const LEVELS = ['n5', 'n4', 'n3', 'n2', 'n1']
+const LOCKED_LEVELS = new Set(['n4', 'n3', 'n2', 'n1'])
 
 export function GrammarSidebar({ level, completedChapters }: GrammarSidebarProps) {
   const { chapterId } = useParams<{ chapterId?: string }>()
@@ -26,19 +27,32 @@ export function GrammarSidebar({ level, completedChapters }: GrammarSidebarProps
       <div className="px-4 pt-5 pb-4 border-b border-outline-variant/20 flex-shrink-0">
         <div className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-3">Grammar Course</div>
         <div className="grid grid-cols-5 gap-1 p-1 bg-surface-container-high rounded-xl">
-          {LEVELS.map(l => (
-            <button
-              key={l}
-              onClick={() => navigate(`/grammar/${l}/1`)}
-              className={`py-1.5 rounded-lg text-xs font-bold transition-all duration-200 ${
-                level.toLowerCase() === l
-                  ? 'bg-primary text-on-primary shadow-sm'
-                  : 'text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              {l.toUpperCase()}
-            </button>
-          ))}
+          {LEVELS.map(l => {
+            const isLocked = LOCKED_LEVELS.has(l)
+            const isActive = level.toLowerCase() === l
+            return isLocked ? (
+              <div
+                key={l}
+                title={`${l.toUpperCase()} — Coming Soon`}
+                className="relative py-1.5 rounded-lg text-xs font-bold flex flex-col items-center justify-center gap-0.5 cursor-not-allowed text-on-surface-variant/35 select-none"
+              >
+                <Icon name="lock" className="text-[10px] leading-none" />
+                <span className="text-[9px]">{l.toUpperCase()}</span>
+              </div>
+            ) : (
+              <button
+                key={l}
+                onClick={() => navigate(`/grammar/${l}/1`)}
+                className={`py-1.5 rounded-lg text-xs font-bold transition-all duration-200 ${
+                  isActive
+                    ? 'bg-primary text-on-primary shadow-sm'
+                    : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                {l.toUpperCase()}
+              </button>
+            )
+          })}
         </div>
       </div>
 

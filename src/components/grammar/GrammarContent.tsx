@@ -94,7 +94,7 @@ export function GrammarContent({
   const totalVocab = chapter.sidebar.vocab.length
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-10">
+    <div className="w-full px-6 xl:px-10 py-10">
 
       {/* Top bar: breadcrumb + reveal toggle */}
       <div className="flex items-center justify-between mb-8 mt-2 gap-4 flex-wrap">
@@ -154,10 +154,10 @@ export function GrammarContent({
       </header>
 
       {/* Main grid */}
-      <div className="grid grid-cols-12 gap-8">
+      <div className="grid grid-cols-12 gap-6 xl:gap-8">
 
         {/* Concepts */}
-        <div className="col-span-12 lg:col-span-8 space-y-6">
+        <div className="col-span-12 lg:col-span-9 space-y-6">
           {chapter.concepts.map((concept, conceptIndex) => {
             const style = getConceptStyle(concept.title)
             const totalConcepts = chapter.concepts.length
@@ -264,18 +264,15 @@ export function GrammarContent({
 
           {/* Cultural Insight (inline after concepts on mobile, full width) */}
           {chapter.sidebar.culturalInsight && (
-            <section className="lg:hidden bg-primary/5 p-6 rounded-2xl border border-primary/20">
-              <div className="flex items-center gap-2 mb-3">
+            <section className="lg:hidden bg-primary/5 p-4 rounded-2xl border border-primary/20">
+              <div className="flex items-center gap-2 mb-2">
                 <Icon name="campaign" className="text-primary" />
                 <h3 className="text-xs uppercase tracking-widest text-primary font-bold">
                   Cultural Insight
                 </h3>
               </div>
-              <h4 className="font-bold text-on-surface mb-2 font-headline">
-                {chapter.sidebar.culturalInsight.title}
-              </h4>
               <div
-                className="text-sm text-on-surface-variant leading-relaxed"
+                className="text-sm text-on-surface-variant leading-relaxed [&_br+br]:hidden"
                 dangerouslySetInnerHTML={{ __html: chapter.sidebar.culturalInsight.content }}
               />
             </section>
@@ -283,7 +280,7 @@ export function GrammarContent({
         </div>
 
         {/* Right sidebar: Vocabulary + Cultural Insight */}
-        <aside className="col-span-12 lg:col-span-4 space-y-6">
+        <aside className="col-span-12 lg:col-span-3 space-y-6">
 
           {/* Vocab card */}
           <div className="bg-surface-container-low rounded-2xl border border-outline-variant/20 sticky top-24 max-h-[calc(100vh-130px)] flex flex-col overflow-hidden">
@@ -370,18 +367,15 @@ export function GrammarContent({
 
           {/* Cultural Insight (desktop only) */}
           {chapter.sidebar.culturalInsight && (
-            <div className="hidden lg:block bg-primary/5 p-6 rounded-2xl border border-primary/20">
-              <div className="flex items-center gap-2 mb-3">
+            <div className="hidden lg:block bg-primary/5 p-4 rounded-2xl border border-primary/20">
+              <div className="flex items-center gap-2 mb-2">
                 <Icon name="campaign" className="text-primary" />
                 <h3 className="text-xs uppercase tracking-widest text-primary font-bold">
                   Cultural Insight
                 </h3>
               </div>
-              <h4 className="font-bold text-on-surface mb-2 font-headline">
-                {chapter.sidebar.culturalInsight.title}
-              </h4>
               <div
-                className="text-sm text-on-surface-variant leading-relaxed"
+                className="text-sm text-on-surface-variant leading-relaxed [&_br+br]:hidden"
                 dangerouslySetInnerHTML={{ __html: chapter.sidebar.culturalInsight.content }}
               />
             </div>

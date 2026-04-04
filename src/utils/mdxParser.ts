@@ -30,7 +30,7 @@ export function parseMarkdownBlock(lines: string[]): string {
       if (imgMatch) {
         const alt = imgMatch[1];
         const src = imgMatch[2];
-        html += `<div class="my-6"><img src="${src}" alt="${alt}" class="w-full h-auto object-contain max-h-[420px]" loading="lazy" /></div>`;
+        html += `<div class="my-3"><img src="${src}" alt="${alt}" class="w-full h-auto object-contain max-h-[420px]" loading="lazy" /></div>`;
       }
       continue;
     }
@@ -60,7 +60,7 @@ export function parseMarkdownBlock(lines: string[]): string {
     }
 
     if (t.startsWith('### ')) {
-      html += `<h5 class="text-primary font-bold mt-6 mb-2 text-[15px]">${parseInlineMarkdown(t.replace(/^###\s+/, ''))}</h5>`;
+      html += `<h5 class="text-primary font-bold mt-3 mb-1.5 text-[15px]">${parseInlineMarkdown(t.replace(/^###\s+/, ''))}</h5>`;
     } else if (t.startsWith('* ')) {
       html += `<div class="ml-4 flex gap-2 mt-1"><span class="text-primary">•</span> <span>${parseInlineMarkdown(t.replace(/^\*\s+/, ''))}</span></div>`;
     } else if (t.startsWith('> ') || t.startsWith('>')) {

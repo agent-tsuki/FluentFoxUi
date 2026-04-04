@@ -56,11 +56,11 @@ function KoiBackground() {
 
 // ─── Layout shell (shared Navbar + Footer + modals) ───────────────────────────
 function Shell() {
-  const { isProfileOverlayOpen, setIsProfileOverlayOpen } = useUI()
+  const { isProfileOverlayOpen, setIsProfileOverlayOpen, koiBackgroundEnabled } = useUI()
 
   return (
     <div className="bg-surface text-on-surface font-body selection:bg-primary-fixed selection:text-primary min-h-screen flex flex-col relative overflow-x-hidden">
-      <KoiBackground />
+      {koiBackgroundEnabled && <KoiBackground />}
 
       <div className="relative z-10 flex flex-col min-h-screen">
         <Navbar />

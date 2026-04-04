@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { useUI } from '@/context/UIContext'
 
 export function AccountSettings() {
-  const { mouseFollowerEnabled, toggleMouseFollower } = useUI()
+  const { mouseFollowerEnabled, toggleMouseFollower, koiBackgroundEnabled, toggleKoiBackground } = useUI()
   const [emailNotifs, setEmailNotifs] = useState(true)
   const [studyReminder, setStudyReminder] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -19,13 +19,20 @@ export function AccountSettings() {
             Customize how FluentFox looks for you
           </p>
         </div>
-        <div className="px-8 py-6">
+        <div className="px-8 py-6 flex flex-col gap-6">
           <Toggle
             icon="mouse"
             label="Cursor Trail"
             description="A subtle dot and ring that follow your cursor"
             checked={mouseFollowerEnabled}
             onChange={toggleMouseFollower}
+          />
+          <Toggle
+            icon="water"
+            label="Background Animation"
+            description="Animated koi fish background across all pages"
+            checked={koiBackgroundEnabled}
+            onChange={toggleKoiBackground}
           />
         </div>
       </div>

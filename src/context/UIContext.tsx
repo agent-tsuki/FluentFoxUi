@@ -7,6 +7,9 @@ interface UIContextType {
   // Dark mode
   darkMode: boolean
   toggleDarkMode: () => void
+  // Koi background
+  koiBackgroundEnabled: boolean
+  toggleKoiBackground: () => void
   // Profile overlay
   isProfileOverlayOpen: boolean
   setIsProfileOverlayOpen: (open: boolean) => void
@@ -36,6 +39,10 @@ export function UIProvider({ children }: { children: ReactNode }) {
     safeLocalStorage('darkMode', false)
   )
 
+  const [koiBackgroundEnabled, setKoiBackgroundEnabled] = useState(() =>
+    safeLocalStorage('koiBackgroundEnabled', true)
+  )
+
   const [isProfileOverlayOpen, setIsProfileOverlayOpen] = useState(false)
   const [overlayProfile, setOverlayProfile] = useState<{ gender?: 'male' | 'female'; profileImage?: string; firstName?: string } | null>(null)
   const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null)
@@ -46,6 +53,13 @@ export function UIProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('mouseFollowerEnabled', JSON.stringify(mouseFollowerEnabled))
     } catch { /* storage unavailable */ }
   }, [mouseFollowerEnabled])
+
+  // Sync koi background preference
+  useEffect(() => {
+    try {
+      localStorage.setItem('koiBackgroundEnabled', JSON.stringify(koiBackgroundEnabled))
+    } catch { /* storage unavailable */ }
+  }, [koiBackgroundEnabled])
 
   // Sync dark mode preference + apply to <html>
   useEffect(() => {
@@ -63,6 +77,7 @@ export function UIProvider({ children }: { children: ReactNode }) {
 
   const toggleMouseFollower = () => setMouseFollowerEnabled((prev: boolean) => !prev)
   const toggleDarkMode = () => setDarkMode((prev: boolean) => !prev)
+  const toggleKoiBackground = () => setKoiBackgroundEnabled((prev: boolean) => !prev)
 
   return (
     <UIContext.Provider value={{
@@ -70,6 +85,8 @@ export function UIProvider({ children }: { children: ReactNode }) {
       toggleMouseFollower,
       darkMode,
       toggleDarkMode,
+      koiBackgroundEnabled,
+      toggleKoiBackground,
       isProfileOverlayOpen,
       setIsProfileOverlayOpen,
       overlayProfile,

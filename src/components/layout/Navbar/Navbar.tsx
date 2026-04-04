@@ -63,14 +63,7 @@ export function Navbar() {
             {/* Auth / Profile */}
             {user ? (
               <div className="relative group hidden md:block">
-                <button
-                  onClick={(e) => {
-                    setOverlayProfile(user)
-                    setTriggerRect(e.currentTarget.getBoundingClientRect())
-                    setIsProfileOverlayOpen(true)
-                  }}
-                  className="flex items-center gap-2 cursor-pointer group/avatar"
-                >
+                <button className="flex items-center gap-2 cursor-pointer group/avatar">
                   <div className="w-10 h-10 rounded-full border-2 border-primary/20 group-hover/avatar:border-primary transition-colors shadow-md overflow-hidden bg-surface-container">
                     <img
                       src={

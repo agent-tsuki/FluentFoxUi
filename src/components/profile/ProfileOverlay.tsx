@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import { Icon } from '@/components/ui/Icon'
 import { useAuth } from '@/context/AuthContext'
@@ -90,7 +91,7 @@ export function ProfileOverlay({ isOpen, onClose }: ProfileOverlayProps) {
     borderRadius: '9999px',
   }
 
-  return (
+  return createPortal(
     <div
       className={`fixed inset-0 z-[9999] transition-all duration-500 ${
         isOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
@@ -215,6 +216,7 @@ export function ProfileOverlay({ isOpen, onClose }: ProfileOverlayProps) {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
