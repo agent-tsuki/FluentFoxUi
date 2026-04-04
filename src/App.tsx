@@ -16,6 +16,7 @@ import { HiraganaPage } from '@/pages/HiraganaPage'
 import { KanjiPage } from '@/pages/KanjiPage'
 import { QuizPage } from '@/pages/QuizPage'
 import { ProfilePage } from '@/pages/ProfilePage'
+import { GrammarPage } from '@/pages/GrammarPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { AboutPage } from '@/pages/AboutPage'
 import { TermsPage } from '@/pages/TermsPage'
@@ -89,6 +90,7 @@ const router = createBrowserRouter([
       { index: true,              element: <HomePage /> },
       { path: 'kana/hiragana',   element: <HiraganaPage /> },
       { path: 'kana/kanji',      element: <KanjiPage /> },
+      { path: 'grammar/:level/:chapterId?',  element: <GrammarPage /> },
       { path: 'quiz',            element: <QuizPage /> },
       { path: 'profile',         element: <ProfilePage /> },
       { path: 'dashboard',       element: <DashboardPage /> },
