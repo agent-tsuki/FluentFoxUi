@@ -29,24 +29,24 @@
 }
 
 html.dark {
-  /* Surface scale — warm dark brown (matches fox orange brand) */
-  --surface:                   25 20 18;
-  --background:                20 16 14;
-  --surface-dim:               20 16 14;
-  --surface-bright:            53 47 45;
-  --surface-container-lowest:  15 11 9;
-  --surface-container-low:     30 26 24;
-  --surface-container:         38 34 32;
-  --surface-container-high:    49 45 43;
-  --surface-container-highest: 59 55 53;
+  /* Surface scale — Charcoal Ember (warm lifted dark, matches fox orange brand) */
+  --surface:                   35 31 28;
+  --background:                28 23 20;
+  --surface-dim:               28 23 20;
+  --surface-bright:            72 67 63;
+  --surface-container-lowest:  28 23 20;
+  --surface-container-low:     42 37 34;
+  --surface-container:         51 46 43;
+  --surface-container-high:    61 56 53;
+  --surface-container-highest: 72 67 63;
 
   /* Text */
-  --on-surface:         236 228 225;
-  --on-surface-variant: 210 188 185;
+  --on-surface:         237 229 225;
+  --on-surface-variant: 196 168 159;
 
   /* Outline */
-  --outline:         156 132 130;
-  --outline-variant: 83 67 65;
+  --outline:         107 85 80;
+  --outline-variant: 67 49 48;
 }
 
 /* Google Fonts are loaded via index.html */
@@ -144,6 +144,24 @@ body {
 .option-rise:nth-child(3) { animation-delay: 0.19s; }
 .option-rise:nth-child(4) { animation-delay: 0.26s; }
 
+/* ─── Logo shimmer ────────────────────────────────────────────────────────── */
+
+@keyframes logo-shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+.logo-shimmer-text {
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.group:hover .logo-shimmer-text {
+  animation: logo-shimmer 0.9s linear forwards;
+}
+
 /* ─── Card flip ───────────────────────────────────────────────────────────── */
 
 .card-3d-wrap {
@@ -184,4 +202,8 @@ body {
   mix-blend-mode: multiply;
   will-change: transform;
   transition: opacity 0.3s ease;
+}
+
+html.dark .mouse-follower {
+  mix-blend-mode: screen;
 }

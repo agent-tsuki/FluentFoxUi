@@ -23,10 +23,13 @@ import { TermsPage } from '@/pages/TermsPage'
 import { PrivacyPage } from '@/pages/PrivacyPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { ServerErrorPage } from '@/pages/ServerErrorPage'
+import { ClassesPage } from '@/pages/ClassesPage'
+import { ClassDetailPage } from '@/pages/ClassDetailPage'
 
 // ─── Background Koi animation — pauses when tab is hidden ─────────────────────
 function KoiBackground() {
   const lottieRef = useRef<LottieRefCurrentProps>(null)
+  const { darkMode } = useUI()
 
   useEffect(() => {
     const handleVisibility = () => {
@@ -41,7 +44,10 @@ function KoiBackground() {
   }, [])
 
   return (
-    <div className="fixed inset-0 pointer-events-none opacity-[0.08] flex items-center justify-center overflow-hidden">
+    <div
+      className="fixed inset-0 pointer-events-none flex items-center justify-center overflow-hidden transition-opacity duration-500"
+      style={{ opacity: darkMode ? 0.18 : 0.08 }}
+    >
       <div className="w-[1200px] h-[1200px] transform translate-y-32">
         <Lottie
           lottieRef={lottieRef}
@@ -94,6 +100,8 @@ const router = createBrowserRouter([
       { path: 'quiz',            element: <QuizPage /> },
       { path: 'profile',         element: <ProfilePage /> },
       { path: 'dashboard',       element: <DashboardPage /> },
+      { path: 'classes',          element: <ClassesPage /> },
+      { path: 'classes/:teacherId', element: <ClassDetailPage /> },
       { path: 'about',           element: <AboutPage /> },
       { path: 'terms',           element: <TermsPage /> },
       { path: 'privacy',         element: <PrivacyPage /> },

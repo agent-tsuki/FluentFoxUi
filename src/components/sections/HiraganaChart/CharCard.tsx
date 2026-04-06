@@ -86,12 +86,12 @@ export function CharCard({ char, size = 'lg', interactive = true }: CharCardProp
     }
   };
 
-  // Solid card background — no backdrop-filter (major GPU cost with 46+ cards)
+  // Solid card background — uses CSS vars so it adapts to dark mode
   const cardBg = flipped
-    ? 'rgba(255, 248, 244, 0.98)'
+    ? 'rgb(var(--surface-container) / 0.98)'
     : hovered
-    ? 'rgba(255, 252, 249, 0.98)'
-    : 'rgba(255, 255, 255, 0.96)';
+    ? 'rgb(var(--surface-container-low) / 0.98)'
+    : 'rgb(var(--surface-container-lowest) / 0.96)';
 
   const cardShadow = flipped
     ? '0 20px 56px rgba(255,115,64,0.18), 0 6px 20px rgba(0,0,0,0.06)'
@@ -132,7 +132,7 @@ export function CharCard({ char, size = 'lg', interactive = true }: CharCardProp
         className="absolute inset-0 rounded-[22px] overflow-hidden transition-shadow duration-300"
         style={{
           background: cardBg,
-          border: '1px solid rgba(255,255,255,0.92)',
+          border: '1px solid rgb(var(--outline-variant) / 0.5)',
           boxShadow: cardShadow,
           zIndex: 1,
         }}
@@ -160,13 +160,13 @@ export function CharCard({ char, size = 'lg', interactive = true }: CharCardProp
                   <div className="flex items-baseline">
                     <span
                       className={`${isLg ? 'text-6xl' : 'text-4xl'} font-bold`}
-                      style={{ color: '#18182A', lineHeight: 1 }}
+                      style={{ color: 'rgb(var(--on-surface))', lineHeight: 1 }}
                     >
                       {base}
                     </span>
                     <span
                       className={`${isLg ? 'text-3xl' : 'text-xl'} font-bold`}
-                      style={{ color: '#18182A', opacity: 0.38, lineHeight: 1 }}
+                      style={{ color: 'rgb(var(--on-surface) / 0.38)', lineHeight: 1 }}
                     >
                       {small}
                     </span>
@@ -174,7 +174,7 @@ export function CharCard({ char, size = 'lg', interactive = true }: CharCardProp
                 ) : (
                   <span
                     className={`${isLg ? 'text-7xl' : 'text-5xl'} font-bold`}
-                    style={{ color: '#18182A', lineHeight: 1 }}
+                    style={{ color: 'rgb(var(--on-surface))', lineHeight: 1 }}
                   >
                     {base}
                   </span>
@@ -215,7 +215,7 @@ export function CharCard({ char, size = 'lg', interactive = true }: CharCardProp
                 <>
                   <span
                     className={`${isLg ? 'text-[17px]' : 'text-[12px]'} font-bold leading-snug relative`}
-                    style={{ color: '#18182A' }}
+                    style={{ color: 'rgb(var(--on-surface))' }}
                   >
                     {sampleWord.word}
                   </span>
@@ -225,7 +225,7 @@ export function CharCard({ char, size = 'lg', interactive = true }: CharCardProp
                   />
                   <span
                     className={`${isLg ? 'text-[11px]' : 'text-[9px]'} italic relative`}
-                    style={{ color: '#18182A', opacity: 0.48 }}
+                    style={{ color: 'rgb(var(--on-surface) / 0.5)' }}
                   >
                     {sampleWord.meaning}
                   </span>
@@ -233,7 +233,7 @@ export function CharCard({ char, size = 'lg', interactive = true }: CharCardProp
               ) : (
                 <span
                   className={`${isLg ? 'text-4xl' : 'text-2xl'} font-bold`}
-                  style={{ color: '#18182A' }}
+                  style={{ color: 'rgb(var(--on-surface))' }}
                 >
                   {char.character}
                 </span>

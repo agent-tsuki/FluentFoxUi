@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { GrammarChapter, JapaneseSegment } from '@/types/grammar'
 import { InteractiveWord } from '@/components/ui/InteractiveWord'
 import { useState, useEffect } from 'react'
+import confetti from 'canvas-confetti'
 
 interface GrammarContentProps {
   chapter: GrammarChapter
@@ -392,7 +393,12 @@ export function GrammarContent({
             <Icon name="check_circle" className="text-4xl text-on-surface-variant/30" />
             <p className="text-sm font-medium text-on-surface-variant">Done with this chapter?</p>
             <button
-              onClick={onMarkComplete}
+              onClick={() => {
+                const colors = ['#EA6B44', '#FF9F5C', '#FFD700', '#ffffff', '#D86B35']
+                confetti({ particleCount: 90, angle: 60,  spread: 55, origin: { x: 0, y: 0.65 }, colors })
+                confetti({ particleCount: 90, angle: 120, spread: 55, origin: { x: 1, y: 0.65 }, colors })
+                onMarkComplete()
+              }}
               className="flex items-center gap-2 px-6 py-3 bg-primary text-on-primary font-bold rounded-full text-sm hover:bg-primary/90 active:scale-95 transition-all shadow-md"
             >
               <Icon name="check" className="text-base" />

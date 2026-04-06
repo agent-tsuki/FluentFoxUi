@@ -2,7 +2,7 @@ export function LearningGuide() {
   return (
     <section className="mt-16 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
       {/* Guide card */}
-      <div className="bg-white p-10 rounded-2xl border border-surface-container-high shadow-[0_10px_30px_rgba(0,0,0,0.03)] flex flex-col justify-center">
+      <div className="bg-surface-container-lowest p-10 rounded-2xl border border-surface-container-high shadow-[0_10px_30px_rgba(0,0,0,0.03)] flex flex-col justify-center">
         <h3 className="font-headline text-lg font-bold uppercase tracking-[0.2em] text-primary mb-6">
           Learning Guide
         </h3>

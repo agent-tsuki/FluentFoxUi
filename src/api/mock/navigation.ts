@@ -20,7 +20,7 @@ export const mockNavItems: NavItem[] = [
     ],
   },
   { label: 'Quiz', href: '/quiz' },
-  { label: 'Pricing', href: '/pricing' },
+  { label: 'Free Classes', href: '/classes' },
 ]
 
 export const mockFooterLinks: FooterLink[] = [

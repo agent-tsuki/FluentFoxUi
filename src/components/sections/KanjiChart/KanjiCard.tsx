@@ -9,8 +9,8 @@ const levelColors: Record<string, string> = {
   N5: 'bg-tertiary/10 text-tertiary',
   N4: 'bg-primary/10 text-primary',
   N3: 'bg-secondary/10 text-secondary',
-  N2: 'bg-amber-100 text-amber-700',
-  N1: 'bg-rose-100 text-rose-700',
+  N2: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  N1: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
 }
 
 // Stroke order hints shown on the back face
@@ -57,7 +57,7 @@ export function KanjiCard({ kanji }: KanjiCardProps) {
       <div className={`card-3d-inner ${flipped ? 'flipped' : ''} w-full h-full`}>
 
         {/* ── Front face ────────────────────────────────── */}
-        <div className="card-face bg-white rounded-xl overflow-hidden border border-surface-container-high transition-shadow duration-300 hover:shadow-[0_20px_40px_rgba(172,0,30,0.08)] flex flex-col">
+        <div className="card-face bg-surface-container-lowest rounded-xl overflow-hidden border border-surface-container-high transition-shadow duration-300 hover:shadow-[0_20px_40px_rgba(172,0,30,0.08)] flex flex-col">
           {/* Character */}
           <div className="pt-8 pb-4 flex items-center justify-center relative flex-1">
             <span className="absolute text-7xl font-bold text-on-surface/5 select-none pointer-events-none japanese-text">

@@ -36,7 +36,7 @@ export function XAuthButton({ onClick, disabled }: { onClick: () => void; disabl
         disabled={disabled}
         onMouseEnter={handleHoverStart}
         onMouseLeave={handleHoverEnd}
-        className="flex-1 relative overflow-hidden rounded-xl border border-surface-container-high bg-white"
+        className="flex-1 relative overflow-hidden rounded-xl border border-surface-container-high bg-surface-container-lowest"
         >
         {/* Black base — absolute relative to button so it fills the full button */}
         <motion.div
@@ -49,7 +49,7 @@ export function XAuthButton({ onClick, disabled }: { onClick: () => void; disabl
         <div className="relative w-full py-3 flex items-center justify-center cursor-pointer select-none">
           {/* X Icon */}
           <motion.div animate={xControls} initial={{ scale: 1 }} className="relative z-20">
-            <XLogo fill={hovered ? "#ffffff" : "#000000"} />
+            <XLogo fill={hovered ? "#ffffff" : document.documentElement.classList.contains("dark") ? "#ECD4D1" : "#000000"} />
           </motion.div>
         </div>
       </button>

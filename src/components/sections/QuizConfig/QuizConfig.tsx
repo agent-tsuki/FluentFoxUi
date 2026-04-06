@@ -233,7 +233,7 @@ export function QuizConfig({ onStart }: QuizConfigProps) {
           <div className="lg:col-span-4">
             <div className="sticky top-28 space-y-8">
               {/* Summary card */}
-              <div className="bg-on-surface text-inverse-on-surface p-10 rounded-2xl relative overflow-hidden">
+              <div className="bg-on-surface dark:bg-surface-container-highest text-inverse-on-surface p-10 rounded-2xl relative overflow-hidden">
                 <div className="relative z-10">
                   <h2 className="text-2xl font-bold mb-6 font-headline">Session Summary</h2>
                   <ul className="space-y-4 mb-10">

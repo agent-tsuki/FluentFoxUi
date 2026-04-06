@@ -1,4 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
+import confetti from 'canvas-confetti'
+import { motion, AnimatePresence } from 'framer-motion'
+import { DotLottieReact } from '@lottiefiles/dotlottie-react'
+import fireworksUrl from '@/assets/lottie/fireworks.lottie?url'
+import balloonUrl from '@/assets/lottie/balloon_animation.lottie?url'
+import partyConfettiUrl from '@/assets/lottie/party_confetti.lottie?url'
 import type { QuizResultData, QuizQuestionData } from '@/types'
 import { CloseButton } from '@/components/ui/CloseButton'
 
@@ -50,12 +56,45 @@ function MissedCard({ q }: { q: QuizQuestionData }) {
 }
 
 export function QuizResults({ result, onRetry, onExit }: QuizResultsProps) {
+  const accuracy = Math.round((result.score / result.total) * 100)
+  const crackerInterval = useRef<ReturnType<typeof setInterval> | null>(null)
+
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = '' }
   }, [])
 
-  const accuracy = Math.round((result.score / result.total) * 100)
+  useEffect(() => {
+    if (accuracy < 80) return
+
+    // Initial burst
+    const fire = (particleRatio: number, opts: confetti.Options) =>
+      confetti({ origin: { y: 0.6 }, ...opts, particleCount: Math.floor(200 * particleRatio) })
+
+    fire(0.25, { spread: 26, startVelocity: 55 })
+    fire(0.2,  { spread: 60 })
+    fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 })
+    fire(0.1,  { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 })
+    fire(0.1,  { spread: 120, startVelocity: 45 })
+
+    // Continuous cracker bursts from random positions
+    crackerInterval.current = setInterval(() => {
+      confetti({
+        particleCount: 80,
+        spread: 360,
+        startVelocity: 30,
+        decay: 0.88,
+        scalar: 0.9,
+        origin: { x: Math.random(), y: Math.random() * 0.5 },
+        colors: ['#EA6B44', '#FFD700', '#FF69B4', '#00CED1', '#7B68EE', '#32CD32'],
+      })
+    }, 1800)
+
+    return () => {
+      if (crackerInterval.current) clearInterval(crackerInterval.current)
+      confetti.reset()
+    }
+  }, [])
 
   const message =
     accuracy >= 90
@@ -67,7 +106,44 @@ export function QuizResults({ result, onRetry, onExit }: QuizResultsProps) {
       : 'Keep studying — you\'ll get there!'
 
   return (
-    /* Backdrop */
+    <>
+    {/* Celebration layer — only when score ≥ 80% */}
+    <AnimatePresence>
+      {accuracy >= 80 && (
+        <div className="fixed inset-0 z-40 pointer-events-none overflow-hidden">
+
+          {/* Party confetti Lottie — full screen top */}
+          <DotLottieReact src={partyConfettiUrl} loop autoplay
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '60%', opacity: 0.7 }}
+          />
+
+          {/* Fireworks — left and right corners */}
+          <DotLottieReact src={fireworksUrl} loop autoplay
+            style={{ position: 'absolute', bottom: '10%', left: '-4%', width: '260px', height: '260px' }}
+          />
+          <DotLottieReact src={fireworksUrl} loop autoplay
+            style={{ position: 'absolute', bottom: '10%', right: '-4%', width: '260px', height: '260px' }}
+          />
+          <DotLottieReact src={fireworksUrl} loop autoplay
+            style={{ position: 'absolute', top: '5%', left: '30%', width: '180px', height: '180px', opacity: 0.7 }}
+          />
+
+          {/* Floating balloons */}
+          {[10, 30, 55, 75, 90].map((leftPct, i) => (
+            <motion.div
+              key={i}
+              style={{ position: 'absolute', bottom: '-10%', left: `${leftPct}%`, width: 100, height: 100 }}
+              animate={{ y: [0, -window.innerHeight * 1.2] }}
+              transition={{ duration: 5 + i * 0.8, repeat: Infinity, delay: i * 0.9, ease: 'easeInOut' }}
+            >
+              <DotLottieReact src={balloonUrl} loop autoplay style={{ width: '100%', height: '100%' }} />
+            </motion.div>
+          ))}
+        </div>
+      )}
+    </AnimatePresence>
+
+    {/* Backdrop */}
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 pb-4 sm:pb-0 bg-black/60 backdrop-blur-sm animate-results-enter">
       {/* Modal panel */}
       <div className="w-full max-w-md bg-surface rounded-3xl shadow-2xl overflow-hidden">
@@ -146,5 +222,6 @@ export function QuizResults({ result, onRetry, onExit }: QuizResultsProps) {
         </div>
       </div>
     </div>
+    </>
   )
 }

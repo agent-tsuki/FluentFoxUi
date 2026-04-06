@@ -1,5 +1,5 @@
 import Lottie, { LottieRefCurrentProps } from "lottie-react"
-import { useRef } from "react"
+import { useRef, forwardRef, useImperativeHandle } from "react"
 import happyFoxAnimation from "@/assets/animations/happy_fox.json"
 
 interface FoxLogoProps {
@@ -9,28 +9,36 @@ interface FoxLogoProps {
   loop?: boolean
 }
 
-export function FoxLogo({ size = 48, className, autoplay = false, loop = false }: FoxLogoProps) {
-  const lottieRef = useRef<LottieRefCurrentProps>(null)
-  const blendClass = "mix-blend-multiply dark:mix-blend-screen"
+export interface FoxLogoHandle {
+  play: () => void
+  reverse: () => void
+}
 
-  return (
-    <Lottie
-      lottieRef={lottieRef}
-      animationData={happyFoxAnimation}
-      autoplay={autoplay}
-      loop={loop}
-      style={{ width: size, height: size, cursor: autoplay ? "default" : "pointer" }}
-      className={`${blendClass} ${className ?? ""}`}
-      onMouseEnter={() => {
-        if (autoplay) return
+export const FoxLogo = forwardRef<FoxLogoHandle, FoxLogoProps>(
+  ({ size = 48, className, autoplay = false, loop = false }, ref) => {
+    const lottieRef = useRef<LottieRefCurrentProps>(null)
+    const blendClass = "mix-blend-multiply dark:mix-blend-screen"
+
+    useImperativeHandle(ref, () => ({
+      play: () => {
         lottieRef.current?.setDirection(1)
         lottieRef.current?.play()
-      }}
-      onMouseLeave={() => {
-        if (autoplay) return
+      },
+      reverse: () => {
         lottieRef.current?.setDirection(-1)
         lottieRef.current?.play()
-      }}
-    />
-  )
-}
+      },
+    }))
+
+    return (
+      <Lottie
+        lottieRef={lottieRef}
+        animationData={happyFoxAnimation}
+        autoplay={autoplay}
+        loop={loop}
+        style={{ width: size, height: size }}
+        className={`${blendClass} ${className ?? ""}`}
+      />
+    )
+  }
+)

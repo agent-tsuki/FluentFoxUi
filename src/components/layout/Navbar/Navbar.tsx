@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { mockNavItems } from '@/api/mock/navigation'
 import type { NavItem } from '@/types'
@@ -6,7 +6,7 @@ import { useModal } from '@/context/ModalContext'
 import { useAuth } from '@/context/AuthContext'
 import { NavDropdown } from './NavDropdown'
 import { Button } from '@/components/ui/Button'
-import { FoxLogo } from './FoxLogo'
+import { FoxLogo, FoxLogoHandle } from './FoxLogo'
 import { Icon } from '@/components/ui/Icon'
 import { useUI } from '@/context/UIContext'
 
@@ -18,6 +18,7 @@ export function Navbar() {
   const { user, logout } = useAuth()
   const { setIsProfileOverlayOpen, setOverlayProfile, setTriggerRect, darkMode, toggleDarkMode } = useUI()
 
+  const foxLogoRef = useRef<FoxLogoHandle>(null)
   const closeMobile = () => setMobileOpen(false)
 
   return (
@@ -25,8 +26,14 @@ export function Navbar() {
       <nav className="fixed top-0 w-full z-50 bg-surface-container-lowest/80 backdrop-blur-xl shadow-[0_20px_40px_rgba(25,28,29,0.04)] border-b border-outline-variant/20">
         <div className="flex justify-between items-center px-6 md:px-8 py-4 max-w-7xl mx-auto">
           {/* Logo */}
-          <Link to="/" className="flex items-end gap-0 group" onClick={closeMobile}>
-            <FoxLogo size={50} />
+          <Link
+            to="/"
+            className="flex items-end gap-0 group"
+            onClick={closeMobile}
+            onMouseEnter={() => foxLogoRef.current?.play()}
+            onMouseLeave={() => foxLogoRef.current?.reverse()}
+          >
+            <FoxLogo ref={foxLogoRef} size={50} />
             <span className="text-4xl font-bold tracking-tighter font-headline bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 dark:from-orange-400 dark:via-amber-300 dark:to-orange-300 bg-clip-text text-transparent">
               FluentFox
             </span>
