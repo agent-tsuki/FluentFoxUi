@@ -247,11 +247,25 @@ export interface StudyLogEntry {
   xp: number | null
 }
 
+export interface DayActivity {
+  date: string     // ISO YYYY-MM-DD
+  minutes: number  // study minutes; 0 = no activity
+}
+
+export interface StreakCalendarData {
+  activities: DayActivity[]
+  currentStreak: number
+  longestStreak: number
+  totalActiveDays: number
+  thisWeekMinutes: number
+}
+
 export interface DashboardData {
   stats: DashboardStats
   skillBalance: SkillBalance
   milestones: Milestone[]
   studyLog: StudyLogEntry[]
+  streakCalendar: StreakCalendarData
 }
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────

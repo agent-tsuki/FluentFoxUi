@@ -45,7 +45,7 @@ export function ProfileOverlay({ isOpen, onClose }: ProfileOverlayProps) {
     '/avatars/women/casual_2.png',
     '/avatars/women/geisha_1.png',
     '/avatars/women/geisha_2.png',
-    '/avatars/women/traditional.png',
+    '/avatars/women/japanese.png',
   ]
 
   const avatars = overlayProfile?.gender === 'female' ? womenAvatars : menAvatars

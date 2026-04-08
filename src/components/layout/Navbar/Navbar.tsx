@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { mockNavItems } from '@/api/mock/navigation'
+import { mockDashboardData } from '@/api/mock/dashboard'
 import type { NavItem } from '@/types'
 import { useModal } from '@/context/ModalContext'
 import { useAuth } from '@/context/AuthContext'
@@ -10,10 +11,187 @@ import { FoxLogo, FoxLogoHandle } from './FoxLogo'
 import { Icon } from '@/components/ui/Icon'
 import { useUI } from '@/context/UIContext'
 
+const MOCK_STREAK    = mockDashboardData.stats.currentStreak
+const MOCK_ACTIVITIES = mockDashboardData.streakCalendar.activities
+
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December']
+
+// Intensity tier: 0=none 1=light 2=medium 3=strong 4=hard
+function intensityTier(minutes: number): 0 | 1 | 2 | 3 | 4 {
+  if (minutes === 0)  return 0
+  if (minutes <= 20)  return 1
+  if (minutes <= 45)  return 2
+  if (minutes <= 75)  return 3
+  return 4
+}
+
+const TIER_BG: Record<number, React.CSSProperties> = {
+  1: { backgroundColor: 'rgba(234,107,68,0.15)' },
+  2: { backgroundColor: 'rgba(234,107,68,0.35)' },
+  3: { backgroundColor: 'rgba(234,107,68,0.65)' },
+  4: { backgroundColor: 'rgba(234,107,68,1)'    },
+}
+const TIER_FLAME_OPACITY = ['', 'opacity-40', 'opacity-60', 'opacity-85', 'opacity-100']
+const TIER_NUM_COLOR     = ['text-on-surface-variant', 'text-primary', 'text-primary', 'text-white', 'text-white']
+const TIER_LABEL         = ['', 'Light', 'Steady', 'Strong', 'Hard day!']
+
+function StreakMonthPopup() {
+  const [hoveredDay, setHoveredDay] = useState<number | null>(null)
+
+  const year  = 2026
+  const month = 3 // April (0-indexed)
+
+  const actMap      = new Map(MOCK_ACTIVITIES.map(a => [a.date, a.minutes]))
+  const firstDow    = new Date(year, month, 1).getDay()
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  const today       = 7
+
+  const cells: (number | null)[] = [
+    ...Array(firstDow).fill(null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ]
+  while (cells.length % 7 !== 0) cells.push(null)
+
+  function dayKey(day: number) {
+    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+  }
+
+  const activeDaysThisMonth = Array.from({ length: daysInMonth }, (_, i) => i + 1)
+    .filter(d => (actMap.get(dayKey(d)) ?? 0) > 0).length
+
+  const hoveredMinutes = hoveredDay ? (actMap.get(dayKey(hoveredDay)) ?? 0) : 0
+  const hoveredTier    = hoveredDay ? intensityTier(hoveredMinutes) : 0
+
+  return (
+    <div className="absolute top-[calc(100%+0.6rem)] left-1/2 -translate-x-1/2 w-72 bg-surface-container-lowest border border-outline-variant/20 rounded-2xl shadow-[0_20px_60px_rgba(25,28,29,0.18)] p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+      {/* Caret */}
+      <div className="absolute -top-[7px] left-1/2 -translate-x-1/2 w-3.5 h-3.5 rotate-45 bg-surface-container-lowest border-l border-t border-outline-variant/20 rounded-tl-sm" />
+
+      {/* Header */}
+      <div className="flex items-start justify-between mb-3">
+        <div>
+          <p className="text-sm font-extrabold text-on-surface font-headline tracking-tight">
+            {MONTH_NAMES[month]} {year}
+          </p>
+          <p className="text-[11px] text-on-surface-variant font-body mt-0.5">
+            {activeDaysThisMonth} day{activeDaysThisMonth !== 1 ? 's' : ''} studied this month
+          </p>
+        </div>
+        <div className="flex items-center gap-1 bg-primary/10 rounded-full px-2.5 py-1">
+          <Icon name="local_fire_department" className="text-sm text-primary animate-streak-flame" />
+          <span className="text-xs font-bold text-primary font-label">{MOCK_STREAK}</span>
+        </div>
+      </div>
+
+      {/* DOW labels */}
+      <div className="grid grid-cols-7 mb-1.5 px-0.5">
+        {['Su','Mo','Tu','We','Th','Fr','Sa'].map((d, i) => (
+          <span key={i} className="text-center text-[9px] font-bold text-on-surface-variant/60 font-label tracking-wide">
+            {d}
+          </span>
+        ))}
+      </div>
+
+      {/* Day grid */}
+      <div className="grid grid-cols-7 gap-1 px-0.5">
+        {cells.map((day, i) => {
+          if (!day) return <div key={i} className="aspect-square" />
+
+          const minutes = actMap.get(dayKey(day)) ?? 0
+          const tier    = intensityTier(minutes)
+          const isToday = day === today
+          const isHovered = hoveredDay === day
+          const isFuture  = day > today
+
+          return (
+            <div
+              key={i}
+              onMouseEnter={() => !isFuture && setHoveredDay(day)}
+              onMouseLeave={() => setHoveredDay(null)}
+              className="aspect-square"
+            >
+              <div
+                style={tier > 0 && !isFuture ? TIER_BG[tier] : undefined}
+                className={[
+                  'relative w-full h-full rounded-lg flex flex-col items-center justify-center transition-all duration-150 cursor-default select-none',
+                  tier === 0 || isFuture
+                    ? 'bg-surface-container-high'
+                    : '',
+                  isToday
+                    ? 'ring-2 ring-primary ring-offset-1 ring-offset-surface-container-lowest'
+                    : '',
+                  isHovered && !isFuture
+                    ? 'scale-110 shadow-md z-10'
+                    : '',
+                  isFuture ? 'opacity-30' : '',
+                ].join(' ')}
+              >
+                {/* Flame — shown for active days */}
+                {tier > 0 && !isFuture && (
+                  <span
+                    className={`material-symbols-outlined leading-none ${TIER_FLAME_OPACITY[tier]} ${
+                      tier >= 3 ? 'text-white' : 'text-primary'
+                    }`}
+                    style={{ fontSize: tier === 4 ? 11 : 9 }}
+                  >
+                    local_fire_department
+                  </span>
+                )}
+                {/* Day number */}
+                <span
+                  className={`font-bold font-label leading-none ${
+                    isFuture ? 'text-on-surface-variant' : TIER_NUM_COLOR[tier]
+                  }`}
+                  style={{ fontSize: 10 }}
+                >
+                  {day}
+                </span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Hover info / legend */}
+      <div className="mt-3 pt-2.5 border-t border-outline-variant/20 min-h-[28px] flex items-center justify-between gap-2">
+        {hoveredDay && hoveredTier > 0 ? (
+          <div className="flex items-center gap-1.5">
+            <Icon name="local_fire_department" className="text-sm text-primary" />
+            <span className="text-xs font-bold text-on-surface font-label">
+              Apr {hoveredDay} —
+            </span>
+            <span className="text-xs text-on-surface-variant font-body">
+              {hoveredMinutes} min · {TIER_LABEL[hoveredTier]}
+            </span>
+          </div>
+        ) : hoveredDay ? (
+          <div className="flex items-center gap-1.5">
+            <Icon name="bedtime" className="text-sm text-on-surface-variant" />
+            <span className="text-xs text-on-surface-variant font-body">Apr {hoveredDay} — Rest day</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            {([1, 2, 3, 4] as const).map(t => (
+              <div key={t} className="flex items-center gap-1">
+                <div
+                  className="w-2.5 h-2.5 rounded-sm"
+                  style={TIER_BG[t]}
+                />
+                <span className="text-[9px] text-on-surface-variant font-label">{TIER_LABEL[t]}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 const navItems: NavItem[] = mockNavItems
 
 export function Navbar() {
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const [mobileOpen, setMobileOpen]       = useState(false)
+  const [streakHovered, setStreakHovered] = useState(false)
   const { openModal } = useModal()
   const { user, logout } = useAuth()
   const { setIsProfileOverlayOpen, setOverlayProfile, setTriggerRect, darkMode, toggleDarkMode } = useUI()
@@ -58,6 +236,29 @@ export function Navbar() {
 
           {/* Right side: dark mode + auth */}
           <div className="flex items-center gap-3">
+            {/* Streak pill — shown when logged in */}
+            {user && (
+              <div
+                className="relative hidden md:block"
+                onMouseEnter={() => setStreakHovered(true)}
+                onMouseLeave={() => setStreakHovered(false)}
+              >
+                <Link
+                  to="/dashboard"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
+                >
+                  <Icon
+                    name="local_fire_department"
+                    className="text-base text-primary animate-streak-flame"
+                  />
+                  <span className="text-sm font-bold text-primary font-label leading-none">
+                    {MOCK_STREAK}
+                  </span>
+                </Link>
+                {streakHovered && <StreakMonthPopup />}
+              </div>
+            )}
+
             {/* Dark mode toggle */}
             <button
               onClick={toggleDarkMode}
@@ -191,6 +392,13 @@ export function Navbar() {
               <div className="border-t border-outline-variant/30 pt-4 mt-4">
                 {user ? (
                   <div className="space-y-1">
+                    {/* Mobile streak badge */}
+                    <div className="flex items-center gap-2 px-3 py-2 mb-1">
+                      <Icon name="local_fire_department" className="text-base text-primary animate-streak-flame" />
+                      <span className="text-sm font-bold text-primary font-label">
+                        {MOCK_STREAK}-day streak
+                      </span>
+                    </div>
                     <div className="flex items-center gap-3 px-3 py-3">
                       <div className="w-10 h-10 rounded-full overflow-hidden bg-surface-container flex-shrink-0">
                         <img

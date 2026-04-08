@@ -8,6 +8,7 @@ import {
   LearningBalance,
   MilestoneList,
   StudyLog,
+  StreakCalendar,
 } from '@/components/sections/Dashboard'
 
 // ── Skeleton helpers ──────────────────────────────────────────────────────────
@@ -70,6 +71,7 @@ export function DashboardPage() {
         <MilestoneList milestones={data.milestones} />
       </section>
       <StudyLog entries={data.studyLog} />
+      <StreakCalendar data={data.streakCalendar} />
     </main>
   )
 }

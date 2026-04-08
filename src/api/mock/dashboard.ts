@@ -1,4 +1,53 @@
-import type { DashboardData } from '@/types'
+import type { DashboardData, DayActivity } from '@/types'
+
+// ─── Streak calendar mock data ────────────────────────────────────────────────
+
+function buildMockActivities(): DayActivity[] {
+  // Today: 2026-04-07 (Tuesday). Last 27 days = current streak (always studied).
+  const today = new Date(2026, 3, 7) // month is 0-indexed
+
+  // Deterministic minute amounts — cycles through this array based on day index
+  const basePattern  = [60, 0, 45, 75, 0, 30, 90, 0, 55, 60, 0, 45, 30, 0, 80, 60, 0, 45, 0, 70, 90, 0, 55, 40, 70, 0, 65]
+  const streakPattern = [45, 60, 30, 75, 90, 55, 80, 65, 50, 70, 90, 45, 60, 30]
+
+  const result: DayActivity[] = []
+
+  for (let i = 364; i >= 0; i--) {
+    const d = new Date(today)
+    d.setDate(today.getDate() - i)
+    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    const dow = d.getDay() // 0=Sun 6=Sat
+
+    let minutes: number
+    if (i < 27) {
+      // Active streak — always has activity, varied intensity
+      minutes = streakPattern[i % streakPattern.length]
+    } else {
+      const base = basePattern[(364 - i) % basePattern.length]
+      // Reduce weekends — if base is low on a weekend, treat as rest day
+      minutes = (dow === 0 || dow === 6) && base < 50 ? 0 : base
+    }
+
+    result.push({ date: dateStr, minutes })
+  }
+  return result
+}
+
+function computeCalendarStats(activities: DayActivity[]) {
+  const totalActiveDays = activities.filter(a => a.minutes > 0).length
+  const thisWeekMinutes = activities.slice(-7).reduce((s, a) => s + a.minutes, 0)
+  let longestStreak = 0, cur = 0
+  for (const a of activities) {
+    cur = a.minutes > 0 ? cur + 1 : 0
+    if (cur > longestStreak) longestStreak = cur
+  }
+  return { totalActiveDays, thisWeekMinutes, longestStreak }
+}
+
+const _activities = buildMockActivities()
+const _calStats   = computeCalendarStats(_activities)
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 export const mockDashboardData: DashboardData = {
   stats: {
@@ -95,4 +144,12 @@ export const mockDashboardData: DashboardData = {
       xp: 20,
     },
   ],
+
+  streakCalendar: {
+    activities:      _activities,
+    currentStreak:   27,
+    longestStreak:   _calStats.longestStreak,
+    totalActiveDays: _calStats.totalActiveDays,
+    thisWeekMinutes: _calStats.thisWeekMinutes,
+  },
 }

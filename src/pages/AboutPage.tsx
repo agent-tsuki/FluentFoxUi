@@ -7,7 +7,7 @@ const team = [
     name: 'Hana Yoshida',
     role: 'Co-Founder & Head of Curriculum',
     bio: 'Former Japanese teacher with 10+ years helping learners reach N1. Obsessed with contextual learning.',
-    avatar: '/avatars/women/traditional.png',
+    avatar: '/avatars/women/japanese.png',
   },
   {
     name: 'Kenji Nakamura',
