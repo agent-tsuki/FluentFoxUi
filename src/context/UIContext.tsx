@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 
+export type BackgroundAnimation = 'petals' | 'fish' | 'none'
+
 interface UIContextType {
   // Mouse follower
   mouseFollowerEnabled: boolean
@@ -7,9 +9,9 @@ interface UIContextType {
   // Dark mode
   darkMode: boolean
   toggleDarkMode: () => void
-  // Koi background
-  koiBackgroundEnabled: boolean
-  toggleKoiBackground: () => void
+  // Background animation
+  backgroundAnimation: BackgroundAnimation
+  setBackgroundAnimation: (v: BackgroundAnimation) => void
   // Profile overlay
   isProfileOverlayOpen: boolean
   setIsProfileOverlayOpen: (open: boolean) => void
@@ -39,33 +41,24 @@ export function UIProvider({ children }: { children: ReactNode }) {
     safeLocalStorage('darkMode', false)
   )
 
-  const [koiBackgroundEnabled, setKoiBackgroundEnabled] = useState(() =>
-    safeLocalStorage('koiBackgroundEnabled', true)
+  const [backgroundAnimation, setBackgroundAnimationState] = useState<BackgroundAnimation>(() =>
+    safeLocalStorage<BackgroundAnimation>('backgroundAnimation', 'petals')
   )
 
   const [isProfileOverlayOpen, setIsProfileOverlayOpen] = useState(false)
   const [overlayProfile, setOverlayProfile] = useState<{ gender?: 'male' | 'female'; profileImage?: string; firstName?: string } | null>(null)
   const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null)
 
-  // Sync mouse follower preference
   useEffect(() => {
-    try {
-      localStorage.setItem('mouseFollowerEnabled', JSON.stringify(mouseFollowerEnabled))
-    } catch { /* storage unavailable */ }
+    try { localStorage.setItem('mouseFollowerEnabled', JSON.stringify(mouseFollowerEnabled)) } catch { /* storage unavailable */ }
   }, [mouseFollowerEnabled])
 
-  // Sync koi background preference
   useEffect(() => {
-    try {
-      localStorage.setItem('koiBackgroundEnabled', JSON.stringify(koiBackgroundEnabled))
-    } catch { /* storage unavailable */ }
-  }, [koiBackgroundEnabled])
+    try { localStorage.setItem('backgroundAnimation', JSON.stringify(backgroundAnimation)) } catch { /* storage unavailable */ }
+  }, [backgroundAnimation])
 
-  // Sync dark mode preference + apply to <html>
   useEffect(() => {
-    try {
-      localStorage.setItem('darkMode', JSON.stringify(darkMode))
-    } catch { /* storage unavailable */ }
+    try { localStorage.setItem('darkMode', JSON.stringify(darkMode)) } catch { /* storage unavailable */ }
     if (darkMode) {
       document.documentElement.classList.add('dark')
       document.documentElement.classList.remove('light')
@@ -77,7 +70,7 @@ export function UIProvider({ children }: { children: ReactNode }) {
 
   const toggleMouseFollower = () => setMouseFollowerEnabled((prev: boolean) => !prev)
   const toggleDarkMode = () => setDarkMode((prev: boolean) => !prev)
-  const toggleKoiBackground = () => setKoiBackgroundEnabled((prev: boolean) => !prev)
+  const setBackgroundAnimation = (v: BackgroundAnimation) => setBackgroundAnimationState(v)
 
   return (
     <UIContext.Provider value={{
@@ -85,8 +78,8 @@ export function UIProvider({ children }: { children: ReactNode }) {
       toggleMouseFollower,
       darkMode,
       toggleDarkMode,
-      koiBackgroundEnabled,
-      toggleKoiBackground,
+      backgroundAnimation,
+      setBackgroundAnimation,
       isProfileOverlayOpen,
       setIsProfileOverlayOpen,
       overlayProfile,

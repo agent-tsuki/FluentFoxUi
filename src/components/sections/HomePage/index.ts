@@ -1,0 +1,7 @@
+export { StatsBar } from './StatsBar'
+export { FeaturesSection } from './FeaturesSection'
+export { HowItWorks } from './HowItWorks'
+export { CoursesSection } from './CoursesSection'
+export { DashboardPreview } from './DashboardPreview'
+export { Testimonials } from './Testimonials'
+export { CTABanner } from './CTABanner'

@@ -9,6 +9,7 @@ import { ModalProvider } from '@/context/ModalContext'
 import { AuthProvider } from '@/context/AuthContext'
 import { UIProvider, useUI } from '@/context/UIContext'
 import { MouseFollower } from '@/components/ui/MouseFollower'
+import { PetalBackground } from '@/components/ui/PetalBackground'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 import { ProfileOverlay } from '@/components/profile/ProfileOverlay'
 import { HomePage } from '@/pages/HomePage'
@@ -26,7 +27,7 @@ import { ServerErrorPage } from '@/pages/ServerErrorPage'
 import { ClassesPage } from '@/pages/ClassesPage'
 import { ClassDetailPage } from '@/pages/ClassDetailPage'
 
-// ─── Background Koi animation — pauses when tab is hidden ─────────────────────
+// ─── Koi fish background — pauses when tab is hidden ──────────────────────────
 function KoiBackground() {
   const lottieRef = useRef<LottieRefCurrentProps>(null)
   const { darkMode } = useUI()
@@ -46,7 +47,7 @@ function KoiBackground() {
   return (
     <div
       className="fixed inset-0 pointer-events-none flex items-center justify-center overflow-hidden transition-opacity duration-500"
-      style={{ opacity: darkMode ? 0.18 : 0.08 }}
+      style={{ opacity: darkMode ? 0.18 : 0.08, zIndex: 0 }}
     >
       <div className="w-[1200px] h-[1200px] transform translate-y-32">
         <Lottie
@@ -62,11 +63,12 @@ function KoiBackground() {
 
 // ─── Layout shell (shared Navbar + Footer + modals) ───────────────────────────
 function Shell() {
-  const { isProfileOverlayOpen, setIsProfileOverlayOpen, koiBackgroundEnabled } = useUI()
+  const { isProfileOverlayOpen, setIsProfileOverlayOpen, backgroundAnimation } = useUI()
 
   return (
     <div className="bg-surface text-on-surface font-body selection:bg-primary-fixed selection:text-primary min-h-screen flex flex-col relative overflow-x-hidden">
-      {koiBackgroundEnabled && <KoiBackground />}
+      {backgroundAnimation === 'petals' && <PetalBackground />}
+      {backgroundAnimation === 'fish'   && <KoiBackground />}
 
       <div className="relative z-10 flex flex-col min-h-screen">
         <Navbar />
@@ -100,7 +102,7 @@ const router = createBrowserRouter([
       { path: 'quiz',            element: <QuizPage /> },
       { path: 'profile',         element: <ProfilePage /> },
       { path: 'dashboard',       element: <DashboardPage /> },
-      { path: 'classes',          element: <ClassesPage /> },
+      { path: 'classes',         element: <ClassesPage /> },
       { path: 'classes/:teacherId', element: <ClassDetailPage /> },
       { path: 'about',           element: <AboutPage /> },
       { path: 'terms',           element: <TermsPage /> },

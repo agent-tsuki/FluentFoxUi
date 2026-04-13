@@ -9,7 +9,7 @@ import { NavDropdown } from './NavDropdown'
 import { Button } from '@/components/ui/Button'
 import { FoxLogo, FoxLogoHandle } from './FoxLogo'
 import { Icon } from '@/components/ui/Icon'
-import { useUI } from '@/context/UIContext'
+import { useUI, type BackgroundAnimation } from '@/context/UIContext'
 
 const MOCK_STREAK    = mockDashboardData.stats.currentStreak
 const MOCK_ACTIVITIES = mockDashboardData.streakCalendar.activities
@@ -194,7 +194,7 @@ export function Navbar() {
   const [streakHovered, setStreakHovered] = useState(false)
   const { openModal } = useModal()
   const { user, logout } = useAuth()
-  const { setIsProfileOverlayOpen, setOverlayProfile, setTriggerRect, darkMode, toggleDarkMode } = useUI()
+  const { darkMode, toggleDarkMode, backgroundAnimation, setBackgroundAnimation } = useUI()
 
   const foxLogoRef = useRef<FoxLogoHandle>(null)
   const closeMobile = () => setMobileOpen(false)
@@ -286,10 +286,10 @@ export function Navbar() {
                 </button>
 
                 {/* Invisible hover bridge */}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 w-[11rem] h-2" />
+                <div className="absolute top-full left-1/2 -translate-x-1/2 w-[13rem] h-2" />
 
                 {/* Dropdown */}
-                <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-150 absolute top-[calc(100%+0.5rem)] left-1/2 -translate-x-1/2 min-w-[11rem] bg-surface-container-lowest shadow-xl rounded-xl p-2 border border-outline-variant/30">
+                <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-150 absolute top-[calc(100%+0.5rem)] left-1/2 -translate-x-1/2 min-w-[13rem] bg-surface-container-lowest shadow-xl rounded-xl p-2 border border-outline-variant/30">
                   <div className="px-4 py-2 border-b border-outline-variant/30 mb-1">
                     <p className="text-sm font-semibold text-on-surface">{user.firstName}</p>
                     <p className="text-xs text-on-surface-variant truncate">{user.email}</p>
@@ -308,6 +308,28 @@ export function Navbar() {
                     <Icon name="dashboard" className="text-base" />
                     Dashboard
                   </Link>
+
+                  {/* Background animation picker */}
+                  <div className="px-4 py-2.5 border-t border-b border-outline-variant/30 my-1">
+                    <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2 font-label">Background</p>
+                    <div className="flex gap-1.5">
+                      {([ ['petals', '🌸', 'Petals'], ['fish', '🐠', 'Fish'], ['none', '✕', 'None'] ] as [BackgroundAnimation, string, string][]).map(([val, emoji, label]) => (
+                        <button
+                          key={val}
+                          onClick={() => setBackgroundAnimation(val)}
+                          className="flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-lg text-[10px] font-bold font-label transition-all"
+                          style={backgroundAnimation === val
+                            ? { background: 'rgb(var(--surface-container-high))', color: 'rgb(var(--on-surface))' }
+                            : { color: 'rgb(var(--on-surface-variant))' }
+                          }
+                        >
+                          <span className="text-sm">{emoji}</span>
+                          <span>{label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <button
                     onClick={logout}
                     className="w-full flex items-center gap-2 px-4 py-2 hover:bg-error/5 rounded-lg text-error text-sm text-left transition-colors"

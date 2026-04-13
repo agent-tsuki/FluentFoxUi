@@ -1,10 +1,16 @@
 import { useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
 import { Button } from '@/components/ui/Button'
-import { useUI } from '@/context/UIContext'
+import { useUI, type BackgroundAnimation } from '@/context/UIContext'
+
+const BG_OPTIONS: { value: BackgroundAnimation; emoji: string; label: string; desc: string }[] = [
+  { value: 'petals', emoji: '🌸', label: 'Sakura Petals', desc: 'Falling cherry blossom petals' },
+  { value: 'fish',   emoji: '🐠', label: 'Koi Fish',      desc: 'Swimming koi fish animation' },
+  { value: 'none',   emoji: '✕',  label: 'None',          desc: 'No background animation' },
+]
 
 export function AccountSettings() {
-  const { mouseFollowerEnabled, toggleMouseFollower, koiBackgroundEnabled, toggleKoiBackground } = useUI()
+  const { mouseFollowerEnabled, toggleMouseFollower, backgroundAnimation, setBackgroundAnimation } = useUI()
   const [emailNotifs, setEmailNotifs] = useState(true)
   const [studyReminder, setStudyReminder] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -27,13 +33,34 @@ export function AccountSettings() {
             checked={mouseFollowerEnabled}
             onChange={toggleMouseFollower}
           />
-          <Toggle
-            icon="water"
-            label="Background Animation"
-            description="Animated koi fish background across all pages"
-            checked={koiBackgroundEnabled}
-            onChange={toggleKoiBackground}
-          />
+
+          {/* Background animation selector */}
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 bg-surface-container rounded-lg flex items-center justify-center text-on-surface-variant flex-shrink-0 mt-0.5">
+              <Icon name="animation" className="text-xl" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-on-surface font-body">Background Animation</p>
+              <p className="text-xs text-on-surface-variant font-body mb-3">Choose the animated background across all pages</p>
+              <div className="flex gap-3">
+                {BG_OPTIONS.map(opt => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setBackgroundAnimation(opt.value)}
+                    className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl border-[1.5px] transition-all text-center"
+                    style={backgroundAnimation === opt.value
+                      ? { borderColor: '#EA6B44', background: 'rgba(234,107,68,0.08)' }
+                      : { borderColor: 'rgb(var(--outline-variant) / 0.4)', background: 'transparent' }
+                    }
+                  >
+                    <span className="text-xl">{opt.emoji}</span>
+                    <span className="text-[11px] font-bold font-label text-on-surface">{opt.label}</span>
+                    <span className="text-[10px] text-on-surface-variant font-body leading-tight">{opt.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

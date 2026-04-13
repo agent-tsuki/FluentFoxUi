@@ -1,88 +1,126 @@
-import { useEffect, useState, lazy, Suspense } from 'react'
+import { useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/Button'
-import { Icon } from '@/components/ui/Icon'
 import { useModal } from '@/context/ModalContext'
+import { HeroVisual } from './HeroVisual'
 
-// Lazy-load the heavy Lottie animation (~384 KB JSON) after first paint
-const StudentLottie = lazy(() =>
-  import('@/assets/animations/student.json').then((mod) => ({
-    default: function StudentAnim() {
-      const [Lottie, setLottie] = useState<typeof import('lottie-react').default | null>(null)
-      useEffect(() => {
-        import('lottie-react').then((m) => setLottie(() => m.default))
-      }, [])
-      if (!Lottie) return null
-      return <Lottie animationData={mod.default} loop className="w-full h-auto" />
-    },
-  }))
-)
+function TrustAvatars() {
+  const avatars = [
+    { initials: 'AK', bg: '#ffeaea', color: '#c9274a' },
+    { initials: 'RN', bg: '#e8eeff', color: '#1C2B4B' },
+    { initials: 'SM', bg: '#e0faf3', color: '#0a8a60' },
+    { initials: 'YT', bg: '#fff8d6', color: '#a07000' },
+  ]
+  return (
+    <div className="flex items-center gap-4">
+      <div className="flex">
+        {avatars.map((a, i) => (
+          <span
+            key={i}
+            className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-[11px] font-bold font-label"
+            style={{
+              background: a.bg,
+              color: a.color,
+              marginLeft: i === 0 ? 0 : -8,
+              boxShadow: '0 0 0 2px white',
+            }}
+          >
+            {a.initials}
+          </span>
+        ))}
+      </div>
+      <p className="text-sm text-on-surface-variant font-body">
+        Joined by <span className="font-bold text-on-surface">50,000+</span> learners this month
+      </p>
+    </div>
+  )
+}
 
 export function Hero() {
   const { openModal } = useModal()
+  const heroTextRef = useRef<HTMLDivElement>(null)
+
+  // Trigger entrance animation on mount
+  useEffect(() => {
+    const el = heroTextRef.current
+    if (!el) return
+    const t = setTimeout(() => {
+      el.style.opacity = '1'
+      el.style.transform = 'translateY(0)'
+    }, 120)
+    return () => clearTimeout(t)
+  }, [])
 
   const scrollToLearn = () => {
-    document.getElementById('learn-section')?.scrollIntoView({ behavior: 'smooth' })
+    document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' })
   }
 
   return (
-    <section className="relative max-w-7xl mx-auto px-8 py-20 md:py-32 grid md:grid-cols-2 gap-16 items-center">
+    <section className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-20 md:py-28 grid md:grid-cols-2 gap-16 items-center overflow-hidden">
+      {/* Radial glow top-right */}
+      <div
+        className="absolute pointer-events-none -z-10"
+        style={{
+          top: -200, right: -200,
+          width: 700, height: 700,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(234,107,68,0.08) 0%, transparent 70%)',
+        }}
+      />
+
       {/* Left — Copy */}
-      <div className="space-y-8">
-        {/* Badge — pings 3 times then stops */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-high text-primary font-label text-[0.7rem] font-bold uppercase tracking-widest">
+      <div
+        ref={heroTextRef}
+        className="space-y-7"
+        style={{ opacity: 0, transform: 'translateY(28px)', transition: 'opacity 0.7s ease, transform 0.7s ease' }}
+      >
+        {/* Badge */}
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary font-label text-[0.7rem] font-bold uppercase tracking-widest border border-primary/20">
           <span className="relative flex h-2 w-2">
             <span
               className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"
-              style={{ animation: 'ping 1.5s cubic-bezier(0,0,0.2,1) 3' }}
+              style={{ animation: 'ping 1.8s ease-in-out infinite' }}
             />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
           </span>
-          Join now
+          50,000+ Active Learners
         </div>
 
-        <h1 className="font-headline text-5xl md:text-7xl font-extrabold tracking-tighter text-on-surface leading-[1.1]">
-          Learn Japanese. <br />
-          <span className="text-primary italic">Naturally.</span>
+        {/* Headline */}
+        <h1 className="font-headline text-5xl md:text-[3.8rem] font-extrabold tracking-tight text-on-surface leading-[1.1]">
+          Learn Japanese,<br />
+          <span className="text-primary italic">The Smart Way</span>
         </h1>
 
-        <p className="text-xl text-on-surface-variant max-w-md leading-relaxed">
-          Master Japanese through editorial-grade content, contextual immersion, and a
-          distraction-free environment. No gamified stress—just deep learning.
+        {/* Sub */}
+        <p className="text-lg text-on-surface-variant leading-relaxed max-w-[480px] font-body">
+          From hiragana to JLPT — grammar, kanji, vocabulary, and real-world conversations.
+          Structured paths for every level, completely free to start.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 pt-4">
+        {/* CTAs */}
+        <div className="flex flex-col sm:flex-row gap-4 pt-2">
           <Button
             variant="primary"
-            className="bg-primary-container px-8 py-4 rounded-lg text-lg shadow-xl shadow-primary/30"
+            className="px-8 py-4 rounded-[14px] text-base font-extrabold shadow-lg shadow-primary/30"
             onClick={() => openModal('signup')}
           >
-            Get Started for Free
+            Start Learning Free →
           </Button>
           <Button
             variant="outline"
-            className="flex items-center justify-center gap-2 px-8 py-4 rounded-lg text-lg"
+            className="flex items-center justify-center gap-2 px-8 py-4 rounded-[14px] text-base font-extrabold"
             onClick={scrollToLearn}
           >
-            <Icon name="play_circle" />
-            How it works
+            ▶ How It Works
           </Button>
         </div>
+
+        {/* Trust line */}
+        <TrustAvatars />
       </div>
 
-      {/* Right — Animation (lazy loaded) */}
-      <div className="relative flex justify-center items-center">
-        <div className="w-full max-w-[650px]">
-          <Suspense
-            fallback={
-              <div className="w-full aspect-square max-w-[650px] rounded-full bg-primary/5 animate-pulse" />
-            }
-          >
-            <StudentLottie />
-          </Suspense>
-        </div>
-        {/* Decorative blur */}
-        <div className="absolute -z-10 top-0 right-0 w-64 h-64 bg-tertiary/5 rounded-full blur-3xl" />
-      </div>
+      {/* Right — Character card visual */}
+      <HeroVisual />
     </section>
   )
 }
