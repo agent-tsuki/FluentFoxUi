@@ -291,7 +291,7 @@ export function Navbar() {
                 {/* Dropdown */}
                 <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-150 absolute top-[calc(100%+0.5rem)] left-1/2 -translate-x-1/2 min-w-[13rem] bg-surface-container-lowest shadow-xl rounded-xl p-2 border border-outline-variant/30">
                   <div className="px-4 py-2 border-b border-outline-variant/30 mb-1">
-                    <p className="text-sm font-semibold text-on-surface">{user.firstName}</p>
+                    <p className="text-sm font-semibold text-on-surface">{user.firstName ?? user.username}</p>
                     <p className="text-xs text-on-surface-variant truncate">{user.email}</p>
                   </div>
                   <Link
@@ -433,7 +433,7 @@ export function Navbar() {
                         />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-on-surface">{user.firstName}</p>
+                        <p className="text-sm font-semibold text-on-surface">{user.firstName ?? user.username}</p>
                         <p className="text-xs text-on-surface-variant truncate">{user.email}</p>
                       </div>
                     </div>
