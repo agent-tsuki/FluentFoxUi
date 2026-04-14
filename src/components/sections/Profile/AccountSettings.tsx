@@ -22,7 +22,7 @@ export function AccountSettings() {
         <div className="px-8 py-6 border-b border-outline-variant">
           <h2 className="text-lg font-bold text-on-surface font-headline">Appearance</h2>
           <p className="text-xs text-on-surface-variant font-body mt-0.5">
-            Customize how FluentFox looks for you
+            Customize how FoxSensei looks for you
           </p>
         </div>
         <div className="px-8 py-6 flex flex-col gap-6">
@@ -69,7 +69,7 @@ export function AccountSettings() {
         <div className="px-8 py-6 border-b border-outline-variant">
           <h2 className="text-lg font-bold text-on-surface font-headline">Notifications</h2>
           <p className="text-xs text-on-surface-variant font-body mt-0.5">
-            Control what FluentFox sends you
+            Control what FoxSensei sends you
           </p>
         </div>
         <div className="px-8 py-6 space-y-5">

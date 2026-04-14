@@ -49,8 +49,8 @@ export function PrivacyPage() {
           <Section title="6. Your Rights">
             Depending on your location, you may have rights to access, correct, delete, or port your
             personal data. To exercise these rights, contact us at{' '}
-            <a href="mailto:privacy@fluentfox.jp" className="text-primary hover:underline">
-              privacy@fluentfox.jp
+            <a href="mailto:privacy@foxsensei.jp" className="text-primary hover:underline">
+              privacy@foxsensei.jp
             </a>
             . We will respond within 30 days.
           </Section>
@@ -75,8 +75,8 @@ export function PrivacyPage() {
 
           <Section title="10. Contact Us">
             For any privacy-related questions or concerns, please contact our Privacy Team at{' '}
-            <a href="mailto:privacy@fluentfox.jp" className="text-primary hover:underline">
-              privacy@fluentfox.jp
+            <a href="mailto:privacy@foxsensei.jp" className="text-primary hover:underline">
+              privacy@foxsensei.jp
             </a>
             .
           </Section>

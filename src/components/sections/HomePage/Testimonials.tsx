@@ -13,7 +13,7 @@ interface Testimonial {
 const TESTIMONIALS: Testimonial[] = [
   {
     stars: 5,
-    text: '"I\'d tried three other apps before this. FluentFox is the first one that actually explains grammar clearly — not just throws cards at you. Passed N5 in 4 months!"',
+    text: '"I\'d tried three other apps before this. FoxSensei is the first one that actually explains grammar clearly — not just throws cards at you. Passed N5 in 4 months!"',
     initials: 'AK', avatarBg: '#ffeaea', avatarColor: '#c9274a',
     name: 'Arjun K.', level: 'Passed JLPT N5 🎉',
   },

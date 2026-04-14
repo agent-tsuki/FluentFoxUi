@@ -26,7 +26,7 @@ export function ModalSidebar() {
       {/* Top: branding + headline */}
       <div className="relative z-10">
         <div className="text-2xl font-headline font-extrabold tracking-tighter mb-12">
-          FluentFox
+          FoxSensei
         </div>
         <h2 className="text-3xl font-headline font-bold leading-tight mb-6 italic">
           Begin your journey to fluency.

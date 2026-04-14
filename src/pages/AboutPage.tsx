@@ -12,7 +12,7 @@ const team = [
   {
     name: 'Kenji Nakamura',
     role: 'Co-Founder & Engineering Lead',
-    bio: 'Built language tools at two EdTech startups before starting FluentFox. Hiragana level: legendary.',
+    bio: 'Built language tools at two EdTech startups before starting FoxSensei. Hiragana level: legendary.',
     avatar: '/avatars/men/samurai.png',
   },
   {
@@ -57,7 +57,7 @@ export function AboutPage() {
           <FoxLogo size={80} autoplay loop />
         </div>
         <h1 className="text-5xl md:text-7xl font-headline font-extrabold tracking-tighter text-on-surface">
-          About FluentFox
+          About FoxSensei
         </h1>
         <p className="text-xl text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
           We're on a mission to make Japanese fluency accessible to everyone — through deep,
@@ -70,17 +70,17 @@ export function AboutPage() {
         <h2 className="text-3xl font-headline font-bold text-on-surface tracking-tighter">Our Story</h2>
         <div className="space-y-4 text-on-surface-variant leading-relaxed text-[15px]">
           <p>
-            FluentFox started in 2024 when two language enthusiasts got frustrated with existing tools.
+            FoxSensei started in 2024 when two language enthusiasts got frustrated with existing tools.
             Gamified apps felt like a game, not a language course. Textbooks were dense and offline.
             Video courses were passive. None of them felt like the real thing.
           </p>
           <p>
-            We built FluentFox around a single belief: the best way to learn Japanese is through
+            We built FoxSensei around a single belief: the best way to learn Japanese is through
             structured immersion — real characters, real grammar, real words used in real context —
             presented in an interface that gets out of your way and lets you focus.
           </p>
           <p>
-            Today, FluentFox serves learners from complete beginners tackling hiragana to advanced
+            Today, FoxSensei serves learners from complete beginners tackling hiragana to advanced
             students preparing for JLPT N1. We're a small, focused team and every feature we ship
             is tested by someone who is actively learning Japanese.
           </p>

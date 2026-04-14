@@ -1,17 +1,18 @@
 import { useEffect, useRef } from 'react'
-import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, Outlet, useSearchParams } from 'react-router-dom'
 import Lottie, { type LottieRefCurrentProps } from 'lottie-react'
 import koiAnimation from '@/assets/animations/koi_loader.json'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { AuthModal } from '@/components/sections/AuthModal'
-import { ModalProvider } from '@/context/ModalContext'
+import { ModalProvider, useModal } from '@/context/ModalContext'
 import { AuthProvider } from '@/context/AuthContext'
 import { UIProvider, useUI } from '@/context/UIContext'
 import { MouseFollower } from '@/components/ui/MouseFollower'
 import { PetalBackground } from '@/components/ui/PetalBackground'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 import { ProfileOverlay } from '@/components/profile/ProfileOverlay'
+import { RequireAuth } from '@/components/auth/RequireAuth'
 import { HomePage } from '@/pages/HomePage'
 import { HiraganaPage } from '@/pages/HiraganaPage'
 import { KanjiPage } from '@/pages/KanjiPage'
@@ -26,6 +27,7 @@ import { NotFoundPage } from '@/pages/NotFoundPage'
 import { ServerErrorPage } from '@/pages/ServerErrorPage'
 import { ClassesPage } from '@/pages/ClassesPage'
 import { ClassDetailPage } from '@/pages/ClassDetailPage'
+import { VerifyEmailPage } from '@/pages/VerifyEmailPage'
 
 // ─── Koi fish background — pauses when tab is hidden ──────────────────────────
 function KoiBackground() {
@@ -61,6 +63,26 @@ function KoiBackground() {
   )
 }
 
+// ─── URL-triggered modal opener ───────────────────────────────────────────────
+// The VerifyEmailPage links back to /?login=1 or /?signup=1 to open the modal
+// on the home page without a separate login route.
+function ModalFromUrl() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const { openModal } = useModal()
+
+  useEffect(() => {
+    if (searchParams.get('login') === '1') {
+      openModal('login')
+      setSearchParams({}, { replace: true })
+    } else if (searchParams.get('signup') === '1') {
+      openModal('signup')
+      setSearchParams({}, { replace: true })
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  return null
+}
+
 // ─── Layout shell (shared Navbar + Footer + modals) ───────────────────────────
 function Shell() {
   const { isProfileOverlayOpen, setIsProfileOverlayOpen, backgroundAnimation } = useUI()
@@ -74,6 +96,7 @@ function Shell() {
         <Navbar />
         <div className="flex-1">
           <ErrorBoundary>
+            <ModalFromUrl />
             <Outlet />
           </ErrorBoundary>
         </div>
@@ -92,6 +115,11 @@ function Shell() {
 // ─── Routes ───────────────────────────────────────────────────────────────────
 const router = createBrowserRouter([
   {
+    // /verify is outside Shell — it has its own minimal layout
+    path: 'verify',
+    element: <VerifyEmailPage />,
+  },
+  {
     path: '/',
     element: <Shell />,
     children: [
@@ -100,15 +128,24 @@ const router = createBrowserRouter([
       { path: 'kana/kanji',      element: <KanjiPage /> },
       { path: 'grammar/:level/:chapterId?',  element: <GrammarPage /> },
       { path: 'quiz',            element: <QuizPage /> },
-      { path: 'profile',         element: <ProfilePage /> },
-      { path: 'dashboard',       element: <DashboardPage /> },
       { path: 'classes',         element: <ClassesPage /> },
       { path: 'classes/:teacherId', element: <ClassDetailPage /> },
       { path: 'about',           element: <AboutPage /> },
       { path: 'terms',           element: <TermsPage /> },
       { path: 'privacy',         element: <PrivacyPage /> },
       { path: '500',             element: <ServerErrorPage /> },
-      { path: '*',               element: <NotFoundPage /> },
+
+      // ── Protected routes ─────────────────────────────────────────────────
+      {
+        path: 'dashboard',
+        element: <RequireAuth><DashboardPage /></RequireAuth>,
+      },
+      {
+        path: 'profile',
+        element: <RequireAuth><ProfilePage /></RequireAuth>,
+      },
+
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
 ])

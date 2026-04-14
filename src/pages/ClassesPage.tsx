@@ -333,7 +333,7 @@ export function ClassesPage() {
             of free Japanese learning resources on the internet.
           </p>
           <a
-            href="mailto:hello@fluentfox.app"
+            href="mailto:hello@foxsensei.app"
             className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-on-primary rounded-lg font-bold text-sm shadow-md shadow-primary/20 hover:opacity-90 transition-opacity"
           >
             <Icon name="mail" className="text-base" />

@@ -13,7 +13,7 @@ export function Footer() {
     <footer className="bg-surface-container-low w-full py-12 px-8 border-t border-outline-variant/20">
       <div className="flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto gap-8">
         <div className="text-lg font-bold text-on-surface font-headline tracking-tighter">
-          FluentFox
+          FoxSensei
         </div>
 
         <div className="flex gap-8 flex-wrap justify-center text-xs tracking-tight text-on-surface-variant">
@@ -41,7 +41,7 @@ export function Footer() {
         </div>
 
         <div className="text-xs tracking-tight text-on-surface-variant">
-          © {new Date().getFullYear()} FluentFox. Learn Japanese Naturally.
+          © {new Date().getFullYear()} FoxSensei. Learn Japanese Naturally.
         </div>
       </div>
     </footer>

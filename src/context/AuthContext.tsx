@@ -3,12 +3,18 @@
  *
  * What lives here:
  *  - AuthUser: the in-memory user object built from the server's login response.
- *  - setUser / logout helpers used by authService consumers.
+ *  - Silent session restore on mount: if a refresh token exists in localStorage,
+ *    we call /auth/refresh before rendering children. This means users who
+ *    reload the page are transparently re-authenticated (access token restored
+ *    into Zustand memory) without seeing a login flash.
  *  - Listens for the 'auth:expired' event dispatched by apiClient when a token
- *    refresh fails, so the UI snaps back to logged-out state automatically.
+ *    refresh fails mid-session, so the UI snaps back to logged-out state.
  *
- * Tokens (access + refresh) are NOT stored here — tokenManager owns that.
- * AuthContext only tracks the user identity needed by the UI.
+ * Token storage:
+ *  - Access token  → Zustand memory (src/store/authStore.ts) — never hits disk.
+ *  - Refresh token → localStorage   (tokenManager) — survives page refresh.
+ *  - User object   → localStorage   (AUTH_USER_KEY) — used to pre-populate UI
+ *                    while session restore runs. Cleared on logout/expiry.
  */
 
 import {
@@ -20,17 +26,18 @@ import {
   type ReactNode,
 } from 'react'
 import { tokenManager } from '@/api/tokenManager'
+import { useAuthTokenStore } from '@/store/authStore'
 import { authService } from '@/api/services/authService'
 
-// ── AuthUser shape (matches server response + UI extras) ──────────────────────
+// ── AuthUser shape ────────────────────────────────────────────────────────────
 
 export interface AuthUser {
-  userId:        string   // server: user_id
-  username:      string   // server: username
-  email:         string   // from login form (server omits it from user object)
-  isAdmin:       boolean  // server: is_admin
-  emailVerified: boolean  // server: email_verified
-  isActive:      boolean  // server: is_active
+  userId:        string
+  username:      string
+  email:         string
+  isAdmin:       boolean
+  emailVerified: boolean
+  isActive:      boolean
 
   // Populated lazily by the profile API (not available right after login)
   firstName?:    string
@@ -43,18 +50,20 @@ export interface AuthUser {
 
 interface AuthContextValue {
   user:               AuthUser | null
+  isLoading:          boolean           // true during the initial session restore
   setUser:            (user: AuthUser | null) => void
   logout:             () => void
   updateProfileImage: (url: string) => void
 }
 
-// ── Persistence ───────────────────────────────────────────────────────────────
+// ── User persistence ──────────────────────────────────────────────────────────
 
 const AUTH_USER_KEY = 'ff_auth_user'
 
 function loadStoredUser(): AuthUser | null {
-  // Only restore the user if tokens are still present in storage.
-  if (!tokenManager.hasTokens()) return null
+  // Only restore the cached user if a refresh token still exists.
+  // If there's no refresh token the session is dead regardless.
+  if (!tokenManager.hasRefreshToken()) return null
   try {
     const raw = localStorage.getItem(AUTH_USER_KEY)
     return raw ? (JSON.parse(raw) as AuthUser) : null
@@ -78,21 +87,53 @@ function persistUser(user: AuthUser | null): void {
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUserState] = useState<AuthUser | null>(loadStoredUser)
+  const [user, setUserState]   = useState<AuthUser | null>(loadStoredUser)
+  const [isLoading, setLoading] = useState<boolean>(true)
 
-  // Persist user whenever it changes
+  // ── Persist user whenever it changes ─────────────────────────────────────
   useEffect(() => {
     persistUser(user)
   }, [user])
 
-  // Listen for token-refresh failures dispatched by apiClient
+  // ── Silent session restore on every mount ────────────────────────────────
+  // If a refresh token exists, exchange it for a fresh access token.
+  // This is what keeps users logged in after a page refresh.
+  useEffect(() => {
+    const storedUser = loadStoredUser()
+
+    if (!tokenManager.hasRefreshToken() || !storedUser) {
+      // No valid session to restore
+      setLoading(false)
+      return
+    }
+
+    authService
+      .refreshSession(storedUser.email)
+      .then((freshUser) => {
+        setUserState(freshUser)
+      })
+      .catch(() => {
+        // Refresh token expired or revoked — clear everything
+        setUserState(null)
+        useAuthTokenStore.getState().clearAccessToken()
+        tokenManager.clearRefreshToken()
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Listen for mid-session token expiry dispatched by apiClient ──────────
   useEffect(() => {
     function onExpired() {
       setUserState(null)
+      persistUser(null)
     }
     window.addEventListener('auth:expired', onExpired)
     return () => window.removeEventListener('auth:expired', onExpired)
   }, [])
+
+  // ── Stable callbacks ──────────────────────────────────────────────────────
 
   const setUser = useCallback((u: AuthUser | null) => {
     setUserState(u)
@@ -100,9 +141,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     setUserState(null)
-    // Fire-and-forget: clear tokens + tell the server (don't block the UI)
+    // Fire-and-forget: tokens cleared inside authService.logout before network call
     authService.logout().catch(() => {
-      // Tokens already cleared inside authService.logout() — nothing to do here.
+      // Tokens already cleared — nothing more to do
     })
   }, [])
 
@@ -111,7 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, setUser, logout, updateProfileImage }}>
+    <AuthContext.Provider value={{ user, isLoading, setUser, logout, updateProfileImage }}>
       {children}
     </AuthContext.Provider>
   )

@@ -213,7 +213,7 @@ export function Navbar() {
           >
             <FoxLogo ref={foxLogoRef} size={50} />
             <span className="text-4xl font-bold tracking-tighter font-headline bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 dark:from-orange-400 dark:via-amber-300 dark:to-orange-300 bg-clip-text text-transparent">
-              FluentFox
+              FoxSensei
             </span>
           </Link>
 

@@ -69,7 +69,7 @@ export function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
             type="email"
             required
             maxLength={254}
-            placeholder="haruki@FluentFox.jp"
+            placeholder="haruki@foxsensei.jp"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full bg-surface-container-low border-0 rounded-lg px-4 py-3 text-on-surface focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all placeholder:text-outline/50 outline-none"

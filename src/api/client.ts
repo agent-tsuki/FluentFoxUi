@@ -3,16 +3,21 @@
  *
  * Change VITE_API_URL in .env — every service picks it up automatically.
  *
+ * Token strategy:
+ *  - Access token  → Zustand memory (src/store/authStore.ts) — never hits disk.
+ *  - Refresh token → localStorage via tokenManager — survives page refresh.
+ *
  * Features:
- *  - Attaches Bearer access token on every request
- *  - Parses structured server errors { status:"failed", error:{...} } first,
- *    BEFORE any 401 refresh logic — so business errors (e.g. UNAUTHORIZE /
- *    "verify email") are never misread as session-expiry
+ *  - Attaches Bearer access token on every request.
+ *  - Parses structured server errors { status:"failed", error:{...} } BEFORE
+ *    any 401 refresh logic — so business errors (e.g. UNAUTHORIZE for
+ *    "verify email") are never misread as session-expiry.
  *  - On genuine 401 with no structured error: attempts one silent token refresh,
- *    retries, then dispatches 'auth:expired' if refresh also fails
- *  - Refresh-lock singleton: concurrent 401s share a single refresh call
+ *    retries original request, then dispatches 'auth:expired' if refresh fails.
+ *  - Refresh-lock singleton: concurrent 401s share a single refresh call.
  */
 
+import { getAccessToken, useAuthTokenStore } from '@/store/authStore'
 import { tokenManager } from './tokenManager'
 import { ApiError } from './errors'
 import { isApiFailedResponse } from '@/types/api'
@@ -28,6 +33,7 @@ const DEFAULT_HEADERS: Record<string, string> = {
 }
 
 // ── Token refresh singleton ───────────────────────────────────────────────────
+// All concurrent 401s wait on the same promise so we only call /auth/refresh once.
 
 let refreshPromise: Promise<boolean> | null = null
 
@@ -49,7 +55,9 @@ async function attemptTokenRefresh(): Promise<boolean> {
       const json = (await res.json()) as AuthApiResponse
       if (json.status !== 'success') return false
 
-      tokenManager.setTokens(json.data.access_token, json.data.refresh_token)
+      // Rotate both tokens
+      useAuthTokenStore.getState().setAccessToken(json.data.access_token)
+      tokenManager.setRefreshToken(json.data.refresh_token)
       return true
     } catch {
       return false
@@ -68,10 +76,11 @@ async function request<T>(
   options?: RequestInit,
   _isRetry = false,
 ): Promise<T> {
-  const token = tokenManager.getAccessToken()
+  const token = getAccessToken()
 
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
+    credentials: 'include', // sends cookies cross-origin if backend ever switches
     headers: {
       ...DEFAULT_HEADERS,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -105,7 +114,9 @@ async function request<T>(
       return request<T>(path, options, true)
     }
 
-    tokenManager.clearTokens()
+    // Refresh failed — clear all auth state and signal the app
+    useAuthTokenStore.getState().clearAccessToken()
+    tokenManager.clearRefreshToken()
     window.dispatchEvent(new CustomEvent('auth:expired'))
     throw new ApiError(401, 'SESSION_EXPIRED', 'Your session has expired. Please log in again.', '')
   }

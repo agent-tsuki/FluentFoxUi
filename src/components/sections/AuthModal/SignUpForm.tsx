@@ -1,6 +1,7 @@
 import { useState, useEffect, type FormEvent } from 'react'
 import type { SignUpPayload } from '@/types'
 import { authService } from '@/api/services/authService'
+import { ApiError, resolveErrorMessage } from '@/api/errors'
 import { Icon } from '@/components/ui/Icon'
 import { GoogleAuthButton } from './GoogleAuthButton'
 import { XAuthButton } from './XAuthButton'
@@ -193,7 +194,13 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
       })
       onSuccess(message)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed. Please try again.')
+      if (err instanceof ApiError && err.errorCode === 'EMAIL_ALREADY_IN_USE') {
+        setError('This email is already registered. Try logging in instead.')
+      } else if (err instanceof ApiError && err.errorCode === 'USERNAME_ALREADY_IN_USE') {
+        setError('That username is taken. Please choose a different one.')
+      } else {
+        setError(resolveErrorMessage(err))
+      }
     } finally {
       setLoading(false)
     }
@@ -207,7 +214,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
       {/* First Name | Last Name */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className={labelClass}>First Name</label>
+          <label className={labelClass}>First Name <span className="text-error normal-case tracking-normal font-bold">*</span></label>
           <input
             type="text"
             required
@@ -219,7 +226,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
           />
         </div>
         <div>
-          <label className={labelClass}>Last Name</label>
+          <label className={labelClass}>Last Name <span className="text-error normal-case tracking-normal font-bold">*</span></label>
           <input
             type="text"
             required
@@ -234,10 +241,12 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
 
       {/* Username */}
       <div>
-        <label className={labelClass}>Username</label>
+        <label className={labelClass}>
+          Username{' '}
+          <span className="normal-case text-outline/50 font-normal tracking-normal">(optional)</span>
+        </label>
         <input
           type="text"
-          required
           minLength={3}
           maxLength={30}
           placeholder="haruki09"
@@ -252,12 +261,12 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
 
       {/* Email */}
       <div>
-        <label className={labelClass}>Email Address</label>
+        <label className={labelClass}>Email Address <span className="text-error normal-case tracking-normal font-bold">*</span></label>
         <input
           type="email"
           required
           maxLength={254}
-          placeholder="haruki@fluentfox.jp"
+          placeholder="haruki@foxsensei.jp"
           value={form.email}
           onChange={field('email')}
           className={inputClass}
@@ -266,9 +275,11 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
 
       {/* Native Language — full width */}
       <div>
-        <label className={labelClass}>Native Language</label>
+        <label className={labelClass}>
+          Native Language{' '}
+          <span className="normal-case text-outline/50 font-normal tracking-normal">(optional)</span>
+        </label>
         <select
-          required
           value={form.nativeLang}
           onChange={field('nativeLang')}
           className={`${inputClass} cursor-pointer appearance-none`}
@@ -308,7 +319,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
 
       {/* Password */}
       <div>
-        <label className={labelClass}>Password</label>
+        <label className={labelClass}>Password <span className="text-error normal-case tracking-normal font-bold">*</span></label>
         <div className="relative">
           <input
             type={showPassword ? 'text' : 'password'}
@@ -351,7 +362,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
 
       {/* Confirm Password */}
       <div>
-        <label className={labelClass}>Confirm Password</label>
+        <label className={labelClass}>Confirm Password <span className="text-error normal-case tracking-normal font-bold">*</span></label>
         <input
           type="password"
           required

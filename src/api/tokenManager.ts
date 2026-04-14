@@ -1,13 +1,17 @@
 /**
- * Centralized token manager.
+ * Token manager — refresh token storage ONLY.
  *
- * All read/write operations for auth tokens go through here.
- * To switch storage strategy (e.g. localStorage → sessionStorage, or
- * move to httpOnly cookies via a proxy endpoint) change only this file —
- * nothing in services or context needs to change.
+ * The access token (JWT, short-lived) now lives in Zustand memory:
+ *   src/store/authStore.ts → getAccessToken()
+ *
+ * The refresh token (opaque UUID, 7-day) stays in localStorage because
+ * the backend returns it in the JSON body rather than as an HttpOnly cookie.
+ * It must survive page refresh so sessions can be silently restored.
+ *
+ * To switch to HttpOnly cookies in the future: delete this file and have
+ * the backend set the cookie — apiClient already sends credentials:'include'.
  */
 
-const ACCESS_TOKEN_KEY  = 'ff_access_token'
 const REFRESH_TOKEN_KEY = 'ff_refresh_token'
 
 function safeGet(key: string): string | null {
@@ -21,7 +25,7 @@ function safeGet(key: string): string | null {
 function safeSet(key: string, value: string): void {
   try {
     localStorage.setItem(key, value)
-  } catch { /* storage unavailable (e.g. private browsing quota) */ }
+  } catch { /* storage unavailable (private browsing quota, etc.) */ }
 }
 
 function safeRemove(key: string): void {
@@ -31,30 +35,23 @@ function safeRemove(key: string): void {
 }
 
 export const tokenManager = {
-  /** Returns the current JWT access token, or null if not present. */
-  getAccessToken(): string | null {
-    return safeGet(ACCESS_TOKEN_KEY)
-  },
-
-  /** Returns the opaque refresh token UUID, or null if not present. */
+  /** Returns the stored refresh token, or null. */
   getRefreshToken(): string | null {
     return safeGet(REFRESH_TOKEN_KEY)
   },
 
-  /** Persists both tokens after a successful login or token refresh. */
-  setTokens(accessToken: string, refreshToken: string): void {
-    safeSet(ACCESS_TOKEN_KEY,  accessToken)
+  /** Persists the refresh token after a successful login or token rotation. */
+  setRefreshToken(refreshToken: string): void {
     safeSet(REFRESH_TOKEN_KEY, refreshToken)
   },
 
-  /** Removes both tokens (logout / session expiry). */
-  clearTokens(): void {
-    safeRemove(ACCESS_TOKEN_KEY)
+  /** Removes the refresh token (logout / session expiry). */
+  clearRefreshToken(): void {
     safeRemove(REFRESH_TOKEN_KEY)
   },
 
-  /** True only when both tokens are present in storage. */
-  hasTokens(): boolean {
-    return Boolean(safeGet(ACCESS_TOKEN_KEY) && safeGet(REFRESH_TOKEN_KEY))
+  /** True when a refresh token is present. */
+  hasRefreshToken(): boolean {
+    return Boolean(safeGet(REFRESH_TOKEN_KEY))
   },
 }
