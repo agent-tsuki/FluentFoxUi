@@ -34,11 +34,11 @@ function useCounter(target: number, duration = 1800, active: boolean) {
 function StatCell({ stat, active }: { stat: StatItem; active: boolean }) {
   const val = useCounter(stat.target, 1800, active)
   return (
-    <div className="flex-1 text-center py-7 px-6 border-r border-white/10 last:border-r-0">
-      <div className="text-3xl font-black font-headline" style={{ color: '#FFD166' }}>
+    <div className="flex-1 text-center py-6 px-4 border-r border-white/10 last:border-r-0">
+      <div className="text-2xl md:text-3xl font-black font-headline text-white">
         {stat.format(val)}{stat.suffix}
       </div>
-      <div className="text-xs font-semibold mt-1 font-label tracking-wide" style={{ color: 'rgba(255,255,255,0.55)' }}>
+      <div className="text-[11px] font-semibold mt-1 font-label tracking-wide" style={{ color: 'rgba(255,255,255,0.62)' }}>
         {stat.label}
       </div>
     </div>
@@ -61,7 +61,7 @@ export function StatsBar() {
   }, [])
 
   return (
-    <div ref={ref} className="relative z-10 flex justify-center" style={{ background: '#1C2B4B' }}>
+    <div ref={ref} className="relative z-10 flex justify-center rounded-2xl mx-4 md:mx-10 overflow-hidden bg-[#2f2521]">
       {STATS.map(s => <StatCell key={s.label} stat={s} active={active} />)}
     </div>
   )

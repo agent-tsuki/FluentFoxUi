@@ -43,7 +43,7 @@ export function DashboardPreview() {
         <FadeIn delay={120}>
           <div className="mt-12 bg-surface-container-lowest rounded-2xl border-[1.5px] border-outline-variant/40 shadow-xl overflow-hidden grid md:grid-cols-[240px_1fr] min-h-[400px]">
             {/* Sidebar */}
-            <div className="hidden md:block p-7" style={{ background: '#1C2B4B' }}>
+            <div className="hidden md:block p-7 bg-[#2f2521]">
               <p className="text-[10px] font-extrabold uppercase tracking-[2px] mb-4" style={{ color: 'rgba(255,255,255,0.4)' }}>Menu</p>
               {NAV_ITEMS.map(item => (
                 <div

@@ -20,7 +20,7 @@ const TESTIMONIALS: Testimonial[] = [
   {
     stars: 5,
     text: '"The dashboard is the game-changer. Knowing exactly which kanji trip me up means my study time is actually useful. Love the free courses section too."',
-    initials: 'RN', avatarBg: '#e8eeff', avatarColor: '#1C2B4B',
+    initials: 'RN', avatarBg: '#f4e9dd', avatarColor: '#5c3b2e',
     name: 'Rina N.', level: 'Anime fan → N4 learner',
   },
   {

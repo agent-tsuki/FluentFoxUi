@@ -10,7 +10,7 @@ interface CharData {
 
 const CHARS: CharData[] = [
   { char: 'あ', romaji: 'a', meaning: 'Hiragana • First character', type: 'Hiragana', color: '#EA6B44' },
-  { char: 'ア', romaji: 'a', meaning: 'Katakana • Same sound', type: 'Katakana', color: '#1C2B4B' },
+  { char: 'ア', romaji: 'a', meaning: 'Katakana • Same sound', type: 'Katakana', color: '#5c3b2e' },
   { char: '山', romaji: 'yama / san', meaning: 'Kanji • Mountain', type: 'Kanji', color: '#06a87e' },
   { char: 'ね', romaji: 'ne', meaning: 'Hiragana • Softens sentences', type: 'Hiragana', color: '#EA6B44' },
   { char: '愛', romaji: 'ai', meaning: 'Kanji • Love', type: 'Kanji', color: '#9333ea' },
@@ -41,14 +41,14 @@ export function CharCard() {
         width: 300,
         height: 320,
         background: 'rgb(var(--surface-container-lowest))',
-        boxShadow: '0 12px 40px rgba(28,43,75,0.18)',
+        boxShadow: '0 12px 40px rgba(92,59,46,0.16)',
         animation: 'charCardFloat 4s ease-in-out infinite',
       }}
     >
       {/* Header bar */}
       <div
         className="absolute top-0 left-0 right-0 flex items-center gap-2 px-4 py-3"
-        style={{ background: '#1C2B4B' }}
+        style={{ background: '#2f2521' }}
       >
         <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
         <span className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />

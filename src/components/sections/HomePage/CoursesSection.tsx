@@ -23,8 +23,8 @@ const COURSES: Course[] = [
     rating: '4.9', stars: 5,
   },
   {
-    char: '文', thumbGradient: ['#e8eeff', '#ccd6ff'], charColor: '#1C2B4B',
-    badge: 'N5', badgeColor: '#e8eeff', badgeText: '#1C2B4B',
+    char: '文', thumbGradient: ['#f4e9dd', '#e8d4c2'], charColor: '#5c3b2e',
+    badge: 'N5', badgeColor: '#f4e9dd', badgeText: '#5c3b2e',
     source: 'Coursera', title: 'Japanese for Beginners (Keio Univ.)',
     desc: 'University-level course covering grammar, script, and speaking.',
     rating: '4.7', stars: 4,

@@ -6,7 +6,7 @@ import { HeroVisual } from './HeroVisual'
 function TrustAvatars() {
   const avatars = [
     { initials: 'AK', bg: '#ffeaea', color: '#c9274a' },
-    { initials: 'RN', bg: '#e8eeff', color: '#1C2B4B' },
+    { initials: 'RN', bg: '#f4e9dd', color: '#5c3b2e' },
     { initials: 'SM', bg: '#e0faf3', color: '#0a8a60' },
     { initials: 'YT', bg: '#fff8d6', color: '#a07000' },
   ]
@@ -56,25 +56,25 @@ export function Hero() {
 
   return (
     <section className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-20 md:py-28 grid md:grid-cols-2 gap-16 items-center overflow-hidden">
-      {/* Radial glow top-right */}
+      {/* Radial glow (balanced so it is not pushed too far right) */}
       <div
         className="absolute pointer-events-none -z-10"
         style={{
-          top: -200, right: -200,
-          width: 700, height: 700,
+          top: -180, right: -80,
+          width: 680, height: 680,
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(234,107,68,0.08) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(234,107,68,0.1) 0%, transparent 72%)',
         }}
       />
 
       {/* Left — Copy */}
       <div
         ref={heroTextRef}
-        className="space-y-7"
+        className="space-y-6"
         style={{ opacity: 0, transform: 'translateY(28px)', transition: 'opacity 0.7s ease, transform 0.7s ease' }}
       >
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary font-label text-[0.7rem] font-bold uppercase tracking-widest border border-primary/20">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary font-label text-[0.7rem] font-semibold uppercase tracking-widest border border-primary/20">
           <span className="relative flex h-2 w-2">
             <span
               className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"
@@ -86,32 +86,33 @@ export function Hero() {
         </div>
 
         {/* Headline */}
-        <h1 className="font-headline text-5xl md:text-[3.8rem] font-extrabold tracking-tight text-on-surface leading-[1.1]">
-          Learn Japanese,<br />
-          <span className="text-primary italic">The Smart Way</span>
+        <h1 className="font-headline text-4xl md:text-[3.3rem] font-extrabold tracking-tight text-on-surface leading-[1.1]">
+          Learn Japanese,
+          <br />
+          <span className="text-primary italic">Without the Chaos</span>
         </h1>
 
         {/* Sub */}
-        <p className="text-lg text-on-surface-variant leading-relaxed max-w-[480px] font-body">
-          From hiragana to JLPT — grammar, kanji, vocabulary, and real-world conversations.
-          Structured paths for every level, completely free to start.
+        <p className="text-base md:text-lg text-on-surface-variant leading-relaxed max-w-[520px] font-body">
+          Follow a focused learning path for grammar, kanji, and vocabulary with clear daily progress.
+          Free to start, easy to continue.
         </p>
 
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row gap-4 pt-2">
           <Button
             variant="primary"
-            className="px-8 py-4 rounded-[14px] text-base font-extrabold shadow-lg shadow-primary/30"
+            className="px-8 py-3.5 rounded-xl text-base font-bold shadow-md shadow-primary/20"
             onClick={() => openModal('signup')}
           >
-            Start Learning Free →
+            Start for Free
           </Button>
           <Button
             variant="outline"
-            className="flex items-center justify-center gap-2 px-8 py-4 rounded-[14px] text-base font-extrabold"
+            className="flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-base font-bold"
             onClick={scrollToLearn}
           >
-            ▶ How It Works
+            See How It Works
           </Button>
         </div>
 
