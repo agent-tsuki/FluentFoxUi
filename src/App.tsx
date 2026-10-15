@@ -30,6 +30,7 @@ import { ClassDetailPage } from '@/pages/ClassDetailPage'
 import { VerifyEmailPage } from '@/pages/VerifyEmailPage'
 import { VerifyPendingPage } from '@/pages/VerifyPendingPage'
 import { ResetPasswordPage } from '@/pages/ResetPasswordPage'
+import { OAuthCallbackPage } from '@/pages/OAuthCallbackPage'
 
 // ─── Koi fish background — pauses when tab is hidden ──────────────────────────
 function KoiBackground() {
@@ -132,6 +133,12 @@ const router = createBrowserRouter([
   {
     path: 'reset-password',
     element: <ResetPasswordPage />,
+  },
+  {
+    // Backend-owned Google OAuth returns a one-time code in this page's URL
+    // fragment; the page exchanges it before creating the normal app session.
+    path: 'auth/callback',
+    element: <OAuthCallbackPage />,
   },
   {
     path: '/',

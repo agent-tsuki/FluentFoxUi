@@ -53,6 +53,13 @@ export interface AuthTokenData {
   user: ApiUser
 }
 
+/** One-use response returned after the backend completes Google OAuth. */
+export interface OAuthExchangeData extends AuthTokenData {
+	email: string
+	/** Server-validated internal route to continue to after sign-in. */
+	return_to: string
+}
+
 // ── Simple message payload (register, logout) ─────────────────────────────────
 
 export interface MessageData {
@@ -62,6 +69,7 @@ export interface MessageData {
 // ── Typed convenience aliases ─────────────────────────────────────────────────
 
 export type AuthApiResponse    = ApiResponse<AuthTokenData>
+export type OAuthExchangeApiResponse = ApiResponse<OAuthExchangeData>
 export type MessageApiResponse = ApiResponse<MessageData>
 
 // ── Request bodies ─────────────────────────────────────────────────────────────

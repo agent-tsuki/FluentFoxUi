@@ -16,6 +16,7 @@ import type {
   ChangeEmailRequest,
   LoginRequest,
   MessageApiResponse,
+	OAuthExchangeApiResponse,
   RegisterRequest,
 } from '@/types/api'
 import type { AuthUser } from '@/context/AuthContext'
@@ -78,6 +79,23 @@ export const authService = {
     const destination = new URL('/auth/oauth/google/start', apiOrigin)
     destination.searchParams.set('return_to', safeOAuthReturnPath(returnTo))
     window.location.assign(destination.toString())
+  },
+
+  /**
+   * Exchanges the one-time code delivered in the callback URL fragment. The
+   * backend consumes it atomically and returns the same application token pair
+   * used by password login; no Google credential is ever exposed to the UI.
+   */
+  async completeGoogleOAuth(code: string): Promise<{ user: AuthUser; returnTo: string }> {
+    const res = await apiClient.post<OAuthExchangeApiResponse>('/auth/oauth/google/exchange', { code })
+    if (!res.data.user.is_active) {
+      throw new ApiError(403, 'ACCOUNT_INACTIVE', 'Account is not active', '')
+    }
+    startSession(res.data.access_token, res.data.refresh_token)
+    return {
+      user:     toAuthUser(res.data.user, normalizeEmail(res.data.email)),
+      returnTo: safeOAuthReturnPath(res.data.return_to),
+    }
   },
 
   /**
