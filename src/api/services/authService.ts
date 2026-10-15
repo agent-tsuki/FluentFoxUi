@@ -19,6 +19,7 @@ import type {
   LoginRequest,
   MessageApiResponse,
 	OAuthExchangeApiResponse,
+  RegisterApiResponse,
   RegisterRequest,
 	XConnectionApiResponse,
 	XLinkStartApiResponse,
@@ -58,6 +59,16 @@ function browserLanguageCode(): string {
 function safeOAuthReturnPath(path: string): string {
   return path.startsWith('/') && !path.startsWith('//') ? path : '/dashboard'
 }
+
+/** Result of a successful registration. `user` is null when the backend did not start a session. */
+export interface RegisterResult {
+  message: string
+  user:    AuthUser | null
+}
+
+/** Minimum gap between warm-up pings, so reopening the modal doesn't spam /health. */
+const WARM_UP_INTERVAL_MS = 60_000
+let lastWarmUpAt = 0
 
 export interface RegisterInput {
   email:      string
@@ -184,8 +195,27 @@ export const authService = {
     return toAuthUser(res.data.user, normalized)
   },
 
-  /** POST /auth/register. Optional fields are omitted when empty. */
-  async register(input: RegisterInput): Promise<string> {
+  /**
+   * Fire-and-forget GET /health. The API is a serverless function backed by
+   * a serverless Postgres, so the first request after idle pays a cold start;
+   * /health pings the DB, waking both while the user is still typing. Called
+   * when the auth modal opens; throttled, and every failure is ignored.
+   */
+  warmUp(): void {
+    const now = Date.now()
+    if (now - lastWarmUpAt < WARM_UP_INTERVAL_MS) return
+    lastWarmUpAt = now
+    apiClient.get<unknown>('/health').catch(() => { /* best effort only */ })
+  },
+
+  /**
+   * POST /auth/register. Optional fields are omitted when empty.
+   *
+   * Newer backends return a token pair + user; the session starts here and
+   * the user comes back so the caller can skip a separate login. Older
+   * backends return only a message (`user: null`): the caller logs in itself.
+   */
+  async register(input: RegisterInput): Promise<RegisterResult> {
     const payload: RegisterRequest = {
       email:       normalizeEmail(input.email),
       password:    input.password,
@@ -194,8 +224,14 @@ export const authService = {
       ...(input.lastName?.trim() ? { last_name: input.lastName.trim() } : {}),
       ...(input.userName?.trim() ? { user_name: input.userName.trim() } : {}),
     }
-    const res = await apiClient.post<MessageApiResponse>('/auth/register', payload)
-    return res.data.message
+    const res = await apiClient.post<RegisterApiResponse>('/auth/register', payload)
+    const { message, access_token, refresh_token, user } = res.data
+
+    if (!access_token || !refresh_token || !user || !user.is_active) {
+      return { message, user: null }
+    }
+    startSession(access_token, refresh_token)
+    return { message, user: toAuthUser(user, payload.email) }
   },
 
   /** POST /auth/logout — clears locally and in all tabs, then revokes on the server. */

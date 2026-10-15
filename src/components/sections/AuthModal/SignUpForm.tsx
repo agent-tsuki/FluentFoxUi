@@ -79,7 +79,7 @@ export function SignUpForm({ onSuccess, onRegisteredOnly, onGoToLogin, values, o
     setLoading(true)
     const email = normalizeEmail(form.email)
     try {
-      await authService.register({
+      const { user: registeredUser } = await authService.register({
         email,
         password,
         firstName: form.firstName,
@@ -87,7 +87,13 @@ export function SignUpForm({ onSuccess, onRegisteredOnly, onGoToLogin, values, o
         userName:  form.userName,
       })
 
-      // Log straight in so the user lands on "Verify your email" (resend / change email need a session).
+      // Newer backends start the session on register: go straight to "Verify your email".
+      if (registeredUser) {
+        onSuccess(registeredUser)
+        return
+      }
+
+      // Older backends: log straight in so the user lands on "Verify your email" (resend / change email need a session).
       try {
         const user = await authService.login(email, password)
         onSuccess(user)

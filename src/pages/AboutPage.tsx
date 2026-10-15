@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { FoxLogo } from '@/components/layout/Navbar/FoxLogo'
 import { useModal } from '@/context/ModalContext'
+import { authModalPrefetchHandlers } from '@/components/sections/AuthModal'
 
 const team = [
   {
@@ -141,6 +142,7 @@ export function AboutPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => openModal('signup')}
+              {...authModalPrefetchHandlers}
               className="px-8 py-3 bg-primary text-on-primary rounded-lg font-bold text-sm shadow-lg shadow-primary/20 dark:shadow-primary/10 hover:scale-[1.02] active:scale-[0.98] transition-transform"
             >
               Get Started for Free

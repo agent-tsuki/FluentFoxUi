@@ -1,8 +1,7 @@
-import Lottie, { LottieRefCurrentProps } from "lottie-react"
-import { useRef, forwardRef, useImperativeHandle } from "react"
-import happyFoxAnimation from "@/assets/animations/happy_fox.json"
+import { forwardRef, lazy, Suspense } from 'react'
+import { cn } from '@/lib/cn'
 
-interface FoxLogoProps {
+export interface FoxLogoProps {
   size?: number
   className?: string
   autoplay?: boolean
@@ -14,31 +13,24 @@ export interface FoxLogoHandle {
   reverse: () => void
 }
 
-export const FoxLogo = forwardRef<FoxLogoHandle, FoxLogoProps>(
-  ({ size = 48, className, autoplay = false, loop = false }, ref) => {
-    const lottieRef = useRef<LottieRefCurrentProps>(null)
-    const blendClass = "mix-blend-multiply dark:mix-blend-screen"
-
-    useImperativeHandle(ref, () => ({
-      play: () => {
-        lottieRef.current?.setDirection(1)
-        lottieRef.current?.play()
-      },
-      reverse: () => {
-        lottieRef.current?.setDirection(-1)
-        lottieRef.current?.play()
-      },
-    }))
-
-    return (
-      <Lottie
-        lottieRef={lottieRef}
-        animationData={happyFoxAnimation}
-        autoplay={autoplay}
-        loop={loop}
-        style={{ width: size, height: size }}
-        className={`${blendClass} ${className ?? ""}`}
-      />
-    )
-  }
+const FoxLogoAnimation = lazy(() =>
+  import('./FoxLogoAnimation').then(m => ({ default: m.FoxLogoAnimation })),
 )
+
+/**
+ * FoxLogo — the animated FoxSensei fox (Lottie). The animation is lazy-loaded
+ * so lottie-web stays out of the initial bundle; until it arrives, an empty
+ * box of the same size holds the layout. The ref's play/reverse are no-ops
+ * until then.
+ */
+export const FoxLogo = forwardRef<FoxLogoHandle, FoxLogoProps>((props, ref) => {
+  const size = props.size ?? 48
+  return (
+    <Suspense
+      fallback={<span aria-hidden className={cn('inline-block', props.className)} style={{ width: size, height: size }} />}
+    >
+      <FoxLogoAnimation ref={ref} {...props} />
+    </Suspense>
+  )
+})
+FoxLogo.displayName = 'FoxLogo'

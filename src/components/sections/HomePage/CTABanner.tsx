@@ -1,4 +1,5 @@
 import { useModal } from '@/context/ModalContext'
+import { authModalPrefetchHandlers } from '@/components/sections/AuthModal'
 import { FadeIn } from '@/components/ui/FadeIn'
 import { Button } from '@/components/ui/Button'
 
@@ -29,6 +30,7 @@ export function CTABanner() {
         <Button
           variant="white"
           onClick={() => openModal('signup')}
+          {...authModalPrefetchHandlers}
           className="px-8 py-3.5 text-base font-headline transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevation-2 relative"
         >
           Create Free Account

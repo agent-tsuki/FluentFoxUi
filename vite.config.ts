@@ -50,11 +50,53 @@ function contentSecurityPolicy(apiUrl: string | undefined): Plugin {
   }
 }
 
+/**
+ * `<link rel="preconnect">` to the API origin, so DNS + TLS are done before
+ * the first API call (the auth modal's /health warm-up, login, …). The origin
+ * is only known at build time (VITE_API_URL), hence a plugin. `crossorigin`
+ * because API requests are CORS requests; without it the browser opens a
+ * second connection. Skipped when the API is same-origin or unset.
+ */
+function apiPreconnect(apiUrl: string | undefined): Plugin {
+  const api = apiOrigin(apiUrl)
+  return {
+    name: 'foxsensei-api-preconnect',
+    transformIndexHtml: () =>
+      api ? [{ tag: 'link', attrs: { rel: 'preconnect', href: api, crossorigin: '' }, injectTo: 'head' }] : [],
+  }
+}
+
+/**
+ * Long-lived vendor chunks: libraries change far less often than app code,
+ * so splitting them out lets browsers keep them cached across deploys.
+ * lottie-web is only reached through lazy imports, so its chunk stays off
+ * the initial load.
+ */
+const VENDOR_CHUNKS: Record<string, string[]> = {
+  'vendor-react':  ['react', 'react-dom', 'scheduler'],
+  'vendor-router': ['react-router', 'react-router-dom', '@remix-run/router'],
+  'vendor-motion': ['framer-motion', 'motion-dom', 'motion-utils'],
+  'vendor-lottie': ['lottie-react', 'lottie-web'],
+}
+
+function vendorChunk(id: string): string | undefined {
+  if (!id.includes('/node_modules/')) return undefined
+  for (const [chunk, packages] of Object.entries(VENDOR_CHUNKS)) {
+    if (packages.some(pkg => id.includes(`/node_modules/${pkg}/`))) return chunk
+  }
+  return undefined
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_')
 
   return {
-    plugins: [react(), contentSecurityPolicy(env.VITE_API_URL)],
+    plugins: [react(), contentSecurityPolicy(env.VITE_API_URL), apiPreconnect(env.VITE_API_URL)],
+    build: {
+      rollupOptions: {
+        output: { manualChunks: vendorChunk },
+      },
+    },
     assetsInclude: ['**/*.lottie'],
     resolve: {
       alias: {

@@ -74,29 +74,23 @@ export function OAuthCallbackPage() {
     })()
   }, [navigate, setUser])
 
+  // A successful sign-in should feel like Google returned straight to the app,
+  // so the brief code exchange shows a blank surface instead of a status page.
+  if (state.kind === 'loading') {
+    return <div className="min-h-dvh bg-surface" aria-busy="true" />
+  }
+
   return (
     <AuthPageLayout noReferrer>
-      {state.kind === 'loading' && (
-        <StatusCard
-          icon="account_circle"
-          tone="primary"
-          pulse
-          title="Signing you in…"
-          body={`Securely finishing your ${providerName} sign-in.`}
-        />
-      )}
-
-      {state.kind === 'error' && (
-        <StatusCard
-          icon="error"
-          tone="error"
-          title={`${providerName} sign-in didn't finish`}
-          body={state.message}
-        >
-          <Link to="/?login=1" className={primaryLinkClass}>Sign in with email</Link>
-          <Link to="/" className={secondaryLinkClass}>Back to home</Link>
-        </StatusCard>
-      )}
+      <StatusCard
+        icon="error"
+        tone="error"
+        title={`${providerName} sign-in didn't finish`}
+        body={state.message}
+      >
+        <Link to="/?login=1" className={primaryLinkClass}>Sign in with email</Link>
+        <Link to="/" className={secondaryLinkClass}>Back to home</Link>
+      </StatusCard>
     </AuthPageLayout>
   )
 }

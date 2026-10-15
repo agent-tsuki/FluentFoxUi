@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button'
 import { FoxLogo, FoxLogoHandle } from './FoxLogo'
 import { Icon } from '@/components/ui/Icon'
 import { useUI, type BackgroundAnimation } from '@/context/UIContext'
+import { authModalPrefetchHandlers } from '@/components/sections/AuthModal'
 
 const MOCK_STREAK    = mockDashboardData.stats.currentStreak
 const MOCK_ACTIVITIES = mockDashboardData.streakCalendar.activities
@@ -444,6 +445,7 @@ export function Navbar() {
                   variant="ghost"
                   className="text-sm px-0 py-0 rounded-none shadow-none"
                   onClick={() => openModal('login')}
+                  {...authModalPrefetchHandlers}
                 >
                   Login
                 </Button>
@@ -451,6 +453,7 @@ export function Navbar() {
                   variant="primary"
                   className="px-6 py-2.5 text-sm"
                   onClick={() => openModal('signup')}
+                  {...authModalPrefetchHandlers}
                 >
                   Sign Up
                 </Button>
@@ -461,6 +464,8 @@ export function Navbar() {
             <button
               className="md:hidden min-w-11 min-h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container transition-colors"
               onClick={() => setMobileOpen(v => !v)}
+              // Logged out, the drawer holds Login / Sign Up: fetch the modal early.
+              {...(user ? {} : authModalPrefetchHandlers)}
               aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={mobileOpen}
             >
@@ -569,6 +574,7 @@ export function Navbar() {
                       variant="ghost"
                       className="w-full text-sm"
                       onClick={() => { openModal('login'); closeMobile() }}
+                  {...authModalPrefetchHandlers}
                     >
                       Login
                     </Button>
@@ -576,6 +582,7 @@ export function Navbar() {
                       variant="primary"
                       className="w-full text-sm py-3"
                       onClick={() => { openModal('signup'); closeMobile() }}
+                  {...authModalPrefetchHandlers}
                     >
                       Sign Up
                     </Button>

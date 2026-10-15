@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/Button'
 import { useModal } from '@/context/ModalContext'
+import { authModalPrefetchHandlers } from '@/components/sections/AuthModal'
 import { CharCard } from './CharCard'
 
 // Neutral surface tokens only — avatars are decoration, not the accent (see
@@ -99,6 +100,7 @@ export function Hero() {
             variant="primary"
             className="px-8 py-3.5 rounded-xl text-base font-bold shadow-md shadow-primary/20 dark:shadow-primary/10"
             onClick={() => openModal('signup')}
+            {...authModalPrefetchHandlers}
           >
             Start for Free
           </Button>

@@ -40,6 +40,9 @@ const PUBLIC_AUTH_PATHS = [
   '/auth/reset-password',
   '/auth/oauth/google/exchange',
   '/auth/oauth/x/exchange',
+  // Not auth, but public: the cold-start warm-up ping must never carry a
+  // token or trigger a refresh.
+  '/health',
 ]
 const REFRESHABLE_CODES = new Set(['TOKEN_EXPIRED', 'TOKEN_INVALID', 'UNAUTHORIZED'])
 

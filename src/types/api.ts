@@ -85,6 +85,14 @@ export interface MessageData {
   message: string
 }
 
+/**
+ * POST /auth/register success payload. Newer backends start the session
+ * straight away (same token/user shape as login); older ones return only
+ * `message`, so the session fields are optional and the caller falls back
+ * to an explicit login.
+ */
+export interface RegisterData extends MessageData, Partial<AuthTokenData> {}
+
 // ── Typed convenience aliases ─────────────────────────────────────────────────
 
 export type AuthApiResponse    = ApiResponse<AuthTokenData>
@@ -94,6 +102,7 @@ export type GoogleLinkStartApiResponse = ApiResponse<GoogleLinkStartData>
 export type XConnectionApiResponse = ApiResponse<XConnectionData>
 export type XLinkStartApiResponse = ApiResponse<XLinkStartData>
 export type MessageApiResponse = ApiResponse<MessageData>
+export type RegisterApiResponse = ApiResponse<RegisterData>
 
 // ── Request bodies ─────────────────────────────────────────────────────────────
 

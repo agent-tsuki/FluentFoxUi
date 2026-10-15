@@ -1,71 +1,74 @@
-import { useEffect, useRef } from 'react'
+import { lazy, Suspense, useEffect, type ReactNode } from 'react'
 import { createBrowserRouter, Navigate, RouterProvider, Outlet, useSearchParams } from 'react-router-dom'
-import Lottie, { type LottieRefCurrentProps } from 'lottie-react'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
-import koiAnimation from '@/assets/animations/koi_loader.json'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
-import { AuthModal } from '@/components/sections/AuthModal'
+import { LazyAuthModal } from '@/components/sections/AuthModal'
 import { ModalProvider, useModal } from '@/context/ModalContext'
 import { AuthProvider } from '@/context/AuthContext'
 import { UIProvider, useUI } from '@/context/UIContext'
 import { MouseFollower } from '@/components/ui/MouseFollower'
 import { PetalBackground } from '@/components/ui/PetalBackground'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
+import { LoadingState } from '@/components/ui/LoadingState'
 import { ProfileOverlay } from '@/components/profile/ProfileOverlay'
 import { RequireAuth } from '@/components/auth/RequireAuth'
+import { useAmbientMotion } from '@/hooks/useAmbientMotion'
+// The landing page stays eager: it is the first paint for most visitors.
 import { HomePage } from '@/pages/HomePage'
-import { HiraganaPage } from '@/pages/HiraganaPage'
-import { KanjiPage } from '@/pages/KanjiPage'
-import { QuizPage } from '@/pages/QuizPage'
-import { ProfilePage } from '@/pages/ProfilePage'
-import { GrammarPage } from '@/pages/GrammarPage'
-import { DashboardPage } from '@/pages/DashboardPage'
-import { AboutPage } from '@/pages/AboutPage'
-import { TermsPage } from '@/pages/TermsPage'
-import { PrivacyPage } from '@/pages/PrivacyPage'
-import { NotFoundPage } from '@/pages/NotFoundPage'
-import { ServerErrorPage } from '@/pages/ServerErrorPage'
-import { ClassesPage } from '@/pages/ClassesPage'
-import { ClassDetailPage } from '@/pages/ClassDetailPage'
-import { VerifyEmailPage } from '@/pages/VerifyEmailPage'
-import { VerifyPendingPage } from '@/pages/VerifyPendingPage'
-import { ResetPasswordPage } from '@/pages/ResetPasswordPage'
-import { OAuthCallbackPage } from '@/pages/OAuthCallbackPage'
 
-// ─── Koi fish background — pauses when tab is hidden ──────────────────────────
-function KoiBackground() {
-  const lottieRef = useRef<LottieRefCurrentProps>(null)
-  const { darkMode } = useUI()
+// ─── Lazy routes ──────────────────────────────────────────────────────────────
+// Each page is its own chunk, fetched on first navigation.
+const HiraganaPage      = lazy(() => import('@/pages/HiraganaPage').then(m => ({ default: m.HiraganaPage })))
+const KanjiPage         = lazy(() => import('@/pages/KanjiPage').then(m => ({ default: m.KanjiPage })))
+const QuizPage          = lazy(() => import('@/pages/QuizPage').then(m => ({ default: m.QuizPage })))
+const ProfilePage       = lazy(() => import('@/pages/ProfilePage').then(m => ({ default: m.ProfilePage })))
+const GrammarPage       = lazy(() => import('@/pages/GrammarPage').then(m => ({ default: m.GrammarPage })))
+const DashboardPage     = lazy(() => import('@/pages/DashboardPage').then(m => ({ default: m.DashboardPage })))
+const AboutPage         = lazy(() => import('@/pages/AboutPage').then(m => ({ default: m.AboutPage })))
+const TermsPage         = lazy(() => import('@/pages/TermsPage').then(m => ({ default: m.TermsPage })))
+const PrivacyPage       = lazy(() => import('@/pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })))
+const NotFoundPage      = lazy(() => import('@/pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })))
+const ServerErrorPage   = lazy(() => import('@/pages/ServerErrorPage').then(m => ({ default: m.ServerErrorPage })))
+const ClassesPage       = lazy(() => import('@/pages/ClassesPage').then(m => ({ default: m.ClassesPage })))
+const ClassDetailPage   = lazy(() => import('@/pages/ClassDetailPage').then(m => ({ default: m.ClassDetailPage })))
+const VerifyEmailPage   = lazy(() => import('@/pages/VerifyEmailPage').then(m => ({ default: m.VerifyEmailPage })))
+const VerifyPendingPage = lazy(() => import('@/pages/VerifyPendingPage').then(m => ({ default: m.VerifyPendingPage })))
+const ResetPasswordPage = lazy(() => import('@/pages/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })))
+const OAuthCallbackPage = lazy(() => import('@/pages/OAuthCallbackPage').then(m => ({ default: m.OAuthCallbackPage })))
 
-  useEffect(() => {
-    const handleVisibility = () => {
-      if (document.hidden) {
-        lottieRef.current?.pause()
-      } else {
-        lottieRef.current?.play()
-      }
-    }
-    document.addEventListener('visibilitychange', handleVisibility)
-    return () => document.removeEventListener('visibilitychange', handleVisibility)
-  }, [])
+// lottie-web + the koi JSON load only when this background is actually shown.
+const KoiBackground = lazy(() => import('@/components/ui/KoiBackground').then(m => ({ default: m.KoiBackground })))
 
+/** Suspense boundary for a lazy route: the shared skeleton while its chunk loads. */
+function RouteSuspense({ children }: { children: ReactNode }) {
   return (
-    <div
-      className="fixed inset-0 pointer-events-none flex items-center justify-center overflow-hidden transition-opacity duration-500"
-      style={{ opacity: darkMode ? 0.18 : 0.08, zIndex: 0 }}
-    >
-      <div className="w-[1200px] h-[1200px] transform translate-y-32">
-        <Lottie
-          lottieRef={lottieRef}
-          animationData={koiAnimation}
-          loop
-          className="w-full h-full"
-        />
-      </div>
-    </div>
+    <Suspense fallback={<LoadingState label="Loading page…" className="mx-auto max-w-3xl px-6 py-24" />}>
+      {children}
+    </Suspense>
   )
+}
+
+// ─── Ambient effects ──────────────────────────────────────────────────────────
+// Decorative only: skipped entirely for reduced motion and touch devices.
+function AmbientBackground() {
+  const { backgroundAnimation } = useUI()
+  const ambientMotion = useAmbientMotion()
+  if (!ambientMotion) return null
+  if (backgroundAnimation === 'petals') return <PetalBackground />
+  if (backgroundAnimation === 'fish') {
+    return (
+      <Suspense fallback={null}>
+        <KoiBackground />
+      </Suspense>
+    )
+  }
+  return null
+}
+
+function AmbientMouseFollower() {
+  return useAmbientMotion() ? <MouseFollower /> : null
 }
 
 // ─── URL-triggered modal opener ───────────────────────────────────────────────
@@ -93,23 +96,24 @@ function ModalFromUrl() {
 
 // ─── Layout shell (shared Navbar + Footer + modals) ───────────────────────────
 function Shell() {
-  const { isProfileOverlayOpen, setIsProfileOverlayOpen, backgroundAnimation } = useUI()
+  const { isProfileOverlayOpen, setIsProfileOverlayOpen } = useUI()
 
   return (
     <div className="bg-surface text-on-surface transition-colors duration-300 ease-in-out font-body selection:bg-primary-fixed selection:text-primary min-h-dvh flex flex-col relative overflow-x-hidden">
-      {backgroundAnimation === 'petals' && <PetalBackground />}
-      {backgroundAnimation === 'fish'   && <KoiBackground />}
+      <AmbientBackground />
 
       <div className="relative z-10 flex flex-col min-h-dvh">
         <Navbar />
         <div className="flex-1">
           <ErrorBoundary>
             <ModalFromUrl />
-            <Outlet />
+            <RouteSuspense>
+              <Outlet />
+            </RouteSuspense>
           </ErrorBoundary>
         </div>
         <Footer />
-        <AuthModal />
+        <LazyAuthModal />
 
         <ProfileOverlay
           isOpen={isProfileOverlayOpen}
@@ -125,7 +129,7 @@ const router = createBrowserRouter([
   {
     // /verify is outside Shell — it has its own minimal layout
     path: 'verify',
-    element: <VerifyEmailPage />,
+    element: <RouteSuspense><VerifyEmailPage /></RouteSuspense>,
   },
   {
     // Forgot password runs inside the auth popup; keep this address working.
@@ -134,13 +138,13 @@ const router = createBrowserRouter([
   },
   {
     path: 'reset-password',
-    element: <ResetPasswordPage />,
+    element: <RouteSuspense><ResetPasswordPage /></RouteSuspense>,
   },
   {
     // Backend-owned Google OAuth returns a one-time code in this page's URL
     // fragment; the page exchanges it before creating the normal app session.
     path: 'auth/callback',
-    element: <OAuthCallbackPage />,
+    element: <RouteSuspense><OAuthCallbackPage /></RouteSuspense>,
   },
   {
     path: '/',
@@ -184,7 +188,7 @@ export function App() {
       <AuthProvider>
         <UIProvider>
           <ModalProvider>
-            <MouseFollower />
+            <AmbientMouseFollower />
             <RouterProvider router={router} />
             <Analytics />
             <SpeedInsights />
