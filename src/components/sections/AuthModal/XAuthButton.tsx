@@ -44,9 +44,6 @@ export function XAuthButton({ onClick, disabled, size = 'md' }: XAuthButtonProps
       >
         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L3.283 2.25H9.59l4.258 5.658Zm-1.161 16.81h1.833L7.084 4.126H5.117Z" />
       </motion.svg>
-      <span aria-hidden className={`relative z-10 ml-2 text-xs font-medium transition-colors duration-200 ${hovered ? 'text-white' : 'text-on-surface-variant'}`}>
-        Continue with X
-      </span>
     </SocialButtonShell>
   )
 }
