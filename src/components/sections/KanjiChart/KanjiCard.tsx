@@ -9,8 +9,8 @@ const levelColors: Record<string, string> = {
   N5: 'bg-tertiary/10 text-tertiary',
   N4: 'bg-primary/10 text-primary',
   N3: 'bg-secondary/10 text-secondary',
-  N2: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-  N1: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
+  N2: 'bg-warning/10 text-warning',
+  N1: 'bg-error/10 text-error',
 }
 
 // Stroke order hints shown on the back face
@@ -57,7 +57,7 @@ export function KanjiCard({ kanji }: KanjiCardProps) {
       <div className={`card-3d-inner ${flipped ? 'flipped' : ''} w-full h-full`}>
 
         {/* ── Front face ────────────────────────────────── */}
-        <div className="card-face bg-surface-container-lowest rounded-xl overflow-hidden border border-surface-container-high transition-shadow duration-300 hover:shadow-[0_20px_40px_rgba(172,0,30,0.08)] flex flex-col">
+        <div className="card-face bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant/40 transition-shadow duration-300 hover:shadow-elevation-1 flex flex-col">
           {/* Character */}
           <div className="pt-8 pb-4 flex items-center justify-center relative flex-1">
             <span className="absolute text-7xl font-bold text-on-surface/5 select-none pointer-events-none japanese-text">
@@ -78,30 +78,30 @@ export function KanjiCard({ kanji }: KanjiCardProps) {
           {/* Readings */}
           <div className="px-3 pb-4 flex flex-col gap-1 text-center">
             <p className="japanese-text text-xs text-on-surface-variant leading-tight">
-              <span className="font-label text-[9px] uppercase tracking-widest text-outline mr-1">on</span>
+              <span className="font-label text-2xs uppercase tracking-widest text-outline mr-1">on</span>
               {kanji.onyomi}
             </p>
             <p className="japanese-text text-xs text-on-surface-variant leading-tight">
-              <span className="font-label text-[9px] uppercase tracking-widest text-outline mr-1">kun</span>
+              <span className="font-label text-2xs uppercase tracking-widest text-outline mr-1">kun</span>
               {kanji.kunyomi}
             </p>
           </div>
 
           {/* Footer bar */}
           <div className="bg-surface-container-high/40 py-1.5 px-3 flex items-center justify-between">
-            <span className="text-[9px] font-bold uppercase tracking-widest text-on-surface-variant">
+            <span className="text-2xs font-bold uppercase tracking-widest text-on-surface-variant">
               {kanji.strokes} strokes
             </span>
-            <span className={`text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full ${levelColors[kanji.jlpt] ?? ''}`}>
+            <span className={`text-2xs font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full ${levelColors[kanji.jlpt] ?? ''}`}>
               {kanji.jlpt}
             </span>
           </div>
         </div>
 
         {/* ── Back face ─────────────────────────────────── */}
-        <div className="card-face card-face-back bg-on-surface rounded-xl overflow-hidden flex flex-col items-center justify-between p-4">
+        <div className="card-face card-face-back bg-surface-inverse rounded-xl overflow-hidden flex flex-col items-center justify-between p-4">
           {/* Large character watermark */}
-          <span className="japanese-text text-6xl font-bold text-white/10 select-none absolute">
+          <span className="japanese-text text-6xl font-bold text-on-surface-inverse/10 select-none absolute">
             {kanji.character}
           </span>
 
@@ -111,17 +111,17 @@ export function KanjiCard({ kanji }: KanjiCardProps) {
               <span className="bg-primary/20 text-primary-fixed-dim text-xs font-bold px-2.5 py-1 rounded-full font-label">
                 ON: {kanji.onyomi}
               </span>
-              <span className="bg-tertiary/20 text-white/70 text-xs font-bold px-2.5 py-1 rounded-full font-label">
+              <span className="bg-tertiary/20 text-on-surface-inverse-variant text-xs font-bold px-2.5 py-1 rounded-full font-label">
                 KUN: {kanji.kunyomi}
               </span>
             </div>
 
             {/* Stroke hint */}
-            <p className="text-white/60 text-[10px] font-body text-center leading-relaxed px-1">
+            <p className="text-on-surface-inverse-variant/80 text-xs font-body text-center leading-relaxed px-1">
               {hint}
             </p>
 
-            <span className="text-white/25 text-[9px] font-label mt-auto">
+            <span className="text-on-surface-inverse-variant/50 text-2xs font-label mt-auto">
               tap to flip back
             </span>
           </div>

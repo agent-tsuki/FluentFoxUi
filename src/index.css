@@ -26,6 +26,19 @@
   /* Outline */
   --outline:         146 110 108;
   --outline-variant: 231 188 186;
+
+  /* Primary — fox orange (full saturation on the light surface) */
+  --primary: 234 107 68; /* #EA6B44 */
+
+  /* Semantic status — darker shades read on the light surface */
+  --success: 21 128 61;  /* green-700 */
+  --warning: 180 83 9;   /* amber-700 */
+  --info:    3 105 161;   /* sky-700 */
+
+  /* Elevation shadows */
+  --shadow-elevation-1: 0 4px 20px rgba(25, 28, 29, 0.04), 0 2px 8px rgba(25, 28, 29, 0.02);
+  --shadow-elevation-2: 0 12px 32px rgba(25, 28, 29, 0.06), 0 4px 12px rgba(25, 28, 29, 0.03);
+  --shadow-elevation-3: 0 24px 48px rgba(25, 28, 29, 0.1), 0 8px 24px rgba(25, 28, 29, 0.05);
 }
 
 html.dark {
@@ -47,6 +60,19 @@ html.dark {
   /* Outline */
   --outline:         107 85 80;
   --outline-variant: 67 49 48;
+
+  /* Primary — fox orange, dimmed for charcoal (reuses the fox-dark brand tone) */
+  --primary: 216 99 53; /* #D86B35 */
+
+  /* Semantic status — brighter shades for contrast on charcoal */
+  --success: 74 222 128;  /* green-400 */
+  --warning: 251 191 36;  /* amber-400 */
+  --info:    56 189 248;   /* sky-400 */
+
+  /* Elevation shadows (pure black / heavier for charcoal background) */
+  --shadow-elevation-1: 0 4px 20px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-elevation-2: 0 12px 32px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-elevation-3: 0 24px 48px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.45);
 }
 
 /* Google Fonts are loaded via index.html */
@@ -59,10 +85,30 @@ html.dark {
   font-family: 'Hiragino Kaku Gothic Pro', 'Yu Gothic', 'Meiryo', sans-serif;
 }
 
-/* Disable selection globally */
-body {
+/* Learning content stays selectable — learners must be able to copy Japanese text,
+   readings, and vocabulary. Only UI chrome / controls / decorative layers disable selection. */
+button,
+a,
+nav,
+label,
+summary,
+.material-symbols-outlined,
+canvas {
   -webkit-user-select: none; /* Safari */
   user-select: none; /* Standard syntax */
+}
+
+/* Respect prefers-reduced-motion: neutralize CSS animations/transitions.
+   JS/canvas/Lottie motion (globe, petals, QuizResults) is handled in components — see docs/UIUX_PLAN.md U0.5. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* ─── Quiz animations ─────────────────────────────────────────────────────── */
@@ -143,6 +189,26 @@ body {
 .option-rise:nth-child(2) { animation-delay: 0.12s; }
 .option-rise:nth-child(3) { animation-delay: 0.19s; }
 .option-rise:nth-child(4) { animation-delay: 0.26s; }
+
+/* ─── Skeleton shimmer (LoadingState / SkeletonBlock) ────────────────────────
+   A moving highlight sweep, gated by the prefers-reduced-motion rule above
+   (that rule's `*` selector already freezes this animation under reduced motion). */
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.animate-shimmer {
+  background-image: linear-gradient(
+    100deg,
+    rgb(var(--surface-container-high)) 40%,
+    rgb(var(--surface-container-highest)) 50%,
+    rgb(var(--surface-container-high)) 60%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+}
 
 /* ─── Logo shimmer ────────────────────────────────────────────────────────── */
 

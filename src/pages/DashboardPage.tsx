@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { DashboardData } from '@/types'
 import { dashboardService } from '@/api/services/dashboardService'
 import { useAuth } from '@/context/AuthContext'
@@ -10,6 +10,7 @@ import {
   StudyLog,
   StreakCalendar,
 } from '@/components/sections/Dashboard'
+import { ErrorState } from '@/components/ui/ErrorState'
 
 // ── Skeleton helpers ──────────────────────────────────────────────────────────
 function SkeletonBlock({ className = '' }: { className?: string }) {
@@ -18,7 +19,7 @@ function SkeletonBlock({ className = '' }: { className?: string }) {
 
 function DashboardSkeleton() {
   return (
-    <main className="pt-32 pb-20 px-6 max-w-6xl mx-auto space-y-12" aria-label="Loading dashboard…">
+    <main className="pt-nav pb-20 px-6 max-w-6xl mx-auto space-y-12" aria-label="Loading dashboard…">
       {/* Hero skeleton */}
       <div className="space-y-4">
         <SkeletonBlock className="h-8 w-64" />
@@ -54,16 +55,33 @@ function DashboardSkeleton() {
 export function DashboardPage() {
   const { user } = useAuth()
   const [data, setData] = useState<DashboardData | null>(null)
+  const [failed, setFailed] = useState(false)
+
+  const fetchDashboard = useCallback(() => {
+    setFailed(false)
+    dashboardService
+      .getDashboardData()
+      .then(setData)
+      .catch(() => setFailed(true))
+  }, [])
 
   useEffect(() => {
     window.scrollTo(0, 0)
-    dashboardService.getDashboardData().then(setData)
-  }, [])
+    fetchDashboard()
+  }, [fetchDashboard])
+
+  if (failed) {
+    return (
+      <main className="pt-nav pb-20 px-6 max-w-6xl mx-auto">
+        <ErrorState message="We couldn't load your dashboard." onRetry={fetchDashboard} />
+      </main>
+    )
+  }
 
   if (!data) return <DashboardSkeleton />
 
   return (
-    <main className="pt-32 pb-20 px-6 max-w-6xl mx-auto space-y-12">
+    <main className="pt-nav pb-20 px-6 max-w-6xl mx-auto space-y-12">
       <DashboardHero firstName={user?.firstName ?? 'Learner'} stats={data.stats} />
       <StatsGrid stats={data.stats} />
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-12">

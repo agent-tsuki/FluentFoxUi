@@ -8,7 +8,7 @@ export function DragWidget({ data }: DragWidgetProps) {
   const emptyZones = data.dropZones - 1 // first is prefilled
 
   return (
-    <div className="bg-surface-container-lowest p-10 rounded-2xl shadow-sm border border-outline-variant/10">
+    <div className="bg-surface-container-lowest p-10 rounded-2xl shadow-elevation-1 border border-outline-variant/10">
       {/* Header */}
       <div className="flex items-center gap-4 mb-10">
         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
@@ -39,8 +39,8 @@ export function DragWidget({ data }: DragWidgetProps) {
               key={block.id}
               className={`px-6 py-4 rounded-xl font-headline text-2xl font-bold hover:scale-110 cursor-grab active:cursor-grabbing transition-transform ${
                 block.isCorrect
-                  ? 'bg-primary text-on-primary shadow-lg shadow-primary/20'
-                  : 'bg-surface-container-lowest shadow-md border border-outline-variant/30'
+                  ? 'bg-primary text-on-primary shadow-lg shadow-primary/20 dark:shadow-primary/10'
+                  : 'bg-surface-container-lowest shadow-elevation-2 border border-outline-variant/30'
               }`}
             >
               {block.character}

@@ -94,9 +94,9 @@ export function CharCard({ char, size = 'lg', interactive = true }: CharCardProp
     : 'rgb(var(--surface-container-lowest) / 0.96)';
 
   const cardShadow = flipped
-    ? '0 20px 56px rgba(255,115,64,0.18), 0 6px 20px rgba(0,0,0,0.06)'
+    ? '0 20px 56px rgb(var(--primary) / 0.18), 0 6px 20px rgba(0,0,0,0.06)'
     : hovered
-    ? '0 14px 40px rgba(255,115,64,0.10), 0 4px 14px rgba(0,0,0,0.05)'
+    ? '0 14px 40px rgb(var(--primary) / 0.10), 0 4px 14px rgba(0,0,0,0.05)'
     : '0 2px 16px rgba(0,0,0,0.045), 0 1px 4px rgba(0,0,0,0.035)';
 
   return (
@@ -120,7 +120,7 @@ export function CharCard({ char, size = 'lg', interactive = true }: CharCardProp
         style={{
           inset: '-24%',
           borderRadius: '50%',
-          background: 'radial-gradient(circle at 50% 58%, #FF7340 0%, transparent 65%)',
+          background: 'radial-gradient(circle at 50% 58%, rgb(var(--primary)) 0%, transparent 65%)',
           filter: 'blur(22px)',
           zIndex: 0,
           opacity: !interactive ? 0.06 : flipped ? 0.45 : hovered ? 0.22 : 0.06,
@@ -183,14 +183,11 @@ export function CharCard({ char, size = 'lg', interactive = true }: CharCardProp
 
               {/* Romaji row */}
               <div className="pb-4 flex items-center justify-center gap-2">
-                <span aria-hidden style={{ display: 'block', width: isLg ? 14 : 10, height: 1, borderRadius: 1, background: '#FF7340', opacity: 0.55 }} />
-                <span
-                  className={`${isLg ? 'text-[11px]' : 'text-[9px]'} font-semibold tracking-[0.18em] uppercase`}
-                  style={{ color: '#FF7340' }}
-                >
+                <span aria-hidden style={{ display: 'block', width: isLg ? 14 : 10, height: 1, borderRadius: 1, background: 'rgb(var(--primary))', opacity: 0.55 }} />
+                <span className="text-2xs font-semibold tracking-[0.18em] uppercase text-primary">
                   {char.romaji}
                 </span>
-                <span aria-hidden style={{ display: 'block', width: isLg ? 14 : 10, height: 1, borderRadius: 1, background: '#FF7340', opacity: 0.55 }} />
+                <span aria-hidden style={{ display: 'block', width: isLg ? 14 : 10, height: 1, borderRadius: 1, background: 'rgb(var(--primary))', opacity: 0.55 }} />
               </div>
             </motion.div>
 
@@ -208,25 +205,22 @@ export function CharCard({ char, size = 'lg', interactive = true }: CharCardProp
               <div
                 aria-hidden
                 className="absolute inset-0 pointer-events-none rounded-[22px]"
-                style={{ background: 'rgba(255,115,64,0.04)' }}
+                style={{ background: 'rgb(var(--primary) / 0.04)' }}
               />
 
               {sampleWord ? (
                 <>
                   <span
-                    className={`${isLg ? 'text-[17px]' : 'text-[12px]'} font-bold leading-snug relative`}
+                    className={`${isLg ? 'text-base' : 'text-xs'} font-bold leading-snug relative`}
                     style={{ color: 'rgb(var(--on-surface))' }}
                   >
                     {sampleWord.word}
                   </span>
                   <div
                     aria-hidden
-                    style={{ width: isLg ? 28 : 20, height: 1.5, borderRadius: 2, background: 'linear-gradient(90deg, transparent, #FF7340, transparent)' }}
+                    style={{ width: isLg ? 28 : 20, height: 1.5, borderRadius: 2, background: 'linear-gradient(90deg, transparent, rgb(var(--primary)), transparent)' }}
                   />
-                  <span
-                    className={`${isLg ? 'text-[11px]' : 'text-[9px]'} italic relative`}
-                    style={{ color: 'rgb(var(--on-surface) / 0.5)' }}
-                  >
+                  <span className="text-2xs italic relative" style={{ color: 'rgb(var(--on-surface) / 0.5)' }}>
                     {sampleWord.meaning}
                   </span>
                 </>

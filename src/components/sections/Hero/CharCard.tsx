@@ -1,19 +1,29 @@
 import { useEffect, useRef, useState } from 'react'
 
+type ColorToken = 'primary' | 'secondary' | 'tertiary'
+
 interface CharData {
   char: string
   romaji: string
   meaning: string
   type: string
-  color: string
+  colorToken: ColorToken
+}
+
+// One accent token per character type — reuses the existing brand palette
+// instead of inventing new hex values (see docs/UIUX_STANDARDS.md §0.2, §1).
+const TOKEN_CLASSES: Record<ColorToken, { text: string; bg: string }> = {
+  primary: { text: 'text-primary', bg: 'bg-primary' },
+  secondary: { text: 'text-secondary', bg: 'bg-secondary' },
+  tertiary: { text: 'text-tertiary', bg: 'bg-tertiary' },
 }
 
 const CHARS: CharData[] = [
-  { char: 'あ', romaji: 'a', meaning: 'Hiragana • First character', type: 'Hiragana', color: '#EA6B44' },
-  { char: 'ア', romaji: 'a', meaning: 'Katakana • Same sound', type: 'Katakana', color: '#5c3b2e' },
-  { char: '山', romaji: 'yama / san', meaning: 'Kanji • Mountain', type: 'Kanji', color: '#06a87e' },
-  { char: 'ね', romaji: 'ne', meaning: 'Hiragana • Softens sentences', type: 'Hiragana', color: '#EA6B44' },
-  { char: '愛', romaji: 'ai', meaning: 'Kanji • Love', type: 'Kanji', color: '#9333ea' },
+  { char: 'あ', romaji: 'a', meaning: 'Hiragana • First character', type: 'Hiragana', colorToken: 'primary' },
+  { char: 'ア', romaji: 'a', meaning: 'Katakana • Same sound', type: 'Katakana', colorToken: 'secondary' },
+  { char: '山', romaji: 'yama / san', meaning: 'Kanji • Mountain', type: 'Kanji', colorToken: 'tertiary' },
+  { char: 'ね', romaji: 'ne', meaning: 'Hiragana • Softens sentences', type: 'Hiragana', colorToken: 'primary' },
+  { char: '愛', romaji: 'ai', meaning: 'Kanji • Love', type: 'Kanji', colorToken: 'tertiary' },
 ]
 
 export function CharCard() {
@@ -33,27 +43,26 @@ export function CharCard() {
   }, [])
 
   const c = CHARS[index]
+  const colors = TOKEN_CLASSES[c.colorToken]
 
   return (
     <div
-      className="relative z-10 flex flex-col items-center justify-center rounded-[28px] border-2 border-outline-variant/40 overflow-hidden"
+      className="relative z-10 flex flex-col items-center justify-center rounded-[28px] border-2 border-outline-variant/40 overflow-hidden shadow-elevation-3"
       style={{
         width: 300,
         height: 320,
         background: 'rgb(var(--surface-container-lowest))',
-        boxShadow: '0 12px 40px rgba(92,59,46,0.16)',
         animation: 'charCardFloat 4s ease-in-out infinite',
       }}
     >
       {/* Header bar */}
       <div
-        className="absolute top-0 left-0 right-0 flex items-center gap-2 px-4 py-3"
-        style={{ background: '#2f2521' }}
+        className="absolute top-0 left-0 right-0 flex items-center gap-2 px-4 py-3 bg-surface-inverse"
       >
         <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
         <span className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
         <span className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
-        <span className="ml-auto text-[11px] font-bold" style={{ color: 'rgba(255,255,255,0.45)' }}>
+        <span className="ml-auto text-[11px] font-bold text-on-surface-inverse-variant">
           {c.type}
         </span>
       </div>
@@ -66,10 +75,9 @@ export function CharCard() {
       {/* Main character */}
       <div
         ref={charRef}
-        className="font-headline font-bold leading-none transition-all duration-300"
+        className={`font-headline font-bold leading-none transition-all duration-300 ${colors.text}`}
         style={{
           fontSize: 100,
-          color: c.color,
           opacity: visible ? 1 : 0,
           transform: visible ? 'scale(1) translateY(0)' : 'scale(0.7) translateY(16px)',
         }}
@@ -79,8 +87,8 @@ export function CharCard() {
 
       {/* Romaji */}
       <p
-        className="text-xl font-bold mt-1 transition-all duration-300"
-        style={{ color: c.color, opacity: visible ? 1 : 0 }}
+        className={`text-xl font-bold mt-1 transition-all duration-300 ${colors.text}`}
+        style={{ opacity: visible ? 1 : 0 }}
       >
         {c.romaji}
       </p>
@@ -95,11 +103,8 @@ export function CharCard() {
         {CHARS.map((_, i) => (
           <span
             key={i}
-            className="h-1.5 rounded-full transition-all duration-300"
-            style={{
-              width: i === index ? 18 : 7,
-              background: i === index ? c.color : 'rgb(var(--surface-container-high))',
-            }}
+            className={`h-1.5 rounded-full transition-all duration-300 ${i === index ? colors.bg : 'bg-surface-container-high'}`}
+            style={{ width: i === index ? 18 : 7 }}
           />
         ))}
       </div>

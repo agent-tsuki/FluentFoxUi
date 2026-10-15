@@ -1,4 +1,5 @@
 import type { SkillBalance } from '@/types'
+import { Eyebrow } from '@/components/ui/SectionHeader'
 
 interface LearningBalanceProps {
   balance: SkillBalance
@@ -52,9 +53,7 @@ export function LearningBalance({ balance }: LearningBalanceProps) {
   return (
     <section className="bg-surface-container-low p-8 rounded-xl space-y-6">
       <div className="space-y-1">
-        <span className="text-xs font-bold tracking-[0.2em] uppercase text-primary font-label block">
-          Skill Radar
-        </span>
+        <Eyebrow variant="plain">Skill Radar</Eyebrow>
         <h2 className="text-2xl font-extrabold tracking-tight text-on-surface font-headline">
           Learning Balance
         </h2>
@@ -67,8 +66,8 @@ export function LearningBalance({ balance }: LearningBalanceProps) {
             <polygon
               key={frac}
               points={hexPoints(frac * MAX_R)}
+              className="stroke-outline-variant"
               fill="none"
-              stroke="#E7BCBA"
               strokeWidth={0.5}
               opacity={0.5}
             />
@@ -84,7 +83,7 @@ export function LearningBalance({ balance }: LearningBalanceProps) {
                 y1={CENTER}
                 x2={outer.x}
                 y2={outer.y}
-                stroke="#E7BCBA"
+                className="stroke-outline-variant"
                 strokeWidth={0.5}
                 opacity={0.5}
               />
@@ -94,8 +93,7 @@ export function LearningBalance({ balance }: LearningBalanceProps) {
           {/* Data polygon */}
           <polygon
             points={dataPolygon}
-            fill="rgba(234,107,68,0.15)"
-            stroke="#EA6B44"
+            className="fill-primary/15 stroke-primary"
             strokeWidth={1.5}
             strokeLinejoin="round"
           />
@@ -107,7 +105,7 @@ export function LearningBalance({ balance }: LearningBalanceProps) {
               cx={p.x}
               cy={p.y}
               r={2.5}
-              fill="#EA6B44"
+              className="fill-primary"
             />
           ))}
 
@@ -121,9 +119,9 @@ export function LearningBalance({ balance }: LearningBalanceProps) {
                 y={lp.y}
                 textAnchor={getTextAnchor(angle)}
                 dominantBaseline={getDominantBaseline(angle)}
-                fontSize={7}
+                className="fill-on-surface-variant"
+                fontSize={11}
                 fontWeight={700}
-                fill="#926e6c"
                 fontFamily="inherit"
               >
                 {label}

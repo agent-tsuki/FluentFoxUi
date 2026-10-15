@@ -12,13 +12,13 @@ export function NotFoundPage() {
       </div>
 
       <div className="space-y-4 relative z-10">
-        <h1 className="text-8xl font-black font-headline bg-gradient-to-br from-slate-900 to-slate-500 dark:from-white dark:to-slate-400 bg-clip-text text-transparent tracking-tighter">
+        <h1 className="text-8xl font-black font-headline bg-gradient-to-br from-primary to-primary-container bg-clip-text text-transparent tracking-tighter">
           404
         </h1>
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+        <h2 className="text-2xl font-bold text-on-surface">
           Oops! You've strayed too far into the woods.
         </h2>
-        <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+        <p className="text-on-surface-variant max-w-md mx-auto leading-relaxed">
           The page you're looking for doesn't exist or has been moved to a secret location in the forest.
         </p>
       </div>

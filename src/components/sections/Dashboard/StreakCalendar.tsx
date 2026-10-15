@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { StreakCalendarData } from '@/types'
 import { Icon } from '@/components/ui/Icon'
+import { Eyebrow } from '@/components/ui/SectionHeader'
 
 interface StreakCalendarProps {
   data: StreakCalendarData
@@ -17,7 +18,7 @@ function formatDate(dateStr: string): string {
 function cellColor(minutes: number): React.CSSProperties {
   if (minutes === 0) return {}
   const alpha = minutes <= 30 ? 0.22 : minutes <= 60 ? 0.48 : minutes <= 90 ? 0.75 : 1
-  return { backgroundColor: `rgba(234, 107, 68, ${alpha})` }
+  return { backgroundColor: `rgb(var(--primary) / ${alpha})` }
 }
 
 function cellLabel(minutes: number): string {
@@ -111,16 +112,14 @@ export function StreakCalendar({ data }: StreakCalendarProps) {
     <section className="space-y-6">
       {/* Header */}
       <div className="space-y-1">
-        <span className="text-xs font-bold tracking-[0.2em] uppercase text-primary font-label block">
-          Consistency
-        </span>
+        <Eyebrow variant="plain">Consistency</Eyebrow>
         <h2 className="text-2xl font-extrabold tracking-tight text-on-surface font-headline">
           Streak Calendar
         </h2>
       </div>
 
       {/* Calendar card */}
-      <div className="bg-surface-container-lowest rounded-xl p-6 shadow-[0_20px_40px_rgba(25,28,29,0.04)] overflow-x-auto">
+      <div className="bg-surface-container-lowest rounded-xl p-6 shadow-elevation-1 overflow-x-auto">
         <div style={{ minWidth: `${weeks.length * (CELL + GAP) + 36}px` }}>
 
           {/* Month labels row */}
@@ -207,7 +206,7 @@ export function StreakCalendar({ data }: StreakCalendarProps) {
                     width: 11, height: 11, borderRadius: 2,
                     backgroundColor: alpha === 0
                       ? undefined
-                      : `rgba(234, 107, 68, ${alpha})`,
+                      : `rgb(var(--primary) / ${alpha})`,
                   }}
                   className={alpha === 0 ? 'bg-surface-container-high' : ''}
                 />

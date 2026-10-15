@@ -1,11 +1,11 @@
+import { Eyebrow } from '@/components/ui/SectionHeader'
+
 export function LearningGuide() {
   return (
     <section className="mt-16 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
       {/* Guide card */}
-      <div className="bg-surface-container-lowest p-10 rounded-2xl border border-surface-container-high shadow-[0_10px_30px_rgba(0,0,0,0.03)] flex flex-col justify-center">
-        <h3 className="font-headline text-lg font-bold uppercase tracking-[0.2em] text-primary mb-6">
-          Learning Guide
-        </h3>
+      <div className="bg-surface-container-lowest p-10 rounded-2xl border border-surface-container-high shadow-elevation-1 flex flex-col justify-center">
+        <Eyebrow variant="plain" className="mb-6">Learning Guide</Eyebrow>
         <p className="text-on-surface-variant leading-relaxed mb-6">
           Click any character to hear the native pronunciation. Master the base 46 before moving
           to Dakuten (voiced sounds) and Yōon (combination sounds).

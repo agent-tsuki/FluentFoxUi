@@ -1,3 +1,5 @@
+import { Eyebrow } from '@/components/ui/SectionHeader'
+
 const JLPT_LEVELS = [
   { level: 'N5', label: 'Foundation', color: 'bg-tertiary/10 text-tertiary border-tertiary/20' },
   { level: 'N4', label: 'Elementary', color: 'bg-primary/10 text-primary border-primary/20' },
@@ -10,9 +12,7 @@ export function KanjiHero() {
   return (
     <section className="mb-24 flex flex-col items-center justify-center border-b border-surface-container-high pb-16">
       <div className="max-w-3xl text-center">
-        <span className="text-primary font-bold tracking-[0.3em] text-xs uppercase mb-6 block">
-          Logographic Script
-        </span>
+        <Eyebrow variant="plain" className="mb-6">Logographic Script</Eyebrow>
         <h1 className="font-headline text-5xl md:text-7xl font-extrabold text-on-surface tracking-tighter leading-tight mb-8">
           Kanji <span className="text-tertiary">Dictionary</span>
         </h1>

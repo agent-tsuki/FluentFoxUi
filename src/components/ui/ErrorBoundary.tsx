@@ -1,5 +1,6 @@
 import { Component, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { IS_DEV } from '@/lib/config'
 
 interface Props {
   children: ReactNode
@@ -48,7 +49,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <p className="text-on-surface-variant text-sm leading-relaxed">
               An unexpected error occurred. You can try refreshing the page or going back home.
             </p>
-            {import.meta.env.DEV && this.state.error && (
+            {IS_DEV && this.state.error && (
               <pre className="mt-4 p-4 bg-surface-container rounded-lg text-xs text-error text-left overflow-auto max-h-40">
                 {this.state.error.message}
               </pre>
@@ -58,7 +59,7 @@ export class ErrorBoundary extends Component<Props, State> {
           <div className="flex gap-4">
             <button
               onClick={this.handleReset}
-              className="px-6 py-2.5 bg-primary text-on-primary rounded-lg font-bold text-sm hover:bg-primary-container transition-colors"
+              className="px-6 py-2.5 bg-primary text-on-primary rounded-lg font-bold text-sm hover:scale-[1.02] active:scale-[0.98] transition-transform"
             >
               Try Again
             </button>

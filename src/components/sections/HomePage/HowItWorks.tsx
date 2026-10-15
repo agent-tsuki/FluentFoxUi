@@ -1,4 +1,5 @@
 import { FadeIn } from '@/components/ui/FadeIn'
+import { Eyebrow } from '@/components/ui/SectionHeader'
 
 const STEPS = [
   {
@@ -20,16 +21,14 @@ const STEPS = [
 
 export function HowItWorks() {
   return (
-    <section className="relative z-10 py-20 px-6 md:px-10 bg-[#2f2521]">
+    <section className="relative z-10 py-20 px-6 md:px-10 bg-surface-inverse">
       <div className="max-w-7xl mx-auto">
         <FadeIn className="text-center">
-          <span className="inline-block bg-primary/20 text-primary text-[11px] font-bold tracking-[2px] uppercase px-4 py-1.5 rounded-full border border-primary/30 mb-4">
-            How It Works
-          </span>
-          <h2 className="font-headline text-3xl md:text-[2.4rem] font-extrabold leading-tight mb-3" style={{ color: 'white' }}>
+          <Eyebrow variant="pill">How It Works</Eyebrow>
+          <h2 className="font-headline text-display-md font-extrabold leading-tight mb-3 text-on-surface-inverse">
             Three Simple Steps
           </h2>
-          <p className="text-base max-w-lg mx-auto leading-relaxed font-body" style={{ color: 'rgba(255,255,255,0.7)' }}>
+          <p className="text-base max-w-lg mx-auto leading-relaxed font-body text-on-surface-inverse-variant">
             A simple loop: pick your level, practice daily, and improve with feedback.
           </p>
         </FadeIn>
@@ -38,26 +37,25 @@ export function HowItWorks() {
           <div className="mt-14 grid md:grid-cols-3 gap-6 relative">
             {/* Dashed connector line */}
             <div
-              className="absolute hidden md:block"
+              className="absolute hidden md:block border-t border-dashed border-on-surface-inverse/20"
               style={{
                 top: 36, left: 'calc(16.66% + 8px)', right: 'calc(16.66% + 8px)',
-                height: 2, borderTop: '1px dashed rgba(255,255,255,0.18)',
+                height: 2,
               }}
             />
             {STEPS.map((s, i) => (
-              <div key={i} className="text-center px-6 py-6 rounded-2xl bg-white/5 border border-white/10">
+              <div key={i} className="text-center px-6 py-6 rounded-2xl bg-on-surface-inverse/5 border border-on-surface-inverse/10">
                 {/* Number circle */}
                 <div
-                  className="w-14 h-14 rounded-full flex items-center justify-center text-lg font-black text-white font-headline mx-auto mb-5 relative z-10"
+                  className="w-14 h-14 rounded-full flex items-center justify-center text-lg font-black text-on-primary font-headline mx-auto mb-5 relative z-10 bg-primary"
                   style={{
-                    background: '#EA6B44',
-                    boxShadow: '0 0 0 6px rgba(234,107,68,0.16)',
+                    boxShadow: '0 0 0 6px rgb(var(--primary) / 0.16)',
                   }}
                 >
                   {s.num}
                 </div>
-                <h3 className="text-lg font-bold font-headline mb-2" style={{ color: 'white' }}>{s.title}</h3>
-                <p className="text-sm leading-relaxed font-body" style={{ color: 'rgba(255,255,255,0.7)' }}>{s.desc}</p>
+                <h3 className="text-lg font-bold font-headline mb-2 text-on-surface-inverse">{s.title}</h3>
+                <p className="text-sm leading-relaxed font-body text-on-surface-inverse-variant">{s.desc}</p>
               </div>
             ))}
           </div>

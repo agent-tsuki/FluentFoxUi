@@ -9,17 +9,17 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<Variant, string> = {
   primary:
-    'bg-primary text-on-primary hover:scale-105 active:scale-[0.98] shadow-lg shadow-primary/20',
+    'bg-primary text-on-primary shadow-lg shadow-primary/20 hover:shadow-primary/30 dark:shadow-primary/10 dark:hover:shadow-primary/15',
   outline:
-    'border-2 border-surface-container-highest hover:bg-surface-container-low',
-  ghost: 'text-slate-600 hover:text-slate-900',
-  white: 'bg-white text-primary font-bold hover:bg-on-primary-container',
+    'border-2 border-outline-variant/40 hover:bg-surface-container-low text-on-surface',
+  ghost: 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low',
+  white: 'bg-white text-primary hover:bg-on-primary-container shadow-md',
 }
 
 export function Button({ variant = 'primary', className = '', children, ...props }: ButtonProps) {
   return (
     <button
-      className={`transition-all px-6 py-2.5 rounded-xl font-bold ${variantClasses[variant]} ${className}`}
+      className={`transition duration-200 ease-out hover:scale-[1.02] active:scale-[0.98] px-6 py-2.5 rounded-xl font-bold ${variantClasses[variant]} ${className}`}
       {...props}
     >
       {children}

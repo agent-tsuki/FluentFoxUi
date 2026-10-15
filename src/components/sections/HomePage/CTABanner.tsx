@@ -1,12 +1,13 @@
 import { useModal } from '@/context/ModalContext'
 import { FadeIn } from '@/components/ui/FadeIn'
+import { Button } from '@/components/ui/Button'
 
 export function CTABanner() {
   const { openModal } = useModal()
 
   return (
     <FadeIn>
-      <div className="relative z-10 py-16 px-6 md:px-10 text-center overflow-hidden" style={{ background: '#EA6B44' }}>
+      <div className="relative z-10 py-16 px-6 md:px-10 text-center overflow-hidden bg-primary">
         {/* Watermark kanji */}
         <div
           className="absolute pointer-events-none select-none font-headline font-bold"
@@ -25,12 +26,13 @@ export function CTABanner() {
         <p className="text-base text-white/90 max-w-lg mx-auto leading-relaxed font-body mb-7 relative">
           No credit card needed. Learn with lessons, flashcards, and quizzes for free.
         </p>
-        <button
+        <Button
+          variant="white"
           onClick={() => openModal('signup')}
-          className="px-8 py-3.5 bg-white text-primary font-bold text-base rounded-xl font-headline transition-all duration-250 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(0,0,0,0.16)] relative"
+          className="px-8 py-3.5 text-base font-headline transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevation-2 relative"
         >
           Create Free Account
-        </button>
+        </Button>
       </div>
     </FadeIn>
   )

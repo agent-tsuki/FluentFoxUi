@@ -15,10 +15,10 @@ export function ServerErrorPage() {
         <h1 className="text-8xl font-black font-headline bg-gradient-to-br from-red-900 to-red-500 dark:from-red-400 dark:to-red-600 bg-clip-text text-transparent tracking-tighter">
           500
         </h1>
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+        <h2 className="text-2xl font-bold text-on-surface">
           Something went wrong on our end.
         </h2>
-        <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+        <p className="text-on-surface-variant max-w-md mx-auto leading-relaxed">
           The fox is currently tangled in some server cables. We're working hard to get things back on track.
         </p>
       </div>

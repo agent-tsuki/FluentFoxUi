@@ -1,9 +1,9 @@
 export function TermsPage() {
   return (
-    <main className="pt-32 pb-20 px-6 max-w-3xl mx-auto">
+    <main className="pt-nav pb-20 px-6 max-w-3xl mx-auto">
       <div className="space-y-10">
         <div className="space-y-3">
-          <p className="text-[11px] uppercase tracking-widest font-bold text-primary">Legal</p>
+          <p className="text-xs uppercase tracking-widest font-bold text-primary">Legal</p>
           <h1 className="text-4xl md:text-5xl font-headline font-extrabold tracking-tighter text-on-surface">
             Terms of Service
           </h1>
@@ -12,7 +12,7 @@ export function TermsPage() {
           </p>
         </div>
 
-        <div className="prose prose-slate max-w-none space-y-8 text-on-surface-variant leading-relaxed">
+        <div className="prose prose-stone dark:prose-invert max-w-none space-y-8 text-on-surface-variant leading-relaxed">
           <Section title="1. Acceptance of Terms">
             By accessing or using FoxSensei ("the Service"), you agree to be bound by these Terms of
             Service. If you do not agree to these terms, please do not use the Service. We reserve

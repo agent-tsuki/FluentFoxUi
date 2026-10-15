@@ -1,4 +1,3 @@
-export { StatsBar } from './StatsBar'
 export { FeaturesSection } from './FeaturesSection'
 export { HowItWorks } from './HowItWorks'
 export { CoursesSection } from './CoursesSection'

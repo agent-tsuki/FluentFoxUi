@@ -1,12 +1,12 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import confetti from 'canvas-confetti'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence } from 'framer-motion'
 import { DotLottieReact } from '@lottiefiles/dotlottie-react'
-import fireworksUrl from '@/assets/lottie/fireworks.lottie?url'
-import balloonUrl from '@/assets/lottie/balloon_animation.lottie?url'
 import partyConfettiUrl from '@/assets/lottie/party_confetti.lottie?url'
 import type { QuizResultData, QuizQuestionData } from '@/types'
 import { CloseButton } from '@/components/ui/CloseButton'
+import { Icon } from '@/components/ui/Icon'
+import { useReducedMotion } from '@/hooks/useReducedMotion'
 
 interface QuizResultsProps {
   result: QuizResultData
@@ -27,13 +27,12 @@ function StarRating({ score, total }: { score: number; total: number }) {
   return (
     <div className="flex items-center gap-2 justify-center my-4">
       {[1, 2, 3].map((i) => (
-        <span
+        <Icon
           key={i}
-          className={`text-3xl transition-all duration-300`}
-          style={{ animationDelay: `${i * 0.15}s` }}
-        >
-          {i <= stars ? '⭐' : '☆'}
-        </span>
+          name="star"
+          filled={i <= stars}
+          className={`text-3xl transition-all duration-300 ${i <= stars ? 'text-primary' : 'text-on-surface-variant/30'}`}
+        />
       ))}
     </div>
   )
@@ -57,7 +56,7 @@ function MissedCard({ q }: { q: QuizQuestionData }) {
 
 export function QuizResults({ result, onRetry, onExit }: QuizResultsProps) {
   const accuracy = Math.round((result.score / result.total) * 100)
-  const crackerInterval = useRef<ReturnType<typeof setInterval> | null>(null)
+  const reducedMotion = useReducedMotion()
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
@@ -65,7 +64,7 @@ export function QuizResults({ result, onRetry, onExit }: QuizResultsProps) {
   }, [])
 
   useEffect(() => {
-    if (accuracy < 80) return
+    if (accuracy < 80 || reducedMotion) return
 
     // Initial burst
     const fire = (particleRatio: number, opts: confetti.Options) =>
@@ -77,8 +76,10 @@ export function QuizResults({ result, onRetry, onExit }: QuizResultsProps) {
     fire(0.1,  { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 })
     fire(0.1,  { spread: 120, startVelocity: 45 })
 
-    // Continuous cracker bursts from random positions
-    crackerInterval.current = setInterval(() => {
+    // A few extra cracker bursts from random positions — capped to a single
+    // ~2.5s celebration window rather than running for as long as the modal
+    // stays open.
+    const intervalId = setInterval(() => {
       confetti({
         particleCount: 80,
         spread: 360,
@@ -88,13 +89,16 @@ export function QuizResults({ result, onRetry, onExit }: QuizResultsProps) {
         origin: { x: Math.random(), y: Math.random() * 0.5 },
         colors: ['#EA6B44', '#FFD700', '#FF69B4', '#00CED1', '#7B68EE', '#32CD32'],
       })
-    }, 1800)
+    }, 700)
+
+    const stopTimeoutId = setTimeout(() => clearInterval(intervalId), 2500)
 
     return () => {
-      if (crackerInterval.current) clearInterval(crackerInterval.current)
+      clearTimeout(stopTimeoutId)
+      clearInterval(intervalId)
       confetti.reset()
     }
-  }, [])
+  }, [accuracy, reducedMotion])
 
   const message =
     accuracy >= 90
@@ -107,46 +111,34 @@ export function QuizResults({ result, onRetry, onExit }: QuizResultsProps) {
 
   return (
     <>
-    {/* Celebration layer — only when score ≥ 80% */}
+    {/* Celebration layer — only when score ≥ 80% and motion isn't reduced.
+        A single, non-looping Lottie burst instead of 5 concurrent looping
+        instances (fireworks × 3 + balloons × 5). */}
     <AnimatePresence>
-      {accuracy >= 80 && (
+      {accuracy >= 80 && !reducedMotion && (
         <div className="fixed inset-0 z-40 pointer-events-none overflow-hidden">
-
-          {/* Party confetti Lottie — full screen top */}
-          <DotLottieReact src={partyConfettiUrl} loop autoplay
+          {/* Party confetti Lottie — plays once, full screen top */}
+          <DotLottieReact src={partyConfettiUrl} autoplay loop={false}
             style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '60%', opacity: 0.7 }}
           />
-
-          {/* Fireworks — left and right corners */}
-          <DotLottieReact src={fireworksUrl} loop autoplay
-            style={{ position: 'absolute', bottom: '10%', left: '-4%', width: '260px', height: '260px' }}
-          />
-          <DotLottieReact src={fireworksUrl} loop autoplay
-            style={{ position: 'absolute', bottom: '10%', right: '-4%', width: '260px', height: '260px' }}
-          />
-          <DotLottieReact src={fireworksUrl} loop autoplay
-            style={{ position: 'absolute', top: '5%', left: '30%', width: '180px', height: '180px', opacity: 0.7 }}
-          />
-
-          {/* Floating balloons */}
-          {[10, 30, 55, 75, 90].map((leftPct, i) => (
-            <motion.div
-              key={i}
-              style={{ position: 'absolute', bottom: '-10%', left: `${leftPct}%`, width: 100, height: 100 }}
-              animate={{ y: [0, -window.innerHeight * 1.2] }}
-              transition={{ duration: 5 + i * 0.8, repeat: Infinity, delay: i * 0.9, ease: 'easeInOut' }}
-            >
-              <DotLottieReact src={balloonUrl} loop autoplay style={{ width: '100%', height: '100%' }} />
-            </motion.div>
-          ))}
         </div>
       )}
     </AnimatePresence>
 
+    {/* Reduced-motion celebration — still celebratory via color/copy, no animation */}
+    {accuracy >= 80 && reducedMotion && (
+      <div className="fixed inset-0 z-40 pointer-events-none flex items-start justify-center pt-10">
+        <div className="bg-primary text-on-primary font-bold font-label px-5 py-2 rounded-full shadow-lg flex items-center gap-1.5">
+          <Icon name="celebration" className="text-base" />
+          Great job!
+        </div>
+      </div>
+    )}
+
     {/* Backdrop */}
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 pb-4 sm:pb-0 bg-black/60 backdrop-blur-sm animate-results-enter">
       {/* Modal panel */}
-      <div className="w-full max-w-md bg-surface rounded-3xl shadow-2xl overflow-hidden">
+      <div className="w-full max-w-md bg-surface rounded-3xl shadow-elevation-3 overflow-hidden">
         {/* Close button */}
         <div className="flex justify-end px-4 pt-4">
           <CloseButton onClick={onExit} />
@@ -160,7 +152,7 @@ export function QuizResults({ result, onRetry, onExit }: QuizResultsProps) {
                 <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="8" />
                 <circle
                   cx="60" cy="60" r="52" fill="none"
-                  stroke="#EA6B44" strokeWidth="8"
+                  stroke="rgb(var(--primary))" strokeWidth="8"
                   strokeLinecap="round"
                   strokeDasharray={`${(accuracy / 100) * 327} 327`}
                   className="transition-all duration-1000 ease-out"
@@ -180,12 +172,20 @@ export function QuizResults({ result, onRetry, onExit }: QuizResultsProps) {
           <div className="grid grid-cols-3 gap-3 mb-6">
             {[
               { label: 'Score', value: `${result.score}/${result.total}` },
-              { label: 'Best Streak', value: `${result.maxStreak}🔥` },
+              {
+                label: 'Best Streak',
+                value: (
+                  <span className="inline-flex items-center justify-center gap-1">
+                    {result.maxStreak}
+                    <Icon name="local_fire_department" className="text-base text-primary" />
+                  </span>
+                ),
+              },
               { label: 'Time', value: formatTime(result.timeElapsed) },
             ].map(({ label, value }) => (
               <div key={label} className="bg-surface-container rounded-xl p-4 text-center border border-outline-variant">
                 <p className="text-xl font-black font-headline text-on-surface">{value}</p>
-                <p className="text-[10px] font-label text-on-surface-variant uppercase tracking-widest mt-1">{label}</p>
+                <p className="text-2xs font-label text-on-surface-variant uppercase tracking-widest mt-1">{label}</p>
               </div>
             ))}
           </div>
@@ -208,7 +208,7 @@ export function QuizResults({ result, onRetry, onExit }: QuizResultsProps) {
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={onRetry}
-              className="flex-1 py-4 bg-primary hover:bg-primary/90 text-on-primary font-bold font-label rounded-xl transition-all active:scale-95 shadow-lg shadow-primary/20"
+              className="flex-1 py-4 bg-primary hover:bg-primary/90 text-on-primary font-bold font-label rounded-xl transition-all active:scale-95 shadow-lg shadow-primary/20 dark:shadow-primary/10"
             >
               Try Again
             </button>

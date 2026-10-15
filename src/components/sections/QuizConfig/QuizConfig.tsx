@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { QuizCategory, QuizConfigData, QuizFilterMethod, QuizJlptLevel } from '@/types'
 import { quizService } from '@/api/services/quizService'
 import { Icon } from '@/components/ui/Icon'
+import { Eyebrow } from '@/components/ui/SectionHeader'
 import { KanjiModal } from './KanjiModal'
 
 interface QuizConfigProps {
@@ -71,12 +72,12 @@ export function QuizConfig({ onStart }: QuizConfigProps) {
 
   return (
     <>
-      <main className="pt-32 pb-20 px-6 max-w-6xl mx-auto">
+      <main className="pt-nav pb-20 px-6 max-w-6xl mx-auto">
         {/* ── Page Header ─────────────────────────────────────────── */}
         <div className="mb-16">
-          <span className="text-xs font-bold tracking-[0.2em] uppercase text-primary mb-4 block font-label">
+          <Eyebrow variant="plain" className="mb-4">
             {data.pageLabel}
-          </span>
+          </Eyebrow>
           <h1 className="text-5xl font-extrabold tracking-tight mb-4 text-on-surface font-headline">
             {data.heading}
           </h1>
@@ -149,9 +150,9 @@ export function QuizConfig({ onStart }: QuizConfigProps) {
               <section className="space-y-8">
                 <div className="flex items-center gap-4">
                   <div className="h-px flex-1 bg-outline-variant" />
-                  <h2 className="text-sm font-bold uppercase tracking-[0.3em] text-on-surface-variant font-label">
+                  <Eyebrow variant="plain" className="!mb-0">
                     Kanji Specifics
-                  </h2>
+                  </Eyebrow>
                   <div className="h-px flex-1 bg-outline-variant" />
                 </div>
 
@@ -189,7 +190,7 @@ export function QuizConfig({ onStart }: QuizConfigProps) {
                 </div>
 
                 {/* Kanji Preview Bento */}
-                <div className="bg-surface-container-lowest p-8 rounded-2xl shadow-[0_20px_40px_rgba(25,28,29,0.04)] grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="bg-surface-container-lowest p-8 rounded-2xl shadow-elevation-1 grid grid-cols-2 md:grid-cols-4 gap-6">
                   {data.kanjiPreview.map((k) => (
                     <div key={k.character} className="text-center p-4 bg-surface-container-low rounded-xl">
                       <div className="text-3xl font-bold mb-1 font-headline">{k.character}</div>
@@ -206,9 +207,9 @@ export function QuizConfig({ onStart }: QuizConfigProps) {
             <section className="space-y-6">
               <div className="flex items-center gap-4">
                 <div className="h-px flex-1 bg-outline-variant" />
-                <h2 className="text-sm font-bold uppercase tracking-[0.3em] text-on-surface-variant font-label">
+                <Eyebrow variant="plain" className="mb-0">
                   Grammar &amp; Mechanics
-                </h2>
+                </Eyebrow>
                 <div className="h-px flex-1 bg-outline-variant" />
               </div>
 
@@ -231,9 +232,9 @@ export function QuizConfig({ onStart }: QuizConfigProps) {
 
           {/* ── Right: Session Summary Sidebar ──────────────────── */}
           <div className="lg:col-span-4">
-            <div className="sticky top-28 space-y-8">
+            <div className="sticky top-nav space-y-8">
               {/* Summary card */}
-              <div className="bg-on-surface dark:bg-surface-container-highest text-inverse-on-surface p-10 rounded-2xl relative overflow-hidden">
+              <div className="bg-surface-inverse text-on-surface-inverse p-10 rounded-2xl relative overflow-hidden">
                 <div className="relative z-10">
                   <h2 className="text-2xl font-bold mb-6 font-headline">Session Summary</h2>
                   <ul className="space-y-4 mb-10">
@@ -253,7 +254,7 @@ export function QuizConfig({ onStart }: QuizConfigProps) {
                   </ul>
                   <button
                     onClick={handleStartQuiz}
-                    className="w-full bg-primary-container hover:bg-primary text-on-primary py-5 rounded-xl font-bold text-lg tracking-wide shadow-2xl transition-all active:scale-95 font-label"
+                    className="w-full bg-primary text-on-primary py-5 rounded-xl font-bold text-lg tracking-wide shadow-elevation-2 transition-all hover:scale-[1.02] active:scale-95 font-label"
                   >
                     Start Quiz
                   </button>

@@ -1,3 +1,5 @@
+import { Eyebrow } from '@/components/ui/SectionHeader'
+
 const legend = [
   { color: 'bg-tertiary', label: 'N5 Foundation' },
   { color: 'bg-primary', label: 'N4 Elementary' },
@@ -10,10 +12,8 @@ export function KanjiLearningGuide() {
   return (
     <section className="mt-16 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
       {/* Guide card */}
-      <div className="bg-surface-container-lowest p-10 rounded-2xl border border-surface-container-high shadow-[0_10px_30px_rgba(0,0,0,0.03)] flex flex-col justify-center">
-        <h3 className="font-headline text-lg font-bold uppercase tracking-[0.2em] text-primary mb-6">
-          How to Study
-        </h3>
+      <div className="bg-surface-container-lowest p-10 rounded-2xl border border-surface-container-high shadow-elevation-1 flex flex-col justify-center">
+        <Eyebrow variant="plain" className="mb-6">How to Study</Eyebrow>
         <p className="text-on-surface-variant leading-relaxed mb-6">
           Each card shows the on'yomi (音読み) Chinese-derived reading and kun'yomi (訓読み)
           native Japanese reading. Start with N5, learn the meaning and both readings, then

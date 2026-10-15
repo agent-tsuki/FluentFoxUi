@@ -1,5 +1,6 @@
 import type { UserProfile } from '@/types'
 import { Icon } from '@/components/ui/Icon'
+import { Eyebrow } from '@/components/ui/SectionHeader'
 import { useUI } from '@/context/UIContext'
 
 interface ProfileHeroProps {
@@ -20,7 +21,7 @@ export function ProfileHero({ profile }: ProfileHeroProps) {
           setIsProfileOverlayOpen(true)
         }}
       >
-        <div className="w-28 h-28 rounded-full border-4 border-primary/10 group-hover/hero-avatar:border-primary transition-all shadow-xl overflow-hidden bg-surface-container-highest">
+        <div className="w-28 h-28 rounded-full border-4 border-primary/10 group-hover/hero-avatar:border-primary transition-all shadow-elevation-2 overflow-hidden bg-surface-container-highest">
           <img 
             src={
               profile.profileImage || 
@@ -31,7 +32,7 @@ export function ProfileHero({ profile }: ProfileHeroProps) {
           />
         </div>
         {profile.isPro && (
-          <span className="absolute -bottom-1 -right-1 bg-primary text-on-primary text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-tighter shadow-md">
+          <span className="absolute -bottom-1 -right-1 bg-primary text-on-primary text-2xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-tighter shadow-elevation-1">
             Pro
           </span>
         )}
@@ -39,9 +40,9 @@ export function ProfileHero({ profile }: ProfileHeroProps) {
 
       {/* Info */}
       <div className="flex-1 text-center sm:text-left space-y-3">
-        <span className="text-xs font-bold tracking-[0.2em] uppercase text-primary font-label block">
+        <Eyebrow variant="plain" className="mb-0">
           Learner Profile
-        </span>
+        </Eyebrow>
         <h1 className="text-4xl font-extrabold tracking-tight text-on-surface font-headline">
           {profile.firstName} {profile.lastName}
         </h1>

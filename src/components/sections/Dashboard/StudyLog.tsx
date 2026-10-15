@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { StudyLogEntry } from '@/types'
 import { Icon } from '@/components/ui/Icon'
+import { Eyebrow } from '@/components/ui/SectionHeader'
 
 interface StudyLogProps {
   entries: StudyLogEntry[]
@@ -16,9 +17,7 @@ export function StudyLog({ entries }: StudyLogProps) {
     <section className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="space-y-1">
-          <span className="text-xs font-bold tracking-[0.2em] uppercase text-primary font-label block">
-            Activity
-          </span>
+          <Eyebrow variant="plain">Activity</Eyebrow>
           <h2 className="text-2xl font-extrabold tracking-tight text-on-surface font-headline">
             Study Log
           </h2>
@@ -32,7 +31,7 @@ export function StudyLog({ entries }: StudyLogProps) {
               onClick={() => setActiveFilter(f)}
               className={`px-5 py-2 rounded-full text-sm font-semibold font-label transition-all ${
                 activeFilter === f
-                  ? 'bg-on-surface text-inverse-on-surface'
+                  ? 'bg-on-surface text-surface'
                   : 'bg-transparent text-on-surface-variant hover:text-on-surface'
               }`}
             >
@@ -42,9 +41,9 @@ export function StudyLog({ entries }: StudyLogProps) {
         </div>
       </div>
 
-      <div className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_20px_40px_rgba(25,28,29,0.04)]">
+      <div className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-elevation-1">
         {/* Table header */}
-        <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-6 py-3 border-b border-outline-variant/30">
+        <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-6 py-3 border-b border-outline-variant/55">
           <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label">
             Course / Session
           </span>
@@ -102,8 +101,8 @@ export function StudyLog({ entries }: StudyLogProps) {
               <span
                 className={`px-3 py-1 rounded-full text-xs font-bold font-label whitespace-nowrap ${
                   entry.status === 'completed'
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-amber-100 text-amber-700'
+                    ? 'bg-success/15 text-success'
+                    : 'bg-warning/15 text-warning'
                 }`}
               >
                 {entry.status === 'completed' ? 'Completed' : 'In Progress'}

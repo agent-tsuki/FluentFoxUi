@@ -1,27 +1,73 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { profileService } from '@/api/services/profileService'
 import type { UserProfile } from '@/types'
 import { ProfileHero, PersonalInfoForm, AccountSettings } from '@/components/sections/Profile'
 import { Icon } from '@/components/ui/Icon'
+import { LoadingState, SkeletonBlock } from '@/components/ui/LoadingState'
+import { ErrorState } from '@/components/ui/ErrorState'
+
+type Status = 'loading' | 'error' | 'ready'
 
 export function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [status, setStatus] = useState<Status>('loading')
   const [activeTab, setActiveTab] = useState<'info' | 'settings'>('info')
 
-  useEffect(() => {
-    profileService.getProfile().then(setProfile)
+  const fetchProfile = useCallback(() => {
+    setStatus('loading')
+    profileService
+      .getProfile()
+      .then((data) => {
+        setProfile(data)
+        setStatus('ready')
+      })
+      .catch(() => setStatus('error'))
   }, [])
 
-  if (!profile) {
+  useEffect(() => {
+    fetchProfile()
+  }, [fetchProfile])
+
+  if (status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Icon name="progress_activity" className="text-4xl text-primary animate-spin" />
-      </div>
+      <main className="pt-nav pb-20 px-4 md:px-8 max-w-5xl mx-auto">
+        <LoadingState label="Loading profile…">
+          {/* Hero skeleton */}
+          <div className="flex items-center gap-5">
+            <SkeletonBlock className="h-20 w-20 rounded-full shrink-0" />
+            <div className="space-y-3 flex-1">
+              <SkeletonBlock className="h-6 w-48 rounded-xl" />
+              <SkeletonBlock className="h-4 w-64 rounded-xl" />
+            </div>
+          </div>
+
+          {/* Tabs skeleton */}
+          <div className="flex gap-8 border-b border-outline-variant pb-4 mt-12">
+            <SkeletonBlock className="h-5 w-28 rounded-xl" />
+            <SkeletonBlock className="h-5 w-36 rounded-xl" />
+          </div>
+
+          {/* Form skeleton */}
+          <div className="space-y-4 mt-8">
+            <SkeletonBlock className="h-14 w-full rounded-xl" />
+            <SkeletonBlock className="h-14 w-full rounded-xl" />
+            <SkeletonBlock className="h-14 w-full rounded-xl" />
+          </div>
+        </LoadingState>
+      </main>
+    )
+  }
+
+  if (status === 'error' || !profile) {
+    return (
+      <main className="pt-nav pb-20 px-4 md:px-8 max-w-5xl mx-auto">
+        <ErrorState message="We couldn't load your profile." onRetry={fetchProfile} />
+      </main>
     )
   }
 
   return (
-    <main className="pt-32 pb-20 px-4 md:px-8 max-w-5xl mx-auto space-y-12">
+    <main className="pt-nav pb-20 px-4 md:px-8 max-w-5xl mx-auto space-y-12">
       <ProfileHero profile={profile} />
 
       <div className="space-y-8">

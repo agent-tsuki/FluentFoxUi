@@ -1,10 +1,10 @@
+import { Eyebrow } from '@/components/ui/SectionHeader'
+
 export function HiraganaHero() {
   return (
     <section className="mb-24 flex flex-col items-center justify-center border-b border-surface-container-high pb-16">
       <div className="max-w-3xl text-center">
-        <span className="text-primary font-bold tracking-[0.3em] text-xs uppercase mb-6 block">
-          The Master Registry
-        </span>
+        <Eyebrow variant="plain" className="mb-6">The Master Registry</Eyebrow>
         <h1 className="font-headline text-5xl md:text-7xl font-extrabold text-on-surface tracking-tighter leading-tight mb-8">
           Hiragana <span className="text-tertiary">Alphabet</span>
         </h1>

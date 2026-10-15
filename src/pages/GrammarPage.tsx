@@ -9,7 +9,7 @@ const LOCKED_LEVELS = new Set(['n4', 'n3', 'n2', 'n1'])
 
 function LockedLevelScreen({ level }: { level: string }) {
   return (
-    <div className="flex-1 lg:ml-72 bg-surface min-h-[calc(100vh-73px)] flex items-center justify-center p-8">
+    <div className="flex-1 lg:ml-72 bg-surface min-h-[calc(100dvh-theme(spacing.nav))] flex items-center justify-center p-8">
       <div className="max-w-sm w-full text-center space-y-6">
         <div className="flex items-center justify-center">
           <div className="w-24 h-24 rounded-full bg-surface-container-high flex items-center justify-center shadow-inner">
@@ -74,7 +74,7 @@ export function GrammarPage() {
 
   if (LOCKED_LEVELS.has(level.toLowerCase())) {
     return (
-      <div className="min-h-screen pt-[73px] flex">
+      <div className="min-h-dvh pt-nav flex">
         <GrammarSidebar level={level} completedChapters={completedChapters} />
         <LockedLevelScreen level={level} />
       </div>
@@ -86,7 +86,7 @@ export function GrammarPage() {
 
   if (!chapter) {
     return (
-      <div className="min-h-screen pt-[73px] flex items-center justify-center">
+      <div className="min-h-dvh pt-nav flex items-center justify-center">
         <p className="text-on-surface-variant font-medium">Content coming soon for this level!</p>
       </div>
     )
@@ -106,7 +106,7 @@ export function GrammarPage() {
   }
 
   return (
-    <div className="min-h-screen pt-[73px] flex">
+    <div className="min-h-dvh pt-nav flex">
       <GrammarSidebar level={level} completedChapters={completedChapters} />
       <main className="flex-1 lg:ml-72 bg-surface fade-in">
         <GrammarContent

@@ -10,10 +10,42 @@ const MotionLink = motion(Link)
 const LEVELS: JLPTLevel[] = ['N5', 'N4', 'N3', 'N2', 'N1']
 const LOCKED_LEVELS = new Set<JLPTLevel>(['N4', 'N3', 'N2', 'N1'])
 
-const PLATFORM_META: Record<Platform, { label: string; icon: string; color: string; bg: string }> = {
-  youtube: { label: 'YouTube', icon: 'smart_display', color: '#FF4444', bg: 'bg-red-50 dark:bg-red-950/30' },
-  udemy:   { label: 'Udemy',   icon: 'school',        color: '#A435F0', bg: 'bg-purple-50 dark:bg-purple-950/30' },
-  website: { label: 'Website', icon: 'language',      color: '#2980B9', bg: 'bg-blue-50 dark:bg-blue-950/30' },
+/**
+ * PLATFORM_META — shared per-platform display metadata (label, icon, and design-token color
+ * classes) for YouTube/Udemy/Website course badges. Owned here and re-used by ClassDetailPage
+ * so the two pages never drift into separate color maps.
+ */
+export interface PlatformMeta {
+  label: string
+  icon: string
+  /** Text/icon color, e.g. `text-error`. */
+  colorClass: string
+  /** Solid background, for buttons and accent bars, e.g. `bg-error`. */
+  solidClass: string
+  /** Low-opacity tint, for badges, e.g. `bg-error/10`. */
+  tintClass: string
+  /** Very low-opacity "from" tint for hero gradients, e.g. `from-error/5`. */
+  heroFromClass: string
+  /** Card header background wash (kept as a themed Tailwind pair, light/dark tuned). */
+  bg: string
+}
+
+export const PLATFORM_META: Record<Platform, PlatformMeta> = {
+  youtube: {
+    label: 'YouTube', icon: 'smart_display',
+    colorClass: 'text-error', solidClass: 'bg-error', tintClass: 'bg-error/10', heroFromClass: 'from-error/5',
+    bg: 'bg-red-50 dark:bg-red-950/30',
+  },
+  udemy: {
+    label: 'Udemy', icon: 'school',
+    colorClass: 'text-tertiary', solidClass: 'bg-tertiary', tintClass: 'bg-tertiary/10', heroFromClass: 'from-tertiary/5',
+    bg: 'bg-purple-50 dark:bg-purple-950/30',
+  },
+  website: {
+    label: 'Website', icon: 'language',
+    colorClass: 'text-info', solidClass: 'bg-info', tintClass: 'bg-info/10', heroFromClass: 'from-info/5',
+    bg: 'bg-blue-50 dark:bg-blue-950/30',
+  },
 }
 
 function StarRating({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md' }) {
@@ -45,10 +77,9 @@ function PlatformBadge({ platform }: { platform: Platform }) {
   const meta = PLATFORM_META[platform]
   return (
     <span
-      className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide"
-      style={{ color: meta.color, background: `${meta.color}18` }}
+      className={`inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wide ${meta.colorClass} ${meta.tintClass}`}
     >
-      <span className="material-symbols-outlined" style={{ fontSize: 13 }}>{meta.icon}</span>
+      <Icon name={meta.icon} className="text-xs" />
       {meta.label}
     </span>
   )
@@ -70,18 +101,11 @@ function TeacherCard({ teacher, index }: { teacher: ClassTeacher; index: number 
       layout
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
-      style={{
-        boxShadow: hovered
-          ? `0 20px 48px ${meta.color}28, 0 4px 16px rgba(0,0,0,0.08)`
-          : '0 1px 4px rgba(0,0,0,0.04)',
-        transition: 'box-shadow 0.35s ease',
-      }}
-      className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl overflow-hidden flex flex-col"
+      className={`bg-surface-container-lowest border border-outline-variant/30 rounded-2xl overflow-hidden flex flex-col transition-shadow duration-300 ${hovered ? 'shadow-elevation-3' : 'shadow-elevation-1'}`}
     >
       {/* Platform color accent bar — slides in on hover */}
       <motion.div
-        className="h-[3px] origin-left"
-        style={{ backgroundColor: meta.color }}
+        className={`h-[3px] origin-left ${meta.solidClass}`}
         animate={{ scaleX: hovered ? 1 : 0 }}
         transition={{ duration: 0.3, ease: 'easeOut' }}
       />
@@ -108,26 +132,26 @@ function TeacherCard({ teacher, index }: { teacher: ClassTeacher; index: number 
               </h3>
             </div>
             {teacher.free ? (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex-shrink-0 uppercase tracking-wide">
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex-shrink-0 uppercase tracking-wide">
                 Free
               </span>
             ) : (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 flex-shrink-0 uppercase tracking-wide">
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 flex-shrink-0 uppercase tracking-wide">
                 Paid
               </span>
             )}
           </div>
           <div className="flex items-center gap-1.5 mt-1">
             <StarRating rating={teacher.rating} />
-            <span className="text-[11px] text-on-surface-variant font-semibold">{teacher.rating}</span>
-            <span className="text-[11px] text-on-surface-variant/50">({teacher.reviewCount.toLocaleString()})</span>
+            <span className="text-xs text-on-surface-variant font-semibold">{teacher.rating}</span>
+            <span className="text-xs text-on-surface-variant/50">({teacher.reviewCount.toLocaleString()})</span>
           </div>
         </div>
       </div>
 
       {/* Course title */}
       <div className="px-4 pt-3">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/50 mb-0.5">Course</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant/50 mb-0.5">Course</p>
         <p className="text-xs font-semibold text-on-surface leading-snug line-clamp-2">
           {teacher.courseTitle}
         </p>
@@ -143,7 +167,7 @@ function TeacherCard({ teacher, index }: { teacher: ClassTeacher; index: number 
         {teacher.highlights.map((h) => (
           <span
             key={h}
-            className="text-[10px] px-2 py-0.5 rounded-full bg-surface-container font-semibold text-on-surface-variant border border-outline-variant/20"
+            className="text-xs px-2 py-0.5 rounded-full bg-surface-container font-semibold text-on-surface-variant border border-outline-variant/20"
           >
             {h}
           </span>
@@ -152,7 +176,7 @@ function TeacherCard({ teacher, index }: { teacher: ClassTeacher; index: number 
 
       {/* Footer */}
       <div className="px-4 py-3 mt-2.5 flex items-center justify-between border-t border-outline-variant/20">
-        <div className="flex items-center gap-1 text-[11px] text-on-surface-variant">
+        <div className="flex items-center gap-1 text-xs text-on-surface-variant">
           <Icon name="group" className="text-sm" />
           <span>{teacher.studentCount}</span>
         </div>
@@ -205,7 +229,7 @@ export function ClassesPage() {
   const platforms: Array<Platform | 'all'> = ['all', 'youtube', 'udemy', 'website']
 
   return (
-    <main className="pt-24 pb-20 min-h-screen">
+    <main className="pt-24 pb-20 min-h-dvh">
       {/* Hero */}
       <section className="max-w-7xl mx-auto px-6 pt-10 pb-8 text-center space-y-4">
         <span className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-bold px-4 py-2 rounded-full bg-primary/10 text-primary">
@@ -238,7 +262,7 @@ export function ClassesPage() {
       </section>
 
       {/* Filters */}
-      <div className="sticky top-[73px] z-30 bg-surface/80 backdrop-blur-lg border-b border-outline-variant/20 shadow-sm">
+      <div className="sticky top-nav z-30 bg-surface/80 backdrop-blur-lg border-b border-outline-variant/20 shadow-elevation-1">
         <div className="max-w-7xl mx-auto px-6 py-3 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
           {/* Level tabs */}
           <div className="flex items-center gap-1 bg-surface-container rounded-xl p-1">
@@ -248,13 +272,13 @@ export function ClassesPage() {
                 onClick={() => { setActiveLevel(level); setActivePlatform('all') }}
                 className={`relative px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 ${
                   activeLevel === level
-                    ? 'bg-primary text-on-primary shadow-sm'
+                    ? 'bg-primary text-on-primary shadow-elevation-1'
                     : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'
                 }`}
               >
                 {level}
                 {LOCKED_LEVELS.has(level) && (
-                  <span className="ml-1 opacity-60">🔒</span>
+                  <Icon name="lock" className="ml-1 opacity-60 text-xs" />
                 )}
               </button>
             ))}
@@ -276,9 +300,7 @@ export function ClassesPage() {
                   }`}
                 >
                   {meta ? (
-                    <span className="material-symbols-outlined" style={{ fontSize: 13, color: activePlatform === p ? undefined : meta.color }}>
-                      {meta.icon}
-                    </span>
+                    <Icon name={meta.icon} className={`text-xs ${activePlatform === p ? '' : meta.colorClass}`} />
                   ) : (
                     <Icon name="filter_list" className="text-xs" />
                   )}
@@ -334,7 +356,7 @@ export function ClassesPage() {
           </p>
           <a
             href="mailto:hello@foxsensei.app"
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-on-primary rounded-lg font-bold text-sm shadow-md shadow-primary/20 hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-on-primary rounded-lg font-bold text-sm shadow-md shadow-primary/20 dark:shadow-primary/10 hover:opacity-90 transition-opacity"
           >
             <Icon name="mail" className="text-base" />
             Suggest a Resource

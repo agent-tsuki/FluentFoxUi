@@ -3,10 +3,10 @@ import { Icon } from '@/components/ui/Icon'
 import { Button } from '@/components/ui/Button'
 import { useUI, type BackgroundAnimation } from '@/context/UIContext'
 
-const BG_OPTIONS: { value: BackgroundAnimation; emoji: string; label: string; desc: string }[] = [
-  { value: 'petals', emoji: '🌸', label: 'Sakura Petals', desc: 'Falling cherry blossom petals' },
-  { value: 'fish',   emoji: '🐠', label: 'Koi Fish',      desc: 'Swimming koi fish animation' },
-  { value: 'none',   emoji: '✕',  label: 'None',          desc: 'No background animation' },
+const BG_OPTIONS: { value: BackgroundAnimation; icon: string; label: string; desc: string }[] = [
+  { value: 'petals', icon: 'local_florist', label: 'Sakura Petals', desc: 'Falling cherry blossom petals' },
+  { value: 'fish',   icon: 'set_meal',      label: 'Koi Fish',      desc: 'Swimming koi fish animation' },
+  { value: 'none',   icon: 'close',         label: 'None',          desc: 'No background animation' },
 ]
 
 export function AccountSettings() {
@@ -47,15 +47,15 @@ export function AccountSettings() {
                   <button
                     key={opt.value}
                     onClick={() => setBackgroundAnimation(opt.value)}
-                    className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl border-[1.5px] transition-all text-center"
-                    style={backgroundAnimation === opt.value
-                      ? { borderColor: '#EA6B44', background: 'rgba(234,107,68,0.08)' }
-                      : { borderColor: 'rgb(var(--outline-variant) / 0.4)', background: 'transparent' }
-                    }
+                    className={`flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl border-[1.5px] transition-all text-center ${
+                      backgroundAnimation === opt.value
+                        ? 'border-primary bg-primary/[0.08]'
+                        : 'border-outline-variant/40 bg-transparent'
+                    }`}
                   >
-                    <span className="text-xl">{opt.emoji}</span>
-                    <span className="text-[11px] font-bold font-label text-on-surface">{opt.label}</span>
-                    <span className="text-[10px] text-on-surface-variant font-body leading-tight">{opt.desc}</span>
+                    <Icon name={opt.icon} className="text-xl" />
+                    <span className="text-2xs font-bold font-label text-on-surface">{opt.label}</span>
+                    <span className="text-2xs text-on-surface-variant font-body leading-tight">{opt.desc}</span>
                   </button>
                 ))}
               </div>

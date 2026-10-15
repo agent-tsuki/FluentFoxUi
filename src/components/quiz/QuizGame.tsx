@@ -97,7 +97,7 @@ export function QuizGame({ category, level, questionCount = 10, onExit }: QuizGa
 
   if (!questions.length) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-dvh flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-white/20 border-t-primary rounded-full animate-spin" />
       </div>
     )
@@ -106,7 +106,7 @@ export function QuizGame({ category, level, questionCount = 10, onExit }: QuizGa
   const question = questions[Math.min(currentIndex, questions.length - 1)]
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-dvh flex flex-col">
       {/* Header bar */}
       <div className="flex items-center justify-between px-6 pt-20">
         <button

@@ -21,11 +21,11 @@ export function GrammarSidebar({ level, completedChapters }: GrammarSidebarProps
   const progressPct = chapters.length > 0 ? Math.round((completedCount / chapters.length) * 100) : 0
 
   return (
-    <aside className="fixed left-0 top-[73px] h-[calc(100vh-73px)] w-72 bg-surface-container-lowest flex flex-col border-r border-outline-variant/30 hidden lg:flex">
+    <aside className="fixed left-0 top-nav h-[calc(100dvh-theme(spacing.nav))] w-72 bg-surface-container-lowest flex flex-col border-r border-outline-variant/30 hidden lg:flex">
 
       {/* Level Switcher */}
       <div className="px-4 pt-5 pb-4 border-b border-outline-variant/20 flex-shrink-0">
-        <div className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-3">Grammar Course</div>
+        <div className="text-xs uppercase tracking-widest text-on-surface-variant font-bold mb-3">Grammar Course</div>
         <div className="grid grid-cols-5 gap-1 p-1 bg-surface-container-high rounded-xl">
           {LEVELS.map(l => {
             const isLocked = LOCKED_LEVELS.has(l)
@@ -36,8 +36,8 @@ export function GrammarSidebar({ level, completedChapters }: GrammarSidebarProps
                 title={`${l.toUpperCase()} — Coming Soon`}
                 className="relative py-1.5 rounded-lg text-xs font-bold flex flex-col items-center justify-center gap-0.5 cursor-not-allowed text-on-surface-variant/35 select-none"
               >
-                <Icon name="lock" className="text-[10px] leading-none" />
-                <span className="text-[9px]">{l.toUpperCase()}</span>
+                <Icon name="lock" className="text-2xs leading-none" />
+                <span className="text-2xs">{l.toUpperCase()}</span>
               </div>
             ) : (
               <button
@@ -72,7 +72,7 @@ export function GrammarSidebar({ level, completedChapters }: GrammarSidebarProps
             />
           </div>
           {completedCount > 0 && (
-            <p className="text-[10px] text-on-surface-variant/60 mt-1.5">
+            <p className="text-xs text-on-surface-variant/60 mt-1.5">
               {progressPct}% complete — keep going!
             </p>
           )}
@@ -106,14 +106,14 @@ export function GrammarSidebar({ level, completedChapters }: GrammarSidebarProps
                   }`}
                 >
                   {/* Chapter number / done badge */}
-                  <span className={`flex-shrink-0 w-6 h-6 rounded-full text-[11px] font-bold flex items-center justify-center mt-0.5 transition-colors ${
+                  <span className={`flex-shrink-0 w-6 h-6 rounded-full text-2xs font-bold flex items-center justify-center mt-0.5 transition-colors ${
                     isDone
                       ? 'bg-primary text-on-primary'
                       : isActive
                       ? 'bg-primary/20 text-primary'
                       : 'bg-surface-container-highest text-on-surface-variant group-hover:bg-outline-variant/30'
                   }`}>
-                    {isDone ? '✓' : ch.id}
+                    {isDone ? <Icon name="check" /> : ch.id}
                   </span>
 
                   <div className="min-w-0 flex-1">
@@ -127,7 +127,7 @@ export function GrammarSidebar({ level, completedChapters }: GrammarSidebarProps
                       {ch.title}
                     </div>
                     {isActive && (
-                      <div className="text-[10px] text-primary/60 mt-0.5 font-medium">
+                      <div className="text-xs text-primary/60 mt-0.5 font-medium">
                         Currently studying
                       </div>
                     )}

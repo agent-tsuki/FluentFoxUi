@@ -1,3 +1,5 @@
+import { Icon } from '@/components/ui/Icon'
+
 interface QuizProgressProps {
   current: number    // 1-based current question number
   total: number
@@ -9,9 +11,9 @@ export function QuizProgress({ current, total, score, streak }: QuizProgressProp
   const pct = Math.round(((current - 1) / total) * 100)
 
   return (
-    <div className="w-full flex items-center justify-center gap-4 px-6 pt-9 pb-4">
+    <div className="w-full flex flex-wrap items-center justify-center gap-4 px-6 pt-9 pb-4">
       {/* Progress bar */}
-      <div className="w-[800px] flex items-center gap-3">
+      <div className="w-full max-w-[800px] flex items-center gap-3">
         <span className="text-xs font-bold font-label text-on-surface-variant tabular-nums w-6 text-right">
           {current - 1}
         </span>
@@ -35,7 +37,7 @@ export function QuizProgress({ current, total, score, streak }: QuizProgressProp
       {/* Streak */}
       {streak >= 2 && (
         <div className="flex items-center gap-1 bg-amber-500/15 px-3 py-1.5 rounded-full border border-amber-500/20">
-          <span className="text-sm animate-streak-flame inline-block">🔥</span>
+          <Icon name="local_fire_department" className="text-sm text-primary animate-streak-flame" />
           <span className="text-sm font-black font-headline text-amber-600 tabular-nums">{streak}</span>
         </div>
       )}

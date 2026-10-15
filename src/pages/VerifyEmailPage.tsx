@@ -1,250 +1,142 @@
 /**
- * VerifyEmailPage — handles the email link clicked after signup.
+ * VerifyEmailPage — the link from the verification email: /verify?token=…
  *
- * URL shape: /verify?token=<opaque-token>
+ * Auth guide §5:
+ *  1. Read the token, then remove it from the address bar immediately.
+ *  2. POST /auth/verify once (the token is single-use; guarded against
+ *     React StrictMode's double effect).
+ *  3. Success: logged in on this browser → refresh (new access token carries
+ *     email_verified) and enter the app. Otherwise → "verified, please log in".
+ *  4. Expired / invalid link → offer a new link (resend needs a login).
  *
- * Flow:
- *  1. Extract ?token= from URL on mount.
- *  2. POST /auth/verify with the token.
- *  3a. If backend returns tokens → user is auto-logged in → redirect to /dashboard.
- *  3b. If backend returns only a message → show success → redirect to login modal.
- *  4. Show clear error states for every failure mode.
- *
- * This is a standalone page (not inside the AuthModal) because the user
- * arrives here from an email client, likely in a fresh tab.
+ * Standalone page (outside the Shell) because users arrive from an email client.
  */
 
-import { useEffect, useState } from 'react'
-import { useSearchParams, Link, useNavigate } from 'react-router-dom'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { authService } from '@/api/services/authService'
-import { ApiError } from '@/api/errors'
+import { hasErrorCode } from '@/api/errors'
+import { hasStoredSession } from '@/api/session'
 import { useAuth } from '@/context/AuthContext'
-import { Icon } from '@/components/ui/Icon'
-import { FoxLogo } from '@/components/layout/Navbar/FoxLogo'
-
-// ── State machine ─────────────────────────────────────────────────────────────
+import {
+  AuthPageLayout,
+  StatusCard,
+  primaryLinkClass as primaryLink,
+  secondaryLinkClass as secondaryLink,
+} from '@/components/auth/AuthPageLayout'
 
 type VerifyState =
   | 'loading'
-  | 'success_logged_in'   // verified + tokens returned → auto-login
-  | 'success_check_login' // verified, no tokens → go login manually
-  | 'expired'             // 410 TOKEN_EXPIRED
-  | 'already_verified'    // 409 OPERATION_ALREADY_PERFORMED
-  | 'invalid'             // 404 / bad token / missing token
-
-// ── Page ─────────────────────────────────────────────────────────────────────
+  | 'entering'          // verified + logged in here → going to the app
+  | 'verified_login'    // verified, not logged in here
+  | 'already_verified'  // 409: link already used
+  | 'expired'           // 410 REQUEST_EXPIRED
+  | 'invalid'           // 404 / 400 / missing token
+  | 'error'             // network or server error — retry is safe
 
 export function VerifyEmailPage() {
-  const [searchParams]  = useSearchParams()
-  const navigate        = useNavigate()
-  const { setUser }     = useAuth()
+  const [searchParams] = useSearchParams()
+  const navigate       = useNavigate()
+  const { refreshUser } = useAuth()
   const [state, setState] = useState<VerifyState>('loading')
 
-  useEffect(() => {
-    const token = searchParams.get('token')
+  const tokenRef   = useRef<string | null>(null)
+  const startedRef = useRef(false)
 
-    if (!token) {
-      setState('invalid')
-      return
+  const enterIfLoggedIn = async (fallback: VerifyState) => {
+    if (!hasStoredSession()) { setState(fallback); return }
+    try {
+      const user = await refreshUser()
+      if (user?.emailVerified) setState('entering')
+      else setState(fallback)
+    } catch {
+      setState(fallback)
     }
+  }
 
-    authService
-      .verifyEmailToken(token)
-      .then(({ loggedIn, user, message: _ }) => {
-        if (loggedIn && user) {
-          setUser(user)
-          setState('success_logged_in')
-          // Give the user a moment to read the success message
-          setTimeout(() => navigate('/dashboard', { replace: true }), 2500)
-        } else {
-          setState('success_check_login')
-        }
-      })
-      .catch((err: unknown) => {
-        if (err instanceof ApiError) {
-          if (
-            err.errorCode === 'TOKEN_EXPIRED' ||
-            err.errorCode === 'INVALID_TOKEN' ||
-            err.httpStatus === 410
-          ) {
-            setState('expired')
-          } else if (
-            err.errorCode === 'OPERATION_ALREADY_PERFORMED' ||
-            err.httpStatus === 409
-          ) {
-            setState('already_verified')
-          } else {
-            setState('invalid')
-          }
-        } else {
-          setState('invalid')
-        }
-      })
+  const verify = async () => {
+    const token = tokenRef.current
+    if (!token) { setState('invalid'); return }
+    setState('loading')
+    try {
+      await authService.verifyEmailToken(token)
+      await enterIfLoggedIn('verified_login')
+    } catch (err) {
+      if (hasErrorCode(err, 'OPERATION_ALREADY_PERFORMED')) await enterIfLoggedIn('already_verified')
+      else if (hasErrorCode(err, 'REQUEST_EXPIRED')) setState('expired')
+      else if (hasErrorCode(err, 'RESOURCE_NOT_FOUND', 'BAD_REQUEST')) setState('invalid')
+      else setState('error')
+    }
+  }
+
+  // Read the token once and strip it from the URL before the first paint.
+  useLayoutEffect(() => {
+    if (startedRef.current) return
+    startedRef.current = true
+    tokenRef.current = searchParams.get('token')
+    navigate('/verify', { replace: true })
+    void verify()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Verified and logged in: continue into the app after a short confirmation.
+  useEffect(() => {
+    if (state !== 'entering') return
+    const id = window.setTimeout(() => navigate('/dashboard', { replace: true }), 1500)
+    return () => window.clearTimeout(id)
+  }, [state, navigate])
+
+  // Getting a new link needs a session: logged in → verify screen, else log in first.
+  const newLinkAction = hasStoredSession()
+    ? <Link to="/verify-email" className={primaryLink}>Send me a new link</Link>
+    : <Link to="/?login=1" className={primaryLink}>Log in to get a new link</Link>
+
   return (
-    <div className="min-h-screen bg-surface flex flex-col items-center justify-center px-4">
-      {/* Logo */}
-      <Link to="/" className="flex items-end gap-0 mb-12">
-        <FoxLogo size={44} />
-        <span className="text-3xl font-bold tracking-tighter font-headline bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 bg-clip-text text-transparent">
-          FoxSensei
-        </span>
-      </Link>
-
-      <div className="w-full max-w-md bg-surface-container-lowest rounded-2xl shadow-[0_32px_64px_rgba(25,28,29,0.10)] border border-outline-variant/10 p-10 text-center">
-        {state === 'loading' && <LoadingState />}
-        {state === 'success_logged_in' && <SuccessLoggedInState />}
-        {state === 'success_check_login' && <SuccessCheckLoginState />}
-        {state === 'expired' && <ExpiredState />}
-        {state === 'already_verified' && <AlreadyVerifiedState />}
-        {state === 'invalid' && <InvalidState />}
-      </div>
-
-      <p className="mt-8 text-xs text-on-surface-variant/60">
-        FoxSensei · Japanese Learning Platform
-      </p>
-    </div>
-  )
-}
-
-// ── State components ──────────────────────────────────────────────────────────
-
-function IconRing({ name, color }: { name: string; color: string }) {
-  return (
-    <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${color}`}>
-      <Icon name={name} className="text-3xl" filled />
-    </div>
-  )
-}
-
-function LoadingState() {
-  return (
-    <div className="py-4">
-      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6 animate-pulse">
-        <Icon name="mark_email_unread" className="text-3xl text-primary" />
-      </div>
-      <h1 className="text-2xl font-headline font-bold text-on-surface tracking-tight mb-3">
-        Verifying your email…
-      </h1>
-      <p className="text-sm text-on-surface-variant">
-        Just a moment while we confirm your address.
-      </p>
-    </div>
-  )
-}
-
-function SuccessLoggedInState() {
-  return (
-    <div className="py-4">
-      <IconRing name="verified" color="bg-green-500/10 text-green-500" />
-      <h1 className="text-2xl font-headline font-bold text-on-surface tracking-tight mb-3">
-        Email Verified!
-      </h1>
-      <p className="text-sm text-on-surface-variant mb-8">
-        You're all set. Taking you to your dashboard now…
-      </p>
-      <div className="flex justify-center">
-        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    </div>
-  )
-}
-
-function SuccessCheckLoginState() {
-  return (
-    <div className="py-4">
-      <IconRing name="mark_email_read" color="bg-primary/10 text-primary" />
-      <h1 className="text-2xl font-headline font-bold text-on-surface tracking-tight mb-3">
-        Email Verified!
-      </h1>
-      <p className="text-sm text-on-surface-variant mb-8">
-        Your account is confirmed. You can now sign in and start learning.
-      </p>
-      <Link
-        to="/?login=1"
-        className="inline-block w-full bg-primary text-on-primary font-headline font-bold py-3.5 rounded-lg shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
-      >
-        Go to Login
-      </Link>
-    </div>
-  )
-}
-
-function ExpiredState() {
-  return (
-    <div className="py-4">
-      <IconRing name="link_off" color="bg-amber-400/10 text-amber-500" />
-      <h1 className="text-2xl font-headline font-bold text-on-surface tracking-tight mb-3">
-        Link Expired
-      </h1>
-      <p className="text-sm text-on-surface-variant mb-8">
-        This verification link has expired. Verification links are valid for 24 hours.
-        Sign up again to receive a new link.
-      </p>
-      <div className="flex flex-col gap-3">
-        <Link
-          to="/?signup=1"
-          className="inline-block w-full bg-primary text-on-primary font-headline font-bold py-3.5 rounded-lg shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
-        >
-          Sign Up Again
-        </Link>
-        <Link
-          to="/"
-          className="text-sm text-on-surface-variant hover:text-on-surface transition-colors py-2"
-        >
-          Back to Home
-        </Link>
-      </div>
-    </div>
-  )
-}
-
-function AlreadyVerifiedState() {
-  return (
-    <div className="py-4">
-      <IconRing name="check_circle" color="bg-green-500/10 text-green-500" />
-      <h1 className="text-2xl font-headline font-bold text-on-surface tracking-tight mb-3">
-        Already Verified
-      </h1>
-      <p className="text-sm text-on-surface-variant mb-8">
-        Your email address has already been verified. You can sign in right now.
-      </p>
-      <Link
-        to="/?login=1"
-        className="inline-block w-full bg-primary text-on-primary font-headline font-bold py-3.5 rounded-lg shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
-      >
-        Go to Login
-      </Link>
-    </div>
-  )
-}
-
-function InvalidState() {
-  return (
-    <div className="py-4">
-      <IconRing name="error" color="bg-error/10 text-error" />
-      <h1 className="text-2xl font-headline font-bold text-on-surface tracking-tight mb-3">
-        Invalid Link
-      </h1>
-      <p className="text-sm text-on-surface-variant mb-8">
-        This verification link is invalid or has already been used.
-        Check your inbox for the most recent email from us.
-      </p>
-      <div className="flex flex-col gap-3">
-        <Link
-          to="/"
-          className="inline-block w-full bg-primary text-on-primary font-headline font-bold py-3.5 rounded-lg shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
-        >
-          Back to Home
-        </Link>
-        <Link
-          to="/?login=1"
-          className="text-sm text-on-surface-variant hover:text-on-surface transition-colors py-2"
-        >
-          Try Logging In
-        </Link>
-      </div>
-    </div>
+    <AuthPageLayout noReferrer>
+      {state === 'loading' && (
+        <StatusCard icon="mark_email_unread" tone="primary" pulse title="Verifying your email…"
+          body="Just a moment while we confirm your address." />
+      )}
+      {state === 'entering' && (
+        <StatusCard icon="verified" tone="success" title="Email verified!"
+          body="You're all set. Taking you to your dashboard…">
+          <div className="flex justify-center">
+            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        </StatusCard>
+      )}
+      {state === 'verified_login' && (
+        <StatusCard icon="mark_email_read" tone="primary" title="Email verified!"
+          body="Your account is confirmed. Please log in to start learning.">
+          <Link to="/?login=1" className={primaryLink}>Log in</Link>
+        </StatusCard>
+      )}
+      {state === 'already_verified' && (
+        <StatusCard icon="check_circle" tone="success" title="Already verified"
+          body="Your email address is already verified. You can log in right now.">
+          <Link to="/?login=1" className={primaryLink}>Log in</Link>
+        </StatusCard>
+      )}
+      {state === 'expired' && (
+        <StatusCard icon="link_off" tone="warning" title="Link expired"
+          body="This link has expired or a newer one was sent. Use the most recent email, or get a new link.">
+          {newLinkAction}
+          <Link to="/" className={secondaryLink}>Back to home</Link>
+        </StatusCard>
+      )}
+      {state === 'invalid' && (
+        <StatusCard icon="error" tone="error" title="Link invalid"
+          body="This verification link is invalid or was already used. Request a new one.">
+          {newLinkAction}
+          <Link to="/" className={secondaryLink}>Back to home</Link>
+        </StatusCard>
+      )}
+      {state === 'error' && (
+        <StatusCard icon="cloud_off" tone="error" title="Couldn't verify right now"
+          body="We couldn't reach the server. Check your connection and try again.">
+          <button type="button" onClick={() => void verify()} className={primaryLink}>Try again</button>
+          <Link to="/" className={secondaryLink}>Back to home</Link>
+        </StatusCard>
+      )}
+    </AuthPageLayout>
   )
 }

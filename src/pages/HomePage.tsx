@@ -1,6 +1,5 @@
 import { Hero } from '@/components/sections/Hero'
 import {
-  StatsBar,
   FeaturesSection,
   HowItWorks,
   CoursesSection,
@@ -11,13 +10,12 @@ import {
 
 export function HomePage() {
   return (
-    <main className="pt-[68px]">
+    <main className="pt-nav">
       <Hero />
-      <StatsBar />
       <FeaturesSection />
+      <DashboardPreview />
       <HowItWorks />
       <CoursesSection />
-      <DashboardPreview />
       <Testimonials />
       <CTABanner />
     </main>

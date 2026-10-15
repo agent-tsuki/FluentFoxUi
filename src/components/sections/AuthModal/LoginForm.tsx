@@ -1,48 +1,38 @@
 import { useState, type FormEvent } from 'react'
-import type { AuthUser } from '@/context/AuthContext'
+import { useAuth, type AuthUser } from '@/context/AuthContext'
 import { authService } from '@/api/services/authService'
-import { ApiError } from '@/api/errors'
 import { resolveErrorMessage } from '@/api/errors'
-import { Icon } from '@/components/ui/Icon'
-import { GoogleAuthButton } from './GoogleAuthButton'
-import { XAuthButton } from './XAuthButton'
+import { cn } from '@/lib/cn'
+import { Button } from '@/components/ui/Button'
+import { AuthField, PasswordToggle } from './AuthField'
 
 interface LoginFormProps {
+  /** Called with the logged-in user. Unverified users are routed by the caller. */
   onSuccess:        (user: AuthUser) => void
-  onForgotPassword: () => void
+  /** Receives the email typed so far, to prefill the forgot-password page. */
+  onForgotPassword: (email: string) => void
 }
 
 export function LoginForm({ onSuccess, onForgotPassword }: LoginFormProps) {
+  const { notice, clearNotice } = useAuth()
+
   const [email, setEmail]               = useState('')
   const [password, setPassword]         = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading]           = useState(false)
   const [error, setError]               = useState('')
-  const [showResend, setShowResend]     = useState(false)
-
-  const inputClass =
-    'w-full bg-surface-container-low border-0 rounded-lg px-4 py-3 text-on-surface focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all placeholder:text-outline/50 outline-none'
-  const labelClass =
-    'block text-[10px] uppercase tracking-widest font-bold text-on-surface-variant px-1'
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError('')
-    setShowResend(false)
+    clearNotice()
     setLoading(true)
-
     try {
       const user = await authService.login(email, password)
       onSuccess(user)
     } catch (err) {
-      // UNAUTHORIZE = backend code for "email not verified"
-      if (err instanceof ApiError && (err.errorCode === 'UNAUTHORIZE' || err.errorCode === 'UNAUTHORIZED' || err.errorCode === 'ACCOUNT_NOT_VERIFIED')) {
-        setError('Please verify your email before logging in. Check your inbox.')
-        setShowResend(true)
-      } else {
-        setError(resolveErrorMessage(err))
-        setShowResend(false)
-      }
+      // INVALID_CREDENTIALS is deliberately generic: never hint whether the email exists.
+      setError(resolveErrorMessage(err))
     } finally {
       setLoading(false)
     }
@@ -50,91 +40,71 @@ export function LoginForm({ onSuccess, onForgotPassword }: LoginFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {/* Email */}
-      <div className="space-y-1.5">
-        <label className={labelClass}>Email Address</label>
-        <input
-          type="email"
-          required
-          placeholder="haruki@foxsensei.jp"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          className={inputClass}
-        />
-      </div>
+      {/* Session notice: why you were logged out, or "Password updated" */}
+      {notice && (
+        <p
+          role={notice.tone === 'error' ? 'alert' : 'status'}
+          className={cn(
+            'flex items-start gap-2 text-xs font-medium px-3 py-2.5 rounded-xl',
+            notice.tone === 'error' ? 'text-error bg-error/10' : 'text-success bg-success/10',
+          )}
+        >
+          <span aria-hidden className="material-symbols-outlined text-base leading-none">
+            {notice.tone === 'error' ? 'error' : 'check_circle'}
+          </span>
+          {notice.text}
+        </p>
+      )}
 
-      {/* Password */}
-      <div className="space-y-1.5">
-        <label className={labelClass}>Password</label>
-        <div className="relative">
-          <input
-            type={showPassword ? 'text' : 'password'}
-            required
-            placeholder="••••••••••••"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            className={inputClass}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(v => !v)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors"
-          >
-            <Icon name={showPassword ? 'visibility_off' : 'visibility'} className="text-lg" />
-          </button>
-        </div>
-      </div>
+      <AuthField
+        label="Email Address"
+        type="email"
+        name="email"
+        autoComplete="email"
+        inputMode="email"
+        required
+        maxLength={254}
+        placeholder="haruki@foxsensei.jp"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+      />
+
+      <AuthField
+        label="Password"
+        type={showPassword ? 'text' : 'password'}
+        name="password"
+        autoComplete="current-password"
+        required
+        maxLength={128}
+        placeholder="••••••••••••"
+        value={password}
+        onChange={e => setPassword(e.target.value)}
+        trailing={<PasswordToggle visible={showPassword} onToggle={() => setShowPassword(v => !v)} />}
+      />
 
       <div className="text-right">
         <button
           type="button"
-          onClick={onForgotPassword}
-          className="text-[10px] text-primary font-bold uppercase tracking-wider hover:underline"
+          onClick={() => onForgotPassword(email.trim())}
+          className="text-xs text-primary font-bold uppercase tracking-wider hover:underline"
         >
           Forgot password?
         </button>
       </div>
 
-      {/* Error */}
       {error && (
-        <div role="alert" className="space-y-1">
-          <p className="text-error text-xs font-medium px-1">{error}</p>
-          {showResend && (
-            <button
-              type="button"
-              onClick={onForgotPassword}
-              className="text-[11px] text-primary font-bold hover:underline px-1"
-            >
-              Resend verification email →
-            </button>
-          )}
-        </div>
+        <p role="alert" className="text-error text-xs font-medium px-1">{error}</p>
       )}
 
-      {/* Submit — disabled while loading to prevent double-submit */}
       <div className="pt-2">
-        <button
+        <Button
           type="submit"
+          variant="primary"
           disabled={loading}
-          className="w-full bg-primary hover:bg-primary-container text-on-primary font-headline font-bold py-4 rounded-lg shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
+          className="w-full py-4 font-headline disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
         >
           {loading ? 'Signing In…' : 'Sign In'}
-        </button>
-      </div>
-
-      {/* Divider */}
-      <div className="relative flex items-center py-1">
-        <div className="flex-grow border-t border-surface-container-high" />
-        <span className="flex-shrink mx-4 text-[10px] text-outline font-bold uppercase tracking-tighter">
-          Or continue with
-        </span>
-        <div className="flex-grow border-t border-surface-container-high" />
-      </div>
-
-      {/* Social */}
-      <div className="flex gap-4">
-        <GoogleAuthButton onClick={() => null} disabled={loading} />
-        <XAuthButton      onClick={() => null} disabled={loading} />
+        </Button>
       </div>
     </form>
   )

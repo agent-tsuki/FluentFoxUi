@@ -1,30 +1,28 @@
 import { useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/Button'
 import { useModal } from '@/context/ModalContext'
-import { HeroVisual } from './HeroVisual'
+import { CharCard } from './CharCard'
+
+// Neutral surface tokens only — avatars are decoration, not the accent (see
+// UIUX_STANDARDS §0 "one confident accent"). Alternates two container shades
+// for subtle depth instead of hardcoded pastel hex per avatar.
+const AVATAR_BG = ['bg-surface-container-high', 'bg-surface-container-highest']
 
 function TrustAvatars() {
-  const avatars = [
-    { initials: 'AK', bg: '#ffeaea', color: '#c9274a' },
-    { initials: 'RN', bg: '#f4e9dd', color: '#5c3b2e' },
-    { initials: 'SM', bg: '#e0faf3', color: '#0a8a60' },
-    { initials: 'YT', bg: '#fff8d6', color: '#a07000' },
-  ]
+  const initials = ['AK', 'RN', 'SM', 'YT']
   return (
     <div className="flex items-center gap-4">
       <div className="flex">
-        {avatars.map((a, i) => (
+        {initials.map((label, i) => (
           <span
-            key={i}
-            className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-[11px] font-bold font-label"
+            key={label}
+            className={`w-8 h-8 rounded-full border-2 border-surface-container-lowest flex items-center justify-center text-2xs font-bold font-label text-on-surface ${AVATAR_BG[i % AVATAR_BG.length]}`}
             style={{
-              background: a.bg,
-              color: a.color,
               marginLeft: i === 0 ? 0 : -8,
-              boxShadow: '0 0 0 2px white',
+              boxShadow: '0 0 0 2px rgb(var(--surface-container-lowest))',
             }}
           >
-            {a.initials}
+            {label}
           </span>
         ))}
       </div>
@@ -74,19 +72,16 @@ export function Hero() {
         style={{ opacity: 0, transform: 'translateY(28px)', transition: 'opacity 0.7s ease, transform 0.7s ease' }}
       >
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary font-label text-[0.7rem] font-semibold uppercase tracking-widest border border-primary/20">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary font-label text-2xs font-semibold uppercase tracking-widest border border-primary/20">
           <span className="relative flex h-2 w-2">
-            <span
-              className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"
-              style={{ animation: 'ping 1.8s ease-in-out infinite' }}
-            />
+            <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 animate-ping" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
           </span>
           50,000+ Active Learners
         </div>
 
         {/* Headline */}
-        <h1 className="font-headline text-4xl md:text-[3.3rem] font-extrabold tracking-tight text-on-surface leading-[1.1]">
+        <h1 className="font-headline text-display-lg font-extrabold tracking-tight text-on-surface leading-[1.1]">
           Learn Japanese,
           <br />
           <span className="text-primary italic">Without the Chaos</span>
@@ -102,7 +97,7 @@ export function Hero() {
         <div className="flex flex-col sm:flex-row gap-4 pt-2">
           <Button
             variant="primary"
-            className="px-8 py-3.5 rounded-xl text-base font-bold shadow-md shadow-primary/20"
+            className="px-8 py-3.5 rounded-xl text-base font-bold shadow-md shadow-primary/20 dark:shadow-primary/10"
             onClick={() => openModal('signup')}
           >
             Start for Free
@@ -120,8 +115,11 @@ export function Hero() {
         <TrustAvatars />
       </div>
 
-      {/* Right — Character card visual */}
-      <HeroVisual />
+      {/* Right — Character card visual (on-brand; replaces the templated globe) */}
+      <div className="relative hidden md:flex justify-center items-center">
+        <div className="absolute w-72 h-72 bg-primary/10 rounded-full blur-3xl -z-10" />
+        <CharCard />
+      </div>
     </section>
   )
 }

@@ -30,11 +30,15 @@ function safeLocalStorage<T>(key: string, fallback: T): T {
   }
 }
 
+const MOUSE_FOLLOWER_KEY = 'cursorTrailEnabled'
+
 const UIContext = createContext<UIContextType | undefined>(undefined)
 
 export function UIProvider({ children }: { children: ReactNode }) {
+  // Off by default: the normal arrow cursor. Users can opt in from Account Settings.
+  // New storage key so visitors who had the old auto-saved `true` also start with the arrow.
   const [mouseFollowerEnabled, setMouseFollowerEnabled] = useState(() =>
-    safeLocalStorage('mouseFollowerEnabled', true)
+    safeLocalStorage(MOUSE_FOLLOWER_KEY, false)
   )
 
   const [darkMode, setDarkMode] = useState(() =>
@@ -50,7 +54,7 @@ export function UIProvider({ children }: { children: ReactNode }) {
   const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null)
 
   useEffect(() => {
-    try { localStorage.setItem('mouseFollowerEnabled', JSON.stringify(mouseFollowerEnabled)) } catch { /* storage unavailable */ }
+    try { localStorage.setItem(MOUSE_FOLLOWER_KEY, JSON.stringify(mouseFollowerEnabled)) } catch { /* storage unavailable */ }
   }, [mouseFollowerEnabled])
 
   useEffect(() => {

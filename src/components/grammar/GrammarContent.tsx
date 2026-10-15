@@ -99,7 +99,7 @@ export function GrammarContent({
 
       {/* Top bar: breadcrumb + reveal toggle */}
       <div className="flex items-center justify-between mb-8 mt-2 gap-4 flex-wrap">
-        <nav className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
+        <nav className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-on-surface-variant">
           <span>{chapter.level.toUpperCase()} Course</span>
           <Icon name="chevron_right" className="text-xs" />
           <span>Chapter {chapter.id}</span>
@@ -166,7 +166,7 @@ export function GrammarContent({
             return (
               <section
                 key={concept.id}
-                className="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                className="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 overflow-hidden shadow-elevation-1 hover:shadow-elevation-2 transition-shadow"
               >
                 {/* Concept header bar */}
                 <div className="flex items-center gap-0 border-b border-outline-variant/15">
@@ -181,7 +181,7 @@ export function GrammarContent({
                         {concept.title}
                       </h2>
                     </div>
-                    <span className="text-[10px] text-on-surface-variant/50 font-medium flex-shrink-0">
+                    <span className="text-xs text-on-surface-variant/50 font-medium flex-shrink-0">
                       {conceptIndex + 1} / {totalConcepts}
                     </span>
                   </div>
@@ -197,7 +197,7 @@ export function GrammarContent({
                   {/* Key Rule */}
                   {concept.keyRule && (
                     <div className={`p-4 rounded-xl border-l-4 ${style.rule}`}>
-                      <span className="block text-[10px] uppercase tracking-widest font-bold mb-1.5 text-on-surface-variant">
+                      <span className="block text-xs uppercase tracking-widest font-bold mb-1.5 text-on-surface-variant">
                         Key Rule
                       </span>
                       <p
@@ -246,7 +246,7 @@ export function GrammarContent({
                                 </p>
                                 <button
                                   onClick={() => toggleTranslation(exKey)}
-                                  className="flex-shrink-0 text-[10px] uppercase tracking-wider font-bold text-on-surface-variant/50 hover:text-primary transition-colors flex items-center gap-1"
+                                  className="flex-shrink-0 text-xs uppercase tracking-wider font-bold text-on-surface-variant/50 hover:text-primary transition-colors flex items-center gap-1"
                                 >
                                   <Icon name={isHidden ? 'visibility' : 'visibility_off'} className="text-sm" />
                                   {isHidden ? 'Show' : 'Hide'}
@@ -284,7 +284,7 @@ export function GrammarContent({
         <aside className="col-span-12 lg:col-span-3 space-y-6">
 
           {/* Vocab card */}
-          <div className="bg-surface-container-low rounded-2xl border border-outline-variant/20 sticky top-24 max-h-[calc(100vh-130px)] flex flex-col overflow-hidden">
+          <div className="bg-surface-container-low rounded-2xl border border-outline-variant/20 sticky top-24 max-h-[calc(100dvh-130px)] flex flex-col overflow-hidden">
             {/* Header */}
             <div className="px-5 py-4 border-b border-outline-variant/15 flex-shrink-0">
               <div className="flex items-center justify-between mb-1">
@@ -295,7 +295,7 @@ export function GrammarContent({
                   </h3>
                 </div>
                 {totalVocab > 0 && (
-                  <span className="text-[10px] font-bold text-on-surface-variant/60">
+                  <span className="text-xs font-bold text-on-surface-variant/60">
                     {masteredCount}/{totalVocab}
                   </span>
                 )}
@@ -359,7 +359,7 @@ export function GrammarContent({
 
             {totalVocab > 0 && (
               <div className="px-5 py-3 border-t border-outline-variant/15 flex-shrink-0">
-                <p className="text-[10px] text-on-surface-variant/50 italic text-center">
+                <p className="text-xs text-on-surface-variant/50 italic text-center">
                   Tap a word to mark it as mastered
                 </p>
               </div>
@@ -399,7 +399,7 @@ export function GrammarContent({
                 confetti({ particleCount: 90, angle: 120, spread: 55, origin: { x: 1, y: 0.65 }, colors })
                 onMarkComplete()
               }}
-              className="flex items-center gap-2 px-6 py-3 bg-primary text-on-primary font-bold rounded-full text-sm hover:bg-primary/90 active:scale-95 transition-all shadow-md"
+              className="flex items-center gap-2 px-6 py-3 bg-primary text-on-primary font-bold rounded-full text-sm hover:bg-primary/90 active:scale-95 transition-all shadow-elevation-2"
             >
               <Icon name="check" className="text-base" />
               Mark Chapter {chapter.id} as Complete
@@ -424,7 +424,7 @@ export function GrammarContent({
                 <Icon name="arrow_back" className="text-on-surface-variant group-hover:text-primary" />
               </div>
               <div>
-                <span className="block text-[10px] uppercase tracking-widest text-on-surface-variant">Previous</span>
+                <span className="block text-xs uppercase tracking-widest text-on-surface-variant">Previous</span>
                 <span className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">
                   Chapter {prevChapterId}
                 </span>
@@ -440,7 +440,7 @@ export function GrammarContent({
               className="flex items-center gap-4 text-right group ml-auto"
             >
               <div>
-                <span className="block text-[10px] uppercase tracking-widest text-on-surface-variant">Next</span>
+                <span className="block text-xs uppercase tracking-widest text-on-surface-variant">Next</span>
                 <span className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">
                   Chapter {nextChapterId}
                 </span>

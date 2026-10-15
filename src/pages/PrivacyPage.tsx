@@ -1,9 +1,9 @@
 export function PrivacyPage() {
   return (
-    <main className="pt-32 pb-20 px-6 max-w-3xl mx-auto">
+    <main className="pt-nav pb-20 px-6 max-w-3xl mx-auto">
       <div className="space-y-10">
         <div className="space-y-3">
-          <p className="text-[11px] uppercase tracking-widest font-bold text-primary">Legal</p>
+          <p className="text-xs uppercase tracking-widest font-bold text-primary">Legal</p>
           <h1 className="text-4xl md:text-5xl font-headline font-extrabold tracking-tighter text-on-surface">
             Privacy Policy
           </h1>

@@ -1,5 +1,6 @@
 import type { DashboardStats } from '@/types'
 import { Icon } from '@/components/ui/Icon'
+import { Eyebrow } from '@/components/ui/SectionHeader'
 
 interface DashboardHeroProps {
   firstName: string
@@ -19,9 +20,7 @@ export function DashboardHero({ firstName, stats }: DashboardHeroProps) {
       {/* Left: greeting + meta chips */}
       <div className="lg:col-span-2 bg-surface-container-low rounded-xl p-8 flex flex-col justify-between gap-6">
         <div className="space-y-3">
-          <span className="text-xs font-bold tracking-[0.2em] uppercase text-primary font-label">
-            Study Dashboard
-          </span>
+          <Eyebrow variant="plain">Study Dashboard</Eyebrow>
           <h1 className="text-4xl font-extrabold tracking-tight text-on-surface font-headline">
             {greeting()}, {firstName}.
           </h1>
@@ -39,10 +38,10 @@ export function DashboardHero({ firstName, stats }: DashboardHeroProps) {
       </div>
 
       {/* Right: JLPT progress card (dark, like QuizConfig summary) */}
-      <div className="bg-on-surface text-inverse-on-surface rounded-xl p-8 flex flex-col justify-between relative overflow-hidden shadow-2xl shadow-on-surface/10">
+      <div className="bg-surface-inverse text-on-surface-inverse rounded-xl p-8 flex flex-col justify-between relative overflow-hidden shadow-elevation-3">
         <div className="relative z-10 space-y-2">
           <h3 className="font-headline font-bold text-xl">Mastery Progress</h3>
-          <p className="text-white/60 text-sm font-body">Your journey to JLPT {stats.targetLevel}</p>
+          <p className="text-on-surface-inverse-variant text-sm font-body">Your journey to JLPT {stats.targetLevel}</p>
         </div>
 
         <div className="relative z-10 space-y-4 mt-6">
@@ -52,7 +51,7 @@ export function DashboardHero({ firstName, stats }: DashboardHeroProps) {
               JLPT {stats.targetLevel} Goal
             </span>
           </div>
-          <div className="w-full bg-white/20 h-2 rounded-full overflow-hidden">
+          <div className="w-full bg-on-surface-inverse/20 h-2 rounded-full overflow-hidden">
             <div
               className="bg-primary h-full rounded-full transition-all"
               style={{ width: `${stats.jlptProgress}%` }}
@@ -61,7 +60,7 @@ export function DashboardHero({ firstName, stats }: DashboardHeroProps) {
         </div>
 
         {/* Decorative ring */}
-        <div className="absolute -bottom-10 -right-10 w-48 h-48 rounded-full border-[20px] border-white/5 pointer-events-none" />
+        <div className="absolute -bottom-10 -right-10 w-48 h-48 rounded-full border-[20px] border-on-surface-inverse/10 pointer-events-none" />
       </div>
     </section>
   )
@@ -74,7 +73,7 @@ function Chip({ icon, label, accent = false }: { icon: string; label: string; ac
     <div
       className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold font-label ${
         accent
-          ? 'bg-primary text-on-primary shadow-sm shadow-primary/20'
+          ? 'bg-primary text-on-primary shadow-sm shadow-primary/20 dark:shadow-primary/10'
           : 'bg-surface-container-highest text-on-surface'
       }`}
     >

@@ -13,7 +13,7 @@ export function FlashCard({ card, dotCount = 3, activeDot = 0 }: FlashCardProps)
       <div className="absolute inset-0 bg-primary/5 rounded-2xl blur-3xl transform -rotate-6" />
 
       {/* Card */}
-      <div className="w-full h-full bg-surface-container-lowest rounded-2xl shadow-[0_40px_80px_rgba(25,28,29,0.08)] flex flex-col items-center justify-center p-8 border-b-4 border-primary/20 transform hover:-translate-y-4 transition-transform duration-500 ease-out relative overflow-hidden">
+      <div className="w-full h-full bg-surface-container-lowest rounded-2xl shadow-elevation-3 flex flex-col items-center justify-center p-8 border-b-4 border-primary/20 transform hover:-translate-y-4 transition-transform duration-500 ease-out relative overflow-hidden">
         {/* Watermark top-right */}
         <div className="absolute top-6 right-6 text-on-surface-variant/20 font-headline font-black text-4xl select-none">
           {card.character}

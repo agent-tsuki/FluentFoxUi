@@ -1,5 +1,6 @@
 import type { Milestone } from '@/types'
 import { Icon } from '@/components/ui/Icon'
+import { Eyebrow } from '@/components/ui/SectionHeader'
 
 interface MilestoneListProps {
   milestones: Milestone[]
@@ -10,9 +11,7 @@ export function MilestoneList({ milestones }: MilestoneListProps) {
     <section className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="space-y-1">
-          <span className="text-xs font-bold tracking-[0.2em] uppercase text-primary font-label block">
-            Achievements
-          </span>
+          <Eyebrow variant="plain">Achievements</Eyebrow>
           <h2 className="text-2xl font-extrabold tracking-tight text-on-surface font-headline">
             Recent Milestones
           </h2>
@@ -36,10 +35,10 @@ export function MilestoneList({ milestones }: MilestoneListProps) {
           return (
             <div
               key={milestone.id}
-              className="bg-surface-container-low p-6 rounded-xl flex items-center gap-6 group transition-all hover:bg-white hover:shadow-xl"
+              className="bg-surface-container-low p-6 rounded-xl flex items-center gap-6 group transition-all hover:bg-surface-container-lowest hover:shadow-elevation-2"
             >
               {/* Icon */}
-              <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:scale-110 duration-300 flex-shrink-0">
+              <div className="w-16 h-16 bg-surface-container-lowest rounded-lg flex items-center justify-center shadow-elevation-1 group-hover:scale-110 duration-300 flex-shrink-0">
                 <Icon name={milestone.icon} className={`text-4xl ${milestone.colorClass}`} filled />
               </div>
 

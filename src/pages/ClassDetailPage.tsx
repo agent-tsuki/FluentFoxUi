@@ -2,14 +2,9 @@ import { useState } from 'react'
 import { useParams, Link, Navigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { classTeachers } from '@/api/mock/classes'
-import type { Platform, CourseReview } from '@/api/mock/classes'
+import type { CourseReview } from '@/api/mock/classes'
 import { Icon } from '@/components/ui/Icon'
-
-const PLATFORM_META: Record<Platform, { label: string; icon: string; color: string }> = {
-  youtube: { label: 'YouTube', icon: 'smart_display', color: '#FF4444' },
-  udemy:   { label: 'Udemy',   icon: 'school',        color: '#A435F0' },
-  website: { label: 'Website', icon: 'language',      color: '#2980B9' },
-}
+import { PLATFORM_META } from '@/pages/ClassesPage'
 
 function StarRating({ rating, size = 'md' }: { rating: number; size?: 'sm' | 'md' | 'lg' }) {
   const full = Math.floor(rating)
@@ -137,14 +132,10 @@ export function ClassDetailPage() {
   ]
 
   return (
-    <main className="pt-20 pb-20 min-h-screen">
+    <main className="pt-20 pb-20 min-h-dvh">
       {/* Hero */}
       <div
-        className="relative overflow-hidden"
-        style={{
-          background: `linear-gradient(135deg, ${meta.color}12 0%, transparent 60%)`,
-          borderBottom: '1px solid var(--color-outline-variant, rgba(0,0,0,0.08))',
-        }}
+        className={`relative overflow-hidden border-b border-outline-variant/20 bg-gradient-to-br ${meta.heroFromClass} to-transparent`}
       >
         <div className="max-w-5xl mx-auto px-6 pt-10 pb-12">
           {/* Back */}
@@ -162,7 +153,7 @@ export function ClassDetailPage() {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.4 }}
-              className="w-24 h-24 md:w-28 md:h-28 rounded-2xl flex items-center justify-center text-white font-headline font-extrabold text-3xl flex-shrink-0 shadow-2xl"
+              className="w-24 h-24 md:w-28 md:h-28 rounded-2xl flex items-center justify-center text-white font-headline font-extrabold text-3xl flex-shrink-0 shadow-elevation-3"
               style={{ backgroundColor: teacher.avatarColor }}
               aria-hidden="true"
             >
@@ -173,10 +164,9 @@ export function ClassDetailPage() {
             <div className="flex-1 space-y-3">
               {/* Platform badge */}
               <span
-                className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide"
-                style={{ color: meta.color, background: `${meta.color}18` }}
+                className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide ${meta.colorClass} ${meta.tintClass}`}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: 14 }}>{meta.icon}</span>
+                <Icon name={meta.icon} className="text-sm" />
                 {meta.label}
               </span>
 
@@ -230,7 +220,7 @@ export function ClassDetailPage() {
             </div>
 
             {/* CTA card */}
-            <div className="w-full md:w-64 flex-shrink-0 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-5 space-y-4 shadow-lg md:sticky md:top-24 self-start">
+            <div className="w-full md:w-64 flex-shrink-0 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-5 space-y-4 shadow-elevation-2 md:sticky md:top-24 self-start">
               <div className="text-center space-y-1">
                 <p className="text-2xl font-headline font-extrabold text-on-surface">
                   {teacher.free ? '100% Free' : teacher.priceNote}
@@ -243,10 +233,9 @@ export function ClassDetailPage() {
                 href={teacher.platformUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-sm text-white shadow-lg transition-opacity hover:opacity-90"
-                style={{ backgroundColor: meta.color }}
+                className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-sm text-white shadow-elevation-2 transition-opacity hover:opacity-90 ${meta.solidClass}`}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>{meta.icon}</span>
+                <Icon name={meta.icon} className="text-lg" />
                 Visit on {meta.label}
               </a>
               <div className="space-y-2 text-xs text-on-surface-variant">
@@ -338,7 +327,7 @@ export function ClassDetailPage() {
                   </p>
                   {teacher.pros.map((pro) => (
                     <div key={pro} className="flex items-start gap-2 text-sm">
-                      <span className="text-emerald-500 flex-shrink-0 mt-0.5">✓</span>
+                      <Icon name="check" className="text-emerald-500 flex-shrink-0 mt-0.5 text-sm" />
                       <span className="text-on-surface-variant leading-relaxed">{pro}</span>
                     </div>
                   ))}
@@ -350,7 +339,7 @@ export function ClassDetailPage() {
                   </p>
                   {teacher.cons.map((con) => (
                     <div key={con} className="flex items-start gap-2 text-sm">
-                      <span className="text-rose-400 flex-shrink-0 mt-0.5">✗</span>
+                      <Icon name="close" className="text-rose-400 flex-shrink-0 mt-0.5 text-sm" />
                       <span className="text-on-surface-variant leading-relaxed">{con}</span>
                     </div>
                   ))}
@@ -412,7 +401,7 @@ export function ClassDetailPage() {
               <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Platform Details</p>
               <div className="space-y-2.5 text-sm">
                 <div className="flex items-center gap-2 text-on-surface-variant">
-                  <span className="material-symbols-outlined text-base" style={{ color: meta.color }}>{meta.icon}</span>
+                  <Icon name={meta.icon} className={`text-base ${meta.colorClass}`} />
                   <span className="font-semibold">{meta.label}</span>
                 </div>
                 <div className="flex items-center gap-2 text-on-surface-variant">
@@ -428,10 +417,9 @@ export function ClassDetailPage() {
                 href={teacher.platformUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-2 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm text-white shadow transition-opacity hover:opacity-90"
-                style={{ backgroundColor: meta.color }}
+                className={`mt-2 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm text-white shadow-elevation-1 transition-opacity hover:opacity-90 ${meta.solidClass}`}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>{meta.icon}</span>
+                <Icon name={meta.icon} className="text-base" />
                 Open on {meta.label}
               </a>
             </div>
