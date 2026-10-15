@@ -19,11 +19,14 @@ type CallbackState =
 
 const CALLBACK_ERRORS: Record<string, string> = {
   oauth_cancelled:             'Sign-in was cancelled. You can try again whenever you are ready.',
-  oauth_account_link_required: 'An account already exists for this email. Please sign in with your password first.',
+  oauth_account_link_required: 'An account already uses this email. Sign in with your password, then connect Google from Security settings.',
+  oauth_provider_already_linked: 'Your FoxSensei account is already connected to a different account from this provider. Sign in with that one instead.',
+  account_suspended:           'Your account is suspended. Please contact support.',
+  account_deleted:             'This account has been deleted. Please contact support.',
   oauth_email_not_verified:    'Google has not verified this email address. Use another Google account or verify that email first.',
   oauth_unavailable:           'Google sign-in is not configured yet. Please try again later or use your password.',
   oauth_failed:                'Google sign-in could not be completed. Please try again.',
-  oauth_x_account_link_required: 'Sign in with your email, then connect X from Security settings.',
+  oauth_x_account_link_required: 'No FoxSensei account matches this X account. Sign up or sign in with email, then connect X from Security settings.',
   oauth_x_unavailable:           'X sign-in is not configured yet. Please try again later or use your password.',
   oauth_x_failed:                'X sign-in could not be completed. Please try again.',
 }
