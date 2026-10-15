@@ -14,6 +14,8 @@ import type {
   ApiUser,
   AuthApiResponse,
   ChangeEmailRequest,
+	GoogleConnectionApiResponse,
+	GoogleLinkStartApiResponse,
   LoginRequest,
   MessageApiResponse,
 	OAuthExchangeApiResponse,
@@ -96,6 +98,30 @@ export const authService = {
       user:     toAuthUser(res.data.user, normalizeEmail(res.data.email)),
       returnTo: safeOAuthReturnPath(res.data.return_to),
     }
+  },
+
+  /** Returns whether the signed-in user has linked a Google identity. */
+  async getGoogleConnection(): Promise<{ connected: boolean; providerEmail?: string }> {
+    const res = await apiClient.get<GoogleConnectionApiResponse>('/auth/oauth/google/link/status')
+    return { connected: res.data.connected, providerEmail: res.data.provider_email }
+  },
+
+  /**
+   * Starts an authenticated account-linking flow. The backend binds the state
+   * to the current user, so the Google identity cannot be attached elsewhere.
+   */
+  async startGoogleAccountLink(): Promise<void> {
+    const res = await apiClient.post<GoogleLinkStartApiResponse>('/auth/oauth/google/link/start')
+    let destination: URL
+    try {
+      destination = new URL(res.data.authorization_url)
+    } catch {
+      throw new ApiError(500, 'OAUTH_FAILED', 'Google sign-in could not be started.', '')
+    }
+    if (destination.origin !== 'https://accounts.google.com') {
+      throw new ApiError(500, 'OAUTH_FAILED', 'Google sign-in could not be started.', '')
+    }
+    window.location.assign(destination.toString())
   },
 
   /**

@@ -60,6 +60,16 @@ export interface OAuthExchangeData extends AuthTokenData {
 	return_to: string
 }
 
+/** Authenticated account-linking endpoints for the Google provider. */
+export interface GoogleConnectionData {
+  connected:       boolean
+  provider_email?: string
+}
+
+export interface GoogleLinkStartData {
+  authorization_url: string
+}
+
 // ── Simple message payload (register, logout) ─────────────────────────────────
 
 export interface MessageData {
@@ -70,6 +80,8 @@ export interface MessageData {
 
 export type AuthApiResponse    = ApiResponse<AuthTokenData>
 export type OAuthExchangeApiResponse = ApiResponse<OAuthExchangeData>
+export type GoogleConnectionApiResponse = ApiResponse<GoogleConnectionData>
+export type GoogleLinkStartApiResponse = ApiResponse<GoogleLinkStartData>
 export type MessageApiResponse = ApiResponse<MessageData>
 
 // ── Request bodies ─────────────────────────────────────────────────────────────

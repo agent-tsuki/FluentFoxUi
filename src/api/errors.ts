@@ -72,6 +72,13 @@ const ERROR_MESSAGES: Record<string, string> = {
   PASSWORD_RESET_TOKEN_INVALID:     'This reset link is invalid, expired, or has already been used.',
   PASSWORD_RESET_EMAIL_SEND_FAILED: "We couldn't send the reset link. Please try again.",
 
+  // ── Connected accounts ──────────────────────────────────────────────────
+  OAUTH_UNAVAILABLE:              'Google sign-in is not configured yet. Please try again later.',
+  OAUTH_LINK_EMAIL_MISMATCH:      'Choose the Google account that uses your FoxSensei email address.',
+  OAUTH_IDENTITY_ALREADY_LINKED:  'That Google account is already connected to another FoxSensei account.',
+  OAUTH_EMAIL_NOT_VERIFIED:       'Google has not verified this email address. Choose another Google account.',
+  OAUTH_FAILED:                   'Google sign-in could not be completed. Please try again.',
+
   // ── Network (client-side) ─────────────────────────────────────────────────
   NETWORK_ERROR:              "Can't reach the server. Check your connection and try again.",
 }

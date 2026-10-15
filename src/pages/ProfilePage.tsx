@@ -11,7 +11,9 @@ type Status = 'loading' | 'error' | 'ready'
 export function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [status, setStatus] = useState<Status>('loading')
-  const [activeTab, setActiveTab] = useState<'info' | 'settings'>('info')
+  const [activeTab, setActiveTab] = useState<'info' | 'settings'>(() =>
+    new URLSearchParams(window.location.search).get('tab') === 'settings' ? 'settings' : 'info',
+  )
 
   const fetchProfile = useCallback(() => {
     setStatus('loading')
