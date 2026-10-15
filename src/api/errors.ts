@@ -80,7 +80,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   OAUTH_EMAIL_NOT_VERIFIED:       'Google has not verified this email address. Choose another Google account.',
   OAUTH_FAILED:                   'Google sign-in could not be completed. Please try again.',
   OAUTH_X_UNAVAILABLE:            'X sign-in is not configured yet. Please try again later.',
-  OAUTH_X_ACCOUNT_LINK_REQUIRED:  'No FoxSensei account matches this X account. Sign up or sign in with email, then connect X from Security settings.',
+  OAUTH_X_ACCOUNT_LINK_REQUIRED:  'An account already uses this email. Sign in with email, then connect X from Security settings.',
+  OAUTH_X_EMAIL_MISSING:          "X didn't share a verified email for this account. Add and verify an email on X, or sign up with email.",
   OAUTH_X_IDENTITY_ALREADY_LINKED:'That X account is already connected to another FoxSensei account.',
   OAUTH_X_FAILED:                 'X sign-in could not be completed. Please try again.',
 

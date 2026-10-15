@@ -26,7 +26,8 @@ const CALLBACK_ERRORS: Record<string, string> = {
   oauth_email_not_verified:    'Google has not verified this email address. Use another Google account or verify that email first.',
   oauth_unavailable:           'Google sign-in is not configured yet. Please try again later or use your password.',
   oauth_failed:                'Google sign-in could not be completed. Please try again.',
-  oauth_x_account_link_required: 'No FoxSensei account matches this X account. Sign up or sign in with email, then connect X from Security settings.',
+  oauth_x_account_link_required: 'An account already uses this email. Sign in with email, then connect X from Security settings.',
+  oauth_x_email_missing:         "X didn't share a verified email for this account. Add and verify an email on X, or sign up with email.",
   oauth_x_unavailable:           'X sign-in is not configured yet. Please try again later or use your password.',
   oauth_x_failed:                'X sign-in could not be completed. Please try again.',
 }
