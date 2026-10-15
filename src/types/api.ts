@@ -70,6 +70,15 @@ export interface GoogleLinkStartData {
   authorization_url: string
 }
 
+/** Authenticated connection state for the X provider. */
+export interface XConnectionData {
+  connected: boolean
+}
+
+export interface XLinkStartData {
+  authorization_url: string
+}
+
 // ── Simple message payload (register, logout) ─────────────────────────────────
 
 export interface MessageData {
@@ -82,6 +91,8 @@ export type AuthApiResponse    = ApiResponse<AuthTokenData>
 export type OAuthExchangeApiResponse = ApiResponse<OAuthExchangeData>
 export type GoogleConnectionApiResponse = ApiResponse<GoogleConnectionData>
 export type GoogleLinkStartApiResponse = ApiResponse<GoogleLinkStartData>
+export type XConnectionApiResponse = ApiResponse<XConnectionData>
+export type XLinkStartApiResponse = ApiResponse<XLinkStartData>
 export type MessageApiResponse = ApiResponse<MessageData>
 
 // ── Request bodies ─────────────────────────────────────────────────────────────

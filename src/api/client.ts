@@ -39,6 +39,7 @@ const PUBLIC_AUTH_PATHS = [
   '/auth/forgot-password/verify-code',
   '/auth/reset-password',
   '/auth/oauth/google/exchange',
+  '/auth/oauth/x/exchange',
 ]
 const REFRESHABLE_CODES = new Set(['TOKEN_EXPIRED', 'TOKEN_INVALID', 'UNAUTHORIZED'])
 

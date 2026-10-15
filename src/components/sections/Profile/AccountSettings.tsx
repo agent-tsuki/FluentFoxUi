@@ -23,6 +23,10 @@ export function AccountSettings() {
   const [googleLoading, setGoogleLoading] = useState(true)
   const [googleConnecting, setGoogleConnecting] = useState(false)
   const [googleMessage, setGoogleMessage] = useState<{ tone: 'success' | 'error'; text: string } | null>(null)
+  const [xConnected, setXConnected] = useState(false)
+  const [xLoading, setXLoading] = useState(true)
+  const [xConnecting, setXConnecting] = useState(false)
+  const [xMessage, setXMessage] = useState<{ tone: 'success' | 'error'; text: string } | null>(null)
   const { user } = useAuth()
   const { openForgotPassword } = useModal()
 
@@ -39,6 +43,21 @@ export function AccountSettings() {
       })
       .finally(() => {
         if (!cancelled) setGoogleLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    void authService.getXConnection()
+      .then((connection) => {
+        if (!cancelled) setXConnected(connection.connected)
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) setXMessage({ tone: 'error', text: resolveErrorMessage(error) })
+      })
+      .finally(() => {
+        if (!cancelled) setXLoading(false)
       })
     return () => { cancelled = true }
   }, [])
@@ -67,6 +86,28 @@ export function AccountSettings() {
     window.history.replaceState({}, '', `${window.location.pathname}${query.size ? `?${query.toString()}` : ''}`)
   }, [])
 
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search)
+    const linked = query.get('x') === 'linked'
+    const errorCode = query.get('x_error')
+    if (!linked && !errorCode) return
+
+    if (linked) {
+      setXConnected(true)
+      setXMessage({ tone: 'success', text: 'Your X account is connected. You can now sign in with X or email.' })
+    } else {
+      const messageByCode: Record<string, string> = {
+        oauth_cancelled: 'X connection was cancelled. No changes were made.',
+        oauth_x_identity_already_linked: 'That X account is already connected to another FoxSensei account.',
+      }
+      setXMessage({ tone: 'error', text: messageByCode[errorCode ?? ''] ?? 'X could not be connected. Please try again.' })
+    }
+
+    query.delete('x')
+    query.delete('x_error')
+    window.history.replaceState({}, '', `${window.location.pathname}${query.size ? `?${query.toString()}` : ''}`)
+  }, [])
+
   // No change-password endpoint for signed-in users: reuse the emailed-code
   // flow. With a known email the code is sent straight away and the popup
   // opens on the code step; otherwise it opens on the email step.
@@ -82,6 +123,17 @@ export function AccountSettings() {
     } catch (error) {
       setGoogleMessage({ tone: 'error', text: resolveErrorMessage(error) })
       setGoogleConnecting(false)
+    }
+  }
+
+  const connectX = async () => {
+    setXConnecting(true)
+    setXMessage(null)
+    try {
+      await authService.startXAccountLink()
+    } catch (error) {
+      setXMessage({ tone: 'error', text: resolveErrorMessage(error) })
+      setXConnecting(false)
     }
   }
 
@@ -231,6 +283,51 @@ export function AccountSettings() {
               className={`text-xs font-body ${googleMessage.tone === 'success' ? 'text-tertiary' : 'text-error'}`}
             >
               {googleMessage.text}
+            </p>
+          )}
+
+          <div className="border-t border-outline-variant" />
+
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 bg-surface-container rounded-lg flex items-center justify-center text-on-surface-variant flex-shrink-0">
+                <Icon name="link" className="text-xl" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-on-surface font-body">X account</p>
+                <p className="text-xs text-on-surface-variant font-body mt-0.5">
+                  {xLoading
+                    ? 'Checking connection…'
+                    : xConnected
+                      ? 'Connected. You can sign in with X.'
+                      : 'Connect X to sign in with either X or your email and password.'}
+                </p>
+              </div>
+            </div>
+            {xConnected ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-tertiary-container/50 text-tertiary text-xs font-bold">
+                <Icon name="check_circle" className="text-base" />
+                Connected
+              </span>
+            ) : (
+              <Button
+                variant="outline"
+                className="text-sm px-4 py-2 flex items-center gap-2"
+                onClick={connectX}
+                disabled={xLoading || xConnecting}
+              >
+                <Icon name="account_circle" className="text-base" />
+                {xConnecting ? 'Opening X…' : 'Connect X'}
+              </Button>
+            )}
+          </div>
+
+          {xMessage && (
+            <p
+              role={xMessage.tone === 'error' ? 'alert' : 'status'}
+              className={`text-xs font-body ${xMessage.tone === 'success' ? 'text-tertiary' : 'text-error'}`}
+            >
+              {xMessage.text}
             </p>
           )}
         </div>

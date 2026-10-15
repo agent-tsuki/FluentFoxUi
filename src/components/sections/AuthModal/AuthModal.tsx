@@ -104,7 +104,9 @@ export function AuthModal() {
   const handleGoogle = useCallback(() => {
     authService.startGoogleOAuth('/dashboard')
   }, [])
-  const handleX      = useCallback(() => {}, [])
+  const handleX = useCallback(() => {
+    authService.startXOAuth('/dashboard')
+  }, [])
 
   if (!isOpen) return null
 

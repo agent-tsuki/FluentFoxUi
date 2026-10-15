@@ -20,6 +20,8 @@ import type {
   MessageApiResponse,
 	OAuthExchangeApiResponse,
   RegisterRequest,
+	XConnectionApiResponse,
+	XLinkStartApiResponse,
 } from '@/types/api'
 import type { AuthUser } from '@/context/AuthContext'
 
@@ -83,6 +85,14 @@ export const authService = {
     window.location.assign(destination.toString())
   },
 
+  /** Starts the backend-owned OAuth 1.0a Sign in with X redirect. */
+  startXOAuth(returnTo = '/dashboard'): void {
+    const apiOrigin = API_BASE || window.location.origin
+    const destination = new URL('/auth/oauth/x/start', apiOrigin)
+    destination.searchParams.set('return_to', safeOAuthReturnPath(returnTo))
+    window.location.assign(destination.toString())
+  },
+
   /**
    * Exchanges the one-time code delivered in the callback URL fragment. The
    * backend consumes it atomically and returns the same application token pair
@@ -90,6 +100,19 @@ export const authService = {
    */
   async completeGoogleOAuth(code: string): Promise<{ user: AuthUser; returnTo: string }> {
     const res = await apiClient.post<OAuthExchangeApiResponse>('/auth/oauth/google/exchange', { code })
+    if (!res.data.user.is_active) {
+      throw new ApiError(403, 'ACCOUNT_INACTIVE', 'Account is not active', '')
+    }
+    startSession(res.data.access_token, res.data.refresh_token)
+    return {
+      user:     toAuthUser(res.data.user, normalizeEmail(res.data.email)),
+      returnTo: safeOAuthReturnPath(res.data.return_to),
+    }
+  },
+
+  /** Exchanges a one-time X OAuth hand-off code for the normal app session. */
+  async completeXOAuth(code: string): Promise<{ user: AuthUser; returnTo: string }> {
+    const res = await apiClient.post<OAuthExchangeApiResponse>('/auth/oauth/x/exchange', { code })
     if (!res.data.user.is_active) {
       throw new ApiError(403, 'ACCOUNT_INACTIVE', 'Account is not active', '')
     }
@@ -120,6 +143,27 @@ export const authService = {
     }
     if (destination.origin !== 'https://accounts.google.com') {
       throw new ApiError(500, 'OAUTH_FAILED', 'Google sign-in could not be started.', '')
+    }
+    window.location.assign(destination.toString())
+  },
+
+  /** Returns whether the signed-in user has explicitly connected X. */
+  async getXConnection(): Promise<{ connected: boolean }> {
+    const res = await apiClient.get<XConnectionApiResponse>('/auth/oauth/x/link/status')
+    return { connected: res.data.connected }
+  },
+
+  /** Starts an authenticated X connection flow bound to the current account. */
+  async startXAccountLink(): Promise<void> {
+    const res = await apiClient.post<XLinkStartApiResponse>('/auth/oauth/x/link/start')
+    let destination: URL
+    try {
+      destination = new URL(res.data.authorization_url)
+    } catch {
+      throw new ApiError(500, 'OAUTH_X_FAILED', 'X sign-in could not be started.', '')
+    }
+    if (destination.origin !== 'https://api.x.com') {
+      throw new ApiError(500, 'OAUTH_X_FAILED', 'X sign-in could not be started.', '')
     }
     window.location.assign(destination.toString())
   },

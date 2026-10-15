@@ -1,5 +1,5 @@
 /**
- * Google OAuth landing page.
+ * Social OAuth landing page.
  *
  * The backend returns a short-lived, one-use application hand-off code in the
  * URL fragment. Fragments are not sent in HTTP requests; we remove it before
@@ -18,17 +18,21 @@ type CallbackState =
   | { kind: 'error'; message: string }
 
 const CALLBACK_ERRORS: Record<string, string> = {
-  oauth_cancelled:             'Google sign-in was cancelled. You can try again whenever you are ready.',
+  oauth_cancelled:             'Sign-in was cancelled. You can try again whenever you are ready.',
   oauth_account_link_required: 'An account already exists for this email. Please sign in with your password first.',
   oauth_email_not_verified:    'Google has not verified this email address. Use another Google account or verify that email first.',
   oauth_unavailable:           'Google sign-in is not configured yet. Please try again later or use your password.',
   oauth_failed:                'Google sign-in could not be completed. Please try again.',
+  oauth_x_account_link_required: 'Sign in with your email, then connect X from Security settings.',
+  oauth_x_unavailable:           'X sign-in is not configured yet. Please try again later or use your password.',
+  oauth_x_failed:                'X sign-in could not be completed. Please try again.',
 }
 
 export function OAuthCallbackPage() {
   const navigate = useNavigate()
   const { setUser } = useAuth()
   const [state, setState] = useState<CallbackState>({ kind: 'loading' })
+  const [providerName, setProviderName] = useState('Google')
   const started = useRef(false)
 
   useEffect(() => {
@@ -36,6 +40,8 @@ export function OAuthCallbackPage() {
     started.current = true
 
     const params = new URLSearchParams(window.location.hash.slice(1))
+    const isX = params.get('provider') === 'x'
+    setProviderName(isX ? 'X' : 'Google')
     // Remove the one-time code before the network request and before rendering
     // any user-controlled data. This also protects against accidental copying.
     window.history.replaceState({}, document.title, window.location.pathname)
@@ -54,7 +60,9 @@ export function OAuthCallbackPage() {
 
     void (async () => {
       try {
-        const result = await authService.completeGoogleOAuth(code)
+        const result = isX
+          ? await authService.completeXOAuth(code)
+          : await authService.completeGoogleOAuth(code)
         setUser(result.user)
         navigate(result.user.emailVerified ? result.returnTo : '/verify-email', { replace: true })
       } catch (error) {
@@ -71,7 +79,7 @@ export function OAuthCallbackPage() {
           tone="primary"
           pulse
           title="Signing you in…"
-          body="Securely finishing your Google sign-in."
+          body={`Securely finishing your ${providerName} sign-in.`}
         />
       )}
 
@@ -79,7 +87,7 @@ export function OAuthCallbackPage() {
         <StatusCard
           icon="error"
           tone="error"
-          title="Google sign-in didn't finish"
+          title={`${providerName} sign-in didn't finish`}
           body={state.message}
         >
           <Link to="/?login=1" className={primaryLinkClass}>Sign in with email</Link>
