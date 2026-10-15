@@ -17,12 +17,16 @@ interface XAuthButtonProps {
  * tokens (no theme watcher needed). Reduced motion: no scaling.
  */
 export function XAuthButton({ onClick, disabled, size = 'md' }: XAuthButtonProps) {
-  const { hovered, hoverHandlers } = useMouseHover(disabled)
+  // X has no backend OAuth configuration yet. Keeping it visibly unavailable
+  // prevents a button that appears to sign users in but does nothing.
+  const unavailable = true
+  const isDisabled = disabled || unavailable
+  const { hovered, hoverHandlers } = useMouseHover(isDisabled)
   const reducedMotion = useReducedMotion()
   const px = ICON_PX[size]
 
   return (
-    <SocialButtonShell size={size} label="Continue with X" onClick={onClick} disabled={disabled} hoverHandlers={hoverHandlers}>
+    <SocialButtonShell size={size} label="X sign-in is coming soon" onClick={onClick} disabled={isDisabled} hoverHandlers={hoverHandlers}>
       {/* X brand black fill */}
       <motion.span
         aria-hidden
@@ -44,6 +48,9 @@ export function XAuthButton({ onClick, disabled, size = 'md' }: XAuthButtonProps
       >
         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L3.283 2.25H9.59l4.258 5.658Zm-1.161 16.81h1.833L7.084 4.126H5.117Z" />
       </motion.svg>
+      <span aria-hidden className="relative z-10 ml-2 text-xs font-medium text-on-surface-variant">
+        Coming soon
+      </span>
     </SocialButtonShell>
   )
 }

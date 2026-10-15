@@ -6,6 +6,7 @@ import type { AuthStep } from '@/types'
 import type { AuthUser } from '@/context/AuthContext'
 import { useModal } from '@/context/ModalContext'
 import { useAuth } from '@/context/AuthContext'
+import { authService } from '@/api/services/authService'
 import { ModalSidebar, AUTH_PANEL_COPY, type AuthTab } from './ModalSidebar'
 import { SocialAuthButtons } from './SocialAuthButtons'
 import { ArcEdge } from './ArcEdge'
@@ -98,9 +99,11 @@ export function AuthModal() {
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
 
-  // Social OAuth is not wired to the backend yet. Both entry points (desktop
-  // sidebar sheet, mobile screen) share these handlers so wiring happens once.
-  const handleGoogle = useCallback(() => {}, [])
+  // Both entry points (desktop sidebar sheet and mobile screen) use this one
+  // backend-owned OAuth navigation. No provider token is handled in React.
+  const handleGoogle = useCallback(() => {
+    authService.startGoogleOAuth('/dashboard')
+  }, [])
   const handleX      = useCallback(() => {}, [])
 
   if (!isOpen) return null

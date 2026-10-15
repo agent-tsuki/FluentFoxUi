@@ -9,6 +9,7 @@
 import { apiClient } from '@/api/client'
 import { ApiError } from '@/api/errors'
 import { endSession, startSession } from '@/api/session'
+import { API_BASE } from '@/lib/config'
 import type {
   ApiUser,
   AuthApiResponse,
@@ -44,6 +45,15 @@ function browserLanguageCode(): string {
   return /^[a-z]{2}$/.test(code) ? code : 'en'
 }
 
+/**
+ * OAuth return locations are deliberately internal paths only. The backend
+ * validates this again; doing it here avoids ever sending an accidental
+ * external URL into the OAuth flow.
+ */
+function safeOAuthReturnPath(path: string): string {
+  return path.startsWith('/') && !path.startsWith('//') ? path : '/dashboard'
+}
+
 export interface RegisterInput {
   email:      string
   password:   string
@@ -55,6 +65,21 @@ export interface RegisterInput {
 // ── Auth service ──────────────────────────────────────────────────────────────
 
 export const authService = {
+  /**
+   * Start the backend-owned Google OAuth flow. The browser navigates to the
+   * API so the frontend never handles Google credentials, authorization
+   * codes, or client secrets.
+   *
+   * The API endpoint is implemented with the backend OAuth work. It will
+   * validate `return_to` independently before redirecting to Google.
+   */
+  startGoogleOAuth(returnTo = '/dashboard'): void {
+    const apiOrigin = API_BASE || window.location.origin
+    const destination = new URL('/auth/oauth/google/start', apiOrigin)
+    destination.searchParams.set('return_to', safeOAuthReturnPath(returnTo))
+    window.location.assign(destination.toString())
+  },
+
   /**
    * POST /auth/login. Unverified users CAN log in; the caller routes them to
    * the verify screen. An inactive account is refused here (guide §7).
