@@ -271,7 +271,7 @@ export interface DashboardData {
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
 export type AuthTab  = 'login' | 'signup'
-export type AuthStep = 'form' | 'otp' | 'forgot' | 'registered'
+export type AuthStep = 'form' | 'registered'
 
 /**
  * Payload collected by the SignUpForm and sent to POST /auth/register.
@@ -288,14 +288,4 @@ export interface SignUpPayload {
 export interface LoginPayload {
   email:    string
   password: string
-}
-
-export interface OtpVerifyPayload {
-  email: string
-  code:  string
-}
-
-export interface OtpResponse {
-  success: boolean
-  message: string
 }

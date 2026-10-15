@@ -72,13 +72,20 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
-  email: string
-  first_name: string
-  last_name: string
-  native_lang: string
-  password: string
-  phone_number: string
-  user_name: string
+  email:         string
+  password:      string
+  first_name:    string
+  /** ISO 639-1 code, e.g. "en". */
+  native_lang:   string
+  last_name?:    string
+  /** Omit to let the server generate one. */
+  user_name?:    string
+  phone_number?: string
+}
+
+export interface ChangeEmailRequest {
+  new_email:        string
+  current_password: string
 }
 
 export interface LogoutRequest {

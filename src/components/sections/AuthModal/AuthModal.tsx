@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { AuthStep } from '@/types'
 import type { AuthUser } from '@/context/AuthContext'
@@ -10,8 +11,6 @@ import { SocialAuthButtons } from './SocialAuthButtons'
 import { ArcEdge } from './ArcEdge'
 import { SignUpForm } from './SignUpForm'
 import { LoginForm } from './LoginForm'
-import { OtpForm } from './OtpForm'
-import { ForgotPasswordForm } from './ForgotPasswordForm'
 import { CloseButton } from '@/components/ui/CloseButton'
 import { Icon } from '@/components/ui/Icon'
 import { Button } from '@/components/ui/Button'
@@ -26,8 +25,8 @@ export function AuthModal() {
   const { setUser } = useAuth()
 
   const [step, setStep]                   = useState<AuthStep>('form')
-  const [pendingEmail]                    = useState('')   // reserved for OTP step
-  const [registeredMsg, setRegisteredMsg] = useState('')
+  const [registeredEmail, setRegisteredEmail] = useState('')
+  const navigate = useNavigate()
 
   // Desktop popup: the card glides to its content's height when tabs/steps swap.
   // Phones use a full-screen scrolling page, so no height animation there.
@@ -63,27 +62,24 @@ export function AuthModal() {
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
-  const handleLoginSuccess = (user: AuthUser) => {
+  // Login or signup (auto-login) succeeded. Unverified users go to the
+  // "Verify your email" screen instead of into the app (auth guide §5).
+  const handleAuthenticated = (user: AuthUser) => {
     setUser(user)
     closeModal()
+    if (!user.emailVerified) navigate('/verify-email')
   }
 
-  // Register returned a server message → show "check your email" step
-  const handleRegisterSuccess = (message: string) => {
-    setRegisteredMsg(message)
+  // Account created but auto-login failed → show "check your inbox".
+  const handleRegisteredOnly = (email: string) => {
+    setRegisteredEmail(email)
     setStep('registered')
-  }
-
-  const handleOtpSuccess = () => {
-    closeModal()
   }
 
   // ── Layout helpers ────────────────────────────────────────────────────────
 
-  const isOtpStep        = step === 'otp'
-  const isForgotStep     = step === 'forgot'
   const isRegisteredStep = step === 'registered'
-  const isFullWidth      = isOtpStep || isForgotStep || isRegisteredStep
+  const isFullWidth      = isRegisteredStep
 
   const tabs = [
     { id: 'login'  as const, label: 'Login'   },
@@ -133,19 +129,9 @@ export function AuthModal() {
               <ArcEdge fillClassName="fill-surface-container-lowest" className="h-8 md:hidden" />
             )}
 
-            {isOtpStep ? (
-              <OtpForm
-                email={pendingEmail}
-                onSuccess={handleOtpSuccess}
-                onBack={() => setStep('form')}
-              />
-
-            ) : isForgotStep ? (
-              <ForgotPasswordForm onBack={() => setStep('form')} />
-
-            ) : isRegisteredStep ? (
+            {isRegisteredStep ? (
               <RegisteredStep
-                message={registeredMsg}
+                email={registeredEmail}
                 onClose={closeModal}
                 onLogin={() => { setActiveTab('login'); setStep('form') }}
               />
@@ -192,11 +178,19 @@ export function AuthModal() {
                     exit="exit"
                   >
                     {activeTab === 'signup' ? (
-                      <SignUpForm onSuccess={handleRegisterSuccess} />
+                      <SignUpForm
+                        onSuccess={handleAuthenticated}
+                        onRegisteredOnly={handleRegisteredOnly}
+                        onGoToLogin={() => setActiveTab('login')}
+                      />
                     ) : (
                       <LoginForm
-                        onSuccess={handleLoginSuccess}
-                        onForgotPassword={() => setStep('forgot')}
+                        onSuccess={handleAuthenticated}
+                        onForgotPassword={email => {
+                          closeModal()
+                          // Router state, not the URL: keeps the email out of history.
+                          navigate('/forgot-password', { state: { email } })
+                        }}
                       />
                     )}
                   </motion.div>
@@ -237,12 +231,12 @@ function MobileHeader({ tab }: { tab: AuthTab }) {
 // ── "Check your email" confirmation step ──────────────────────────────────────
 
 interface RegisteredStepProps {
-  message: string
+  email:   string
   onClose: () => void
   onLogin: () => void
 }
 
-function RegisteredStep({ message, onClose, onLogin }: RegisteredStepProps) {
+function RegisteredStep({ email, onClose, onLogin }: RegisteredStepProps) {
   return (
     <div className="flex flex-col items-center text-center gap-6 py-4">
       {/* Icon */}
@@ -255,7 +249,9 @@ function RegisteredStep({ message, onClose, onLogin }: RegisteredStepProps) {
           Check your inbox
         </h2>
         <p className="text-sm text-on-surface-variant leading-relaxed max-w-xs">
-          {message || 'Registration successful. Check your email to verify your account before logging in.'}
+          We sent a verification link to{' '}
+          <span className="font-bold text-on-surface break-all">{email || 'your email'}</span>.
+          Click it, then log in to continue.
         </p>
       </div>
 

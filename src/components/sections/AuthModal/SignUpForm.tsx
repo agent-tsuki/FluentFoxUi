@@ -1,110 +1,102 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent, type ReactNode } from 'react'
 import type { SignUpPayload } from '@/types'
-import { authService } from '@/api/services/authService'
-import { ApiError, resolveErrorMessage } from '@/api/errors'
-import { Icon } from '@/components/ui/Icon'
+import type { AuthUser } from '@/context/AuthContext'
+import { authService, normalizeEmail } from '@/api/services/authService'
+import { getEmailSuggestion, hasErrorCode, resolveErrorMessage } from '@/api/errors'
 import { Button } from '@/components/ui/Button'
+import { AuthField, PasswordToggle } from './AuthField'
+import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter'
+import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from '@/lib/passwordStrength'
 
 interface SignUpFormProps {
-  onSuccess: (message: string) => void
-}
-
-// ── Password strength ─────────────────────────────────────────────────────────
-
-type StrengthLevel = 'weak' | 'fair' | 'strong' | 'very-strong'
-
-function getPasswordStrength(pw: string): StrengthLevel {
-  if (pw.length < 8) return 'weak'
-  let score = 0
-  if (pw.length >= 12) score++
-  if (/[A-Z]/.test(pw)) score++
-  if (/[0-9]/.test(pw)) score++
-  if (/[^A-Za-z0-9]/.test(pw)) score++
-  if (score <= 1) return 'fair'
-  if (score === 2) return 'strong'
-  return 'very-strong'
-}
-
-const strengthConfig: Record<StrengthLevel, { label: string; bars: number; color: string }> = {
-  weak:          { label: 'Weak',        bars: 1, color: 'bg-error' },
-  fair:          { label: 'Fair',        bars: 2, color: 'bg-warning' },
-  strong:        { label: 'Strong',      bars: 3, color: 'bg-success/70' },
-  'very-strong': { label: 'Very Strong', bars: 4, color: 'bg-success' },
+  /** Account created and logged in (unverified): caller routes to the verify screen. */
+  onSuccess:         (user: AuthUser) => void
+  /** Account created but auto-login failed: show "check your inbox". */
+  onRegisteredOnly:  (email: string) => void
+  onGoToLogin:       () => void
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export function SignUpForm({ onSuccess }: SignUpFormProps) {
-  const [form, setForm] = useState<SignUpPayload>({
-    firstName:   '',
-    lastName:    '',
-    userName:    '',
-    email:       '',
-  })
-  const [confirmPassword, setConfirmPassword] = useState('')
+type FieldErrors = Partial<Record<'email' | 'userName', ReactNode>>
+
+const EMAIL_FIELD_CODES = ['EMAIL_DOMAIN_TYPO', 'DISPOSABLE_EMAIL', 'INVALID_EMAIL_DOMAIN', 'EMAIL_ALREADY_IN_USE']
+
+export function SignUpForm({ onSuccess, onRegisteredOnly, onGoToLogin }: SignUpFormProps) {
+  const [form, setForm] = useState<SignUpPayload>({ firstName: '', lastName: '', userName: '', email: '' })
   const [password, setPassword]               = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword]       = useState(false)
   const [loading, setLoading]                 = useState(false)
   const [error, setError]                     = useState('')
+  const [fieldErrors, setFieldErrors]         = useState<FieldErrors>({})
 
-  // ── Shared styles ────────────────────────────────────────────────────────
-
-  const inputClass =
-    'w-full bg-surface-container-low border-0 rounded-xl px-4 py-3 text-on-surface focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all placeholder:text-outline/50 outline-none text-sm'
-  const labelClass =
-    'block text-2xs uppercase tracking-widest font-bold text-on-surface-variant px-1 mb-1.5'
-
-  // ── Derived ──────────────────────────────────────────────────────────────
-
-  const passwordStrength = password.length > 0 ? getPasswordStrength(password) : null
-  const strengthMeta     = passwordStrength ? strengthConfig[passwordStrength] : null
   const passwordMismatch = confirmPassword.length > 0 && password !== confirmPassword
 
-  // ── Handlers ─────────────────────────────────────────────────────────────
+  const update = (key: keyof SignUpPayload, value: string) => {
+    setForm(prev => ({ ...prev, [key]: value }))
+    if (key === 'email' || key === 'userName') setFieldErrors(prev => ({ ...prev, [key]: undefined }))
+  }
 
-  const field = (key: keyof SignUpPayload) =>
-    (e: React.ChangeEvent<HTMLInputElement>) =>
-      setForm(prev => ({ ...prev, [key]: e.target.value }))
-
-  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Only allow alphanumeric + underscore
-    const cleaned = e.target.value.replace(/[^a-zA-Z0-9_]/g, '')
-    setForm(prev => ({ ...prev, userName: cleaned }))
+  const emailErrorFor = (err: unknown): ReactNode => {
+    const suggestion = getEmailSuggestion(err)
+    if (suggestion) {
+      return (
+        <span>
+          Did you mean{' '}
+          <button type="button" onClick={() => update('email', suggestion)} className="font-bold underline hover:text-on-surface">
+            {suggestion}
+          </button>
+          ?
+        </span>
+      )
+    }
+    if (hasErrorCode(err, 'EMAIL_ALREADY_IN_USE')) {
+      return (
+        <span>
+          {resolveErrorMessage(err)}{' '}
+          <button type="button" onClick={onGoToLogin} className="font-bold underline hover:text-on-surface">
+            Log in instead
+          </button>
+        </span>
+      )
+    }
+    return resolveErrorMessage(err)
   }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError('')
+    setFieldErrors({})
 
-    // Validation
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters.')
-      return
-    }
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.')
-      return
-    }
+    if (password.length < PASSWORD_MIN_LENGTH) { setError(`Password must be at least ${PASSWORD_MIN_LENGTH} characters.`); return }
+    if (password !== confirmPassword) { setError('Passwords do not match.'); return }
 
     setLoading(true)
+    const email = normalizeEmail(form.email)
     try {
-      const message = await authService.register({
-        email:        form.email,
-        first_name:   form.firstName,
-        last_name:    form.lastName,
-        // Collected later on the profile page; the register contract still expects the keys.
-        native_lang:  '',
+      await authService.register({
+        email,
         password,
-        phone_number: '',
-        user_name:    form.userName,
+        firstName: form.firstName,
+        lastName:  form.lastName,
+        userName:  form.userName,
       })
-      onSuccess(message)
+
+      // Log straight in so the user lands on "Verify your email" (resend / change email need a session).
+      try {
+        const user = await authService.login(email, password)
+        onSuccess(user)
+      } catch {
+        onRegisteredOnly(email)
+      }
     } catch (err) {
-      if (err instanceof ApiError && err.errorCode === 'EMAIL_ALREADY_IN_USE') {
-        setError('This email is already registered. Try logging in instead.')
-      } else if (err instanceof ApiError && err.errorCode === 'USERNAME_ALREADY_IN_USE') {
-        setError('That username is taken. Please choose a different one.')
+      if (hasErrorCode(err, ...EMAIL_FIELD_CODES)) {
+        setFieldErrors({ email: emailErrorFor(err) })
+      } else if (hasErrorCode(err, 'USERNAME_ALREADY_IN_USE')) {
+        setFieldErrors({ userName: resolveErrorMessage(err) })
       } else {
+        // Includes EMAIL_SEND_FAILED (nothing was saved, safe to resubmit) and VALIDATION_ERROR.
         setError(resolveErrorMessage(err))
       }
     } finally {
@@ -112,139 +104,92 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
     }
   }
 
-  // ── Render ────────────────────────────────────────────────────────────────
-
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
 
-      {/* First Name | Last Name */}
       <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className={labelClass}>First Name <span className="text-error normal-case tracking-normal font-bold">*</span></label>
-          <input
-            type="text"
-            required
-            maxLength={50}
-            placeholder="Haruki"
-            value={form.firstName}
-            onChange={field('firstName')}
-            className={inputClass}
-          />
-        </div>
-        <div>
-          <label className={labelClass}>Last Name <span className="text-error normal-case tracking-normal font-bold">*</span></label>
-          <input
-            type="text"
-            required
-            maxLength={50}
-            placeholder="Murakami"
-            value={form.lastName}
-            onChange={field('lastName')}
-            className={inputClass}
-          />
-        </div>
-      </div>
-
-      {/* Username */}
-      <div>
-        <label className={labelClass}>
-          Username{' '}
-          <span className="normal-case text-outline/50 font-normal tracking-normal">(optional)</span>
-        </label>
-        <input
-          type="text"
-          minLength={3}
-          maxLength={30}
-          placeholder="haruki09"
-          value={form.userName}
-          onChange={handleUsernameChange}
-          className={inputClass}
-        />
-        <p className="mt-1 px-1 text-xs text-on-surface-variant/60">
-          Letters, numbers and underscores only.
-        </p>
-      </div>
-
-      {/* Email */}
-      <div>
-        <label className={labelClass}>Email Address <span className="text-error normal-case tracking-normal font-bold">*</span></label>
-        <input
-          type="email"
+        <AuthField
+          label="First Name"
+          name="given-name"
+          autoComplete="given-name"
           required
-          maxLength={254}
-          placeholder="haruki@foxsensei.jp"
-          value={form.email}
-          onChange={field('email')}
-          className={inputClass}
+          maxLength={50}
+          placeholder="Haruki"
+          value={form.firstName}
+          onChange={e => update('firstName', e.target.value)}
         />
-      </div>
-
-      {/* Password */}
-      <div>
-        <label className={labelClass}>Password <span className="text-error normal-case tracking-normal font-bold">*</span></label>
-        <div className="relative">
-          <input
-            type={showPassword ? 'text' : 'password'}
-            required
-            minLength={8}
-            maxLength={128}
-            placeholder="Min. 8 characters"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            className={inputClass}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(v => !v)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors"
-          >
-            <Icon name={showPassword ? 'visibility_off' : 'visibility'} className="text-lg" />
-          </button>
-        </div>
-
-        {/* Strength meter */}
-        {strengthMeta && (
-          <div className="mt-2 space-y-1 px-1">
-            <div className="flex gap-1">
-              {[1, 2, 3, 4].map(bar => (
-                <div
-                  key={bar}
-                  className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                    bar <= strengthMeta.bars ? strengthMeta.color : 'bg-surface-container-highest'
-                  }`}
-                />
-              ))}
-            </div>
-            <p className="text-xs text-on-surface-variant font-medium">
-              Strength: <span className="font-bold">{strengthMeta.label}</span>
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Confirm Password */}
-      <div>
-        <label className={labelClass}>Confirm Password <span className="text-error normal-case tracking-normal font-bold">*</span></label>
-        <input
-          type="password"
+        <AuthField
+          label="Last Name"
+          name="family-name"
+          autoComplete="family-name"
           required
-          maxLength={128}
-          placeholder="••••••••••••"
-          value={confirmPassword}
-          onChange={e => setConfirmPassword(e.target.value)}
-          className={`${inputClass} ${passwordMismatch ? 'ring-2 ring-error/40' : ''}`}
+          maxLength={50}
+          placeholder="Murakami"
+          value={form.lastName}
+          onChange={e => update('lastName', e.target.value)}
         />
-        {passwordMismatch && (
-          <p className="mt-1 px-1 text-xs text-error font-medium">Passwords do not match.</p>
-        )}
       </div>
 
-      {/* General error */}
-      {error && (
-        <p className="text-error text-xs font-medium px-1">{error}</p>
-      )}
+      <AuthField
+        label="Username"
+        labelNote="(optional)"
+        name="username"
+        autoComplete="username"
+        minLength={3}
+        maxLength={30}
+        placeholder="haruki09"
+        value={form.userName}
+        onChange={e => update('userName', e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
+        hint="Letters, numbers and underscores only. Leave empty and we'll pick one."
+        error={fieldErrors.userName}
+      />
 
-      {/* Submit */}
+      <AuthField
+        label="Email Address"
+        type="email"
+        name="email"
+        autoComplete="email"
+        inputMode="email"
+        required
+        maxLength={254}
+        placeholder="haruki@foxsensei.jp"
+        value={form.email}
+        onChange={e => update('email', e.target.value)}
+        error={fieldErrors.email}
+      />
+
+      <div>
+        <AuthField
+          label="Password"
+          type={showPassword ? 'text' : 'password'}
+          name="new-password"
+          autoComplete="new-password"
+          required
+          minLength={PASSWORD_MIN_LENGTH}
+          maxLength={PASSWORD_MAX_LENGTH}
+          placeholder="Min. 8 characters"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          trailing={<PasswordToggle visible={showPassword} onToggle={() => setShowPassword(v => !v)} />}
+        />
+        <PasswordStrengthMeter password={password} />
+      </div>
+
+      <AuthField
+        label="Confirm Password"
+        type="password"
+        name="confirm-password"
+        autoComplete="new-password"
+        required
+        maxLength={128}
+        placeholder="••••••••••••"
+        value={confirmPassword}
+        onChange={e => setConfirmPassword(e.target.value)}
+        error={passwordMismatch ? 'Passwords do not match.' : undefined}
+      />
+
+      {error && <p role="alert" className="text-error text-xs font-medium px-1">{error}</p>}
+
       <div className="pt-1">
         <Button
           type="submit"
@@ -256,7 +201,6 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
         </Button>
       </div>
 
-      {/* Legal */}
       <p className="text-center text-xs text-on-surface-variant/70 leading-relaxed max-w-[280px] mx-auto">
         By signing up, you agree to our{' '}
         <a href="/terms" className="underline hover:text-primary">Terms of Service</a>

@@ -28,6 +28,9 @@ import { ServerErrorPage } from '@/pages/ServerErrorPage'
 import { ClassesPage } from '@/pages/ClassesPage'
 import { ClassDetailPage } from '@/pages/ClassDetailPage'
 import { VerifyEmailPage } from '@/pages/VerifyEmailPage'
+import { VerifyPendingPage } from '@/pages/VerifyPendingPage'
+import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage'
+import { ResetPasswordPage } from '@/pages/ResetPasswordPage'
 
 // ─── Koi fish background — pauses when tab is hidden ──────────────────────────
 function KoiBackground() {
@@ -120,6 +123,15 @@ const router = createBrowserRouter([
     element: <VerifyEmailPage />,
   },
   {
+    // Password reset: standalone like /verify (reached from email / new-link buttons)
+    path: 'forgot-password',
+    element: <ForgotPasswordPage />,
+  },
+  {
+    path: 'reset-password',
+    element: <ResetPasswordPage />,
+  },
+  {
     path: '/',
     element: <Shell />,
     children: [
@@ -143,6 +155,11 @@ const router = createBrowserRouter([
       {
         path: 'profile',
         element: <RequireAuth><ProfilePage /></RequireAuth>,
+      },
+      {
+        // Logged in but email not verified yet (auth guide §5)
+        path: 'verify-email',
+        element: <RequireAuth allowUnverified><VerifyPendingPage /></RequireAuth>,
       },
 
       { path: '*', element: <NotFoundPage /> },
