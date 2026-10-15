@@ -8,7 +8,7 @@
   ],
   "headers": [
     {
-      "source": "/((?!(?:reset-password|verify|forgot-password)$).*)",
+      "source": "/((?!(?:reset-password|verify)$).*)",
       "headers": [
         {
           "key": "Content-Security-Policy",
@@ -37,7 +37,7 @@
       ]
     },
     {
-      "source": "/(reset-password|verify|forgot-password)",
+      "source": "/(reset-password|verify)",
       "headers": [
         {
           "key": "Content-Security-Policy",

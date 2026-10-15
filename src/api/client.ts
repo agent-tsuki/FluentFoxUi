@@ -36,6 +36,7 @@ const PUBLIC_AUTH_PATHS = [
   '/auth/logout',
   '/auth/verify',
   '/auth/forgot-password',
+  '/auth/forgot-password/verify-code',
   '/auth/reset-password',
 ]
 const REFRESHABLE_CODES = new Set(['TOKEN_EXPIRED', 'TOKEN_INVALID', 'UNAUTHORIZED'])

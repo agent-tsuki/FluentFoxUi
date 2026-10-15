@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
 import { Button } from '@/components/ui/Button'
 import { useUI, type BackgroundAnimation } from '@/context/UIContext'
+import { useAuth } from '@/context/AuthContext'
+import { useModal } from '@/context/ModalContext'
 
 const BG_OPTIONS: { value: BackgroundAnimation; icon: string; label: string; desc: string }[] = [
   { value: 'petals', icon: 'local_florist', label: 'Sakura Petals', desc: 'Falling cherry blossom petals' },
@@ -14,6 +16,15 @@ export function AccountSettings() {
   const [emailNotifs, setEmailNotifs] = useState(true)
   const [studyReminder, setStudyReminder] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const { user } = useAuth()
+  const { openForgotPassword } = useModal()
+
+  // No change-password endpoint for signed-in users: reuse the emailed-code
+  // flow. With a known email the code is sent straight away and the popup
+  // opens on the code step; otherwise it opens on the email step.
+  const startPasswordReset = () => {
+    openForgotPassword(user?.email ? { email: user.email, autoSend: true } : undefined)
+  }
 
   return (
     <div className="space-y-6">
@@ -87,6 +98,37 @@ export function AccountSettings() {
             checked={studyReminder}
             onChange={setStudyReminder}
           />
+        </div>
+      </div>
+
+      {/* Security */}
+      <div className="bg-surface-container-low rounded-xl overflow-hidden">
+        <div className="px-8 py-6 border-b border-outline-variant">
+          <h2 className="text-lg font-bold text-on-surface font-headline">Security</h2>
+          <p className="text-xs text-on-surface-variant font-body mt-0.5">
+            Keep your account safe
+          </p>
+        </div>
+        <div className="px-8 py-6">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 bg-surface-container rounded-lg flex items-center justify-center text-on-surface-variant flex-shrink-0">
+                <Icon name="lock_reset" className="text-xl" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-on-surface font-body">Reset password</p>
+                <p className="text-xs text-on-surface-variant font-body mt-0.5">
+                  {user?.email
+                    ? <>We'll email a code to <span className="font-semibold text-on-surface">{user.email}</span></>
+                    : "We'll email you a code to confirm it's you"}
+                </p>
+              </div>
+            </div>
+            <Button variant="outline" className="text-sm px-4 py-2 flex items-center gap-2" onClick={startPasswordReset}>
+              <Icon name="mail" className="text-base" />
+              Send code
+            </Button>
+          </div>
         </div>
       </div>
 

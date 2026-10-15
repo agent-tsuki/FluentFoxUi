@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { createBrowserRouter, RouterProvider, Outlet, useSearchParams } from 'react-router-dom'
+import { createBrowserRouter, Navigate, RouterProvider, Outlet, useSearchParams } from 'react-router-dom'
 import Lottie, { type LottieRefCurrentProps } from 'lottie-react'
 import koiAnimation from '@/assets/animations/koi_loader.json'
 import { Navbar } from '@/components/layout/Navbar'
@@ -29,7 +29,6 @@ import { ClassesPage } from '@/pages/ClassesPage'
 import { ClassDetailPage } from '@/pages/ClassDetailPage'
 import { VerifyEmailPage } from '@/pages/VerifyEmailPage'
 import { VerifyPendingPage } from '@/pages/VerifyPendingPage'
-import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage'
 import { ResetPasswordPage } from '@/pages/ResetPasswordPage'
 
 // ─── Koi fish background — pauses when tab is hidden ──────────────────────────
@@ -67,11 +66,11 @@ function KoiBackground() {
 }
 
 // ─── URL-triggered modal opener ───────────────────────────────────────────────
-// The VerifyEmailPage links back to /?login=1 or /?signup=1 to open the modal
-// on the home page without a separate login route.
+// Standalone pages link back to /?login=1, /?signup=1 or /?forgot=1 to open
+// the auth popup (on its login, sign-up or forgot-password view) on the home page.
 function ModalFromUrl() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const { openModal } = useModal()
+  const { openModal, openForgotPassword } = useModal()
 
   useEffect(() => {
     if (searchParams.get('login') === '1') {
@@ -79,6 +78,9 @@ function ModalFromUrl() {
       setSearchParams({}, { replace: true })
     } else if (searchParams.get('signup') === '1') {
       openModal('signup')
+      setSearchParams({}, { replace: true })
+    } else if (searchParams.get('forgot') === '1') {
+      openForgotPassword()
       setSearchParams({}, { replace: true })
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -123,9 +125,9 @@ const router = createBrowserRouter([
     element: <VerifyEmailPage />,
   },
   {
-    // Password reset: standalone like /verify (reached from email / new-link buttons)
+    // Forgot password runs inside the auth popup; keep this address working.
     path: 'forgot-password',
-    element: <ForgotPasswordPage />,
+    element: <Navigate to="/?forgot=1" replace />,
   },
   {
     path: 'reset-password',

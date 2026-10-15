@@ -67,9 +67,10 @@ const ERROR_MESSAGES: Record<string, string> = {
   OPERATION_ALREADY_PERFORMED:'Your email is already verified.',
   BAD_REQUEST:                'This link is invalid. Please request a new one.',
 
-  // ── Password reset ────────────────────────────────────────────────────────
-  RESET_TOKEN_INVALID:        'This link is invalid or has already been used.',
-  RESET_TOKEN_EXPIRED:        'This link has expired. Request a new one.',
+  // ── Password reset (code by email → reset link by email) ──────────────────
+  PASSWORD_RESET_CODE_INVALID:      'That code is invalid or has expired. Request a new code and try again.',
+  PASSWORD_RESET_TOKEN_INVALID:     'This reset link is invalid, expired, or has already been used.',
+  PASSWORD_RESET_EMAIL_SEND_FAILED: "We couldn't send the reset link. Please try again.",
 
   // ── Network (client-side) ─────────────────────────────────────────────────
   NETWORK_ERROR:              "Can't reach the server. Check your connection and try again.",

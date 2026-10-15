@@ -271,19 +271,7 @@ export interface DashboardData {
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
 export type AuthTab  = 'login' | 'signup'
-export type AuthStep = 'form' | 'registered'
-
-/**
- * Payload collected by the SignUpForm and sent to POST /auth/register.
- * Field names use camelCase inside the app; authService maps them to
- * the snake_case names the server expects.
- */
-export interface SignUpPayload {
-  firstName:   string
-  lastName:    string
-  userName:    string
-  email:       string
-}
+export type AuthStep = 'form' | 'registered' | 'forgot'
 
 export interface LoginPayload {
   email:    string

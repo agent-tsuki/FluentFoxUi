@@ -1,10 +1,10 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
-import type { SignUpPayload } from '@/types'
 import type { AuthUser } from '@/context/AuthContext'
 import { authService, normalizeEmail } from '@/api/services/authService'
 import { getEmailSuggestion, hasErrorCode, resolveErrorMessage } from '@/api/errors'
 import { Button } from '@/components/ui/Button'
 import { AuthField, PasswordToggle } from './AuthField'
+import type { SignUpValues } from './authFormValues'
 import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter'
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from '@/lib/passwordStrength'
 
@@ -14,6 +14,9 @@ interface SignUpFormProps {
   /** Account created but auto-login failed: show "check your inbox". */
   onRegisteredOnly:  (email: string) => void
   onGoToLogin:       () => void
+  /** Field values, held by the modal so they survive tab switches. */
+  values:            SignUpValues
+  onChange:          (patch: Partial<SignUpValues>) => void
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -22,10 +25,11 @@ type FieldErrors = Partial<Record<'email' | 'userName', ReactNode>>
 
 const EMAIL_FIELD_CODES = ['EMAIL_DOMAIN_TYPO', 'DISPOSABLE_EMAIL', 'INVALID_EMAIL_DOMAIN', 'EMAIL_ALREADY_IN_USE']
 
-export function SignUpForm({ onSuccess, onRegisteredOnly, onGoToLogin }: SignUpFormProps) {
-  const [form, setForm] = useState<SignUpPayload>({ firstName: '', lastName: '', userName: '', email: '' })
-  const [password, setPassword]               = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+export function SignUpForm({ onSuccess, onRegisteredOnly, onGoToLogin, values, onChange }: SignUpFormProps) {
+  const form = values
+  const { password, confirmPassword } = values
+  const setPassword        = (value: string) => onChange({ password: value })
+  const setConfirmPassword = (value: string) => onChange({ confirmPassword: value })
   const [showPassword, setShowPassword]       = useState(false)
   const [loading, setLoading]                 = useState(false)
   const [error, setError]                     = useState('')
@@ -33,8 +37,8 @@ export function SignUpForm({ onSuccess, onRegisteredOnly, onGoToLogin }: SignUpF
 
   const passwordMismatch = confirmPassword.length > 0 && password !== confirmPassword
 
-  const update = (key: keyof SignUpPayload, value: string) => {
-    setForm(prev => ({ ...prev, [key]: value }))
+  const update = (key: 'firstName' | 'lastName' | 'userName' | 'email', value: string) => {
+    onChange({ [key]: value })
     if (key === 'email' || key === 'userName') setFieldErrors(prev => ({ ...prev, [key]: undefined }))
   }
 

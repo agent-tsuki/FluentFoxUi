@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -10,6 +10,13 @@ import { ModalSidebar, AUTH_PANEL_COPY, type AuthTab } from './ModalSidebar'
 import { SocialAuthButtons } from './SocialAuthButtons'
 import { ArcEdge } from './ArcEdge'
 import { SignUpForm } from './SignUpForm'
+import { ForgotPasswordFlow } from './ForgotPasswordFlow'
+import {
+  EMPTY_LOGIN_VALUES,
+  EMPTY_SIGNUP_VALUES,
+  type LoginValues,
+  type SignUpValues,
+} from './authFormValues'
 import { LoginForm } from './LoginForm'
 import { CloseButton } from '@/components/ui/CloseButton'
 import { Icon } from '@/components/ui/Icon'
@@ -21,8 +28,8 @@ import { useMeasuredHeight } from '@/hooks/useMeasuredHeight'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 
 export function AuthModal() {
-  const { isOpen, activeTab, closeModal, setActiveTab } = useModal()
-  const { setUser } = useAuth()
+  const { isOpen, activeTab, forgotRequest, openModal, openForgotPassword, closeModal, setActiveTab } = useModal()
+  const { user, setUser } = useAuth()
 
   const [step, setStep]                   = useState<AuthStep>('form')
   const [registeredEmail, setRegisteredEmail] = useState('')
@@ -34,10 +41,48 @@ export function AuthModal() {
   const reducedMotion = useReducedMotion()
   const { ref: contentRef, height: contentHeight } = useMeasuredHeight<HTMLDivElement>()
 
-  // Reset to form step whenever modal opens or tab changes
+  // ── Form values ───────────────────────────────────────────────────────────
+  // Held here (not in the forms) so they survive Login ⇄ Sign Up switches.
+  const [loginValues, setLoginValues]   = useState<LoginValues>(EMPTY_LOGIN_VALUES)
+  const [signUpValues, setSignUpValues] = useState<SignUpValues>(EMPTY_SIGNUP_VALUES)
+
+  const updateLoginValues = useCallback((patch: Partial<LoginValues>) => {
+    setLoginValues(prev => ({ ...prev, ...patch }))
+  }, [])
+  const updateSignUpValues = useCallback((patch: Partial<SignUpValues>) => {
+    setSignUpValues(prev => ({ ...prev, ...patch }))
+  }, [])
+  const resetFormValues = useCallback(() => {
+    setLoginValues(EMPTY_LOGIN_VALUES)
+    setSignUpValues(EMPTY_SIGNUP_VALUES)
+  }, [])
+
+  // Closing the popup (X, Escape, outside click, "Forgot password?") clears everything.
   useEffect(() => {
-    if (isOpen) setStep('form')
-  }, [isOpen, activeTab])
+    if (!isOpen) resetFormValues()
+  }, [isOpen, resetFormValues])
+
+  // On a tab switch, carry the email across if the other tab's email is empty.
+  // Runs only when the tab changes (never while typing), and never overwrites
+  // an email already typed in that tab.
+  const latestValues = useRef({ login: loginValues, signUp: signUpValues })
+  useEffect(() => {
+    latestValues.current = { login: loginValues, signUp: signUpValues }
+  }, [loginValues, signUpValues])
+  useEffect(() => {
+    const { login, signUp } = latestValues.current
+    if (activeTab === 'login' && !login.email && signUp.email) {
+      setLoginValues(prev => ({ ...prev, email: signUp.email }))
+    } else if (activeTab === 'signup' && !signUp.email && login.email) {
+      setSignUpValues(prev => ({ ...prev, email: login.email }))
+    }
+  }, [activeTab])
+
+  // Reset to form step whenever modal opens or tab changes
+  // (or to the forgot-password flow when that is what was requested)
+  useEffect(() => {
+    if (isOpen) setStep(forgotRequest ? 'forgot' : 'form')
+  }, [isOpen, activeTab, forgotRequest])
 
   // Escape key
   useEffect(() => {
@@ -66,12 +111,15 @@ export function AuthModal() {
   // "Verify your email" screen instead of into the app (auth guide §5).
   const handleAuthenticated = (user: AuthUser) => {
     setUser(user)
-    closeModal()
+    closeModal() // closing also clears the form values
     if (!user.emailVerified) navigate('/verify-email')
   }
 
   // Account created but auto-login failed → show "check your inbox".
   const handleRegisteredOnly = (email: string) => {
+    // Account exists now: drop the sign-up values, keep the email ready for login.
+    resetFormValues()
+    setLoginValues({ ...EMPTY_LOGIN_VALUES, email })
     setRegisteredEmail(email)
     setStep('registered')
   }
@@ -79,7 +127,8 @@ export function AuthModal() {
   // ── Layout helpers ────────────────────────────────────────────────────────
 
   const isRegisteredStep = step === 'registered'
-  const isFullWidth      = isRegisteredStep
+  const isForgotStep     = step === 'forgot' && forgotRequest !== null
+  const isFullWidth      = isRegisteredStep || isForgotStep
 
   const tabs = [
     { id: 'login'  as const, label: 'Login'   },
@@ -129,7 +178,17 @@ export function AuthModal() {
               <ArcEdge fillClassName="fill-surface-container-lowest" className="h-8 md:hidden" />
             )}
 
-            {isRegisteredStep ? (
+            {isForgotStep ? (
+              <ForgotPasswordFlow
+                key={forgotRequest.id}
+                initialEmail={forgotRequest.email}
+                autoSend={forgotRequest.autoSend}
+                // Signed in (e.g. started from Settings): just close. Otherwise back to Login.
+                onExit={user ? closeModal : () => openModal('login')}
+                exitLabel={user ? 'Close' : 'Back to login'}
+              />
+
+            ) : isRegisteredStep ? (
               <RegisteredStep
                 email={registeredEmail}
                 onClose={closeModal}
@@ -182,15 +241,15 @@ export function AuthModal() {
                         onSuccess={handleAuthenticated}
                         onRegisteredOnly={handleRegisteredOnly}
                         onGoToLogin={() => setActiveTab('login')}
+                        values={signUpValues}
+                        onChange={updateSignUpValues}
                       />
                     ) : (
                       <LoginForm
                         onSuccess={handleAuthenticated}
-                        onForgotPassword={email => {
-                          closeModal()
-                          // Router state, not the URL: keeps the email out of history.
-                          navigate('/forgot-password', { state: { email } })
-                        }}
+                        values={loginValues}
+                        onChange={updateLoginValues}
+                        onForgotPassword={email => openForgotPassword({ email })}
                       />
                     )}
                   </motion.div>

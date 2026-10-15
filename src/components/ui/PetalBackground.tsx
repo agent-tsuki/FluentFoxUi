@@ -7,15 +7,48 @@ interface Petal {
   y: number
   r: number
   rot: number
+  /** rad/s */
   rotSpeed: number
+  /** px/s */
   vx: number
+  /** px/s */
   vy: number
   opacity: number
   wobble: number
+  /** rad/s */
   wobbleSpeed: number
 }
 
 const PETAL_COUNT = 28
+
+// ── Tweak here for manual testing ─────────────────────────────────────────────
+// Speeds are per second (not per frame), so the pace is the same on 60Hz and
+// 120Hz screens. Save the file and the background restarts with new values.
+
+/** Overall speed dial. 1 = values below, 0.5 = half as fast, 2 = twice as fast. */
+const PETAL_SPEED = 1
+
+/** Falling speed range in px/s. A petal takes ~25–60s to cross the screen. */
+const FALL_MIN   = 14
+const FALL_MAX   = 36
+
+/** Sideways drift, ± px/s. */
+const DRIFT      = 10
+
+/** Side-to-side sway: how far (px/s) and how often (rad/s range). */
+const SWAY       = 10
+const SWAY_RATE_MIN = 0.35
+const SWAY_RATE_MAX = 0.95
+
+/** Spin, ± rad/s. */
+const SPIN       = 0.5
+// ──────────────────────────────────────────────────────────────────────────────
+
+/** Longest step simulated in one frame, so returning to the tab doesn't jump. */
+const MAX_STEP_SECONDS = 0.05
+
+const between = (min: number, max: number) => min + Math.random() * (max - min)
+const plusMinus = (amount: number) => (Math.random() - 0.5) * 2 * amount
 
 function createPetal(canvasWidth: number, _canvasHeight: number, initialY?: number): Petal {
   return {
@@ -23,12 +56,12 @@ function createPetal(canvasWidth: number, _canvasHeight: number, initialY?: numb
     y: initialY ?? Math.random() * -200,
     r: Math.random() * 10 + 7,
     rot: Math.random() * Math.PI * 2,
-    rotSpeed: (Math.random() - 0.5) * 0.04,
-    vx: (Math.random() - 0.5) * 1.2,
-    vy: Math.random() * 1.2 + 0.6,
+    rotSpeed: plusMinus(SPIN),
+    vx: plusMinus(DRIFT),
+    vy: between(FALL_MIN, FALL_MAX),
     opacity: Math.random() * 0.5 + 0.3,
     wobble: Math.random() * Math.PI * 2,
-    wobbleSpeed: Math.random() * 0.03 + 0.01,
+    wobbleSpeed: between(SWAY_RATE_MIN, SWAY_RATE_MAX),
   }
 }
 
@@ -99,21 +132,29 @@ export function PetalBackground() {
 
     let animId: number
     let paused = false
+    let lastTime: number | null = null
 
     const handleVisibility = () => {
       paused = document.hidden
-      if (!paused) animate()
+      if (!paused) {
+        lastTime = null // don't count the hidden time as one huge step
+        cancelAnimationFrame(animId)
+        animId = requestAnimationFrame(animate)
+      }
     }
     document.addEventListener('visibilitychange', handleVisibility)
 
-    function animate() {
+    function animate(now: number) {
       if (paused) return
+      const dt = (lastTime === null ? 0 : Math.min((now - lastTime) / 1000, MAX_STEP_SECONDS)) * PETAL_SPEED
+      lastTime = now
+
       ctx!.clearRect(0, 0, canvas!.width, canvas!.height)
       for (const p of petals) {
-        p.wobble += p.wobbleSpeed
-        p.x += p.vx + Math.sin(p.wobble) * 0.5
-        p.y += p.vy
-        p.rot += p.rotSpeed
+        p.wobble += p.wobbleSpeed * dt
+        p.x += (p.vx + Math.sin(p.wobble) * SWAY) * dt
+        p.y += p.vy * dt
+        p.rot += p.rotSpeed * dt
         if (p.y > canvas!.height + 30 || p.x < -30 || p.x > canvas!.width + 30) {
           Object.assign(p, createPetal(canvas!.width, canvas!.height))
         }
@@ -121,7 +162,7 @@ export function PetalBackground() {
       }
       animId = requestAnimationFrame(animate)
     }
-    animate()
+    animId = requestAnimationFrame(animate)
 
     return () => {
       cancelAnimationFrame(animId)

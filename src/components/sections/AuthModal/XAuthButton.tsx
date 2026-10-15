@@ -1,61 +1,49 @@
-import { motion, useAnimation } from "framer-motion";
-import { useRef, useState } from "react";
-import { useUI } from "@/context/UIContext";
+import { motion } from 'framer-motion'
+import { useReducedMotion } from '@/hooks/useReducedMotion'
+import { SocialButtonShell, useMouseHover, type SocialButtonSize } from './SocialButtonShell'
 
-const XLogo = ({ fill }: { fill: string }) => (
-  <svg aria-hidden viewBox="0 0 24 24" width="22" height="22" style={{ fill, transition: "fill 0.2s ease" }}>
-    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L3.283 2.25H9.59l4.258 5.658Zm-1.161 16.81h1.833L7.084 4.126H5.117Z" />
-  </svg>
-);
+const ICON_PX: Record<SocialButtonSize, number> = { sm: 18, md: 22 }
 
-export function XAuthButton({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
-  const btnRef = useRef<HTMLButtonElement>(null);
-  const xControls = useAnimation();
-  const bgControls = useAnimation();
-  const [hovered, setHovered] = useState(false);
-  const { darkMode } = useUI();
+interface XAuthButtonProps {
+  onClick:   () => void
+  disabled?: boolean
+  /** "sm" = compact (sidebar sheet), "md" = default. */
+  size?:     SocialButtonSize
+}
 
-  const handleHoverStart = () => {
-    setHovered(true);
-    xControls.stop();
-    xControls.set({ scale: 1 });
-    xControls.start({ scale: 1.35, transition: { type: "spring", stiffness: 280, damping: 18 } });
-    bgControls.start({ opacity: 1, transition: { duration: 0.3 } });
-  };
-
-  const handleHoverEnd = () => {
-    setHovered(false);
-    xControls.start({ scale: 1, transition: { duration: 0.25 } });
-    bgControls.start({ opacity: 0, transition: { duration: 0.3 } });
-  };
+/**
+ * X logo button. On mouse hover the button fills with X's black and the logo
+ * turns white and springs up slightly. Colours follow the theme through
+ * tokens (no theme watcher needed). Reduced motion: no scaling.
+ */
+export function XAuthButton({ onClick, disabled, size = 'md' }: XAuthButtonProps) {
+  const { hovered, hoverHandlers } = useMouseHover(disabled)
+  const reducedMotion = useReducedMotion()
+  const px = ICON_PX[size]
 
   return (
-    <>
-      <button
-        ref={btnRef}
-        type="button"
-        onClick={onClick}
-        disabled={disabled}
-        onMouseEnter={handleHoverStart}
-        onMouseLeave={handleHoverEnd}
-        aria-label="Continue with X"
-        className="flex-1 relative overflow-hidden rounded-xl border border-surface-container-high bg-surface-container-lowest"
-        >
-        {/* Black base — absolute relative to button so it fills the full button */}
-        <motion.div
-          animate={bgControls}
-          initial={{ opacity: 0 }}
-          className="absolute inset-0 z-0"
-          style={{ background: "#000" }}
-        />
+    <SocialButtonShell size={size} label="Continue with X" onClick={onClick} disabled={disabled} hoverHandlers={hoverHandlers}>
+      {/* X brand black fill */}
+      <motion.span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-black"
+        initial={false}
+        animate={{ opacity: hovered ? 1 : 0 }}
+        transition={{ duration: 0.3 }}
+      />
 
-        <div className="relative w-full py-3 flex items-center justify-center cursor-pointer select-none">
-          {/* X Icon */}
-          <motion.div animate={xControls} initial={{ scale: 1 }} className="relative z-20">
-            <XLogo fill={hovered ? "#ffffff" : darkMode ? "#ECD4D1" : "#000000"} />
-          </motion.div>
-        </div>
-      </button>
-    </>
-  );
+      <motion.svg
+        aria-hidden
+        viewBox="0 0 24 24"
+        width={px}
+        height={px}
+        className={`relative z-10 fill-current transition-colors duration-200 ${hovered ? 'text-white' : 'text-on-surface'}`}
+        initial={false}
+        animate={{ scale: hovered && !reducedMotion ? 1.3 : 1 }}
+        transition={{ type: 'spring', stiffness: 280, damping: 18 }}
+      >
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L3.283 2.25H9.59l4.258 5.658Zm-1.161 16.81h1.833L7.084 4.126H5.117Z" />
+      </motion.svg>
+    </SocialButtonShell>
+  )
 }

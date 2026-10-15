@@ -1,21 +1,21 @@
 /**
- * ResetPasswordPage — /reset-password?token=… (password reset guide §4.3).
+ * ResetPasswordPage — /reset-password?token=… (the link from the second
+ * password-reset email; the code step happens in the auth popup).
  *
  *  - The token is read and stripped from the address bar in a layout effect,
  *    before the first paint, and kept in a ref only (never storage or logs).
- *  - Success: the backend revoked every session, so clear all local auth state
- *    and tell other tabs (no logout call needed), then open the login modal
- *    with a "Password updated" banner. There is no auto-login.
- *  - Errors are never 401s, so they never trigger refresh/logout.
+ *  - Success: form state is discarded, any session in this browser (and its
+ *    other tabs) is ended, and a "Password reset successfully" screen offers
+ *    a Log in button. There is no auto-login.
+ *  - PASSWORD_RESET_TOKEN_INVALID → one "invalid, expired or used" state with
+ *    a way to request a new code. Errors are never 401s (no refresh/logout).
  */
 
 import { useLayoutEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { authService } from '@/api/services/authService'
-import { hasErrorCode, resolveErrorMessage } from '@/api/errors'
+import { hasErrorCode } from '@/api/errors'
 import { expireSession } from '@/api/session'
-import { useAuth } from '@/context/AuthContext'
-import { SUPPORT_EMAIL } from '@/lib/config'
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from '@/lib/passwordStrength'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
@@ -24,17 +24,15 @@ import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter'
 import {
   AuthPageLayout,
   StatusCard,
-  SupportLink,
   primaryLinkClass,
   secondaryLinkClass,
 } from '@/components/auth/AuthPageLayout'
 
-type ResetState = 'init' | 'form' | 'invalid' | 'expired' | 'suspended' | 'deleted'
+type ResetState = 'init' | 'form' | 'invalid' | 'success'
 
 export function ResetPasswordPage() {
   const [searchParams] = useSearchParams()
   const navigate       = useNavigate()
-  const { showNotice } = useAuth()
 
   const tokenRef = useRef<string | null>(null)
   const readRef  = useRef(false)
@@ -74,63 +72,43 @@ export function ResetPasswordPage() {
     setSubmitting(true)
     try {
       await authService.resetPassword(token, password)
+      // Discard everything sensitive; there is no auto-login.
       tokenRef.current = null
-      // Signed out everywhere by the backend: clear this browser and other tabs.
+      setPassword('')
+      setConfirm('')
+      // Old password is gone: end any session in this browser and its other tabs.
       expireSession()
-      showNotice('Password updated. Please log in with your new password.', 'success')
-      navigate('/?login=1', { replace: true })
+      setState('success')
     } catch (err) {
-      if (hasErrorCode(err, 'RESET_TOKEN_EXPIRED'))      setState('expired')
-      else if (hasErrorCode(err, 'RESET_TOKEN_INVALID')) setState('invalid')
-      else if (hasErrorCode(err, 'ACCOUNT_SUSPENDED'))   setState('suspended')
-      else if (hasErrorCode(err, 'ACCOUNT_DELETED'))     setState('deleted')
-      else if (hasErrorCode(err, 'VALIDATION_ERROR'))    setPwError(`Use ${PASSWORD_MIN_LENGTH} to ${PASSWORD_MAX_LENGTH} characters.`)
-      else setFormError(resolveErrorMessage(err)) // 500: keep the form, the link is still valid
+      if (hasErrorCode(err, 'PASSWORD_RESET_TOKEN_INVALID')) {
+        tokenRef.current = null
+        setState('invalid')
+      } else if (hasErrorCode(err, 'VALIDATION_ERROR')) {
+        setPwError(`Use ${PASSWORD_MIN_LENGTH} to ${PASSWORD_MAX_LENGTH} characters.`)
+      } else {
+        // Network / 5xx: keep the form, the link may still be valid.
+        setFormError('Something went wrong. Please try again.')
+      }
     } finally {
       setSubmitting(false)
     }
   }
 
-  const newLinkActions = (
-    <>
-      <Link to="/forgot-password" className={primaryLinkClass}>Send a new link</Link>
-      <Link to="/?login=1" className={secondaryLinkClass}>Back to login</Link>
-    </>
-  )
-
   return (
     <AuthPageLayout noReferrer>
-      {state === 'expired' && (
-        <StatusCard icon="link_off" tone="warning" title="Link expired"
-          body="This link has expired. Request a new one.">
-          {newLinkActions}
-        </StatusCard>
-      )}
-
       {state === 'invalid' && (
-        <StatusCard icon="error" tone="error" title="Link invalid"
-          body="This link is invalid or has already been used.">
-          {newLinkActions}
+        <StatusCard icon="link_off" tone="error" title="Link invalid"
+          body="This reset link is invalid, expired, or has already been used.">
+          {/* Opens the auth popup on the forgot-password flow */}
+          <Link to="/?forgot=1" className={primaryLinkClass}>Request a new code</Link>
+          <Link to="/?login=1" className={secondaryLinkClass}>Back to login</Link>
         </StatusCard>
       )}
 
-      {(state === 'suspended' || state === 'deleted') && (
-        <StatusCard
-          icon="block"
-          tone="error"
-          title={state === 'suspended' ? 'Account suspended' : 'Account deleted'}
-          body={
-            <>
-              {state === 'suspended'
-                ? 'Your account is suspended. Please contact support.'
-                : 'This account has been deleted. Please contact support.'}
-              <span className="mt-2 block">
-                <SupportLink email={SUPPORT_EMAIL} />
-              </span>
-            </>
-          }
-        >
-          <Link to="/" className={secondaryLinkClass}>Back to home</Link>
+      {state === 'success' && (
+        <StatusCard icon="check_circle" tone="success" title="Password reset successfully"
+          body="You can now log in with your new password.">
+          <Link to="/?login=1" className={primaryLinkClass}>Log in</Link>
         </StatusCard>
       )}
 
@@ -166,7 +144,7 @@ export function ResetPasswordPage() {
             </div>
 
             <AuthField
-              label="Confirm password"
+              label="Confirm new password"
               type={showPassword ? 'text' : 'password'}
               name="confirm-password"
               autoComplete="new-password"
@@ -187,7 +165,7 @@ export function ResetPasswordPage() {
                 disabled={submitting}
                 className="w-full py-3.5 font-headline disabled:opacity-60 disabled:cursor-wait disabled:scale-100"
               >
-                {submitting ? 'Updating…' : 'Set new password'}
+                {submitting ? 'Resetting…' : 'Reset password'}
               </Button>
             </div>
           </form>

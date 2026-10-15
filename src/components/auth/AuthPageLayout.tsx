@@ -1,7 +1,6 @@
 /**
  * Layout + building blocks for standalone auth pages that users reach from
- * an email link or a "new link" button: /verify, /forgot-password,
- * /reset-password. Minimal chrome, no navbar, no third-party scripts.
+ * an email link: /verify and /reset-password. Minimal chrome, no navbar, no third-party scripts.
  */
 
 import { useEffect, type ReactNode } from 'react'
@@ -81,14 +80,5 @@ export function StatusCard({ icon, tone, title, body, pulse, children }: StatusC
       <div className="text-sm text-on-surface-variant leading-relaxed mb-8">{body}</div>
       {children && <div className="flex flex-col gap-3">{children}</div>}
     </div>
-  )
-}
-
-/** Mail link to support, for suspended / deleted accounts. */
-export function SupportLink({ email }: { email: string }) {
-  return (
-    <a href={`mailto:${email}`} className="font-bold text-primary hover:underline whitespace-nowrap">
-      {email}
-    </a>
   )
 }

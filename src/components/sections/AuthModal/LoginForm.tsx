@@ -5,19 +5,24 @@ import { resolveErrorMessage } from '@/api/errors'
 import { cn } from '@/lib/cn'
 import { Button } from '@/components/ui/Button'
 import { AuthField, PasswordToggle } from './AuthField'
+import type { LoginValues } from './authFormValues'
 
 interface LoginFormProps {
   /** Called with the logged-in user. Unverified users are routed by the caller. */
   onSuccess:        (user: AuthUser) => void
   /** Receives the email typed so far, to prefill the forgot-password page. */
   onForgotPassword: (email: string) => void
+  /** Field values, held by the modal so they survive tab switches. */
+  values:           LoginValues
+  onChange:         (patch: Partial<LoginValues>) => void
 }
 
-export function LoginForm({ onSuccess, onForgotPassword }: LoginFormProps) {
+export function LoginForm({ onSuccess, onForgotPassword, values, onChange }: LoginFormProps) {
   const { notice, clearNotice } = useAuth()
 
-  const [email, setEmail]               = useState('')
-  const [password, setPassword]         = useState('')
+  const { email, password } = values
+  const setEmail    = (value: string) => onChange({ email: value })
+  const setPassword = (value: string) => onChange({ password: value })
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading]           = useState(false)
   const [error, setError]               = useState('')

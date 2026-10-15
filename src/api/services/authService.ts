@@ -97,17 +97,27 @@ export const authService = {
   },
 
   /**
-   * POST /auth/forgot-password (public). Always 200 with the same message,
-   * and deliberately slow (~6s) so nothing reveals whether an account exists.
+   * POST /auth/forgot-password (public). Emails an 8-character reset code.
+   * Always 200 with the same message, so nothing reveals whether an account
+   * exists (or whether a rate limit silently skipped the email).
    */
   async forgotPassword(email: string): Promise<void> {
     await apiClient.post<MessageApiResponse>('/auth/forgot-password', { email: normalizeEmail(email) })
   },
 
   /**
-   * POST /auth/reset-password (public). On success the backend revokes every
-   * session; the caller clears local auth state. There is no auto-login.
+   * POST /auth/forgot-password/verify-code (public). On success the backend
+   * emails a one-time reset link (/reset-password?token=…). The browser never
+   * sees or builds that link.
    */
+  async verifyPasswordResetCode(email: string, code: string): Promise<void> {
+    await apiClient.post<MessageApiResponse>('/auth/forgot-password/verify-code', {
+      email: normalizeEmail(email),
+      code:  code.trim().toUpperCase(),
+    })
+  },
+
+  /** POST /auth/reset-password (public). No auto-login afterwards. */
   async resetPassword(token: string, newPassword: string): Promise<void> {
     await apiClient.post<MessageApiResponse>('/auth/reset-password', { token, new_password: newPassword })
   },
