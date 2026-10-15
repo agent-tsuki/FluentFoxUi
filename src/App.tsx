@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { createBrowserRouter, Navigate, RouterProvider, Outlet, useSearchParams } from 'react-router-dom'
 import Lottie, { type LottieRefCurrentProps } from 'lottie-react'
+import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/react'
 import koiAnimation from '@/assets/animations/koi_loader.json'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
@@ -184,6 +186,8 @@ export function App() {
           <ModalProvider>
             <MouseFollower />
             <RouterProvider router={router} />
+            <Analytics />
+            <SpeedInsights />
           </ModalProvider>
         </UIProvider>
       </AuthProvider>
