@@ -283,8 +283,6 @@ export interface SignUpPayload {
   lastName:    string
   userName:    string
   email:       string
-  nativeLang:  string
-  phoneNumber: string
 }
 
 export interface LoginPayload {

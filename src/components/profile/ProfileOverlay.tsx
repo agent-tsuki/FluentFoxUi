@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import { Icon } from '@/components/ui/Icon'
+import { CloseButton } from '@/components/ui/CloseButton'
 import { useAuth } from '@/context/AuthContext'
 import { useUI } from '@/context/UIContext'
 
@@ -104,12 +105,9 @@ export function ProfileOverlay({ isOpen, onClose }: ProfileOverlayProps) {
       />
 
       {/* Close Button */}
-      <button
-        onClick={onClose}
-        className="absolute top-8 right-8 text-white/70 hover:text-white transition-colors p-3 hover:bg-white/10 rounded-full z-[10010]"
-      >
-        <Icon name="close" className="text-4xl" />
-      </button>
+      <div className="absolute right-4 top-4 z-[10010] md:right-8 md:top-8">
+        <CloseButton onClick={onClose} variant="inverse" />
+      </div>
 
       {/* Back Button (when in picker) */}
       {showPicker && (

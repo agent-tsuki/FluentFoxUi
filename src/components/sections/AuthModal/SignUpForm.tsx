@@ -1,13 +1,9 @@
-import { useState, useEffect, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import type { SignUpPayload } from '@/types'
 import { authService } from '@/api/services/authService'
 import { ApiError, resolveErrorMessage } from '@/api/errors'
 import { Icon } from '@/components/ui/Icon'
 import { Button } from '@/components/ui/Button'
-import { GoogleAuthButton } from './GoogleAuthButton'
-import { XAuthButton } from './XAuthButton'
-import { CountryCodePicker, ALL_COUNTRIES, TOP_30 } from './CountryCodePicker'
-import type { Country } from './CountryCodePicker'
 
 interface SignUpFormProps {
   onSuccess: (message: string) => void
@@ -36,55 +32,6 @@ const strengthConfig: Record<StrengthLevel, { label: string; bars: number; color
   'very-strong': { label: 'Very Strong', bars: 4, color: 'bg-success' },
 }
 
-// ── Language options ──────────────────────────────────────────────────────────
-
-const NATIVE_LANG_OPTIONS = [
-  'Arabic', 'English', 'French', 'German', 'Hindi',
-  'Indonesian', 'Japanese', 'Korean', 'Mandarin', 'Portuguese',
-  'Russian', 'Spanish', 'Turkish', 'Vietnamese', 'Other',
-]
-
-/**
- * Maps ISO alpha-2 country code → native language option.
- * Used to pre-select the language after IP geolocation.
- */
-const COUNTRY_TO_LANG: Record<string, string> = {
-  // South Asia
-  IN: 'Hindi',   BD: 'Bengali',  NP: 'Hindi',   LK: 'Hindi',
-  PK: 'Urdu',
-  // East Asia
-  CN: 'Mandarin', TW: 'Mandarin', HK: 'Mandarin',
-  JP: 'Japanese', KR: 'Korean',
-  // Southeast Asia
-  ID: 'Indonesian', PH: 'English', VN: 'Vietnamese',
-  TH: 'Thai',       MY: 'Malay',   KH: 'Khmer',
-  MM: 'Burmese',
-  // Western Europe
-  GB: 'English',  IE: 'English',  AU: 'English',
-  NZ: 'English',  CA: 'English',  ZA: 'English',
-  US: 'English',
-  DE: 'German',   AT: 'German',   CH: 'German',
-  FR: 'French',   BE: 'French',
-  ES: 'Spanish',  MX: 'Spanish',  AR: 'Spanish',
-  CO: 'Spanish',  CL: 'Spanish',  PE: 'Spanish',
-  VE: 'Spanish',  EC: 'Spanish',  BO: 'Spanish',
-  GT: 'Spanish',  DO: 'Spanish',
-  BR: 'Portuguese', PT: 'Portuguese',
-  RU: 'Russian',  UA: 'Russian',  KZ: 'Russian',
-  // Middle East / North Africa
-  EG: 'Arabic',  SA: 'Arabic',  AE: 'Arabic',
-  IQ: 'Arabic',  JO: 'Arabic',  LB: 'Arabic',
-  MA: 'Arabic',  DZ: 'Arabic',  TN: 'Arabic',
-  KW: 'Arabic',  QA: 'Arabic',  OM: 'Arabic',
-  // Other
-  TR: 'Turkish',  IT: 'Italian', NL: 'Dutch',
-  PL: 'Polish',   GR: 'Greek',
-}
-
-// ── Default country: India ────────────────────────────────────────────────────
-
-const DEFAULT_COUNTRY: Country = TOP_30[0] // India +91
-
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function SignUpForm({ onSuccess }: SignUpFormProps) {
@@ -93,39 +40,12 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
     lastName:    '',
     userName:    '',
     email:       '',
-    nativeLang:  'Hindi',   // India default
-    phoneNumber: '',
   })
-  const [dialCountry, setDialCountry]         = useState<Country>(DEFAULT_COUNTRY)
-  const [phoneDigits, setPhoneDigits]         = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [password, setPassword]               = useState('')
   const [showPassword, setShowPassword]       = useState(false)
   const [loading, setLoading]                 = useState(false)
   const [error, setError]                     = useState('')
-  const [phoneError, setPhoneError]           = useState('')
-
-  // ── IP geolocation on mount ──────────────────────────────────────────────
-
-  useEffect(() => {
-    const controller = new AbortController()
-    fetch('https://ipapi.co/json/', { signal: controller.signal })
-      .then(r => r.json())
-      .then((data: { country_code?: string }) => {
-        const code = data.country_code
-        if (!code) return
-        // Pre-select dial country
-        const found = ALL_COUNTRIES.find(c => c.code === code)
-        if (found) setDialCountry(found)
-        // Pre-select native language
-        const lang = COUNTRY_TO_LANG[code]
-        if (lang && NATIVE_LANG_OPTIONS.includes(lang)) {
-          setForm(prev => ({ ...prev, nativeLang: lang }))
-        }
-      })
-      .catch(() => { /* silently fall back to India defaults */ })
-    return () => controller.abort()
-  }, [])
 
   // ── Shared styles ────────────────────────────────────────────────────────
 
@@ -143,25 +63,13 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
   // ── Handlers ─────────────────────────────────────────────────────────────
 
   const field = (key: keyof SignUpPayload) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    (e: React.ChangeEvent<HTMLInputElement>) =>
       setForm(prev => ({ ...prev, [key]: e.target.value }))
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Only allow alphanumeric + underscore
     const cleaned = e.target.value.replace(/[^a-zA-Z0-9_]/g, '')
     setForm(prev => ({ ...prev, userName: cleaned }))
-  }
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const digits = e.target.value.replace(/\D/g, '').slice(0, 15)
-    setPhoneDigits(digits)
-    setPhoneError('')
-  }
-
-  const handlePhoneBlur = () => {
-    if (phoneDigits && (phoneDigits.length < 7 || phoneDigits.length > 15)) {
-      setPhoneError('Enter 7–15 digits.')
-    }
   }
 
   const handleSubmit = async (e: FormEvent) => {
@@ -177,10 +85,6 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
       setError('Passwords do not match.')
       return
     }
-    if (phoneDigits && (phoneDigits.length < 7 || phoneDigits.length > 15)) {
-      setPhoneError('Enter 7–15 digits.')
-      return
-    }
 
     setLoading(true)
     try {
@@ -188,9 +92,10 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
         email:        form.email,
         first_name:   form.firstName,
         last_name:    form.lastName,
-        native_lang:  form.nativeLang,
+        // Collected later on the profile page; the register contract still expects the keys.
+        native_lang:  '',
         password,
-        phone_number: phoneDigits,
+        phone_number: '',
         user_name:    form.userName,
       })
       onSuccess(message)
@@ -274,50 +179,6 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
         />
       </div>
 
-      {/* Native Language — full width */}
-      <div>
-        <label className={labelClass}>
-          Native Language{' '}
-          <span className="normal-case text-outline/50 font-normal tracking-normal">(optional)</span>
-        </label>
-        <select
-          value={form.nativeLang}
-          onChange={field('nativeLang')}
-          className={`${inputClass} cursor-pointer appearance-none`}
-        >
-          <option value="" disabled>Select your native language</option>
-          {NATIVE_LANG_OPTIONS.map(lang => (
-            <option key={lang} value={lang}>{lang}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Phone Number — full width, dial picker + digits */}
-      <div>
-        <label className={labelClass}>
-          Phone Number{' '}
-          <span className="normal-case text-outline/50 font-normal tracking-normal">
-            (optional)
-          </span>
-        </label>
-        <div className="flex rounded-xl overflow-hidden ring-1 ring-transparent focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-          <CountryCodePicker value={dialCountry} onChange={setDialCountry} />
-          <input
-            type="tel"
-            inputMode="numeric"
-            maxLength={15}
-            placeholder="9876543210"
-            value={phoneDigits}
-            onChange={handlePhoneChange}
-            onBlur={handlePhoneBlur}
-            className="flex-1 bg-surface-container-low px-4 py-3 text-on-surface text-sm placeholder:text-outline/50 outline-none rounded-r-xl"
-          />
-        </div>
-        {phoneError && (
-          <p className="mt-1 px-1 text-xs text-error font-medium">{phoneError}</p>
-        )}
-      </div>
-
       {/* Password */}
       <div>
         <label className={labelClass}>Password <span className="text-error normal-case tracking-normal font-bold">*</span></label>
@@ -393,21 +254,6 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
         >
           {loading ? 'Creating Account…' : 'Create Account'}
         </Button>
-      </div>
-
-      {/* Divider */}
-      <div className="relative flex items-center py-0.5">
-        <div className="flex-grow border-t border-surface-container-high" />
-        <span className="flex-shrink mx-4 text-2xs text-outline font-bold uppercase tracking-tighter">
-          Or continue with
-        </span>
-        <div className="flex-grow border-t border-surface-container-high" />
-      </div>
-
-      {/* Social */}
-      <div className="flex gap-4">
-        <GoogleAuthButton onClick={() => null} disabled={loading} />
-        <XAuthButton      onClick={() => null} disabled={loading} />
       </div>
 
       {/* Legal */}

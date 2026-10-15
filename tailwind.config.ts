@@ -107,6 +107,16 @@ const config: Config = {
         'elevation-2': 'var(--shadow-elevation-2)',
         'elevation-3': 'var(--shadow-elevation-3)',
       },
+      keyframes: {
+        // A surface rising into place (mobile auth panel). Pairs with springs.sheet in src/lib/motion.ts.
+        'sheet-rise': {
+          from: { transform: 'translateY(3rem)', opacity: '0' },
+          to:   { transform: 'translateY(0)',    opacity: '1' },
+        },
+      },
+      animation: {
+        'sheet-rise': 'sheet-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both',
+      },
     },
   },
   plugins: [],

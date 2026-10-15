@@ -5,8 +5,6 @@ import { ApiError } from '@/api/errors'
 import { resolveErrorMessage } from '@/api/errors'
 import { Icon } from '@/components/ui/Icon'
 import { Button } from '@/components/ui/Button'
-import { GoogleAuthButton } from './GoogleAuthButton'
-import { XAuthButton } from './XAuthButton'
 
 interface LoginFormProps {
   onSuccess:        (user: AuthUser) => void
@@ -124,20 +122,6 @@ export function LoginForm({ onSuccess, onForgotPassword }: LoginFormProps) {
         </Button>
       </div>
 
-      {/* Divider */}
-      <div className="relative flex items-center py-1">
-        <div className="flex-grow border-t border-surface-container-high" />
-        <span className="flex-shrink mx-4 text-2xs text-outline font-bold uppercase tracking-tighter">
-          Or continue with
-        </span>
-        <div className="flex-grow border-t border-surface-container-high" />
-      </div>
-
-      {/* Social */}
-      <div className="flex gap-4">
-        <GoogleAuthButton onClick={() => null} disabled={loading} />
-        <XAuthButton      onClick={() => null} disabled={loading} />
-      </div>
     </form>
   )
 }

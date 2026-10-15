@@ -1,4 +1,4 @@
-import { Icon } from '@/components/ui/Icon'
+import { CloseButton } from '@/components/ui/CloseButton'
 import { Button } from '@/components/ui/Button'
 import type { QuizSelectableKanji } from '@/types'
 
@@ -20,12 +20,7 @@ export function KanjiModal({ open, kanji, selected, onToggle, onConfirm, onCance
         {/* Header */}
         <div className="p-8 border-b border-surface-container flex justify-between items-center">
           <h3 className="text-2xl font-bold font-headline">Select Kanji Characters</h3>
-          <button
-            onClick={onCancel}
-            className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center hover:bg-surface-container-high transition-colors"
-          >
-            <Icon name="close" />
-          </button>
+          <CloseButton onClick={onCancel} />
         </div>
 
         {/* Kanji Grid */}

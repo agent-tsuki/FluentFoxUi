@@ -92,7 +92,7 @@ export function GoogleAuthButton({ onClick, disabled }: { onClick: () => void; d
       disabled={disabled}
       onMouseEnter={handleHoverStart}
       onMouseLeave={handleHoverEnd}
-      aria-label="Sign in with Google"
+      aria-label="Continue with Google"
       className={`flex-1 relative overflow-hidden rounded-xl border border-surface-container-high transition-all ${
         disabled ? "opacity-50 cursor-not-allowed" : ""
       }`}
