@@ -144,16 +144,17 @@ export interface StartReviewRequest {
 export interface StartPracticeRequest {
   track: LearningTrack
   mode: PracticeMode
-  /** Unit slug, for mode 'unit'. */
+  /** Unit slug, required for mode 'unit'. */
   unit?: string
-  /** Look-alike pair, e.g. "ぬ:め", for mode 'lookalike'. */
+  /** Look-alike pair, e.g. "ぬ:め", for mode 'lookalike'; the learner's mix-ups when omitted. */
   pair?: string
 }
 
+/** Tests ask every facet of every item in scope once; unanswered questions count as wrong. */
 export interface StartTestRequest {
   kind: TestKind
   track: LearningTrack
-  /** Unit slug, group or 'all'. */
+  /** unit_quiz: unit slug; skip: kana group key, kanji group slug or 'all'; final: ignored. */
   scope: string
 }
 
@@ -225,9 +226,13 @@ export interface SessionCardResult {
 
 export interface SessionTestScore {
   kind: TestKind
+  /** Questions right on the first answer. */
   score: number
+  /** Questions in the test, answered or not. */
   total: number
   passed: boolean
+  /** Share needed to pass, 0–1. */
+  pass_mark: number
 }
 
 /** POST /learn/sessions/{id}/complete: the result screen. */
@@ -259,7 +264,7 @@ export interface LearningSettings {
 
 export type LearningSettingsUpdate = Partial<LearningSettings>
 
-/** PUT /learn/units/{type}/{id}/progress body. */
+/** PUT /learn/units/{type}/{slug}/progress?track= body (the step's first time is kept). */
 export interface UnitProgressRequest {
   step: UnitProgressStep
 }
@@ -267,12 +272,21 @@ export interface UnitProgressRequest {
 export interface UnitProgressData {
   unit_type: UnitType
   unit_id: string
+  unit_slug: string
+  track: LearningTrack
   watched_at: string | null
   traced_at: string | null
   written_at: string | null
   practised_at: string | null
+  /** Best unit quiz score, 0–100. */
   quiz_best_pct: number | null
+  /** Set when a unit quiz was passed. */
   completed_at: string | null
+}
+
+/** GET /learn/units?track=: every unit of the track(s) in path order; steps not done are null. */
+export interface UnitProgressList {
+  units: UnitProgressData[]
 }
 
 /** GET / PUT /learn/kanji/{char}/note. */

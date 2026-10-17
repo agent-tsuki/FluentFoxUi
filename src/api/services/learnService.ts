@@ -27,6 +27,7 @@ import type {
   SubmitAnswersRequest,
   SubmitAnswersResponse,
   UnitProgressData,
+  UnitProgressList,
   UnitProgressRequest,
   UnitType,
 } from '@/types/learn'
@@ -113,8 +114,14 @@ export const learnService = {
     return put('/learn/settings', update)
   },
 
-  updateUnitProgress(unitType: UnitType, unitId: string, req: UnitProgressRequest): Promise<UnitProgressData> {
-    return put(`/learn/units/${encodeURIComponent(unitType)}/${encodeURIComponent(unitId)}/progress`, req)
+  async getUnits(track: LearningTrack): Promise<UnitProgressData[]> {
+    return (await get<UnitProgressList>(`/learn/units?track=${encodeURIComponent(track)}`)).units
+  },
+
+  /** `unitSlug` is the content API's unit id; hiragana and katakana share slugs, so the track goes along. */
+  updateUnitProgress(unitType: UnitType, unitSlug: string, track: LearningTrack, req: UnitProgressRequest): Promise<UnitProgressData> {
+    const path = `/learn/units/${encodeURIComponent(unitType)}/${encodeURIComponent(unitSlug)}/progress`
+    return put(`${path}?track=${encodeURIComponent(track)}`, req)
   },
 
   getKanjiNote(char: string): Promise<KanjiNote> {

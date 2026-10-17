@@ -1,11 +1,14 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import type { KanaChar } from '@/types'
 import { skipTestFor, unitsForScope, type KanaSkipTestDef } from '@/lib/content/kana/scripts'
 import { useKanaScript } from '@/context/KanaScriptContext'
 import { useKanaSections } from '@/hooks/useKanaSections'
-import { useKanaProgressStore } from '@/hooks/useKanaProgress'
+import type { AnswerTimerControls } from '@/hooks/useAnswerTimer'
 import { useLearningPath, useLearningPathStore } from '@/hooks/useLearningPath'
+import { useLearnTest } from '@/hooks/useLearnTest'
+import { kanaTrack, skipTestRequest } from '@/lib/learn/practiceSession'
+import type { LearnQuestion, SessionStart } from '@/types/learn'
 import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { ErrorState } from '@/components/ui/ErrorState'
@@ -13,21 +16,20 @@ import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { PracticeShell } from '@/components/practice/PracticeShell'
 import {
-  buildQuestions,
   quizOptionsFor,
   CertificatePanel,
   QuizResults,
   QuizRunner,
-  recordQuizReviews,
   scoreByUnit,
   SkipResultsList,
   SkipTestIntro,
-  skipTargets,
   useQuizSession,
-  type QuizAnswer,
+  type QuizQuestion,
 } from '@/components/kanaQuiz'
+import { kanaTestQuestions, saveKanaTestAnswer } from '@/components/kanaQuiz/testQuestions'
+import { TestGate } from '@/components/learnSession/TestGate'
 
-/** /kana/<script>/skip/:scope — test out of a group of units; units scored ≥ the skip pass mark (90%) are marked skipped. */
+/** /kana/<script>/skip/:scope — test out of a group of units (or the whole script) on the learn API. */
 export function KanaSkipTestPage() {
   const script = useKanaScript()
   const { scope } = useParams<{ scope: string }>()
@@ -43,76 +45,99 @@ export function KanaSkipTestPage() {
   )
 }
 
+/**
+ * A skip test on the learn API: the server asks every kana in scope once.
+ * Passing it overall schedules them all as known, so every unit in scope is
+ * marked tested out; the per-unit breakdown shows where to start otherwise.
+ */
 function SkipTest({ test, all }: { test: KanaSkipTestDef; all: KanaChar[] }) {
   const navigate = useNavigate()
   const { supported } = useJapaneseSpeech()
   const script = useKanaScript()
   const path = useLearningPathStore()
-  const progress = useKanaProgressStore()
   const { scope, title } = test
   const passMark = script.finalTest.passMark
   const skipPassMark = script.skipPassMark
   const best = useLearningPath().skipTests?.[scope]
   const units = useMemo(() => unitsForScope(script, scope), [script, scope])
   const [started, setStarted] = useState(false)
-  // Stable for the intro's question count; a fresh draw is made on every start.
-  const questionCount = useMemo(() => skipTargets(script, units, all).length, [script, units, all])
 
-  const onFinish = useCallback(
-    (answers: QuizAnswer[]) => {
-      const scores = scoreByUnit(answers, units, skipPassMark)
-      const overall = answers.filter((a) => a.correct).length / Math.max(1, answers.length)
-      path.recordSkipTest(scope, overall, scores.filter((s) => s.passed).map((s) => s.unit.id))
-      // Only the whole-script test counts towards the certificate (scored over all of its questions).
-      if (scope === 'all') path.recordFinalTest(overall, overall >= passMark)
-      void recordQuizReviews(progress, answers)
+  const quiz = useQuizSession(() => [], () => undefined)
+  const [cards, setCards] = useState<ReadonlyMap<string, LearnQuestion>>(() => new Map())
+  const request = useMemo(() => skipTestRequest(kanaTrack(script.id), scope), [script.id, scope])
+  const { start: startQuiz } = quiz
+  const onSession = useCallback(
+    (session: SessionStart) => {
+      const built = kanaTestQuestions(session, all, quizOptionsFor(script, supported))
+      setCards(built.cards)
+      startQuiz(built.questions)
     },
-    [scope, units, path, progress, passMark, skipPassMark],
+    [all, script, supported, startQuiz],
   )
-  const session = useQuizSession(() => [], onFinish)
+  const learnTest = useLearnTest(request, skipPassMark, onSession)
+  const { submit, check, recorder } = learnTest
 
-  const start = useCallback(() => {
-    session.start(buildQuestions(skipTargets(script, units, all), all, quizOptionsFor(script, supported)))
-    setStarted(true)
-  }, [session, script, units, all, supported])
+  useEffect(() => {
+    if (started && quiz.done) submit(quiz.questions.length)
+  }, [started, quiz.done, quiz.questions.length, submit])
+
+  const outcome = check.state === 'done' ? check.outcome : undefined
+  useEffect(() => {
+    if (!outcome) return
+    path.recordSkipTest(scope, outcome.score, outcome.passed ? units.map((u) => u.id) : [])
+    // Only the whole-script test counts towards the certificate.
+    if (scope === 'all') path.recordFinalTest(outcome.score, outcome.score >= passMark)
+  }, [outcome, path, scope, units, passMark])
+
+  const onAnswer = useCallback(
+    (question: QuizQuestion, picked: KanaChar, timer: AnswerTimerControls) => saveKanaTestAnswer(recorder.answerCard, cards, question, picked, timer),
+    [recorder.answerCard, cards],
+  )
   const exit = useCallback(() => navigate(`${script.basePath}/tests`), [navigate, script.basePath])
   const backToLearn = useCallback(() => navigate(script.basePath), [navigate, script.basePath])
 
   const scores = useMemo(
-    () => (session.done ? scoreByUnit(session.answers, units, skipPassMark) : []),
-    [session.done, session.answers, units, skipPassMark],
+    () => (quiz.done ? scoreByUnit(quiz.answers, units, skipPassMark) : []),
+    [quiz.done, quiz.answers, units, skipPassMark],
   )
+
+  const gate = <TestGate test={learnTest} questionCount={quiz.questions.length} title={title} onExit={exit} />
+  if (!learnTest.session || learnTest.starting || learnTest.startFailed || quiz.questions.length === 0) return gate
 
   if (!started) {
     return (
       <PracticeShell title={title} onExit={exit}>
-        <SkipTestIntro test={test} questionCount={questionCount} unitCount={units.length} best={best} speech={supported} onStart={start} />
+        <SkipTestIntro
+          test={test}
+          questionCount={quiz.questions.length}
+          unitCount={units.length}
+          best={best}
+          speech={supported}
+          onStart={() => setStarted(true)}
+        />
       </PracticeShell>
     )
   }
 
-  if (!session.done) return <QuizRunner title={title} session={session} onExit={exit} />
+  if (!quiz.done) return <QuizRunner title={title} session={quiz} onAnswer={onAnswer} onExit={exit} />
+  if (!outcome) return gate
 
-  const passedCount = scores.filter((s) => s.passed).length
-  const toLearn = scores.filter((s) => !s.passed).map((s) => s.unit)
-  const firstMissed = toLearn[0]
-  const allPassed = toLearn.length === 0
-  const overall = session.correctCount / Math.max(1, session.answers.length)
-  const missed = session.answers.filter((a) => !a.correct).map((a) => a.question.target)
+  const allPassed = outcome.passed
+  const toLearn = allPassed ? [] : scores.filter((s) => !s.passed).map((s) => s.unit)
+  const firstMissed = toLearn[0] ?? (allPassed ? undefined : units[0])
+  const missed = quiz.answers.filter((a) => !a.correct).map((a) => a.question.target)
 
   const headline = allPassed
     ? scope === 'all' || units.length > 1
       ? 'You tested out of everything!'
       : `You tested out of ${units[0]?.title ?? 'this unit'}!`
-    : passedCount > 0
-      ? `You tested out of ${passedCount} unit${passedCount === 1 ? '' : 's'}. Learn ${toLearn.length === 1 ? 'this one' : `these ${toLearn.length}`}: ${toLearn.map((u) => u.title).join(', ')}.`
-      : `No units tested out this time, and that's fine. Each unit needs ${Math.round(skipPassMark * 100)}%, and the lessons will get you there.`
+    : `Not tested out this time, and that's fine. It takes ${Math.round(skipPassMark * 100)}% overall, and the lessons will get you there.`
 
   return (
     <PracticeShell title={title} progress={1} onExit={exit}>
       <QuizResults
-        correct={session.correctCount}
-        total={session.answers.length}
+        correct={outcome.correct}
+        total={outcome.total}
         passed={allPassed}
         passMark={skipPassMark}
         detail={
@@ -120,9 +145,9 @@ function SkipTest({ test, all }: { test: KanaSkipTestDef; all: KanaChar[] }) {
             <p className="font-semibold text-on-surface">{headline}</p>
             {scope === 'all' && (
               <p>
-                {overall >= passMark
-                  ? `That's ${Math.round(overall * 100)}% overall, a pass on the final test. Your certificate is below.`
-                  : `The certificate needs ${Math.round(passMark * 100)}% overall; you scored ${Math.round(overall * 100)}%.`}
+                {outcome.score >= passMark
+                  ? `That's ${Math.round(outcome.score * 100)}% overall, a pass on the final test. Your certificate is below.`
+                  : `The certificate needs ${Math.round(passMark * 100)}% overall; you scored ${Math.round(outcome.score * 100)}%.`}
               </p>
             )}
           </>
@@ -137,11 +162,11 @@ function SkipTest({ test, all }: { test: KanaSkipTestDef; all: KanaChar[] }) {
                 onClick={() => navigate(`${script.basePath}/unit/${firstMissed.id}`)}
                 className="flex min-h-12 items-center justify-center gap-2"
               >
-                {passedCount === 0 ? 'Start learning' : `Start with ${firstMissed.title}`}
+                {`Start with ${firstMissed.title}`}
                 <Icon name="arrow_forward" className="text-xl" />
               </Button>
             )}
-            <Button variant="outline" onClick={start} className="flex min-h-12 items-center justify-center gap-2">
+            <Button variant="outline" onClick={learnTest.retake} className="flex min-h-12 items-center justify-center gap-2">
               <Icon name="refresh" className="text-xl" /> Retry
             </Button>
             <Button

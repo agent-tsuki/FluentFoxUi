@@ -2,6 +2,7 @@
  * Pure mapping between the practice / test screens and the learn API
  * (POST /learn/practice, POST /learn/tests, answer payloads). No I/O.
  */
+import type { KanaChar } from '@/types'
 import type { KanaScriptId } from '@/lib/content/kana/scriptIds'
 import type { KanjiLevelId } from '@/types/kanji'
 import type {
@@ -34,8 +35,9 @@ export type KanaPracticeMode = 'listen' | 'build' | 'speed' | 'lookalike' | 'mat
 export type KanjiPracticeMode = 'flashcards' | 'meaning' | 'reading' | 'listening' | 'lookalikes' | 'writing'
 
 /**
- * Modes the API has its own card choice for; the rest practise a unit's
- * cards (with `?unit=`) or the learner's weakest ones.
+ * Modes the API has its own card choice for when practising the whole track.
+ * A unit session (`?unit=`) always asks for the unit's cards, so every kana
+ * the round can show has a card; the rest practise the weakest cards.
  */
 const KANA_API_MODE: Partial<Record<KanaPracticeMode, PracticeMode>> = {
   speed: 'speed',
@@ -48,8 +50,8 @@ const KANJI_API_MODE: Partial<Record<KanjiPracticeMode, PracticeMode>> = {
 }
 
 function practiceRequest(track: LearningTrack, mode: PracticeMode | undefined, unit?: string): StartPracticeRequest {
-  const apiMode = mode ?? (unit ? 'unit' : 'weak')
-  return unit ? { track, mode: apiMode, unit } : { track, mode: apiMode }
+  if (unit) return { track, mode: 'unit', unit }
+  return { track, mode: mode ?? 'weak' }
 }
 
 export function kanaPracticeRequest(script: KanaScriptId, mode: KanaPracticeMode, unit?: string): StartPracticeRequest {
@@ -131,6 +133,25 @@ export const KANA_QUIZ_QUESTION_TYPE: Record<KanaQuizKind, QuestionType> = {
   read: 'kana_mcq_romaji',
   find: 'kana_mcq_kana',
   listen: 'kana_listen',
+}
+
+type KanaOption = Pick<KanaChar, 'character' | 'romaji'>
+
+/**
+ * A kana quiz answer as the learn API grades it: the romaji for a 'read'
+ * question, the kana otherwise. ー and ッ are asked through a loanword, so
+ * for them (`mark`) the mark itself stands for a right answer and the picked
+ * spelling for a wrong one.
+ */
+export function kanaQuizAnswer(
+  kind: KanaQuizKind,
+  picked: KanaOption,
+  options: readonly KanaOption[],
+  mark?: { char: string; correct: boolean },
+): { type: QuestionType; given: GivenAnswer } {
+  if (mark) return { type: 'kana_mcq_kana', given: { chosen_option: mark.correct ? mark.char : picked.character } }
+  const value = (k: KanaOption) => (kind === 'read' ? k.romaji : k.character)
+  return { type: KANA_QUIZ_QUESTION_TYPE[kind], given: choiceAnswer(value(picked), options.map(value)) }
 }
 
 /** Kanji quiz kinds (KanjiQuizRunner) as question types. */
