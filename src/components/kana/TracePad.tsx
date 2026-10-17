@@ -2,15 +2,25 @@ import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } f
 import { AnimatePresence, motion } from 'framer-motion'
 import { Icon } from '@/components/ui/Icon'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
-import { useKanaProgressStore } from '@/hooks/useKanaProgress'
 import { cn } from '@/lib/cn'
 import { CellGuides } from '@/components/kana/StrokeOrder'
 import { CELL, type KanaGlyph } from '@/components/kana/useKanaStrokes'
 import { judgeStroke, pointsToPath, polylineLength, type Point } from '@/components/kana/strokeGeometry'
 
+/**
+ * How much guide the learner sees: the whole character (trace), a faint
+ * outline (faded), or nothing but the grid (from memory). Every mode checks
+ * each stroke against the same reference.
+ */
+export type TraceGuide = 'full' | 'faded' | 'none'
+
 interface TracePadProps {
-  id: string
   glyph: KanaGlyph
+  /** Runs once when every stroke is drawn correctly (e.g. mark the kana traced). */
+  onComplete?: () => void
+  guide?: TraceGuide
+  /** Status line wording for the drawing mode. */
+  verb?: string
 }
 
 interface Miss {
@@ -27,9 +37,12 @@ interface Miss {
  * Optional for keyboard/screen-reader users: the status line is the text
  * alternative and nothing else on the sheet depends on it.
  */
-export function TracePad({ id, glyph }: TracePadProps) {
+export function TracePad({ glyph, onComplete, guide = 'full', verb = 'traced' }: TracePadProps) {
   const reducedMotion = useReducedMotion()
-  const progress = useKanaProgressStore()
+  const completeRef = useRef(onComplete)
+  useEffect(() => {
+    completeRef.current = onComplete
+  })
   const svgRef = useRef<SVGSVGElement>(null)
   const liveRef = useRef<SVGPathElement>(null)
   const points = useRef<Point[]>([])
@@ -41,8 +54,8 @@ export function TracePad({ id, glyph }: TracePadProps) {
   const complete = done >= total
 
   useEffect(() => {
-    if (complete) progress.markTraced(id)
-  }, [complete, id, progress])
+    if (complete) completeRef.current?.()
+  }, [complete])
 
   /** Screen → viewBox coordinates, so every check runs in the 109-unit cell space. */
   const toLocal = (clientX: number, clientY: number): Point | null => {
@@ -137,12 +150,20 @@ export function TracePad({ id, glyph }: TracePadProps) {
             strokeWidth={i < done ? 5 : 6}
             className={cn(
               'transition-colors duration-300',
-              i < done ? 'stroke-success' : i === done ? 'stroke-primary/25' : 'stroke-outline-variant/60',
+              i < done
+                ? 'stroke-success'
+                : guide === 'none'
+                  ? 'stroke-transparent'
+                  : guide === 'faded'
+                    ? 'stroke-outline-variant/30'
+                    : i === done
+                      ? 'stroke-primary/25'
+                      : 'stroke-outline-variant/60',
             )}
           />
         ))}
         {/* Where the next stroke starts. */}
-        {next && <circle cx={next.points[0][0]} cy={next.points[0][1]} r={3.5} className="fill-primary" />}
+        {next && guide === 'full' && <circle cx={next.points[0][0]} cy={next.points[0][1]} r={3.5} className="fill-primary" />}
 
         <AnimatePresence>
           {miss && (
@@ -162,7 +183,7 @@ export function TracePad({ id, glyph }: TracePadProps) {
         <path ref={liveRef} fill="none" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" className="stroke-primary" />
       </svg>
 
-      <TraceStatus done={done} total={total} hint={miss?.hint} onReset={reset} />
+      <TraceStatus done={done} total={total} hint={miss?.hint} verb={verb} onReset={reset} />
     </div>
   )
 }
@@ -171,11 +192,12 @@ interface TraceStatusProps {
   done: number
   total: number
   hint?: string
+  verb: string
   onReset: () => void
 }
 
 /** Visible, announced progress line: the text alternative to the pad. */
-function TraceStatus({ done, total, hint, onReset }: TraceStatusProps) {
+function TraceStatus({ done, total, hint, verb, onReset }: TraceStatusProps) {
   const complete = done >= total
   return (
     <div className="flex w-full flex-wrap items-center justify-between gap-x-4 gap-y-1">
@@ -183,7 +205,7 @@ function TraceStatus({ done, total, hint, onReset }: TraceStatusProps) {
         {complete ? (
           <span className="inline-flex items-center gap-1.5 font-semibold text-success">
             <Icon name="check_circle" filled className="text-xl" />
-            All {total} strokes traced. Nice!
+            All {total} strokes {verb}. Nice!
           </span>
         ) : (
           <>
@@ -199,7 +221,7 @@ function TraceStatus({ done, total, hint, onReset }: TraceStatusProps) {
           className="-mr-3 inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-primary outline-none hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-primary"
         >
           <Icon name="refresh" className="text-xl" />
-          {complete ? 'Trace again' : 'Start over'}
+          {complete ? 'Again' : 'Start over'}
         </button>
       )}
     </div>

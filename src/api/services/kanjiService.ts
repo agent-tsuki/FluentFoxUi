@@ -1,4 +1,3 @@
-import type { KanjiGroup as LegacyKanjiGroup } from '@/types'
 import type {
   KanjiEntry,
   KanjiIndexRow,
@@ -13,7 +12,6 @@ import type {
 import { KANJI_LEVELS, availableKanjiLevels, kanjiLevelMeta } from '@/lib/content/kanji/levels'
 import { KANJI_LEVEL_CONFIGS } from '@/lib/content/kanji/levelConfigs'
 import { toHiragana } from '@/lib/content/kanji/kanjiText'
-import { mockKanjiGroups } from '@/api/mock/kanji'
 
 /**
  * Kanji data service: an API-shaped async contract. Every method returns the
@@ -176,12 +174,4 @@ export const kanjiService = {
   getKanji,
   getStrokes,
   search,
-
-  /**
-   * @deprecated Legacy `/kana/kanji` page only (KanjiPage.tsx, now unrouted).
-   * Agent C removes these with KanjiPage, sections/KanjiChart and api/mock/kanji.
-   */
-  getGroups: async (): Promise<LegacyKanjiGroup[]> => mockKanjiGroups,
-  /** @deprecated See getGroups. */
-  getByLevel: async (level: string): Promise<LegacyKanjiGroup | undefined> => mockKanjiGroups.find((g) => g.level === level),
 }

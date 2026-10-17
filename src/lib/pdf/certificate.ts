@@ -264,3 +264,81 @@ export function buildKanaMasterCertificate(
   centredText(doc, CREDIT_LINE, 189, 6.5, 'normal', GREY.number)
   return doc
 }
+
+// ─── Kanji level ─────────────────────────────────────────────────────────────
+
+export interface KanjiCertificateFields {
+  /** "FoxSensei · N5 Kanji" */
+  title: string
+  /** "N5" */
+  levelLabel: string
+  kanjiCount: number
+  name: string
+  score: number
+  date: Date
+}
+
+/**
+ * Kanji level certificate (A4 landscape). `data` holds kana strokes (for the
+ * name) plus 漢 and 字 for the decorative heading. Says "FoxSensei", never
+ * "JLPT": it is not an official JLPT result.
+ */
+export function buildKanjiCertificate(JsPDF: JsPdfCtor, data: RawStrokeData, input: KanjiCertificateFields): jsPDF {
+  const doc = new JsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
+  doc.setProperties({ title: input.title, creator: 'FoxSensei' })
+  drawBorder(doc)
+
+  const deco = Array.from('漢字')
+    .map((ch) => buildGlyph(data, ch))
+    .filter((g): g is PdfGlyph => g !== null)
+  const decoH = 15
+  const decoW = deco.length * decoH * 0.92
+  drawGlyphRun(doc, deco, CX - decoW / 2, 22, decoH, { color: BRAND_ORANGE, lineWidth: 0.55 })
+
+  centredText(doc, input.title, 55, 28, 'bold', INK)
+  doc.setDrawColor(BRAND_ORANGE)
+  doc.setLineWidth(0.5)
+  doc.line(CX - 30, 61, CX + 30, 61)
+
+  const name = input.name.trim().replace(/\s+/g, ' ')
+  const runs = name ? toRuns(data, name) : null
+  let sentenceLead = 'has completed'
+  if (runs) {
+    centredText(doc, 'This certifies that', 79, 13, 'normal', GREY.muted)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(INK)
+    let size = 30
+    while (size > 14 && measureRuns(doc, runs, size) > 200) size -= 1
+    const w = measureRuns(doc, runs, size)
+    drawRuns(doc, runs, CX - w / 2, 97, size, { color: INK, lineWidth: size * 0.03 })
+  } else {
+    centredText(doc, 'Awarded to the learner', 95, 22, 'normal', INK)
+    sentenceLead = 'who has completed'
+  }
+  doc.setDrawColor(GREY.cellBorder)
+  doc.setLineWidth(0.3)
+  doc.line(CX - 85, 102, CX + 85, 102)
+
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(13)
+  doc.setTextColor(INK)
+  doc.text(
+    [
+      `${sentenceLead} the FoxSensei ${input.levelLabel} kanji course`,
+      `and passed its level test on ${input.kanjiCount} kanji with a score of ${scorePercent(input.score)}%.`,
+    ],
+    CX,
+    115,
+    { align: 'center', lineHeightFactor: 1.5 },
+  )
+
+  centredText(doc, formatLongDate(input.date), 143, 14, 'bold', INK)
+  doc.setDrawColor(GREY.cellBorder)
+  doc.setLineWidth(0.3)
+  doc.line(CX - 35, 146, CX + 35, 146)
+  centredText(doc, 'Date', 151, 8, 'normal', GREY.muted)
+
+  centredText(doc, 'Issued on this device · not account-verified · not an official JLPT certificate', 178, 8.5, 'normal', GREY.muted)
+  centredText(doc, `${CREDIT_LINE} · Kanji data: KANJIDIC2 & JMdict (EDRDG), CC BY-SA 4.0`, 185, 6.5, 'normal', GREY.number)
+  return doc
+}

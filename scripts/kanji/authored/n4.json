@@ -1,0 +1,550 @@
+{
+  "level": "n4",
+  "groups": [
+    {
+      "id": "people",
+      "title": "People",
+      "summary": "Your body and your family.",
+      "unitIds": [
+        "u01",
+        "u02"
+      ]
+    },
+    {
+      "id": "time",
+      "title": "Time & seasons",
+      "summary": "The four seasons, colours and times of day.",
+      "unitIds": [
+        "u03",
+        "u04"
+      ]
+    },
+    {
+      "id": "life",
+      "title": "Everyday life",
+      "summary": "Food, nature and places around town.",
+      "unitIds": [
+        "u05",
+        "u06",
+        "u07"
+      ]
+    },
+    {
+      "id": "study",
+      "title": "Study",
+      "summary": "School subjects, tests and research.",
+      "unitIds": [
+        "u08",
+        "u09"
+      ]
+    },
+    {
+      "id": "actions",
+      "title": "Actions",
+      "summary": "Moving, travelling, thinking, buying and making.",
+      "unitIds": [
+        "u10",
+        "u11",
+        "u12",
+        "u13",
+        "u14"
+      ]
+    },
+    {
+      "id": "society",
+      "title": "Work & the world",
+      "summary": "Companies, places and the order of things.",
+      "unitIds": [
+        "u15",
+        "u16",
+        "u17"
+      ]
+    },
+    {
+      "id": "describe",
+      "title": "Describing things",
+      "summary": "Amounts, health, old and new.",
+      "unitIds": [
+        "u18",
+        "u19",
+        "u20",
+        "u21"
+      ]
+    }
+  ],
+  "units": [
+    {
+      "id": "u01",
+      "title": "The body",
+      "summary": "Mouth, eye, hand, foot, body, power, heart and self.",
+      "kanji": [
+        "口",
+        "目",
+        "手",
+        "足",
+        "体",
+        "力",
+        "心",
+        "自"
+      ]
+    },
+    {
+      "id": "u02",
+      "title": "Family",
+      "summary": "Brothers, sisters, home, family and parents.",
+      "kanji": [
+        "兄",
+        "弟",
+        "姉",
+        "妹",
+        "家",
+        "族",
+        "私",
+        "親"
+      ]
+    },
+    {
+      "id": "u03",
+      "title": "Seasons & colours",
+      "summary": "Spring to winter, red, blue, black and colour.",
+      "kanji": [
+        "春",
+        "夏",
+        "秋",
+        "冬",
+        "赤",
+        "青",
+        "黒",
+        "色"
+      ]
+    },
+    {
+      "id": "u04",
+      "title": "Times of day",
+      "summary": "Morning, noon, night, evening, week and weekday.",
+      "kanji": [
+        "朝",
+        "昼",
+        "夜",
+        "夕",
+        "早",
+        "週",
+        "曜",
+        "始"
+      ]
+    },
+    {
+      "id": "u05",
+      "title": "Food & drink",
+      "summary": "Meals, drinks, meat, fish, beef, tea and taste.",
+      "kanji": [
+        "飯",
+        "飲",
+        "肉",
+        "魚",
+        "牛",
+        "茶",
+        "料",
+        "味"
+      ]
+    },
+    {
+      "id": "u06",
+      "title": "Animals & nature",
+      "summary": "Dogs, birds, flowers, wind, sea, fields and land.",
+      "kanji": [
+        "犬",
+        "鳥",
+        "花",
+        "風",
+        "海",
+        "野",
+        "田",
+        "地"
+      ]
+    },
+    {
+      "id": "u07",
+      "title": "Around town",
+      "summary": "Towns, shops, stations, halls and rooms.",
+      "kanji": [
+        "町",
+        "店",
+        "駅",
+        "館",
+        "屋",
+        "堂",
+        "室",
+        "院"
+      ]
+    },
+    {
+      "id": "u08",
+      "title": "School subjects",
+      "summary": "Teach, learn, study, writing, kanji and English.",
+      "kanji": [
+        "教",
+        "習",
+        "勉",
+        "強",
+        "文",
+        "字",
+        "漢",
+        "英"
+      ]
+    },
+    {
+      "id": "u09",
+      "title": "Tests & research",
+      "summary": "Questions, answers, exams and research.",
+      "kanji": [
+        "問",
+        "題",
+        "答",
+        "試",
+        "験",
+        "研",
+        "究",
+        "質"
+      ]
+    },
+    {
+      "id": "u10",
+      "title": "On the move",
+      "summary": "Walk, run, get up, stop, carry, move, turn and send.",
+      "kanji": [
+        "歩",
+        "走",
+        "起",
+        "止",
+        "運",
+        "動",
+        "転",
+        "送"
+      ]
+    },
+    {
+      "id": "u11",
+      "title": "Journeys",
+      "summary": "Leave, return, pass, road, travel, live, arrive and hurry.",
+      "kanji": [
+        "去",
+        "帰",
+        "通",
+        "道",
+        "旅",
+        "住",
+        "着",
+        "急"
+      ]
+    },
+    {
+      "id": "u12",
+      "title": "Words & music",
+      "summary": "Say, think, consider, know, meaning, song, sound and fun.",
+      "kanji": [
+        "言",
+        "思",
+        "考",
+        "知",
+        "意",
+        "歌",
+        "音",
+        "楽"
+      ]
+    },
+    {
+      "id": "u13",
+      "title": "Shopping & making",
+      "summary": "Buy, sell, lend, borrow, goods, things, make and craft.",
+      "kanji": [
+        "買",
+        "売",
+        "貸",
+        "借",
+        "品",
+        "物",
+        "作",
+        "工"
+      ]
+    },
+    {
+      "id": "u14",
+      "title": "Using things",
+      "summary": "Use, hold, open, start, copy, project and picture.",
+      "kanji": [
+        "使",
+        "用",
+        "持",
+        "開",
+        "発",
+        "写",
+        "映",
+        "画"
+      ]
+    },
+    {
+      "id": "u15",
+      "title": "Work",
+      "summary": "Company, meet, staff, job, business and public.",
+      "kanji": [
+        "社",
+        "会",
+        "員",
+        "仕",
+        "事",
+        "業",
+        "者",
+        "公"
+      ]
+    },
+    {
+      "id": "u16",
+      "title": "Places & the world",
+      "summary": "World, capital, place, direction, building, map and silver.",
+      "kanji": [
+        "世",
+        "界",
+        "京",
+        "場",
+        "方",
+        "建",
+        "図",
+        "銀"
+      ]
+    },
+    {
+      "id": "u17",
+      "title": "Order of things",
+      "summary": "Generation, times, since, end, wait, gather, measure and cut.",
+      "kanji": [
+        "代",
+        "度",
+        "以",
+        "終",
+        "待",
+        "集",
+        "計",
+        "切"
+      ]
+    },
+    {
+      "id": "u18",
+      "title": "How much",
+      "summary": "Many, few, wide, heavy, true, correct, same and separate.",
+      "kanji": [
+        "多",
+        "少",
+        "広",
+        "重",
+        "真",
+        "正",
+        "同",
+        "別"
+      ]
+    },
+    {
+      "id": "u19",
+      "title": "Health & feelings",
+      "summary": "Sick, doctor, death, safe, bad, special, not and caution.",
+      "kanji": [
+        "病",
+        "医",
+        "死",
+        "安",
+        "悪",
+        "特",
+        "不",
+        "注"
+      ]
+    },
+    {
+      "id": "u20",
+      "title": "Old & new",
+      "summary": "New, old, bright, origin, near, sky and have.",
+      "kanji": [
+        "新",
+        "古",
+        "明",
+        "元",
+        "近",
+        "空",
+        "有"
+      ]
+    },
+    {
+      "id": "u21",
+      "title": "Things & ideas",
+      "summary": "Stand, reason, master, stand (platform), paper, Western and clothes.",
+      "kanji": [
+        "立",
+        "理",
+        "主",
+        "台",
+        "紙",
+        "洋",
+        "服"
+      ]
+    }
+  ],
+  "keys": {
+    "目": "め",
+    "体": "からだ",
+    "力": "ちから",
+    "心": "こころ",
+    "兄": "あに",
+    "姉": "あね",
+    "妹": "いもうと",
+    "私": "わたし",
+    "春": "はる",
+    "秋": "あき",
+    "青": "あお",
+    "朝": "あさ",
+    "夜": "よる",
+    "飲": "の",
+    "風": "かぜ",
+    "海": "うみ",
+    "田": "た",
+    "店": "みせ",
+    "屋": "や",
+    "習": "なら",
+    "強": "つよ",
+    "歩": "ある",
+    "走": "はし",
+    "動": "うご",
+    "帰": "かえ",
+    "通": "とお",
+    "道": "みち",
+    "住": "す",
+    "着": "き",
+    "急": "いそ",
+    "言": "い",
+    "知": "し",
+    "音": "おと",
+    "楽": "たの",
+    "売": "う",
+    "作": "つく",
+    "使": "つか",
+    "開": "あ",
+    "会": "あ",
+    "事": "こと",
+    "場": "ば",
+    "方": "かた",
+    "建": "た",
+    "図": "ズ",
+    "集": "あつ",
+    "切": "き",
+    "多": "おお",
+    "少": "すこ",
+    "重": "おも",
+    "同": "おな",
+    "死": "し",
+    "安": "やす",
+    "悪": "わる",
+    "新": "あたら",
+    "古": "ふる",
+    "明": "あか",
+    "近": "ちか",
+    "空": "そら",
+    "立": "た",
+    "早": "はや",
+    "赤": "あか",
+    "黒": "くろ",
+    "色": "いろ",
+    "冬": "ふゆ",
+    "夏": "なつ",
+    "魚": "さかな",
+    "犬": "いぬ",
+    "鳥": "とり",
+    "花": "はな",
+    "町": "まち",
+    "駅": "エキ",
+    "字": "ジ",
+    "答": "こた",
+    "起": "お",
+    "止": "と",
+    "送": "おく",
+    "思": "おも",
+    "考": "かんが",
+    "歌": "うた",
+    "買": "か",
+    "貸": "か",
+    "借": "か",
+    "持": "も",
+    "紙": "かみ",
+    "服": "フク",
+    "親": "おや",
+    "口": "くち",
+    "手": "て",
+    "足": "あし",
+    "肉": "ニク",
+    "茶": "チャ",
+    "待": "ま",
+    "終": "お",
+    "広": "ひろ"
+  },
+  "readingTips": {
+    "会": "あ(う) \"meet\" in everyday Japanese; カイ in compounds like 会社 and 会話.",
+    "明": "あか(るい) \"bright\"; メイ in compounds; あ(ける) in 明日 (あした is a special reading).",
+    "方": "かた \"person / way of doing\" (話し方); ホウ \"direction\" (この方 can be either).",
+    "着": "き(る) \"wear\"; つ(く) \"arrive\"; チャク in 到着.",
+    "開": "あ(ける)/あ(く) \"open\"; ひら(く) is a more formal \"open\"; カイ in compounds.",
+    "楽": "たの(しい) \"fun\"; ラク \"comfortable\"; ガク \"music\" (音楽).",
+    "重": "おも(い) \"heavy\"; ジュウ in 体重; え in 二重 (ふたえ, double eyelid).",
+    "風": "かぜ \"wind\"; フウ in 台風; ふう \"style\" as in 和風."
+  },
+  "meanings": {
+    "足": "foot",
+    "私": "I",
+    "春": "spring",
+    "昼": "noon",
+    "始": "begin",
+    "料": "fee",
+    "味": "taste",
+    "野": "field",
+    "館": "hall",
+    "屋": "shop",
+    "堂": "hall",
+    "院": "institution",
+    "勉": "effort",
+    "文": "writing",
+    "漢": "China",
+    "英": "English",
+    "答": "answer",
+    "験": "test",
+    "研": "sharpen",
+    "質": "quality",
+    "起": "get up",
+    "送": "send",
+    "去": "leave",
+    "帰": "return",
+    "通": "pass through",
+    "道": "road",
+    "着": "wear",
+    "楽": "fun",
+    "画": "picture",
+    "会": "meet",
+    "仕": "serve",
+    "者": "person",
+    "場": "place",
+    "代": "generation",
+    "度": "times",
+    "以": "since",
+    "計": "measure",
+    "安": "cheap",
+    "不": "not",
+    "注": "pour",
+    "元": "origin",
+    "有": "have",
+    "立": "stand",
+    "理": "reason",
+    "主": "master",
+    "台": "stand",
+    "洋": "ocean",
+    "服": "clothes",
+    "族": "family",
+    "色": "colour",
+    "発": "start",
+    "映": "project"
+  }
+}

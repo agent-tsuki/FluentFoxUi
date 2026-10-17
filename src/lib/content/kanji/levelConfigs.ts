@@ -1,15 +1,15 @@
 /**
  * Per-level course settings and bundled-data loaders (the kanji counterpart
- * of src/lib/content/kana/scripts.ts). Owned by Agent A after Phase 0.
+ * of src/lib/content/kana/scripts.ts).
  *
- * Today N5 loads the Phase-0 fixture and N4 an empty level; Agent A points
- * both at `generated/n5.json` / `generated/n4.json` (+ authored TS) with
- * `import()`, keeping the `cached()` wrapper.
+ * N5 and N4 load the generated JSON in src/lib/content/kanji/generated/
+ * (built by scripts/kanji/build.py) with `import()`, so each level's data is
+ * its own chunk: the light index first, the full detail only when a page needs it.
  *
  * Coming-soon levels have no `bundled` loaders: `kanjiService` reports them
  * unavailable now and fetches them from the API later.
  */
-import type { KanjiLevelId } from '@/types/kanji'
+import type { KanjiLevelDetail, KanjiLevelId, KanjiLevelIndex } from '@/types/kanji'
 import type { KanjiBundledLoaders, KanjiLevelConfig } from '@/lib/content/kanji/courseTypes'
 import { KANJI_UNIT_STEPS } from '@/lib/content/kanji/courseTypes'
 import { kanjiLevelMeta, kanjiLevelPath } from '@/lib/content/kanji/levels'
@@ -28,15 +28,15 @@ function cached<T>(load: () => Promise<T>): () => Promise<T> {
   }
 }
 
+// JSON imports are typed loosely (string unions widen to string), hence the casts.
 const N5_BUNDLED: KanjiBundledLoaders = {
-  loadIndex: cached(() => import('@/lib/content/kanji/fixture').then((m) => m.KANJI_FIXTURE_N5_INDEX)),
-  loadDetail: cached(() => import('@/lib/content/kanji/fixture').then((m) => m.KANJI_FIXTURE_N5_DETAIL)),
+  loadIndex: cached(() => import('@/lib/content/kanji/generated/n5.index.json').then((m) => m.default as KanjiLevelIndex)),
+  loadDetail: cached(() => import('@/lib/content/kanji/generated/n5.detail.json').then((m) => m.default as KanjiLevelDetail)),
 }
 
-/** Placeholder until generated N4 data lands: an available level with no units yet (UI shows its empty state). */
 const N4_BUNDLED: KanjiBundledLoaders = {
-  loadIndex: async () => ({ level: 'n4', units: [], groups: [], rows: [] }),
-  loadDetail: async () => ({ level: 'n4', entries: [] }),
+  loadIndex: cached(() => import('@/lib/content/kanji/generated/n4.index.json').then((m) => m.default as KanjiLevelIndex)),
+  loadDetail: cached(() => import('@/lib/content/kanji/generated/n4.detail.json').then((m) => m.default as KanjiLevelDetail)),
 }
 
 const BUNDLED: Partial<Record<KanjiLevelId, KanjiBundledLoaders>> = { n5: N5_BUNDLED, n4: N4_BUNDLED }

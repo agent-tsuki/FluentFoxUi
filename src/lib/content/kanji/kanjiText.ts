@@ -35,7 +35,7 @@ export function kanjiCardId(char: string, face: KanjiCardFace): string {
   return `${char}:${face === 'meaning' ? 'm' : 'r'}`
 }
 
-/** The index row of a full entry (build scripts and the fixture derive the index this way). */
+/** The index row of a full entry (mirrors index_row in scripts/kanji/build.py). */
 export function indexRowOf(entry: KanjiEntry): KanjiIndexRow {
   return {
     char: entry.char,

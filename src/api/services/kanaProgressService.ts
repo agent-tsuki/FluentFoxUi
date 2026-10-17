@@ -64,7 +64,12 @@ type Listener = () => void
 /** One script's kana progress: mastery, FSRS reviews and today's goal. */
 export type KanaProgressStore = ReturnType<typeof createKanaProgressStore>
 
-function createKanaProgressStore(storageKey: string) {
+/**
+ * A progress store under its own storage key. The kanji course reuses it
+ * (kanjiProgressService): item ids there are review-card ids (`日:m`, `日:r`)
+ * and kanji chars (`日`, for seen / written).
+ */
+export function createKanaProgressStore(storageKey: string) {
   const listeners = new Set<Listener>()
   let state: KanaProgressState = load()
 
@@ -131,25 +136,31 @@ function createKanaProgressStore(storageKey: string) {
      * ts-fsrs is loaded on first use so pages that only show mastery stay light.
      */
     async recordReview(id: string, grade: KanaGrade, now: Date = new Date()): Promise<void> {
+      await store.recordReviews([id], grade, now)
+    },
+
+    /** Grades several items in one write (one ts-fsrs load, one storage commit). */
+    async recordReviews(ids: readonly string[], grade: KanaGrade, now: Date = new Date()): Promise<void> {
+      if (ids.length === 0) return
       const { fsrs, createEmptyCard, Rating } = await import('ts-fsrs')
       const ratings = { again: Rating.Again, hard: Rating.Hard, good: Rating.Good, easy: Rating.Easy } as const
       const scheduler = fsrs({ enable_fuzz: true })
-      const stored = state.items[id]?.card
-      const card = stored
-        ? {
-            ...stored,
-            due: new Date(stored.due),
-            last_review: stored.last_review ? new Date(stored.last_review) : undefined,
-          }
-        : createEmptyCard(now)
-      const { card: next } = scheduler.next(card, now, ratings[grade])
-
-      updateItem(id, (item) => ({
-        ...item,
-        seenAt: item.seenAt ?? now.toISOString(),
-        card: toStoredCard(next),
-      }))
-      store.markGoalDone(id, now)
+      const items = { ...state.items }
+      for (const id of ids) {
+        const stored = items[id]?.card
+        const card = stored
+          ? {
+              ...stored,
+              due: new Date(stored.due),
+              last_review: stored.last_review ? new Date(stored.last_review) : undefined,
+            }
+          : createEmptyCard(now)
+        const { card: next } = scheduler.next(card, now, ratings[grade])
+        const item = items[id] ?? { id }
+        items[id] = { ...item, seenAt: item.seenAt ?? now.toISOString(), card: toStoredCard(next) }
+      }
+      commit({ ...state, items })
+      ids.forEach((id) => store.markGoalDone(id, now))
     },
 
     /**

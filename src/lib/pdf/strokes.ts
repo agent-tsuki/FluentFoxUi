@@ -29,9 +29,9 @@ export interface StrokePath {
 const TOKEN = /[A-Za-z]|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/g
 
 /**
- * Parses SVG path data into absolute cubic segments. Handles M/m and C/c (all
- * KanjiVG hiragana need) plus L/l as a straight cubic, with implicit command
- * repetition. Anything else throws — better a loud error than a wrong glyph.
+ * Parses SVG path data into absolute cubic segments. Handles M/m, C/c and S/s
+ * (all KanjiVG kana and kanji need) plus L/l as a straight cubic, with implicit
+ * command repetition. Anything else throws — better a loud error than a wrong glyph.
  */
 export function parseStrokePath(d: string): StrokePath {
   const tokens = d.match(TOKEN) ?? []
@@ -72,6 +72,16 @@ export function parseStrokePath(d: string): StrokePath {
       }
       case 'c': {
         const c1: Vec = [ox + num(), oy + num()]
+        const c2: Vec = [ox + num(), oy + num()]
+        const end: Vec = [ox + num(), oy + num()]
+        segments.push({ c1, c2, end })
+        ;[x, y] = end
+        break
+      }
+      case 's': {
+        // First control point mirrors the previous cubic's second one (or the current point).
+        const last = segments[segments.length - 1]
+        const c1: Vec = last ? [2 * x - last.c2[0], 2 * y - last.c2[1]] : [x, y]
         const c2: Vec = [ox + num(), oy + num()]
         const end: Vec = [ox + num(), oy + num()]
         segments.push({ c1, c2, end })
