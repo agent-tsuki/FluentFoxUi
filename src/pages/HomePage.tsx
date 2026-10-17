@@ -1,27 +1,5 @@
-import {
-  HomeHero,
-  LevelPicker,
-  LearningPath,
-  DashboardExample,
-  WhyItWorks,
-  ResourcesSection,
-  FounderSection,
-  FaqSection,
-  FinalCta,
-} from '@/components/sections/HomePage'
+import { ConceptHome } from '@/components/sections/HomePage/ConceptHome'
 
 export function HomePage() {
-  return (
-    <main className="pt-nav">
-      <HomeHero />
-      <LevelPicker />
-      <LearningPath />
-      <DashboardExample />
-      <WhyItWorks />
-      <ResourcesSection />
-      <FounderSection />
-      <FaqSection />
-      <FinalCta />
-    </main>
-  )
+  return <div className="pt-nav"><ConceptHome /></div>
 }
