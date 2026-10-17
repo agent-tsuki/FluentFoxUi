@@ -171,6 +171,10 @@ function Shell() {
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
+// Guests may browse charts, unit pages and kanji pages. Every quiz, test,
+// practice and review route needs a signed-in, verified user (RequireAuth),
+// because answers are graded and stored on the server.
+
 /**
  * One kana script's route tree under /kana/<script>, built per registered
  * script (explicit paths, so /kana/kanji is never captured and unknown
@@ -193,11 +197,11 @@ function kanaCourseRoutes(script: RegisteredKanaScriptId): RouteObject {
         ],
       },
       { path: 'print',          element: <Navigate to={`${base}/downloads`} replace /> },
-      { path: 'practice/:mode', element: <KanaPracticePage /> },
+      { path: 'practice/:mode', element: <RequireAuth><KanaPracticePage /></RequireAuth> },
       { path: 'unit/:unitId',   element: <KanaUnitPage /> },
-      { path: 'quiz/:unitId',   element: <KanaUnitQuizPage /> },
-      { path: 'test',           element: <KanaFinalTestPage /> },
-      { path: 'skip/:scope',    element: <KanaSkipTestPage /> },
+      { path: 'quiz/:unitId',   element: <RequireAuth><KanaUnitQuizPage /></RequireAuth> },
+      { path: 'test',           element: <RequireAuth><KanaFinalTestPage /></RequireAuth> },
+      { path: 'skip/:scope',    element: <RequireAuth><KanaSkipTestPage /></RequireAuth> },
     ],
   }
 }
@@ -221,17 +225,17 @@ function kanjiLevelRoutes(level: KanjiLevelMeta): RouteObject {
         element: <KanjiCourseLayout />,
         children: [
           { index: true,         element: <CoursePageSuspense><KanjiCoursePage /></CoursePageSuspense> },
-          { path: 'reviews',     element: <CoursePageSuspense><KanjiReviewsPage /></CoursePageSuspense> },
+          { path: 'reviews',     element: <CoursePageSuspense><RequireAuth><KanjiReviewsPage /></RequireAuth></CoursePageSuspense> },
           { path: 'browse',      element: <CoursePageSuspense><KanjiBrowsePage /></CoursePageSuspense> },
           { path: 'tests',       element: <CoursePageSuspense><KanjiTestsPage /></CoursePageSuspense> },
           { path: 'downloads',   element: <CoursePageSuspense><KanjiDownloadsPage /></CoursePageSuspense> },
         ],
       },
       { path: 'unit/:unitId',   element: <KanjiUnitPage /> },
-      { path: 'quiz/:unitId',   element: <KanjiUnitQuizPage /> },
-      { path: 'practice/:mode', element: <KanjiPracticePage /> },
-      { path: 'skip/:scope',    element: <KanjiSkipTestPage /> },
-      { path: 'test',           element: <KanjiLevelTestPage /> },
+      { path: 'quiz/:unitId',   element: <RequireAuth><KanjiUnitQuizPage /></RequireAuth> },
+      { path: 'practice/:mode', element: <RequireAuth><KanjiPracticePage /></RequireAuth> },
+      { path: 'skip/:scope',    element: <RequireAuth><KanjiSkipTestPage /></RequireAuth> },
+      { path: 'test',           element: <RequireAuth><KanjiLevelTestPage /></RequireAuth> },
       { path: '*',              element: <Navigate to={base} replace /> },
     ],
   }
@@ -279,11 +283,11 @@ const router = createBrowserRouter([
       { path: 'kana/kanji',      element: <Navigate to={kanjiLevelPath(DEFAULT_KANJI_LEVEL)} replace /> },
       { path: 'kanji',           element: <KanjiIndexRedirect /> },
       ...KANJI_LEVELS.map(kanjiLevelRoutes),
-      { path: 'kanji/reviews/session', element: <KanjiReviewSessionPage /> },
+      { path: 'kanji/reviews/session', element: <RequireAuth><KanjiReviewSessionPage /></RequireAuth> },
       // /kanji/日 (validated inside: anything that isn't one kanji is a 404).
       { path: 'kanji/:char',     element: <KanjiDetailPage /> },
       { path: 'grammar/:level/:chapterId?',  element: <GrammarPage /> },
-      { path: 'quiz',            element: <QuizPage /> },
+      { path: 'quiz',            element: <RequireAuth><QuizPage /></RequireAuth> },
       { path: 'classes',         element: <ClassesPage /> },
       { path: 'classes/:teacherId', element: <ClassDetailPage /> },
       { path: 'about',           element: <AboutPage /> },

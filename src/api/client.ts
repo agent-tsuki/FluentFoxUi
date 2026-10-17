@@ -44,11 +44,14 @@ const PUBLIC_AUTH_PATHS = [
   // token or trigger a refresh.
   '/health',
 ]
+// Public content (kana charts, kanji levels) is the same for everyone: guests
+// browse it, and an expired token must never turn a chart load into a refresh.
+const PUBLIC_PATH_PREFIXES = ['/content/']
 const REFRESHABLE_CODES = new Set(['TOKEN_EXPIRED', 'TOKEN_INVALID', 'UNAUTHORIZED'])
 
 function isPublicAuthPath(path: string): boolean {
   const bare = path.split('?')[0]
-  return PUBLIC_AUTH_PATHS.includes(bare)
+  return PUBLIC_AUTH_PATHS.includes(bare) || PUBLIC_PATH_PREFIXES.some(prefix => bare.startsWith(prefix))
 }
 
 function readRetryAfter(res: Response): number | undefined {

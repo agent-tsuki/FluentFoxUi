@@ -26,6 +26,7 @@ import { KATAKANA_SAMPLE_WORDS } from '@/lib/content/kana/katakanaSampleWords'
 import { KATAKANA_WORDS } from '@/lib/content/kana/katakanaWords'
 import { KATAKANA_LOOK_ALIKES } from '@/lib/content/kana/katakanaLookAlikes'
 import { katakanaService } from '@/api/services/katakanaService'
+import { kanaContentService } from '@/api/services/kanaContentService'
 
 export { KANA_SCRIPT_IDS, kanaBasePath, type KanaScriptId, type RegisteredKanaScriptId }
 
@@ -187,7 +188,9 @@ const HIRAGANA: KanaScriptConfig = {
   },
   pdfSlug: 'hiragana',
   loadSections: () => hiraganaService.getSections(),
-  loadStrokes: cached(() => import('@/assets/kana-strokes/hiragana.json').then((m) => m.default as RawStrokeData)),
+  loadStrokes: cached(() =>
+    kanaContentService.getStrokes('hiragana', () => import('@/assets/kana-strokes/hiragana.json').then((m) => m.default as RawStrokeData)),
+  ),
   memoryHint: kanaMemoryHint,
   sampleWords: KANA_SAMPLE_WORDS,
   practiceWords: PRACTICE_WORDS,
@@ -268,7 +271,9 @@ const KATAKANA: KanaScriptConfig = {
   },
   pdfSlug: 'katakana',
   loadSections: () => katakanaService.getSections(),
-  loadStrokes: cached(() => import('@/assets/kana-strokes/katakana.json').then((m) => m.default as RawStrokeData)),
+  loadStrokes: cached(() =>
+    kanaContentService.getStrokes('katakana', () => import('@/assets/kana-strokes/katakana.json').then((m) => m.default as RawStrokeData)),
+  ),
   memoryHint: katakanaMemoryHint,
   sampleWords: {
     ...KATAKANA_SAMPLE_WORDS,
