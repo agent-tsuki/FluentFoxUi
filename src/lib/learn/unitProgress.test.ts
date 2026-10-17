@@ -51,33 +51,53 @@ describe('unitsBySlug', () => {
 })
 
 describe('mergePath', () => {
-  it("adds this device's extras to the server's units and keeps the test results", () => {
+  it("adds this device's print dates and the tested-out units and test results", () => {
     const state = mergePath(
       { ka: { practisedAt: 'p' } },
-      {
-        version: 2,
-        units: { ka: { printedAt: 'pr' }, sa: { skippedAt: 's' } },
-        finalTest: { best: 0.9, passedAt: 'f' },
-        skipTests: { all: 0.5 },
-      },
+      { version: 3, units: { ka: { printedAt: 'pr' } }, certificateName: 'Aiko' },
+      { finalTest: { best: 0.9, passedAt: 'f' }, skipTests: { all: 0.5 }, testedOut: { sa: '2026-10-01' } },
     )
     expect(state).toEqual({
       version: 1,
-      units: { ka: { practisedAt: 'p', printedAt: 'pr' }, sa: { skippedAt: 's' } },
-      finalTest: { best: 0.9, passedAt: 'f' },
+      units: { ka: { practisedAt: 'p', printedAt: 'pr' }, sa: { skippedAt: '2026-10-01' } },
+      finalTest: { best: 0.9, passedAt: 'f', certificateName: 'Aiko' },
       skipTests: { all: 0.5 },
     })
   })
 
+  it('hides a skip put back in the path after it was taken', () => {
+    const state = mergePath({}, { version: 3, units: { sa: { skipUndoneAt: '2026-10-02' } } }, { skipTests: {}, testedOut: { sa: '2026-10-01' } })
+    expect(state.units.sa).toBeUndefined()
+  })
+
+  it('counts a skip passed again after it was put back', () => {
+    const state = mergePath({}, { version: 3, units: { sa: { skipUndoneAt: '2026-10-02' } } }, { skipTests: {}, testedOut: { sa: '2026-10-03' } })
+    expect(state.units.sa).toEqual({ skippedAt: '2026-10-03' })
+  })
+
+  it('keeps the certificate name off the path until a final test exists', () => {
+    expect(mergePath({}, { version: 3, units: {}, certificateName: 'Aiko' }).finalTest).toBeUndefined()
+  })
+
   it('gives an empty path for no data', () => {
-    expect(mergePath({}, EMPTY_LOCAL_PATH)).toEqual({ version: 1, units: {} })
+    expect(mergePath({}, EMPTY_LOCAL_PATH)).toEqual({ version: 1, units: {}, skipTests: {} })
   })
 })
 
 describe('parseLocalPath', () => {
   it('reads a stored record', () => {
-    const record = { version: 2, units: { ka: { printedAt: 'x' } } }
+    const record = { version: 3, units: { ka: { printedAt: 'x', skipUndoneAt: 'y' } }, certificateName: 'Aiko' }
     expect(parseLocalPath(JSON.stringify(record))).toEqual(record)
+  })
+
+  it('keeps print dates and the certificate name of a version 2 record and drops its test results', () => {
+    const old = {
+      version: 2,
+      units: { ka: { printedAt: 'x' }, sa: { skippedAt: 's' } },
+      finalTest: { best: 0.9, certificateName: 'Aiko' },
+      skipTests: { all: 0.5 },
+    }
+    expect(parseLocalPath(JSON.stringify(old))).toEqual({ version: 3, units: { ka: { printedAt: 'x' } }, certificateName: 'Aiko' })
   })
 
   it.each([

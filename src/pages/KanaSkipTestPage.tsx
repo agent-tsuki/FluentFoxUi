@@ -83,11 +83,10 @@ function SkipTest({ test, all }: { test: KanaSkipTestDef; all: KanaChar[] }) {
 
   const outcome = check.state === 'done' ? check.outcome : undefined
   useEffect(() => {
-    if (!outcome) return
-    path.recordSkipTest(scope, outcome.score, outcome.passed ? units.map((u) => u.id) : [])
-    // Only the whole-script test counts towards the certificate.
-    if (scope === 'all') path.recordFinalTest(outcome.score, outcome.score >= passMark)
-  }, [outcome, path, scope, units, passMark])
+    // A whole-script test scoring the final pass mark also counts towards the
+    // certificate; the path derives that from the test history (setScopes).
+    if (outcome) path.recordSkipTest(scope, outcome.score, outcome.passed)
+  }, [outcome, path, scope])
 
   const onAnswer = useCallback(
     (question: QuizQuestion, picked: KanaChar, timer: AnswerTimerControls) => saveKanaTestAnswer(recorder.answerCard, cards, question, picked, timer),

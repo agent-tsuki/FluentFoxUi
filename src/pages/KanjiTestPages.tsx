@@ -132,8 +132,8 @@ function SkipTest({ scope, title, track, index, unitIds, byChar, pool }: SkipTes
 
   const outcome = check.state === 'done' ? check.outcome : undefined
   useEffect(() => {
-    if (outcome) getKanjiPath(level.id).recordSkipTest(scope, outcome.score, outcome.passed ? units.map((u) => u.id) : [])
-  }, [outcome, level.id, scope, units])
+    if (outcome) getKanjiPath(level.id).recordSkipTest(scope, outcome.score, outcome.passed)
+  }, [outcome, level.id, scope])
 
   const onAnswer = useCallback(
     (question: KanjiQuestion, given: string, timer: AnswerTimerControls) => saveKanjiTestAnswer(recorder.answerCard, cards, question, given, timer),

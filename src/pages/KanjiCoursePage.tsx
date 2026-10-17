@@ -44,7 +44,7 @@ export function KanjiCoursePage() {
         </div>
         <PracticeRail />
       </div>
-      <p className="mt-10 text-xs text-on-surface-variant">Progress is saved in this browser.</p>
+      <p className="mt-10 text-xs text-on-surface-variant">Progress is saved to your account when you are signed in; print marks stay on this device.</p>
     </>
   )
 }

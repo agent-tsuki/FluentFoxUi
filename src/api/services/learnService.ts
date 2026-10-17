@@ -26,6 +26,8 @@ import type {
   StartTestRequest,
   SubmitAnswersRequest,
   SubmitAnswersResponse,
+  TestHistory,
+  TestHistoryEntry,
   UnitProgressData,
   UnitProgressList,
   UnitProgressRequest,
@@ -104,6 +106,11 @@ export const learnService = {
 
   completeSession(sessionId: string): Promise<SessionResult> {
     return post(`${sessionPath(sessionId)}/complete`)
+  },
+
+  async getTestHistory(track?: LearningTrack): Promise<TestHistoryEntry[]> {
+    const path = track ? `/learn/tests/history?track=${encodeURIComponent(track)}` : '/learn/tests/history'
+    return (await get<TestHistory>(path)).tests
   },
 
   getSettings(): Promise<LearningSettings> {

@@ -1,19 +1,21 @@
 import type { KanaScriptId } from '@/lib/content/kana/scriptIds'
 import type { KanjiLevelId } from '@/types/kanji'
-import type { LearningTrack, UnitProgressStep, UnitType } from '@/types/learn'
-import type { FinalTestResult, LearningPathState, LocalPathRecord, UnitProgress } from '@/types/learningPath'
+import type { LearningTrack, TestHistoryEntry, TestKind, UnitProgressStep, UnitType } from '@/types/learn'
+import type { CourseScopes, FinalTestResult, LearningPathState, LocalPathRecord, UnitProgress } from '@/types/learningPath'
 import { learnService } from '@/api/services/learnService'
 import { kanjiTrack } from '@/lib/learn/practiceSession'
+import { pathTestsFromHistory, withLocalAttempt } from '@/lib/learn/testHistory'
 import { EMPTY_LOCAL_PATH, mergePath, parseLocalPath, unitsBySlug } from '@/lib/learn/unitProgress'
 
 export type { FinalTestResult, LearningPathState, SkipTestBest, UnitProgress, UnitStep } from '@/types/learningPath'
 
 // One store per course (kana script or kanji level). Unit steps and quiz
-// results live on the learn API (GET /learn/units, PUT .../progress; quizzes
-// are recorded by the server when a test completes). Printing, tested-out
-// units, test bests and the certificate name have no API yet, so they are
-// kept in this browser under the signed-in user's id. Guests get an empty
-// path and nothing is stored for them.
+// results live on the learn API (GET /learn/units, PUT .../progress; tests
+// are recorded by the server when they complete). Tested-out units and skip /
+// final test bests come from GET /learn/tests/history. Printing, "put back in
+// the path" and the certificate name have no API, so they are kept in this
+// browser under the signed-in user's id. Guests get an empty path and
+// nothing is stored for them.
 
 const LOCAL_KEY_PREFIX = 'ff-path-v2'
 
@@ -50,6 +52,9 @@ function createLearningPathStore(course: Course) {
   const listeners = new Set<Listener>()
   let user: PathUser | null = null
   let server: Record<string, UnitProgress> = {}
+  let history: TestHistoryEntry[] = []
+  // Which units each skip scope covers; set by the course once its content is known.
+  let scopes: CourseScopes = { groups: [] }
   let local: LocalPathRecord = EMPTY_LOCAL_PATH
   let state: LearningPathState = EMPTY
   // Bumped on every user change so a late response for the previous user is dropped.
@@ -59,7 +64,8 @@ function createLearningPathStore(course: Course) {
   const apiTrack = () => (user?.verified ? course.track : null)
 
   function publish() {
-    state = mergePath(server, local)
+    const tests = course.track ? pathTestsFromHistory(history, course.track, scopes) : undefined
+    state = mergePath(server, local, tests)
     listeners.forEach((l) => l())
   }
 
@@ -84,14 +90,21 @@ function createLearningPathStore(course: Course) {
     const track = apiTrack()
     if (!track) return
     const gen = generation
-    try {
-      const units = await learnService.getUnits(track)
-      if (gen !== generation) return
-      server = unitsBySlug(units)
-      publish()
-    } catch {
-      /* the path shows what it had; the next page visit loads again */
-    }
+    const [units, tests] = await Promise.allSettled([learnService.getUnits(track), learnService.getTestHistory(track)])
+    if (gen !== generation) return
+    // Either half failing keeps what it had; the next page visit loads again.
+    if (units.status === 'fulfilled') server = unitsBySlug(units.value)
+    if (tests.status === 'fulfilled') history = tests.value
+    publish()
+  }
+
+  /** Shows a test result at once, then reloads the server's history. */
+  function recordAttempt(kind: TestKind, scope: string, score: number, passed: boolean, now: Date) {
+    const track = apiTrack()
+    if (!track) return
+    history = withLocalAttempt(history, { kind, track, scope, passed, share: score, at: now.toISOString() })
+    publish()
+    void reload()
   }
 
   async function markStep(slug: string, step: UnitProgressStep, field: keyof UnitProgress) {
@@ -129,6 +142,7 @@ function createLearningPathStore(course: Course) {
       generation += 1
       user = next
       server = {}
+      history = []
       const key = localKey()
       local = key ? readLocal(key) : EMPTY_LOCAL_PATH
       publish()
@@ -137,6 +151,12 @@ function createLearningPathStore(course: Course) {
 
     /** Loads the server's units again, e.g. after a unit quiz was completed. */
     reload,
+
+    /** The groups the course's skip tests cover, so passed skip tests can mark units tested out. */
+    setScopes(next: CourseScopes) {
+      scopes = next
+      publish()
+    },
 
     markWatched(unitId: string) {
       void markStep(unitId, 'watched', 'watchedAt')
@@ -173,37 +193,28 @@ function createLearningPathStore(course: Course) {
       void reload()
     },
 
+    /** The server records the final test when it completes; this shows the result at once. */
     recordFinalTest(score: number, passed: boolean, now = new Date()) {
-      const prev = local.finalTest
-      const finalTest: FinalTestResult = {
-        ...prev,
-        best: Math.max(prev?.best ?? 0, score),
-        passedAt: prev?.passedAt ?? (passed ? now.toISOString() : undefined),
-      }
-      commitLocal({ ...local, finalTest })
+      recordAttempt('final', 'all', score, passed, now)
     },
 
     /**
-     * Result of a skip test. `passedUnitIds` are marked as tested out (already
-     * skipped units keep their date); units not passed are left as they were.
+     * Result of a skip test, recorded by the server when it completes. A pass
+     * marks every unit in `scope` as tested out (see setScopes).
      */
-    recordSkipTest(scope: string, score: number, passedUnitIds: string[], now = new Date()) {
-      const units = { ...local.units }
-      for (const id of passedUnitIds) {
-        units[id] = { ...units[id], skippedAt: units[id]?.skippedAt ?? now.toISOString() }
-      }
-      const skipTests = { ...local.skipTests, [scope]: Math.max(local.skipTests?.[scope] ?? 0, score) }
-      commitLocal({ ...local, units, skipTests })
+    recordSkipTest(scope: string, score: number, passed: boolean, now = new Date()) {
+      recordAttempt('skip', scope, score, passed, now)
     },
 
-    /** Puts a tested-out unit back into the normal step-by-step flow. */
-    undoSkip(unitId: string) {
-      if (!local.units[unitId]?.skippedAt) return
-      patchLocalUnit(unitId, ({ skippedAt: _skipped, ...rest }) => rest)
+    /** Puts a tested-out unit back into the normal step-by-step flow (on this device). */
+    undoSkip(unitId: string, now = new Date()) {
+      if (!state.units[unitId]?.skippedAt) return
+      patchLocalUnit(unitId, (u) => ({ ...u, skipUndoneAt: now.toISOString() }))
     },
 
+    /** The API has no place for the certificate name, so it stays on this device. */
     setCertificateName(name: string) {
-      commitLocal({ ...local, finalTest: { best: local.finalTest?.best ?? 0, ...local.finalTest, certificateName: name } })
+      commitLocal({ ...local, certificateName: name })
     },
   }
 }

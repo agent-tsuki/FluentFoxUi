@@ -294,3 +294,28 @@ export interface KanjiNote {
   text: string
   updated_at: string | null
 }
+
+// ─── Test history ────────────────────────────────────────────────────────────
+
+/** One track + kind + scope: the best attempt, and whether any attempt passed. */
+export interface TestHistoryEntry {
+  kind: TestKind
+  track: LearningTrack
+  /** Unit slug (unit_quiz), group id or 'all' (skip), 'all' (final). */
+  scope: string
+  /** Best score and the question count of that attempt. */
+  score: number
+  total: number
+  /** Share needed to pass, 0–1. */
+  pass_mark: number
+  passed: boolean
+  attempts: number
+  /** When the best score was taken. */
+  taken_at: string
+  last_taken_at: string
+}
+
+/** GET /learn/tests/history?track= (in the order first taken). */
+export interface TestHistory {
+  tests: TestHistoryEntry[]
+}
