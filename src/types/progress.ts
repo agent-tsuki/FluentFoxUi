@@ -19,7 +19,6 @@ export type ItemsPerLevel = Record<MasteryLevel, number>
 
 /**
  * One item's level, for chart colours and kanji stages.
- * ASSUMPTION: the backend does not send this list yet (see TrackOverview.items).
  */
 export interface ItemLevelEntry {
   item_id: string
@@ -38,10 +37,7 @@ export interface TrackOverview {
   retention_30d: number | null
   /** Mean time of correct answers in the last 30 days; null without any. */
   avg_answer_ms: number | null
-  /**
-   * Every item of the track with its level. Not in the backend DTO yet:
-   * until it is, chart cells and kanji stages show New.
-   */
+  /** Every item of the track with its level, in path order. */
   items?: ItemLevelEntry[]
 }
 
