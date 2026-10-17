@@ -2,6 +2,7 @@ import { Icon } from '@/components/ui/Icon'
 import { Link } from 'react-router-dom'
 import { GrammarChapter, JapaneseSegment } from '@/types/grammar'
 import { InteractiveWord } from '@/components/ui/InteractiveWord'
+import { RichHtml } from '@/components/grammar/RichHtml'
 import { useState, useEffect } from 'react'
 import confetti from 'canvas-confetti'
 
@@ -26,7 +27,7 @@ function getConceptStyle(title: string = '') {
   if (t.includes('possession') || t.includes('belonging') || t.includes('demonstrative') || t.includes('confirming'))
     return { accent: 'bg-tertiary', badge: 'bg-tertiary/10 text-tertiary', rule: 'border-tertiary/40 bg-tertiary/5' }
   if (t.includes('inclusive') || t.includes('also') || t.includes('alternative'))
-    return { accent: 'bg-fox-light', badge: 'bg-fox-light/10 text-fox-dark', rule: 'border-fox-light/40 bg-fox-light/5' }
+    return { accent: 'bg-fox-light', badge: 'bg-fox-light/10 text-primary', rule: 'border-fox-light/40 bg-fox-light/5' }
   return { accent: 'bg-primary', badge: 'bg-primary-container text-on-primary-container', rule: 'border-primary/30 bg-primary/5' }
 }
 
@@ -97,10 +98,16 @@ export function GrammarContent({
   return (
     <div className="w-full px-6 xl:px-10 py-10">
 
-      {/* Top bar: breadcrumb + reveal toggle */}
-      <div className="flex items-center justify-between mb-8 mt-2 gap-4 flex-wrap">
-        <nav className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-on-surface-variant">
-          <span>{chapter.level.toUpperCase()} Course</span>
+      {/* Top bar: breadcrumb + reveal toggle. Below lg the chapter bar already
+          shows level and chapter, so the breadcrumb is desktop-only there. */}
+      <div className="flex items-center justify-end lg:justify-between mb-4 lg:mb-8 lg:mt-2 gap-4 flex-wrap">
+        <nav aria-label="Breadcrumb" className="hidden lg:flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-on-surface-variant">
+          <Link
+            to={`/grammar/${chapter.level}/1`}
+            className="py-3 -my-3 rounded-sm transition-colors hover:text-on-surface outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            {chapter.level.toUpperCase()} Course
+          </Link>
           <Icon name="chevron_right" className="text-xs" />
           <span>Chapter {chapter.id}</span>
           <Icon name="chevron_right" className="text-xs" />
@@ -108,14 +115,16 @@ export function GrammarContent({
         </nav>
 
         <button
+          type="button"
           onClick={onToggleReveal}
-          className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all border-2 ${
+          aria-pressed={revealMode}
+          className={`flex items-center min-h-9 gap-1.5 px-3 py-1.5 text-xs lg:gap-2 lg:px-4 lg:py-2 lg:text-sm rounded-full font-bold transition-all border-2 ${
             revealMode
               ? 'bg-primary text-on-primary border-primary'
               : 'bg-surface text-primary border-primary hover:bg-primary/5'
           }`}
         >
-          <Icon name={revealMode ? 'visibility_off' : 'visibility'} className="text-base" />
+          <Icon name={revealMode ? 'visibility_off' : 'visibility'} className="text-sm lg:text-base" />
           {revealMode ? 'Hide Hints' : 'Show All Hints'}
         </button>
       </div>
@@ -189,9 +198,10 @@ export function GrammarContent({
 
                 <div className="px-7 py-6 space-y-4">
                   {/* Description */}
-                  <div
+                  <RichHtml
                     className="text-on-surface-variant leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: concept.description }}
+                    html={concept.description}
+                    showAll={showAll}
                   />
 
                   {/* Key Rule */}
@@ -200,9 +210,11 @@ export function GrammarContent({
                       <span className="block text-xs uppercase tracking-widest font-bold mb-1.5 text-on-surface-variant">
                         Key Rule
                       </span>
-                      <p
+                      <RichHtml
+                        as="p"
                         className="text-on-surface font-medium italic text-sm leading-relaxed"
-                        dangerouslySetInnerHTML={{ __html: concept.keyRule }}
+                        html={concept.keyRule}
+                        showAll={showAll}
                       />
                     </div>
                   )}
@@ -213,7 +225,7 @@ export function GrammarContent({
                       <Icon name="info" className="text-primary text-lg mt-0.5 flex-shrink-0" />
                       <p className="text-sm text-on-surface-variant leading-relaxed">
                         <strong className="text-on-surface">Note: </strong>
-                        <span dangerouslySetInnerHTML={{ __html: concept.note }} />
+                        <RichHtml as="span" html={concept.note} showAll={showAll} />
                       </p>
                     </div>
                   )}
@@ -272,9 +284,10 @@ export function GrammarContent({
                   Cultural Insight
                 </h3>
               </div>
-              <div
+              <RichHtml
                 className="text-sm text-on-surface-variant leading-relaxed [&_br+br]:hidden"
-                dangerouslySetInnerHTML={{ __html: chapter.sidebar.culturalInsight.content }}
+                html={chapter.sidebar.culturalInsight.content}
+                showAll={showAll}
               />
             </section>
           )}
@@ -375,9 +388,10 @@ export function GrammarContent({
                   Cultural Insight
                 </h3>
               </div>
-              <div
+              <RichHtml
                 className="text-sm text-on-surface-variant leading-relaxed [&_br+br]:hidden"
-                dangerouslySetInnerHTML={{ __html: chapter.sidebar.culturalInsight.content }}
+                html={chapter.sidebar.culturalInsight.content}
+                showAll={showAll}
               />
             </div>
           )}
@@ -418,14 +432,14 @@ export function GrammarContent({
           {prevChapterId !== undefined ? (
             <Link
               to={`/grammar/${chapter.level}/${prevChapterId}`}
-              className="flex items-center gap-4 group mr-auto"
+              className="flex items-center gap-4 group mr-auto rounded-full outline-none"
             >
-              <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center group-hover:bg-primary-container transition-colors">
-                <Icon name="arrow_back" className="text-on-surface-variant group-hover:text-primary" />
+              <div className="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center [@media(hover:hover)]:group-hover:bg-primary group-focus-visible:bg-primary transition-colors">
+                <Icon name="arrow_back" className="text-on-surface-variant [@media(hover:hover)]:group-hover:text-on-primary group-focus-visible:text-on-primary transition-colors" />
               </div>
               <div>
                 <span className="block text-xs uppercase tracking-widest text-on-surface-variant">Previous</span>
-                <span className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">
+                <span className="text-sm font-bold text-on-surface [@media(hover:hover)]:group-hover:text-primary group-focus-visible:text-primary transition-colors">
                   Chapter {prevChapterId}
                 </span>
               </div>
@@ -437,16 +451,16 @@ export function GrammarContent({
           {nextChapterId !== undefined ? (
             <Link
               to={`/grammar/${chapter.level}/${nextChapterId}`}
-              className="flex items-center gap-4 text-right group ml-auto"
+              className="flex items-center gap-4 text-right group ml-auto rounded-full outline-none"
             >
               <div>
                 <span className="block text-xs uppercase tracking-widest text-on-surface-variant">Next</span>
-                <span className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">
+                <span className="text-sm font-bold text-on-surface [@media(hover:hover)]:group-hover:text-primary group-focus-visible:text-primary transition-colors">
                   Chapter {nextChapterId}
                 </span>
               </div>
-              <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center group-hover:bg-primary-container transition-colors">
-                <Icon name="arrow_forward" className="text-on-surface-variant group-hover:text-primary" />
+              <div className="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center [@media(hover:hover)]:group-hover:bg-primary group-focus-visible:bg-primary transition-colors">
+                <Icon name="arrow_forward" className="text-on-surface-variant [@media(hover:hover)]:group-hover:text-on-primary group-focus-visible:text-on-primary transition-colors" />
               </div>
             </Link>
           ) : (

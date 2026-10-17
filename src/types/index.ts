@@ -9,6 +9,8 @@ export interface NavItem {
   label: string
   href?: string
   dropdown?: DropdownItem[]
+  /** Flat links shown instead of the dropdown in the phone menu. */
+  mobileLinks?: DropdownItem[]
 }
 
 // ─── Flashcard ────────────────────────────────────────────────────────────────
@@ -65,7 +67,7 @@ export interface FooterLink {
 
 // ─── Hiragana ─────────────────────────────────────────────────────────────────
 
-export type KanaType = 'basic' | 'dakuten' | 'compound'
+export type KanaType = 'basic' | 'dakuten' | 'compound' | 'foreign'
 
 export interface KanaChar {
   id: string

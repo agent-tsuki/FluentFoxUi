@@ -1,23 +1,27 @@
-import { Hero } from '@/components/sections/Hero'
 import {
-  FeaturesSection,
-  HowItWorks,
-  CoursesSection,
-  DashboardPreview,
-  Testimonials,
-  CTABanner,
+  HomeHero,
+  LevelPicker,
+  LearningPath,
+  DashboardExample,
+  WhyItWorks,
+  ResourcesSection,
+  FounderSection,
+  FaqSection,
+  FinalCta,
 } from '@/components/sections/HomePage'
 
 export function HomePage() {
   return (
     <main className="pt-nav">
-      <Hero />
-      <FeaturesSection />
-      <DashboardPreview />
-      <HowItWorks />
-      <CoursesSection />
-      <Testimonials />
-      <CTABanner />
+      <HomeHero />
+      <LevelPicker />
+      <LearningPath />
+      <DashboardExample />
+      <WhyItWorks />
+      <ResourcesSection />
+      <FounderSection />
+      <FaqSection />
+      <FinalCta />
     </main>
   )
 }

@@ -27,8 +27,12 @@
   --outline:         146 110 108;
   --outline-variant: 231 188 186;
 
-  /* Primary — fox orange (full saturation on the light surface) */
-  --primary: 234 107 68; /* #EA6B44 */
+  /* Primary — fox orange, deepened for WCAG AA (was #EA6B44, 3.1:1).
+     ≥4.5:1 for white text on it and as text on surface / lowest / low / background. */
+  --primary: 187 77 44; /* #BB4D2C */
+
+  /* Secondary — terracotta, deepened for AA text (was #C45A2A, 3.9:1 on surface-container-low) */
+  --secondary: 177 81 38; /* #B15126 */
 
   /* Semantic status — darker shades read on the light surface */
   --success: 21 128 61;  /* green-700 */
@@ -63,6 +67,9 @@ html.dark {
 
   /* Primary — fox orange, dimmed for charcoal (reuses the fox-dark brand tone) */
   --primary: 216 99 53; /* #D86B35 */
+
+  /* Secondary — lifted for AA text on charcoal (was #C45A2A, 3.5:1 on surface-container-low) */
+  --secondary: 219 129 88; /* #DB8158 */
 
   /* Semantic status — brighter shades for contrast on charcoal */
   --success: 74 222 128;  /* green-400 */

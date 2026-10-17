@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import { fileURLToPath, URL } from 'node:url'
+import { grammarChapters } from './vite-plugins/grammarChapters'
 
 /** Origin of the API (scheme + host + port), or null when unset/invalid. */
 function apiOrigin(apiUrl: string | undefined): string | null {
@@ -24,6 +25,8 @@ function apiOrigin(apiUrl: string | undefined): string | null {
  * - Styles: 'unsafe-inline' is needed for runtime style attributes
  *   (framer-motion, lottie). It does not allow script execution.
  * - Workers: blob: for canvas-confetti's off-main-thread renderer.
+ * - Frames: only YouTube's privacy-enhanced player, loaded on click by
+ *   VideoEmbed (its thumbnails come from i.ytimg.com via img-src https:).
  */
 function contentSecurityPolicy(apiUrl: string | undefined): Plugin {
   const api = apiOrigin(apiUrl)
@@ -35,6 +38,7 @@ function contentSecurityPolicy(apiUrl: string | undefined): Plugin {
     "img-src 'self' data: blob: https:",
     `connect-src 'self'${api ? ` ${api}` : ''}`,
     "worker-src 'self' blob:",
+    'frame-src https://www.youtube-nocookie.com',
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -91,7 +95,12 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_')
 
   return {
-    plugins: [react(), contentSecurityPolicy(env.VITE_API_URL), apiPreconnect(env.VITE_API_URL)],
+    plugins: [
+      react(),
+      contentSecurityPolicy(env.VITE_API_URL),
+      apiPreconnect(env.VITE_API_URL),
+      grammarChapters(fileURLToPath(new URL('./src/assets/grammar', import.meta.url))),
+    ],
     build: {
       rollupOptions: {
         output: { manualChunks: vendorChunk },

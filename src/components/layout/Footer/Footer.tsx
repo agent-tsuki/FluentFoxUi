@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { mockFooterLinks } from '@/api/mock/navigation'
 
 // Internal routes that should use <Link> for SPA navigation
-const INTERNAL_PREFIXES = ['/about', '/privacy', '/terms', '/support', '/']
+const INTERNAL_PREFIXES = ['/about', '/privacy', '/terms', '/']
 
 function isInternal(href: string) {
   return INTERNAL_PREFIXES.some((prefix) => href.startsWith(prefix))
@@ -27,11 +27,11 @@ export function Footer() {
                 {link.label}
               </Link>
             ) : (
+              // mailto: (Contact) opens the mail client in place; only web links open a new tab.
               <a
                 key={link.href}
                 href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
+                {...(!link.href.startsWith('mailto:') && { target: '_blank', rel: 'noopener noreferrer' })}
                 className="hover:text-on-surface underline decoration-primary/30 underline-offset-4 transition-colors duration-200"
               >
                 {link.label}

@@ -1,15 +1,161 @@
-import { GrammarChapter, GrammarConcept, GrammarExample, JapaneseSegment } from '@/types/grammar';
+import {
+  GrammarChapter,
+  GrammarConcept,
+  GrammarExample,
+  InteractiveSegment,
+  JapaneseSegment,
+  VocabItem,
+} from '@/types/grammar';
+import { IW_FALLBACK_ATTR, IW_PLACEHOLDER_ATTR } from '@/utils/richHtmlAttrs';
+import {
+  MATH_PATTERN,
+  SUBSCRIPT_RE,
+  chapterHeaderFromFrontmatter,
+  mathToPlain,
+  parseFrontmatter,
+  stripTex,
+} from '@/utils/mdxFrontmatter';
 
-export function parseInlineMarkdown(text: string): string {
-  return text
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*([^\*]+)\*/g, '<em>$1</em>')
-    .replace(/`(.*?)`/g, '<code class="bg-surface-container-high px-1 rounded text-primary text-sm">$1</code>');
+/* -------------------------------------------------------------------------- */
+/*  Escaping                                                                  */
+/* -------------------------------------------------------------------------- */
+
+const HTML_ESCAPES: Record<string, string> = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+};
+
+/** Escape a string for safe use as HTML text or a double-quoted attribute value. */
+export function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (ch) => HTML_ESCAPES[ch]);
 }
 
-export function parseMarkdownBlock(lines: string[]): string {
+/* -------------------------------------------------------------------------- */
+/*  Interactive words                                                         */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Matches either
+ *  1. an `<InteractiveWord … />` tag (any attribute order), or
+ *  2. the legacy ruby form `漢字（かんじ）` — a kanji run immediately followed by a
+ *     kana-only reading in full- or half-width parentheses. The base is limited
+ *     to kanji so preceding kana/particles (e.g. `ジュースを飲（の）`) and
+ *     kana alternatives (e.g. `じゃ（では）`) are not swallowed.
+ */
+const WORD_PATTERN =
+  /<InteractiveWord\b([^>]*?)\/>|([一-鿿々]+)[（(]([぀-ゟ゠-ヿ]+)[)）]/g;
+
+const ATTR_PATTERN = /(\w+)\s*=\s*"([^"]*)"/g;
+
+function parseWordAttrs(attrText: string): InteractiveSegment | null {
+  const attrs: Record<string, string> = {};
+  for (const m of attrText.matchAll(ATTR_PATTERN)) attrs[m[1]] = m[2];
+  if (!attrs.kanji) return null;
+  return { kanji: attrs.kanji, reading: attrs.reading ?? '', meaning: attrs.meaning ?? '' };
+}
+
+function lookupMeaning(base: string, reading: string, vocab: VocabItem[]): string {
+  const exact = vocab.find((v) => v.kanji === base);
+  if (exact) return exact.meaning;
+  const byReading = vocab.find((v) => v.reading === reading);
+  if (byReading) return byReading.meaning;
+  const partial = vocab.find((v) => v.kanji.length > 1 && (v.kanji.includes(base) || base.includes(v.kanji)));
+  return partial ? partial.meaning : 'Vocabulary';
+}
+
+interface WordMatch {
+  index: number;
+  length: number;
+  /** null when an `<InteractiveWord>` tag had no usable `kanji` attribute. */
+  word: InteractiveSegment | null;
+}
+
+function findWords(text: string, vocab: VocabItem[]): WordMatch[] {
+  const matches: WordMatch[] = [];
+  for (const m of text.matchAll(WORD_PATTERN)) {
+    const index = m.index ?? 0;
+    if (m[2]) {
+      matches.push({
+        index,
+        length: m[0].length,
+        word: { kanji: m[2], reading: m[3], meaning: lookupMeaning(m[2], m[3], vocab) },
+      });
+    } else {
+      matches.push({ index, length: m[0].length, word: parseWordAttrs(m[1] ?? '') });
+    }
+  }
+  return matches;
+}
+
+/** HTML placeholder for one interactive word. Attribute values are escaped. */
+function wordPlaceholder(word: InteractiveSegment): string {
+  return (
+    `<span ${IW_PLACEHOLDER_ATTR}="" data-kanji="${escapeHtml(word.kanji)}" ` +
+    `data-reading="${escapeHtml(word.reading)}" data-meaning="${escapeHtml(word.meaning)}">` +
+    `<span ${IW_FALLBACK_ATTR}="">${escapeHtml(word.kanji)}</span></span>`
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Inline math ($N_1$, $\text{…}$)                                            */
+/* -------------------------------------------------------------------------- */
+
+
+/** `$N_1$ の $N_2$` → `N<sub>1</sub> の N<sub>2</sub>` (HTML). */
+function mathToHtml(text: string): string {
+  return text.replace(MATH_PATTERN, (_, expr: string) => {
+    const html = escapeHtml(stripTex(expr)).replace(
+      SUBSCRIPT_RE,
+      (_m, base: string, braced?: string, bare?: string) => `${base}<sub>${braced ?? bare}</sub>`,
+    );
+    return `<span class="italic">${html}</span>`;
+  });
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Inline markdown                                                           */
+/* -------------------------------------------------------------------------- */
+
+const TOKEN_RE = /\u0000(\d+)\u0000/g;
+
+/**
+ * Inline markdown → HTML. Interactive words become `RichHtml` placeholders and
+ * `$…$` math becomes subscripted HTML. Both are swapped out for opaque tokens
+ * first so the markdown regexes can never touch their (escaped) attribute values.
+ */
+export function parseInlineMarkdown(text: string, vocab: VocabItem[] = []): string {
+  const stash: string[] = [];
+  const token = (html: string) => `\u0000${stash.push(html) - 1}\u0000`;
+
+  let out = '';
+  let last = 0;
+  for (const m of findWords(text, vocab)) {
+    out += text.slice(last, m.index);
+    out += m.word ? token(wordPlaceholder(m.word)) : '';
+    last = m.index + m.length;
+  }
+  out += text.slice(last);
+
+  out = out
+    .replace(MATH_PATTERN, (expr) => token(mathToHtml(expr)))
+    // Raw JSX-style attributes authored in the MDX must be real HTML attributes.
+    .replace(/(<[a-z][^>]*?)\sclassName=/g, '$1 class=')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+    .replace(/`(.*?)`/g, '<code class="bg-surface-container-high px-1 rounded text-primary text-sm">$1</code>');
+
+  return out.replace(TOKEN_RE, (_, i: string) => stash[Number(i)]);
+}
+
+const BULLET_RE = /^(?:\*|\d+\.)\s+/;
+
+export function parseMarkdownBlock(lines: string[], vocab: VocabItem[] = []): string {
   let html = '';
   let inTable = false;
+  const inline = (s: string) => parseInlineMarkdown(s, vocab);
 
   for (let i = 0; i < lines.length; i++) {
     const t = lines[i].trim();
@@ -28,8 +174,8 @@ export function parseMarkdownBlock(lines: string[]): string {
     if (t.startsWith('![')) {
       const imgMatch = t.match(/^!\[([^\]]*)]\(([^)]+)\)/);
       if (imgMatch) {
-        const alt = imgMatch[1];
-        const src = imgMatch[2];
+        const alt = escapeHtml(imgMatch[1]);
+        const src = escapeHtml(imgMatch[2]);
         html += `<div class="my-3"><img src="${src}" alt="${alt}" class="w-full h-auto object-contain max-h-[420px]" loading="lazy" /></div>`;
       }
       continue;
@@ -41,16 +187,16 @@ export function parseMarkdownBlock(lines: string[]): string {
         inTable = true;
       }
       if (t.includes(':---')) continue; // Skip header separator
-      
+
       const cells = t.split('|').map(c => c.trim()).filter((_, i, arr) => i > 0 && i < arr.length - 1);
       html += '<tr class="hover:bg-primary/5 transition-colors">';
       const isHeader = lines[i+1] && lines[i+1].includes(':---');
       cells.forEach(c => {
         const tag = isHeader ? 'th' : 'td';
-        const classes = isHeader 
-          ? 'py-2 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-widest text-on-surface-variant bg-surface-container-highest/30 leading-tight' 
+        const classes = isHeader
+          ? 'py-2 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-widest text-on-surface-variant bg-surface-container-highest/30 leading-tight'
           : 'py-2 px-3 text-on-surface text-xs sm:text-sm font-medium border-r border-outline-variant/10 last:border-0 leading-snug';
-        html += `<${tag} class="${classes}">${parseInlineMarkdown(c)}</${tag}>`;
+        html += `<${tag} class="${classes}">${inline(c)}</${tag}>`;
       });
       html += '</tr>';
       continue;
@@ -59,18 +205,29 @@ export function parseMarkdownBlock(lines: string[]): string {
       inTable = false;
     }
 
-    if (t.startsWith('### ')) {
-      html += `<h5 class="text-primary font-bold mt-3 mb-1.5 text-[15px]">${parseInlineMarkdown(t.replace(/^###\s+/, ''))}</h5>`;
-    } else if (t.startsWith('* ')) {
-      html += `<div class="ml-4 flex gap-2 mt-1"><span class="text-primary">•</span> <span>${parseInlineMarkdown(t.replace(/^\*\s+/, ''))}</span></div>`;
-    } else if (t.startsWith('> ') || t.startsWith('>')) {
-      // Handled elsewhere for notes/key rules, but if it leaks:
-      html += `<div class="border-l-4 border-primary/40 pl-4 py-1 italic my-2 bg-primary/5 rounded-r">${parseInlineMarkdown(t.replace(/^>\s*/, ''))}</div>`;
+    if (t.startsWith('>')) {
+      // Group consecutive quote lines into one callout and render its body as a block
+      // (so `> * item` lines become bullets inside the callout).
+      const quoteLines: string[] = [];
+      while (i < lines.length && lines[i].trim().startsWith('>')) {
+        quoteLines.push(lines[i].trim().replace(/^>\s?/, ''));
+        i++;
+      }
+      i--;
+      html += `<div class="border-l-4 border-primary/40 pl-4 py-1 my-2 bg-primary/5 rounded-r">${parseMarkdownBlock(quoteLines, vocab)}</div>`;
+    } else if (t.startsWith('### ')) {
+      html += `<h5 class="text-primary font-bold mt-3 mb-1.5 text-[15px]">${inline(t.replace(/^###\s+/, ''))}</h5>`;
+    } else if (BULLET_RE.test(t)) {
+      const indent = lines[i].match(/^\s*/)?.[0].length ?? 0;
+      const margin = indent >= 2 ? 'ml-8' : 'ml-4';
+      const ordinal = t.match(/^(\d+)\./)?.[1];
+      const marker = ordinal ? `${ordinal}.` : '•';
+      html += `<div class="${margin} flex gap-2 mt-1"><span class="text-primary">${marker}</span> <span>${inline(t.replace(BULLET_RE, ''))}</span></div>`;
     } else {
       if (html.endsWith('<br/><br/>') || html === '' || html.endsWith('</div>')) {
-        html += parseInlineMarkdown(t);
+        html += inline(t);
       } else {
-        html += '<br/>' + parseInlineMarkdown(t);
+        html += '<br/>' + inline(t);
       }
     }
   }
@@ -79,69 +236,44 @@ export function parseMarkdownBlock(lines: string[]): string {
   return html.replace(/(<br\/>){3,}/g, '<br/><br/>');
 }
 
-export function parseFrontmatter(text: string) {
-  const match = text.match(/^---\n([\s\S]*?)\n---/);
-  if (!match) return {};
-  const block = match[1];
-  const fm: Record<string, string> = {};
-  block.split('\n').forEach(line => {
-    const colon = line.indexOf(':');
-    if (colon > -1) {
-      const key = line.slice(0, colon).trim();
-      const val = line.slice(colon + 1).trim().replace(/^"|"$/g, '');
-      fm[key] = val;
-    }
-  });
-  return fm;
-}
-
-export function parseSegments(line: string, chapterVocab: any[] = []): JapaneseSegment[] {
+/**
+ * Split a Japanese example sentence into plain-HTML strings and interactive words.
+ * String segments are rendered as HTML by the caller; math in them is converted.
+ */
+export function parseSegments(line: string, chapterVocab: VocabItem[] = []): JapaneseSegment[] {
   const segments: JapaneseSegment[] = [];
-  const regex = /<InteractiveWord\s+kanji="([^"]+)"\s+reading="([^"]+)"\s+meaning="([^"]+)"\s*\/>|([\u4E00-\u9FFF\u3040-\u309F\u30A0-\u30FF]+)[（(]([\u3040-\u309F\u30A0-\u30FFa-zA-Z]+)[)）]/g;
-  
+  const pushText = (s: string) => { if (s) segments.push(mathToHtml(s)); };
+
   let lastIndex = 0;
-  let match;
-  while ((match = regex.exec(line)) !== null) {
-    if (match.index > lastIndex) {
-      segments.push(line.slice(lastIndex, match.index));
-    }
-    
-    if (match[1]) {
-      // Legacy <InteractiveWord> Match
-      segments.push({
-        kanji: match[1],
-        reading: match[2],
-        meaning: match[3]
-      });
-    } else if (match[4]) {
-      // Ruby Format Match e.g. お手洗（てあら）
-      const baseWord = match[4];
-      const rubyReading = match[5];
-      
-      const vocab = chapterVocab.find(v => v.kanji.includes(baseWord) || baseWord.includes(v.kanji) || v.reading.includes(rubyReading));
-      
-      segments.push({
-        kanji: baseWord,
-        reading: rubyReading,
-        meaning: vocab ? vocab.meaning : 'Vocabulary'
-      });
-    }
-    
-    lastIndex = regex.lastIndex;
+  for (const m of findWords(line, chapterVocab)) {
+    pushText(line.slice(lastIndex, m.index));
+    if (m.word) segments.push(m.word);
+    lastIndex = m.index + m.length;
   }
-  if (lastIndex < line.length) {
-    segments.push(line.slice(lastIndex));
-  }
+  pushText(line.slice(lastIndex));
   return segments;
 }
 
-export function parseMdxToChapter(mdx: string): GrammarChapter {
-  const fm = parseFrontmatter(mdx) as any;
+/** A blockquote label (`> **Key Rule:** …`) routed to a dedicated concept slot. */
+function quoteSlot(label: string): 'keyRule' | 'note' | null {
+  if (/^Key Rule\b/.test(label)) return 'keyRule';
+  if (/^(Pro Tip|Warning)\b/.test(label)) return 'note';
+  return null;
+}
+
+/** Inline HTML for a continuation line of a key-rule / note callout (rendered inside a `<p>`). */
+function quoteContinuation(text: string, vocab: VocabItem[]): string {
+  if (BULLET_RE.test(text)) {
+    return `<br/><span class="inline-flex gap-2 ml-2"><span class="text-primary not-italic">•</span><span>${parseInlineMarkdown(text.replace(BULLET_RE, ''), vocab)}</span></span>`;
+  }
+  return ' ' + parseInlineMarkdown(text, vocab);
+}
+
+export function parseMdxToChapter(rawMdx: string): GrammarChapter {
+  // Some files escape the quotes inside <InteractiveWord kanji=\"…\" />; normalise them.
+  const mdx = rawMdx.replace(/<InteractiveWord\b[^>]*\/>/g, (tag) => tag.replace(/\\"/g, '"'));
   const chapter: GrammarChapter = {
-    id: parseInt(fm.chapter) || 1,
-    level: (fm.level || 'n5').toLowerCase(),
-    title: fm.title || 'Untitled Phase',
-    description: fm.description || '',
+    ...chapterHeaderFromFrontmatter(parseFrontmatter(mdx)),
     concepts: [],
     sidebar: { vocab: [] }
   };
@@ -149,26 +281,20 @@ export function parseMdxToChapter(mdx: string): GrammarChapter {
   const bodyEnd = mdx.indexOf('---', 3);
   const bodyText = bodyEnd !== -1 ? mdx.slice(bodyEnd + 3) : mdx;
   const sections = bodyText.split('\n## ');
-  
+  const vocab = chapter.sidebar.vocab;
+
   // PASS 1: Parse Vocabulary First
   for (const sec of sections) {
     const sectionText = sec.trim();
     if (sectionText.startsWith('Chapter')) {
       const rows = sectionText.match(/\|\s*<InteractiveWord[^\n]+/g) || [];
       for (const row of rows) {
-         const cells = row.split('|').filter((c: string) => c.trim().length > 0);
-         if (cells.length >= 1) {
-             const wordCell = cells[0];
-             const compMatch = wordCell.match(/kanji="([^"]+)"\s+reading="([^"]+)"\s+meaning="([^"]+)"/);
-             if (compMatch) {
-                 chapter.sidebar.vocab.push({
-                    kanji: compMatch[1],
-                    reading: compMatch[2],
-                    meaning: compMatch[3],
-                    romaji: ''
-                 });
-             }
-         }
+        const cells = row.split('|').filter((c: string) => c.trim().length > 0);
+        if (cells.length >= 1) {
+          const tag = cells[0].match(/<InteractiveWord\b([^>]*?)\/>/);
+          const word = tag ? parseWordAttrs(tag[1]) : null;
+          if (word) vocab.push({ ...word, romaji: '' });
+        }
       }
     }
   }
@@ -180,13 +306,13 @@ export function parseMdxToChapter(mdx: string): GrammarChapter {
       const firstLineBreak = sectionText.indexOf('\n');
       const header = sectionText.slice(0, firstLineBreak);
       const content = sectionText.slice(firstLineBreak + 1);
-      
+
       const conceptMatch = header.match(/Concept (\d+): (.*)/);
       if (!conceptMatch) continue;
 
       const concept: GrammarConcept = {
         id: conceptMatch[1],
-        title: conceptMatch[2],
+        title: mathToPlain(conceptMatch[2]),
         description: '',
         examples: []
       };
@@ -194,71 +320,80 @@ export function parseMdxToChapter(mdx: string): GrammarChapter {
       const parts = content.split('### Example Sentences');
       const descAndNotes = parts[0];
       const examplesText = parts[1] || '';
-      
+
       const lines = descAndNotes.split('\n');
       const descLines: string[] = [];
+      // Which callout slot the current run of `>` lines belongs to.
+      let quoteTarget: 'keyRule' | 'note' | 'desc' | null = null;
       for (const line of lines) {
         const trimmed = line.trim();
-        if (!trimmed) continue;
-        if (trimmed.startsWith('> **Key Rule:**') || trimmed.startsWith('> **Key Rule') || trimmed.startsWith('> **Pro Tip:**') || trimmed.startsWith('> **Warning:**')) {
-          const words = trimmed.match(/> \*\*(.*?)\*\*\s*(.*)/);
-          if (words) {
-             const key = words[1];
-             const text = words[2];
-             if (key.includes('Rule')) concept.keyRule = parseInlineMarkdown(text.trim());
-             else concept.note = parseInlineMarkdown(text.trim());
-          }
-        } 
-        else if (trimmed.startsWith('>')) { // Continuation
-           if (concept.note) concept.note += ' ' + parseInlineMarkdown(trimmed.replace(/^>\s*/, ''));
-           else if (concept.keyRule) concept.keyRule += ' ' + parseInlineMarkdown(trimmed.replace(/^>\s*/, ''));
+        if (!trimmed) { quoteTarget = null; continue; }
+
+        if (!trimmed.startsWith('>')) {
+          quoteTarget = null;
+          descLines.push(line);
+          continue;
         }
-        else {
-          descLines.push(trimmed);
+
+        const body = trimmed.replace(/^>\s?/, '');
+        const labelled = body.match(/^\*\*(.*?)\*\*\s*(.*)/);
+        const slot = labelled ? quoteSlot(labelled[1]) : null;
+
+        if (labelled && slot && !concept[slot]) {
+          // `> **Key Rule:** …` / `> **Pro Tip:** …` → dedicated slot (label dropped, UI renders its own).
+          concept[slot] = parseInlineMarkdown(labelled[2].trim(), vocab);
+          quoteTarget = slot;
+        } else if (!labelled && (quoteTarget === 'keyRule' || quoteTarget === 'note')) {
+          concept[quoteTarget] += quoteContinuation(body.trim(), vocab);
+        } else {
+          // Any other callout (`> **Pattern:** …`, `> **Exception:** …`, a 2nd key rule)
+          // stays in the description, rendered as a quote block with its label.
+          quoteTarget = 'desc';
+          descLines.push(line);
         }
       }
-      concept.description = parseMarkdownBlock(descLines);
-      
+      concept.description = parseMarkdownBlock(descLines, vocab);
+
       if (examplesText) {
-         const exLines = examplesText.split('\n');
-         let currentExample: GrammarExample | null = null;
-         
-         for (let i = 0; i < exLines.length; i++) {
-            const line = exLines[i];
-            const jpMatch = line.match(/^\s*\*\s+\*\*(.*?)\*\*(.*)/);
-            if (jpMatch) {
-               if (currentExample) concept.examples.push(currentExample);
-               
-               const englishInline = jpMatch[2].replace(/[()]/g, '').trim();
-               currentExample = {
-                  japanese: parseSegments(jpMatch[1].trim(), chapter.sidebar.vocab),
-                  english: englishInline
-               };
-            } else if (currentExample && line.trim().startsWith('*')) {
-                let text = line.trim().replace(/^\*\s*/, '').trim();
-                text = text.replace(/^\*|\*$/g, '').trim();
-                
-                if (!currentExample.english) {
-                    currentExample.english = text;
-                } else {
-                    currentExample.romaji = currentExample.english;
-                    currentExample.english = text;
-                }
+        const exLines = examplesText.split('\n');
+        let currentExample: GrammarExample | null = null;
+
+        for (let i = 0; i < exLines.length; i++) {
+          const line = exLines[i];
+          const jpMatch = line.match(/^\s*\*\s+\*\*(.*?)\*\*(.*)/);
+          if (jpMatch) {
+            if (currentExample) concept.examples.push(currentExample);
+
+            const englishInline = jpMatch[2].replace(/[()]/g, '').trim();
+            currentExample = {
+              japanese: parseSegments(jpMatch[1].trim(), vocab),
+              english: mathToPlain(englishInline)
+            };
+          } else if (currentExample && line.trim().startsWith('*')) {
+            let text = line.trim().replace(/^\*\s*/, '').trim();
+            text = mathToPlain(text.replace(/^\*|\*$/g, '').trim());
+
+            if (!currentExample.english) {
+              currentExample.english = text;
+            } else {
+              currentExample.romaji = currentExample.english;
+              currentExample.english = text;
             }
-         }
-         if (currentExample) concept.examples.push(currentExample);
+          }
+        }
+        if (currentExample) concept.examples.push(currentExample);
       }
-      
+
       chapter.concepts.push(concept);
     }
     else if (sectionText.startsWith('Sidebar:')) {
       // Extract the subtitle after "Sidebar: " for the card title
-      const sidebarTitle = sectionText.split('\n')[0].replace(/^Sidebar:\s*/, '').trim() || 'Notes & Insights';
+      const sidebarTitle = mathToPlain(sectionText.split('\n')[0].replace(/^Sidebar:\s*/, '').trim()) || 'Notes & Insights';
       // Render ALL content lines (### headings, bullets, etc.) through parseMarkdownBlock
       const contentLines = sectionText.split('\n').slice(1); // skip the "Sidebar: ..." heading line
       chapter.sidebar.culturalInsight = {
         title: sidebarTitle,
-        content: parseMarkdownBlock(contentLines)
+        content: parseMarkdownBlock(contentLines, vocab)
       };
     }
   }

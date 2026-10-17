@@ -1,28 +1,62 @@
-import { GrammarChapter } from '@/types/grammar';
-import { parseMdxToChapter } from '@/utils/mdxParser';
+import type { GrammarChapter, GrammarChapterSummary } from '@/types/grammar';
+import { grammarChapterIndex } from 'virtual:grammar-chapters';
 
-// Use Vite's glob import to get all MDX files as raw strings
-const mdxModules = import.meta.glob('../../assets/grammar/**/*.mdx', { query: '?raw', eager: true });
+/**
+ * Grammar mock data, split so nothing heavy ships up front:
+ * - the chapter LIST comes from `virtual:grammar-chapters` (frontmatter only,
+ *   built from the .mdx files by `vite-plugins/grammarChapters.ts`);
+ * - each chapter BODY is its own lazy chunk, fetched and parsed on request.
+ *   The parser is loaded with the first chapter, not with the page.
+ */
 
-export const grammarData: Record<string, GrammarChapter[]> = {
-  n5: [],
-  n4: [],
-  n3: [],
-  n2: [],
-  n1: []
-};
+const GRAMMAR_DIR = '../../assets/grammar/';
 
-for (const path in mdxModules) {
-  const rawText = (mdxModules[path] as { default: string }).default;
-  const chapter = parseMdxToChapter(rawText);
-  if (grammarData[chapter.level]) {
-    grammarData[chapter.level].push(chapter);
-  } else {
-    grammarData[chapter.level] = [chapter];
-  }
+/** One lazy loader per .mdx file, keyed by path relative to this module. */
+const mdxLoaders = import.meta.glob<string>('../../assets/grammar/**/*.mdx', { query: '?raw', import: 'default' });
+
+const chaptersByLevel = new Map<string, GrammarChapterSummary[]>();
+const sourceByChapter = new Map<string, string>();
+const chapterKey = (level: string, id: number) => `${level}/${id}`;
+
+for (const { id, level, title, source } of grammarChapterIndex) {
+  const list = chaptersByLevel.get(level) ?? [];
+  list.push({ id, level, title });
+  chaptersByLevel.set(level, list);
+  // First file wins on a duplicate id, as the old sorted array lookup did.
+  if (!sourceByChapter.has(chapterKey(level, id))) sourceByChapter.set(chapterKey(level, id), GRAMMAR_DIR + source);
 }
 
-// Ensure chapters are sorted by chapter ID
-for (const level in grammarData) {
-  grammarData[level].sort((a, b) => a.id - b.id);
+/** Chapters of a level (sorted by id), or [] for a level with no content. */
+export function getMockChapterList(level: string): GrammarChapterSummary[] {
+  return chaptersByLevel.get(level.toLowerCase()) ?? [];
+}
+
+/** Parsed chapters (or in-flight loads), so each chapter is fetched and parsed once. */
+const chapterCache = new Map<string, Promise<GrammarChapter | null>>();
+const parsedChapters = new Map<string, GrammarChapter>();
+
+/** A chapter already parsed in memory, or `undefined` if it hasn't been loaded yet. */
+export function peekMockChapter(level: string, id: number): GrammarChapter | undefined {
+  return parsedChapters.get(chapterKey(level.toLowerCase(), id));
+}
+
+/** Load and parse one chapter. Resolves `null` when the level has no such chapter. */
+export function loadMockChapter(level: string, id: number): Promise<GrammarChapter | null> {
+  const key = chapterKey(level.toLowerCase(), id);
+  const cached = chapterCache.get(key);
+  if (cached) return cached;
+
+  const source = sourceByChapter.get(key);
+  const load = source ? mdxLoaders[source] : undefined;
+  if (!load) return Promise.resolve(null);
+
+  const promise = Promise.all([load(), import('@/utils/mdxParser')]).then(([raw, { parseMdxToChapter }]) => {
+    const chapter = parseMdxToChapter(raw);
+    parsedChapters.set(key, chapter);
+    return chapter;
+  });
+  // Don't cache failures (e.g. a chunk that failed to download), so a retry refetches.
+  promise.catch(() => chapterCache.delete(key));
+  chapterCache.set(key, promise);
+  return promise;
 }

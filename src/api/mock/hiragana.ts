@@ -57,11 +57,12 @@ const basic: KanaChar[] = [
   { id: 'ru',  character: 'る', romaji: 'ru',  type: 'basic' },
   { id: 're',  character: 'れ', romaji: 're',  type: 'basic' },
   { id: 'ro',  character: 'ろ', romaji: 'ro',  type: 'basic' },
-  // WA-N (with grid placeholders)
+  // WA row: わ sits in the "a" column and を in the "o" column; ん stands alone.
   { id: 'wa',  character: 'わ', romaji: 'wa',  type: 'basic' },
   { id: '_wa1', character: '', romaji: '', type: 'basic', isEmpty: true },
-  { id: 'wo',  character: 'を', romaji: 'wo',  type: 'basic' },
   { id: '_wa2', character: '', romaji: '', type: 'basic', isEmpty: true },
+  { id: '_wa3', character: '', romaji: '', type: 'basic', isEmpty: true },
+  { id: 'wo',  character: 'を', romaji: 'wo',  type: 'basic' },
   { id: 'n',   character: 'ん', romaji: 'n',   type: 'basic' },
 ]
 

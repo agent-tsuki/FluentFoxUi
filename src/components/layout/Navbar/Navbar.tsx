@@ -11,6 +11,7 @@ import { FoxLogo, FoxLogoHandle } from './FoxLogo'
 import { Icon } from '@/components/ui/Icon'
 import { useUI, type BackgroundAnimation } from '@/context/UIContext'
 import { authModalPrefetchHandlers } from '@/components/sections/AuthModal'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 
 const MOCK_STREAK    = mockDashboardData.stats.currentStreak
 const MOCK_ACTIVITIES = mockDashboardData.streakCalendar.activities
@@ -186,6 +187,11 @@ function StreakMonthPopup() {
 
 const navItems: NavItem[] = mockNavItems
 
+// The phone menu shows plain links instead of dropdown sections.
+const mobileNavLinks = navItems.flatMap((item) =>
+  item.mobileLinks ?? item.dropdown ?? [{ label: item.label, href: item.href ?? '/' }],
+)
+
 export function Navbar() {
   const [mobileOpen, setMobileOpen]         = useState(false)
   const [streakOpen, setStreakOpen]         = useState(false)
@@ -194,6 +200,7 @@ export function Navbar() {
   const { user, logout } = useAuth()
   const { darkMode, toggleDarkMode, backgroundAnimation, setBackgroundAnimation } = useUI()
 
+  const isDesktop       = useMediaQuery('(min-width: 768px)')
   const foxLogoRef      = useRef<FoxLogoHandle>(null)
   const avatarMenuRef   = useRef<HTMLDivElement>(null)
   const streakRef       = useRef<HTMLDivElement>(null)
@@ -279,7 +286,7 @@ export function Navbar() {
   return (
     <>
       <nav className="fixed top-0 w-full z-50 h-nav bg-surface-container-lowest/80 backdrop-blur-xl shadow-elevation-1 border-b border-outline-variant/40">
-        <div className="h-full flex justify-between items-center px-6 md:px-8 max-w-7xl mx-auto">
+        <div className="h-full flex justify-between items-center px-4 md:px-8 max-w-7xl mx-auto">
           {/* Logo */}
           <Link
             to="/"
@@ -288,8 +295,8 @@ export function Navbar() {
             onMouseEnter={() => foxLogoRef.current?.play()}
             onMouseLeave={() => foxLogoRef.current?.reverse()}
           >
-            <FoxLogo ref={foxLogoRef} size={50} />
-            <span className="text-4xl font-bold tracking-tighter font-headline bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 dark:from-orange-400 dark:via-amber-300 dark:to-orange-300 bg-clip-text text-transparent">
+            <FoxLogo ref={foxLogoRef} size={isDesktop ? 50 : 34} />
+            <span className="text-2xl md:text-4xl font-bold tracking-tighter font-headline bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 dark:from-orange-400 dark:via-amber-300 dark:to-orange-300 bg-clip-text text-transparent">
               FoxSensei
             </span>
           </Link>
@@ -492,34 +499,16 @@ export function Navbar() {
             className="relative mt-nav bg-surface-container-lowest border-b border-outline-variant/40 shadow-elevation-2 animate-in slide-in-from-top-2 duration-200"
           >
             <div className="px-6 py-6 space-y-2 max-h-[80vh] overflow-y-auto">
-              {navItems.map((item) =>
-                item.dropdown ? (
-                  <div key={item.label}>
-                    <p className="text-2xs uppercase tracking-widest font-bold text-on-surface-variant px-3 py-2">
-                      {item.label}
-                    </p>
-                    {item.dropdown.map((sub) => (
-                      <Link
-                        key={sub.href}
-                        to={sub.href}
-                        onClick={closeMobile}
-                        className="block px-3 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container text-sm font-medium transition-colors"
-                      >
-                        {sub.label}
-                      </Link>
-                    ))}
-                  </div>
-                ) : (
-                  <Link
-                    key={item.label}
-                    to={item.href ?? '/'}
-                    onClick={closeMobile}
-                    className="block px-3 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container text-sm font-semibold transition-colors"
-                  >
-                    {item.label}
-                  </Link>
-                )
-              )}
+              {mobileNavLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  onClick={closeMobile}
+                  className="block px-3 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container text-sm font-semibold transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
 
               <div className="border-t border-outline-variant/30 pt-4 mt-4">
                 {user ? (

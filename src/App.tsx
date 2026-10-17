@@ -1,5 +1,5 @@
-import { lazy, Suspense, useEffect, type ReactNode } from 'react'
-import { createBrowserRouter, Navigate, RouterProvider, Outlet, useSearchParams } from 'react-router-dom'
+import { lazy, Suspense, useEffect, useSyncExternalStore, type ReactNode } from 'react'
+import { createBrowserRouter, Navigate, RouterProvider, Outlet, useSearchParams, type RouteObject } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import { Navbar } from '@/components/layout/Navbar'
@@ -15,12 +15,25 @@ import { LoadingState } from '@/components/ui/LoadingState'
 import { ProfileOverlay } from '@/components/profile/ProfileOverlay'
 import { RequireAuth } from '@/components/auth/RequireAuth'
 import { useAmbientMotion } from '@/hooks/useAmbientMotion'
+// Ids and paths only (no course content), so the router stays light.
+import { KANA_SCRIPT_IDS, kanaBasePath, type RegisteredKanaScriptId } from '@/lib/content/kana/scriptIds'
 // The landing page stays eager: it is the first paint for most visitors.
 import { HomePage } from '@/pages/HomePage'
 
 // ─── Lazy routes ──────────────────────────────────────────────────────────────
 // Each page is its own chunk, fetched on first navigation.
-const HiraganaPage      = lazy(() => import('@/pages/HiraganaPage').then(m => ({ default: m.HiraganaPage })))
+// The kana course engine (hiragana, katakana): one set of pages for every script.
+const KanaScriptRoute   = lazy(() => import('@/pages/KanaScriptRoute').then(m => ({ default: m.KanaScriptRoute })))
+const KanaCourseLayout  = lazy(() => import('@/pages/KanaCourseLayout').then(m => ({ default: m.KanaCourseLayout })))
+const KanaCoursePage    = lazy(() => import('@/pages/KanaCoursePage').then(m => ({ default: m.KanaCoursePage })))
+const KanaChartPage     = lazy(() => import('@/pages/KanaChartPage').then(m => ({ default: m.KanaChartPage })))
+const KanaTestsPage     = lazy(() => import('@/pages/KanaTestsPage').then(m => ({ default: m.KanaTestsPage })))
+const KanaDownloadsPage = lazy(() => import('@/pages/KanaDownloadsPage').then(m => ({ default: m.KanaDownloadsPage })))
+const KanaPracticePage  = lazy(() => import('@/pages/KanaPracticePage').then(m => ({ default: m.KanaPracticePage })))
+const KanaUnitPage      = lazy(() => import('@/pages/KanaUnitPage').then(m => ({ default: m.KanaUnitPage })))
+const KanaUnitQuizPage  = lazy(() => import('@/pages/KanaUnitQuizPage').then(m => ({ default: m.KanaUnitQuizPage })))
+const KanaFinalTestPage = lazy(() => import('@/pages/KanaFinalTestPage').then(m => ({ default: m.KanaFinalTestPage })))
+const KanaSkipTestPage  = lazy(() => import('@/pages/KanaSkipTestPage').then(m => ({ default: m.KanaSkipTestPage })))
 const KanjiPage         = lazy(() => import('@/pages/KanjiPage').then(m => ({ default: m.KanjiPage })))
 const QuizPage          = lazy(() => import('@/pages/QuizPage').then(m => ({ default: m.QuizPage })))
 const ProfilePage       = lazy(() => import('@/pages/ProfilePage').then(m => ({ default: m.ProfilePage })))
@@ -50,12 +63,26 @@ function RouteSuspense({ children }: { children: ReactNode }) {
   )
 }
 
+/**
+ * Suspense for a kana course page chunk: only the page area shows the
+ * skeleton, so the course header and sub-nav stay put while it loads.
+ */
+function CoursePageSuspense({ children }: { children: ReactNode }) {
+  return <Suspense fallback={<LoadingState label="Loading page…" />}>{children}</Suspense>
+}
+
 // ─── Ambient effects ──────────────────────────────────────────────────────────
-// Decorative only: skipped entirely for reduced motion and touch devices.
+// Decorative only: skipped entirely for reduced motion and touch devices, and on
+// the homepage, which is deliberately calm. Reads the router directly because the
+// mouse follower renders outside <RouterProvider>.
+const subscribeToRouter = (onChange: () => void) => router.subscribe(onChange)
+const isOnHomePage = () => router.state.location.pathname === '/'
+
 function AmbientBackground() {
   const { backgroundAnimation } = useUI()
   const ambientMotion = useAmbientMotion()
-  if (!ambientMotion) return null
+  const onHomePage = useSyncExternalStore(subscribeToRouter, isOnHomePage)
+  if (!ambientMotion || onHomePage) return null
   if (backgroundAnimation === 'petals') return <PetalBackground />
   if (backgroundAnimation === 'fish') {
     return (
@@ -68,7 +95,9 @@ function AmbientBackground() {
 }
 
 function AmbientMouseFollower() {
-  return useAmbientMotion() ? <MouseFollower /> : null
+  const ambientMotion = useAmbientMotion()
+  const onHomePage = useSyncExternalStore(subscribeToRouter, isOnHomePage)
+  return ambientMotion && !onHomePage ? <MouseFollower /> : null
 }
 
 // ─── URL-triggered modal opener ───────────────────────────────────────────────
@@ -99,7 +128,7 @@ function Shell() {
   const { isProfileOverlayOpen, setIsProfileOverlayOpen } = useUI()
 
   return (
-    <div className="bg-surface text-on-surface transition-colors duration-300 ease-in-out font-body selection:bg-primary-fixed selection:text-primary min-h-dvh flex flex-col relative overflow-x-hidden">
+    <div className="bg-surface text-on-surface transition-colors duration-300 ease-in-out font-body selection:bg-primary-fixed selection:text-primary min-h-dvh flex flex-col relative overflow-x-clip">
       <AmbientBackground />
 
       <div className="relative z-10 flex flex-col min-h-dvh">
@@ -125,6 +154,38 @@ function Shell() {
 }
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
+
+/**
+ * One kana script's route tree under /kana/<script>, built per registered
+ * script (explicit paths, so /kana/kanji is never captured and unknown
+ * scripts fall through to the 404). KanaScriptRoute provides the script config.
+ */
+function kanaCourseRoutes(script: RegisteredKanaScriptId): RouteObject {
+  const base = kanaBasePath(script)
+  return {
+    path: base.slice(1),
+    element: <KanaScriptRoute script={script} />,
+    children: [
+      {
+        // Course · Chart · Tests · Downloads share one header, sub-nav and kana fetch.
+        element: <KanaCourseLayout />,
+        children: [
+          { index: true,         element: <CoursePageSuspense><KanaCoursePage /></CoursePageSuspense> },
+          { path: 'chart',       element: <CoursePageSuspense><KanaChartPage /></CoursePageSuspense> },
+          { path: 'tests',       element: <CoursePageSuspense><KanaTestsPage /></CoursePageSuspense> },
+          { path: 'downloads',   element: <CoursePageSuspense><KanaDownloadsPage /></CoursePageSuspense> },
+        ],
+      },
+      { path: 'print',          element: <Navigate to={`${base}/downloads`} replace /> },
+      { path: 'practice/:mode', element: <KanaPracticePage /> },
+      { path: 'unit/:unitId',   element: <KanaUnitPage /> },
+      { path: 'quiz/:unitId',   element: <KanaUnitQuizPage /> },
+      { path: 'test',           element: <KanaFinalTestPage /> },
+      { path: 'skip/:scope',    element: <KanaSkipTestPage /> },
+    ],
+  }
+}
+
 const router = createBrowserRouter([
   {
     // /verify is outside Shell — it has its own minimal layout
@@ -151,7 +212,7 @@ const router = createBrowserRouter([
     element: <Shell />,
     children: [
       { index: true,              element: <HomePage /> },
-      { path: 'kana/hiragana',   element: <HiraganaPage /> },
+      ...KANA_SCRIPT_IDS.map(kanaCourseRoutes),
       { path: 'kana/kanji',      element: <KanjiPage /> },
       { path: 'grammar/:level/:chapterId?',  element: <GrammarPage /> },
       { path: 'quiz',            element: <QuizPage /> },

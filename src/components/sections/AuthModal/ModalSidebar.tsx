@@ -24,8 +24,8 @@ export const AUTH_PANEL_COPY: Record<AuthTab, { headline: string; body: string; 
   },
   signup: {
     headline:  'Begin your journey to fluency.',
-    body:      'Join 50,000+ students mastering Japanese through our immersive, distraction-free environment.',
-    shortBody: 'Join 50,000+ students mastering Japanese.',
+    body:      'Learn kana, grammar and kanji with lessons, flashcards and quizzes.',
+    shortBody: 'Kana, grammar and kanji — lessons, flashcards and quizzes.',
   },
 }
 

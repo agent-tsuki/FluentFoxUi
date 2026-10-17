@@ -12,7 +12,8 @@ const config: Config = {
         'fox-light': '#FF9F5C',
 
         // Primary — fox orange (container/fixed roles stay theme-invariant by design)
-        'primary-container': '#D86B35',
+        // primary-container deepened from #D86B35 so on-primary-container text passes AA (4.55:1).
+        'primary-container': '#B35223',
         'primary-fixed': '#FFE8C9',
         'primary-fixed-dim': '#FF9F5C',
         'on-primary': '#ffffff',
@@ -20,10 +21,10 @@ const config: Config = {
         'on-primary-fixed-variant': '#B84A1E',
         'on-primary-container': '#FFF0E6',
         'inverse-primary': '#FF9F5C',
-        'surface-tint': '#EA6B44',
+        'surface-tint': '#BB4D2C',
 
-        // Secondary — warm terracotta
-        secondary: '#C45A2A',
+        // Secondary — warm terracotta (CSS-variable-backed: deepened in light, lifted in dark for AA)
+        secondary: 'rgb(var(--secondary) / <alpha-value>)',
         'secondary-container': '#F0845A',
         'secondary-fixed': '#FFE8C9',
         'secondary-fixed-dim': '#EBBD91',
@@ -82,6 +83,8 @@ const config: Config = {
         headline: ['Plus Jakarta Sans', 'sans-serif'],
         body: ['Inter', 'sans-serif'],
         label: ['Inter', 'sans-serif'],
+        // Rounded Japanese face for homepage kana/kanji; loaded as a glyph subset in index.html.
+        jp: ['Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'sans-serif'],
       },
       fontSize: {
         '2xs': ['0.6875rem', { lineHeight: '0.875rem' }], // 11px

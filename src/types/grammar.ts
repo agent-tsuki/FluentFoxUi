@@ -43,3 +43,6 @@ export interface GrammarChapter {
     };
   };
 }
+
+/** A chapter as listed in navigation: available without loading its body. */
+export type GrammarChapterSummary = Pick<GrammarChapter, 'id' | 'level' | 'title'>;
