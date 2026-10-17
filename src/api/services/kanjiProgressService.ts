@@ -101,34 +101,3 @@ export function kanjiUnitSteps(
     quiz: Boolean(p.quizPassedAt),
   }
 }
-
-// ─── Personal notes ──────────────────────────────────────────────────────────
-
-const NOTES_KEY = 'ff-kanji-notes-v1'
-
-function readNotes(): Record<string, string> {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(NOTES_KEY) ?? '{}') as unknown
-    return parsed && typeof parsed === 'object' ? (parsed as Record<string, string>) : {}
-  } catch {
-    return {}
-  }
-}
-
-/** The learner's own note for a kanji (empty string when none). */
-export function getKanjiNote(char: string): string {
-  return readNotes()[char] ?? ''
-}
-
-/** Saves (or, when blank, removes) the learner's note for a kanji. Returns false if storage is blocked. */
-export function setKanjiNote(char: string, text: string): boolean {
-  const notes = readNotes()
-  if (text.trim()) notes[char] = text
-  else delete notes[char]
-  try {
-    localStorage.setItem(NOTES_KEY, JSON.stringify(notes))
-    return true
-  } catch {
-    return false
-  }
-}

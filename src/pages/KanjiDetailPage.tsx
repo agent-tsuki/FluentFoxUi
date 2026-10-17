@@ -3,13 +3,9 @@ import { Link, useParams, useSearchParams } from 'react-router-dom'
 import type { KanjiEntry, KanjiIndexRow, KanjiLevelIndex } from '@/types/kanji'
 import { useAllKanjiIndexes, useKanjiEntry, useKanjiProgress, useKanjiStrokes } from '@/hooks/useKanji'
 import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
-import {
-  KANJI_STAGE_LABEL,
-  cardStage,
-  getKanjiNote,
-  getKanjiProgress,
-  setKanjiNote,
-} from '@/api/services/kanjiProgressService'
+import { KANJI_STAGE_LABEL, cardStage, getKanjiProgress } from '@/api/services/kanjiProgressService'
+import { useKanjiNote, type KanjiNoteSave } from '@/hooks/useKanjiNote'
+import { LearnerOnly } from '@/components/auth/SignInPrompt'
 import { isKanjiChar, isKanjiLevelId, kanjiCharPath, kanjiLevelMeta, kanjiLevelPagePath, kanjiLevelPath, kanjiUnitPath } from '@/lib/content/kanji/levels'
 import { kanjiCardId, kunLabel } from '@/lib/content/kanji/kanjiText'
 import { Eyebrow } from '@/components/ui/SectionHeader'
@@ -357,15 +353,6 @@ function Parts({ entry, indexes }: { entry: KanjiEntry; indexes: KanjiLevelIndex
 }
 
 function MemoryHint({ entry }: { entry: KanjiEntry }) {
-  const [note, setNote] = useState(() => getKanjiNote(entry.char))
-  const [saved, setSaved] = useState<'idle' | 'saved' | 'failed'>('idle')
-
-  useEffect(() => {
-    if (note === getKanjiNote(entry.char)) return
-    const t = window.setTimeout(() => setSaved(setKanjiNote(entry.char, note) ? 'saved' : 'failed'), 500)
-    return () => window.clearTimeout(t)
-  }, [note, entry.char])
-
   return (
     <Section id="hint-heading" title="Remember it">
       <div className={cn(PANEL, 'space-y-4')}>
@@ -379,27 +366,63 @@ function MemoryHint({ entry }: { entry: KanjiEntry }) {
             )}
           </p>
         )}
-        <div>
-          <label htmlFor="kanji-note" className="text-sm font-semibold text-on-surface">
-            Your note
-          </label>
-          <textarea
-            id="kanji-note"
-            value={note}
-            onChange={(e) => {
-              setNote(e.target.value)
-              setSaved('idle')
-            }}
-            rows={2}
-            placeholder="Write your own way to remember it"
-            className="mt-1 w-full resize-y rounded-xl border border-outline-variant/60 bg-surface px-3 py-2 text-base text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          />
-          <p aria-live="polite" className="min-h-4 text-xs text-on-surface-variant">
-            {saved === 'saved' ? 'Saved in this browser.' : saved === 'failed' ? "Couldn't save: storage is blocked." : ''}
-          </p>
-        </div>
+        <LearnerOnly>
+          <KanjiNoteField char={entry.char} />
+        </LearnerOnly>
       </div>
     </Section>
+  )
+}
+
+const NOTE_SAVE_DELAY_MS = 500
+/** The server keeps notes up to 1000 characters. */
+const NOTE_MAX_LENGTH = 1000
+
+const NOTE_STATUS: Record<KanjiNoteSave, string> = {
+  idle: '',
+  saving: 'Saving…',
+  saved: 'Saved to your account.',
+  failed: "Couldn't save your note. Check your connection, then edit it to try again.",
+}
+
+function KanjiNoteField({ char }: { char: string }) {
+  const { text, isLoading, error, refetch, save, saveState } = useKanjiNote(char)
+  if (isLoading) return <SkeletonBlock className="h-20 w-full rounded-xl" />
+  if (error || text === undefined) return <ErrorState message="We couldn't load your note." onRetry={refetch} />
+  return <NoteEditor initial={text} onSave={save} saveState={saveState} />
+}
+
+function NoteEditor({ initial, onSave, saveState }: { initial: string; onSave: (text: string) => void; saveState: KanjiNoteSave }) {
+  const [note, setNote] = useState(initial)
+  const [edited, setEdited] = useState(false)
+
+  useEffect(() => {
+    if (!edited) return
+    const t = window.setTimeout(() => onSave(note), NOTE_SAVE_DELAY_MS)
+    return () => window.clearTimeout(t)
+  }, [note, edited, onSave])
+
+  return (
+    <div>
+      <label htmlFor="kanji-note" className="text-sm font-semibold text-on-surface">
+        Your note
+      </label>
+      <textarea
+        id="kanji-note"
+        value={note}
+        onChange={(e) => {
+          setNote(e.target.value)
+          setEdited(true)
+        }}
+        rows={2}
+        maxLength={NOTE_MAX_LENGTH}
+        placeholder="Write your own way to remember it"
+        className="mt-1 w-full resize-y rounded-xl border border-outline-variant/60 bg-surface px-3 py-2 text-base text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      />
+      <p aria-live="polite" className="min-h-4 text-xs text-on-surface-variant">
+        {edited ? NOTE_STATUS[saveState] : ''}
+      </p>
+    </div>
   )
 }
 
