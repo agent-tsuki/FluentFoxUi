@@ -1,6 +1,6 @@
-import type { KanaProgressStore } from '@/api/services/kanaProgressService'
 import type { KanaPair } from '@/hooks/useKanaPairs'
 import { shuffle } from '@/components/practice/listen/pickOptions'
+import { prioritise } from '@/lib/learn/practiceSession'
 
 export const MATCH_ROUNDS = 3
 /** Pairs per round: six rows of two tiles fit a phone screen without scrolling. */
@@ -20,18 +20,22 @@ function makeRound(pairs: KanaPair[]): MatchRound {
 
 /**
  * Three rounds of six pairs. `focusIds` (a unit's kana, or every kana) are
- * asked due-first in FSRS order of the current script's store; a unit too
+ * asked with the learn API's picks (`priorityIds`, weakest first) first; a unit too
  * small to fill a round is topped up with other pairs of the same type
  * (basic / dakuten / combination), and a unit with fewer than 18 kana
  * cycles through them again in later rounds.
  */
-export function buildMatchRounds(progress: KanaProgressStore, pairs: readonly KanaPair[], focusIds: readonly string[]): MatchRound[] {
+export function buildMatchRounds(
+  priorityIds: readonly string[],
+  pairs: readonly KanaPair[],
+  focusIds: readonly string[],
+): MatchRound[] {
   const byId = new Map(pairs.map((p) => [p.id, p]))
   const focus = focusIds.filter((id) => byId.has(id))
   if (focus.length === 0) return []
 
   const wanted = MATCH_ROUNDS * PAIRS_PER_ROUND
-  const due = progress.getDue(focus, wanted)
+  const due = prioritise(priorityIds, focus, wanted)
   const rest = shuffle(focus.filter((id) => !due.includes(id)))
   // Due first, but shuffled within the session so rows don't come in chart order.
   const queue = shuffle([...due, ...rest].slice(0, wanted))

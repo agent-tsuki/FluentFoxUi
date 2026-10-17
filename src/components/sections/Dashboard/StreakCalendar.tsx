@@ -1,19 +1,16 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { StreakCalendarData } from '@/types'
 import { Icon } from '@/components/ui/Icon'
 import { Eyebrow } from '@/components/ui/SectionHeader'
+import { calendarWeeks, formatLongDate, formatMinutes, monthLabels, type CalendarCell } from '@/lib/learn/progressShape'
 
 interface StreakCalendarProps {
   data: StreakCalendarData
+  /** Off when the page already titles the section. */
+  showHeading?: boolean
 }
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
-
-function formatDate(dateStr: string): string {
-  const [y, m, d] = dateStr.split('-').map(Number)
-  const date = new Date(y, m - 1, d)
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}
 
 function cellColor(minutes: number): React.CSSProperties {
   if (minutes === 0) return {}
@@ -21,82 +18,20 @@ function cellColor(minutes: number): React.CSSProperties {
   return { backgroundColor: `rgb(var(--primary) / ${alpha})` }
 }
 
-function cellLabel(minutes: number): string {
-  if (minutes === 0) return 'No activity'
-  if (minutes < 60) return `${minutes} min`
-  const h = Math.floor(minutes / 60)
-  const m = minutes % 60
-  return m > 0 ? `${h}h ${m}m` : `${h}h`
-}
-
-const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 const DOW_LABELS  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
 
-// ─── build week grid ──────────────────────────────────────────────────────────
-
-interface GridCell {
-  date: string
-  minutes: number
-  isPlaceholder: boolean
-}
-
-function buildGrid(activities: StreakCalendarData['activities']): GridCell[][] {
-  const actMap = new Map(activities.map(a => [a.date, a.minutes]))
-
-  // Today fixed to the last activity date (Apr 7 2026)
-  const today = new Date(2026, 3, 7)
-
-  // Start from the Sunday 52 weeks (364 days) ago
-  const start = new Date(today)
-  start.setDate(today.getDate() - 364)
-  start.setDate(start.getDate() - start.getDay()) // rewind to Sunday
-
-  const weeks: GridCell[][] = []
-  const cursor = new Date(start)
-
-  while (cursor <= today) {
-    const week: GridCell[] = []
-    for (let d = 0; d < 7; d++) {
-      const isFuture = cursor > today
-      const dateStr  = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`
-      week.push({
-        date:          dateStr,
-        minutes:       isFuture ? 0 : (actMap.get(dateStr) ?? 0),
-        isPlaceholder: isFuture,
-      })
-      cursor.setDate(cursor.getDate() + 1)
-    }
-    weeks.push(week)
-  }
-
-  return weeks
-}
-
-// ─── month label positions ────────────────────────────────────────────────────
-
-function getMonthLabels(weeks: GridCell[][]): { label: string; colIndex: number }[] {
-  const seen = new Set<string>()
-  const labels: { label: string; colIndex: number }[] = []
-  weeks.forEach((week, i) => {
-    const firstReal = week.find(c => !c.isPlaceholder)
-    if (!firstReal) return
-    const [, m] = firstReal.date.split('-').map(Number)
-    const key = `${m}`
-    if (!seen.has(key)) {
-      seen.add(key)
-      labels.push({ label: MONTH_NAMES[m - 1], colIndex: i })
-    }
-  })
-  return labels
+/** Activities as the calendar weeks expect them (goal-met days counted for the streak). */
+function toCalendarDays(activities: StreakCalendarData['activities']) {
+  return activities.map(a => ({ date: a.date, minutes: a.minutes, goal_met: a.goalMet ?? false }))
 }
 
 // ─── component ────────────────────────────────────────────────────────────────
 
-export function StreakCalendar({ data }: StreakCalendarProps) {
-  const [tooltip, setTooltip] = useState<{ date: string; minutes: number } | null>(null)
+export function StreakCalendar({ data, showHeading = true }: StreakCalendarProps) {
+  const [tooltip, setTooltip] = useState<CalendarCell | null>(null)
 
-  const weeks       = buildGrid(data.activities)
-  const monthLabels = getMonthLabels(weeks)
+  const weeks  = useMemo(() => calendarWeeks(toCalendarDays(data.activities)), [data.activities])
+  const labels = useMemo(() => monthLabels(weeks), [weeks])
 
   const CELL = 13   // px — cell size
   const GAP  = 3    // px — gap between cells
@@ -104,19 +39,20 @@ export function StreakCalendar({ data }: StreakCalendarProps) {
   const stats = [
     { icon: 'local_fire_department', label: 'Current Streak', value: `${data.currentStreak} days`, accent: true },
     { icon: 'emoji_events',          label: 'Longest Streak',  value: `${data.longestStreak} days`, accent: false },
-    { icon: 'calendar_today',        label: 'Active Days',     value: `${data.totalActiveDays} / 365`, accent: false },
+    { icon: 'calendar_today',        label: 'Active Days',     value: `${data.totalActiveDays} / ${data.activities.length}`, accent: false },
     { icon: 'timer',                 label: 'This Week',       value: `${data.thisWeekMinutes} min`,  accent: false },
   ]
 
   return (
     <section className="space-y-6">
-      {/* Header */}
+      {showHeading && (
       <div className="space-y-1">
         <Eyebrow variant="plain">Consistency</Eyebrow>
         <h2 className="text-2xl font-extrabold tracking-tight text-on-surface font-headline">
           Streak Calendar
         </h2>
       </div>
+      )}
 
       {/* Calendar card */}
       <div className="bg-surface-container-lowest rounded-xl p-6 shadow-elevation-1 overflow-x-auto">
@@ -125,7 +61,7 @@ export function StreakCalendar({ data }: StreakCalendarProps) {
           {/* Month labels row */}
           <div className="flex mb-1" style={{ paddingLeft: 36 }}>
             {weeks.map((_, i) => {
-              const ml = monthLabels.find(l => l.colIndex === i)
+              const ml = labels.find(l => l.colIndex === i)
               return (
                 <div
                   key={i}
@@ -161,7 +97,7 @@ export function StreakCalendar({ data }: StreakCalendarProps) {
                 {week.map((cell, di) => (
                   <div
                     key={di}
-                    onMouseEnter={() => !cell.isPlaceholder && setTooltip({ date: cell.date, minutes: cell.minutes })}
+                    onMouseEnter={() => !cell.isPlaceholder && setTooltip(cell)}
                     onMouseLeave={() => setTooltip(null)}
                     style={{
                       width:  CELL,
@@ -178,10 +114,14 @@ export function StreakCalendar({ data }: StreakCalendarProps) {
                       cell.isPlaceholder
                         ? 'opacity-0'
                         : cell.minutes === 0
-                          ? 'bg-surface-container-high cursor-default'
-                          : 'cursor-pointer transition-opacity hover:opacity-80'
+                          ? 'relative bg-surface-container-high cursor-default'
+                          : 'relative cursor-pointer transition-opacity hover:opacity-80'
                     }
-                  />
+                  >
+                    {cell.goalMet && !cell.isPlaceholder && (
+                      <span aria-hidden className="absolute inset-0 m-auto h-1.5 w-1.5 rounded-full bg-success ring-1 ring-surface-container-lowest" />
+                    )}
+                  </div>
                 ))}
               </div>
             ))}
@@ -192,8 +132,8 @@ export function StreakCalendar({ data }: StreakCalendarProps) {
             {/* Tooltip */}
             <p className="text-xs text-on-surface-variant font-body h-4">
               {tooltip
-                ? `${formatDate(tooltip.date)} — ${cellLabel(tooltip.minutes)}`
-                : 'Hover a cell to see details'}
+                ? `${formatLongDate(tooltip.date)} — ${tooltip.minutes === 0 ? 'No activity' : formatMinutes(tooltip.minutes)}${tooltip.goalMet ? ' · goal met' : ''}`
+                : 'Hover a day for details · dots mark days the goal was met'}
             </p>
 
             {/* Scale legend */}

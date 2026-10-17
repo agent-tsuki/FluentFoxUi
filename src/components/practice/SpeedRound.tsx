@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { motion } from 'framer-motion'
 import type { KanaChar } from '@/types'
-import type { KanaGrade } from '@/types/kanaProgress'
-import type { KanaProgressStore } from '@/api/services/kanaProgressService'
+import { useAnswerTimer } from '@/hooks/useAnswerTimer'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { choiceAnswer, typedAnswer } from '@/lib/learn/practiceSession'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -54,16 +54,7 @@ function saveBest(key: string, value: number) {
   }
 }
 
-/** Batches the round's reviews: one per kana, 'again' if it was ever missed. */
-async function flushReviews(progress: KanaProgressStore, grades: Map<string, KanaGrade>) {
-  const entries = [...grades]
-  grades.clear()
-  await Promise.all(entries.map(([id, grade]) => progress.recordReview(id, grade))).catch(() => {
-    /* progress is best-effort */
-  })
-}
-
-function SpeedRoundSession({ kana: rawKana, all: rawAll, script, progress, onExit, onComplete }: WithAllKanaProps) {
+function SpeedRoundSession({ kana: rawKana, all: rawAll, script, onAnswer, onExit, onComplete }: WithAllKanaProps) {
   const kana = useMemo(() => rawKana.filter(isTypeableKana), [rawKana])
   const all = useMemo(() => rawAll.filter(isTypeableKana), [rawAll])
   const bestKey = script.storageKeys.speedBest
@@ -85,7 +76,9 @@ function SpeedRoundSession({ kana: rawKana, all: rawAll, script, progress, onExi
   const [announce, setAnnounce] = useState('')
   const [unlockedRows, setUnlockedRows] = useState(() => rowsUnlocked(kana, 0))
 
-  const grades = useRef(new Map<string, KanaGrade>())
+  // One per kana shown, so each gets its own answer timer.
+  const [shown, setShown] = useState(0)
+  const timer = useAnswerTimer(`${runId}-${shown}`)
   const recent = useRef<string[]>([])
   const missedIds = useRef(new Set<string>())
   const wrongTimer = useRef<number | null>(null)
@@ -102,6 +95,7 @@ function SpeedRoundSession({ kana: rawKana, all: rawAll, script, progress, onExi
       const k = pickNext(nextPool, recent.current, missedIds.current)
       recent.current = [k.id, ...recent.current].slice(0, 2)
       setCurrent(k)
+      setShown((n) => n + 1)
       setOptions(makeOptions(k, nextPool, all))
       setTyped('')
       setFeedback(null)
@@ -111,7 +105,6 @@ function SpeedRoundSession({ kana: rawKana, all: rawAll, script, progress, onExi
 
   const start = useCallback(() => {
     if (wrongTimer.current) window.clearTimeout(wrongTimer.current)
-    grades.current.clear()
     recent.current = []
     missedIds.current = new Set()
     scoreRef.current = 0
@@ -139,19 +132,16 @@ function SpeedRoundSession({ kana: rawKana, all: rawAll, script, progress, onExi
     setResult({ score: final, previousBest, newBest })
     setFeedback(null)
     setPhase('done')
-    void flushReviews(progress, grades.current)
-  }, [bestKey, progress])
+  }, [bestKey])
 
   const { remaining, paused } = useRoundTimer(phase === 'playing', ROUND_MS, runId, finish)
   useCompleteOnce(phase === 'done' && result !== null, onComplete)
 
-  // Leaving mid-round still saves what was practised.
   useEffect(
     () => () => {
       if (wrongTimer.current) window.clearTimeout(wrongTimer.current)
-      void flushReviews(progress, grades.current)
     },
-    [progress],
+    [],
   )
 
   // Keep the keyboard on the input while playing.
@@ -160,11 +150,13 @@ function SpeedRoundSession({ kana: rawKana, all: rawAll, script, progress, onExi
   }, [phase, hasKeyboard, current])
 
   const answer = useCallback(
-    (isCorrect: boolean, chosen?: string) => {
+    (isCorrect: boolean, given: { typed?: string; chosen?: string }) => {
       if (!current || feedback?.kind === 'wrong' || phase !== 'playing') return
       setAnswered((n) => n + 1)
+      timer.markInput()
+      timer.attempt()
+      onAnswer(current, 'kana_speed', given.typed !== undefined ? typedAnswer(given.typed) : choiceAnswer(given.chosen ?? '', options), timer)
       if (isCorrect) {
-        if (!grades.current.has(current.id)) grades.current.set(current.id, 'good')
         const nextScore = scoreRef.current + 1
         scoreRef.current = nextScore
         setScore(nextScore)
@@ -180,25 +172,25 @@ function SpeedRoundSession({ kana: rawKana, all: rawAll, script, progress, onExi
         showNext(nextScore)
         return
       }
-      grades.current.set(current.id, 'again')
       if (!missedIds.current.has(current.id)) {
         missedIds.current.add(current.id)
         setMissed((m) => [...m, current])
       }
       setStreak(0)
-      setFeedback({ kind: 'wrong', answer: current.romaji, chosen })
+      setFeedback({ kind: 'wrong', answer: current.romaji, chosen: given.chosen })
       setAnnounce(`Not quite: ${current.character} is ${current.romaji}.`)
       wrongTimer.current = window.setTimeout(() => {
         wrongTimer.current = null
         showNext(scoreRef.current)
       }, WRONG_PAUSE_MS)
     },
-    [current, feedback, phase, kana, unlockedRows, showNext],
+    [current, feedback, phase, kana, unlockedRows, showNext, timer, onAnswer, options],
   )
 
   const onType = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
       if (!current || feedback) return
+      timer.markInput()
       let value = e.target.value.toLowerCase().replace(/[^a-z]/g, '')
       if (value.startsWith('n') && performance.now() < swallowNUntil.current) {
         swallowNUntil.current = 0
@@ -206,9 +198,9 @@ function SpeedRoundSession({ kana: rawKana, all: rawAll, script, progress, onExi
       }
       setTyped(value)
       const verdict = judgeTyped(current, value)
-      if (verdict !== 'pending') answer(verdict === 'correct')
+      if (verdict !== 'pending') answer(verdict === 'correct', { typed: value })
     },
-    [current, feedback, answer],
+    [current, feedback, answer, timer],
   )
 
   if (kana.length === 0 || pool.length === 0) {
@@ -370,7 +362,7 @@ function SpeedRoundSession({ kana: rawKana, all: rawAll, script, progress, onExi
                   key={`${current?.id}-${option}`}
                   type="button"
                   disabled={wrong}
-                  onClick={() => answer(option === current?.romaji, option)}
+                  onClick={() => answer(option === current?.romaji, { chosen: option })}
                   className={cn(
                     'h-20 rounded-2xl border-2 font-headline text-2xl font-bold transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
                     isAnswer

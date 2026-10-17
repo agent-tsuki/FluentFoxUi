@@ -6,7 +6,6 @@ import { StrokeOrder } from '@/components/kana/StrokeOrder'
 import { TracePad } from '@/components/kana/TracePad'
 import { KanaMnemonic } from '@/components/kana/KanaMnemonic'
 import { useKanaStrokes } from '@/components/kana/useKanaStrokes'
-import { useKanaProgressStore } from '@/hooks/useKanaProgress'
 import type { KanaChar } from '@/types'
 
 interface KanaStrokeSectionsProps {
@@ -15,7 +14,8 @@ interface KanaStrokeSectionsProps {
   onSpeak?: (text: string) => void
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+/** One titled block of the kana sheet. */
+export function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section aria-label={title} className="border-t border-outline-variant/40 px-5 py-5">
       <h3>
@@ -33,7 +33,6 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
  */
 export function KanaStrokeSections({ char, onSpeak }: KanaStrokeSectionsProps) {
   const strokes = useKanaStrokes(char.character)
-  const progress = useKanaProgressStore()
 
   const strokeOrder = (): ReactNode => {
     switch (strokes.status) {
@@ -60,7 +59,7 @@ export function KanaStrokeSections({ char, onSpeak }: KanaStrokeSectionsProps) {
       </Section>
       {strokes.status === 'ready' && (
         <Section title="Trace it">
-          <TracePad glyph={strokes.glyph} onComplete={() => progress.markTraced(char.id)} />
+          <TracePad glyph={strokes.glyph} />
         </Section>
       )}
     </>

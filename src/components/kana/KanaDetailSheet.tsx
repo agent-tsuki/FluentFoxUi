@@ -1,8 +1,10 @@
 import { useEffect, useRef, type PointerEvent as ReactPointerEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion, useDragControls, type PanInfo } from 'framer-motion'
-import { useKanaProgressStore } from '@/hooks/useKanaProgress'
 import { useKanaScript } from '@/context/KanaScriptContext'
+import { useAuth } from '@/context/AuthContext'
+import { YourProgress } from '@/components/progress/YourProgress'
+import { kanaTrack } from '@/lib/learn/practiceSession'
 import { kanaSpeechText } from '@/lib/content/kana/kanaMarks'
 import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
@@ -10,7 +12,7 @@ import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { cn } from '@/lib/cn'
 import { durations, easings, springs, swapVariants } from '@/lib/motion'
 import { KanaSheetHeader } from '@/components/kana/KanaSheetHeader'
-import { KanaStrokeSections } from '@/components/kana/KanaStrokeSections'
+import { KanaStrokeSections, Section as SheetSection } from '@/components/kana/KanaStrokeSections'
 import { useSheetDialog } from '@/components/kana/useSheetDialog'
 import type { KanaChar } from '@/types'
 
@@ -45,8 +47,8 @@ export function KanaDetailSheet({ char, onClose, onPrev, onNext }: KanaDetailShe
   const scrollRef = useRef<HTMLDivElement>(null)
   const swipeStart = useRef<{ x: number; y: number } | null>(null)
   const dragControls = useDragControls()
-  const progress = useKanaProgressStore()
   const script = useKanaScript()
+  const { user } = useAuth()
 
   const open = char !== null
   const charId = char?.id
@@ -54,9 +56,8 @@ export function KanaDetailSheet({ char, onClose, onPrev, onNext }: KanaDetailShe
 
   useEffect(() => {
     if (!charId) return
-    progress.markSeen(charId)
     scrollRef.current?.scrollTo({ top: 0 })
-  }, [charId, progress])
+  }, [charId])
 
   const onSwipeStart = (e: ReactPointerEvent) => {
     const onPad = (e.target as Element).closest('[data-trace-pad]')
@@ -148,6 +149,11 @@ export function KanaDetailSheet({ char, onClose, onPrev, onNext }: KanaDetailShe
                 animate="animate"
               >
                 <KanaStrokeSections char={char} onSpeak={say} />
+                {user?.emailVerified && (
+                  <SheetSection title="Your progress">
+                    <YourProgress itemType="kana" id={char.character} track={kanaTrack(script.id)} />
+                  </SheetSection>
+                )}
               </motion.div>
             </div>
           </motion.div>

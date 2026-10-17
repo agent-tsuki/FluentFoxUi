@@ -7,7 +7,6 @@ import { useKanaScript } from '@/context/KanaScriptContext'
 import { scriptKanaCount } from '@/lib/content/kana/scripts'
 import { coursePagesFor } from '@/components/kanaCourse/coursePages'
 import { useLearningPath } from '@/hooks/useLearningPath'
-import { useKanaProgress } from '@/hooks/useKanaProgress'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { useSheetDialog } from '@/components/kana/useSheetDialog'
@@ -55,7 +54,6 @@ export function CourseMenuDrawer({ open, onClose, currentUnitId, kanaById }: Cou
   const trapFocus = useSheetDialog({ open, panelRef, onClose })
   const script = useKanaScript()
   const path = useLearningPath()
-  const { state: kanaState, mastery } = useKanaProgress()
 
   // useSheetDialog focuses the panel; move on to the current unit (next frame) and bring it into view.
   useEffect(() => {
@@ -75,13 +73,11 @@ export function CourseMenuDrawer({ open, onClose, currentUnitId, kanaById }: Cou
         group,
         units: script.units.flatMap((unit, i) =>
           group.unitIds.includes(unit.id)
-            ? [{ unit, number: i + 1, status: unitStatusSummary(unit, path.units[unit.id], mastery), preview: kanaPreview(unitKana(unit, kanaById)) }]
+            ? [{ unit, number: i + 1, status: unitStatusSummary(unit, path.units[unit.id]), preview: kanaPreview(unitKana(unit, kanaById)) }]
             : [],
         ),
       })),
-    // `mastery` is a new function every render; the kana progress state it reads stands in for it.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [script, path, kanaById, kanaState],
+    [script, path, kanaById],
   )
   const doneTotal = groups.reduce((n, g) => n + g.units.filter((u) => u.status.state === 'done' || u.status.state === 'skipped').length, 0)
   const finalTest = path.finalTest

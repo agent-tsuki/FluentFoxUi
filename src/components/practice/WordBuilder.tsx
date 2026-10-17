@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import type { KanaGrade } from '@/types/kanaProgress'
-import type { KanaProgressStore } from '@/api/services/kanaProgressService'
+import type { KanaChar } from '@/types'
+import { useAnswerTimer, type AnswerTimerControls } from '@/hooks/useAnswerTimer'
 import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
+import { newClientEventId } from '@/lib/learn/answerTimer'
+import { choiceAnswer } from '@/lib/learn/practiceSession'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { Button } from '@/components/ui/Button'
@@ -13,6 +15,7 @@ import { PracticeResults, PracticeShell } from './PracticeShell'
 import { createRounds, maxBuildLevel, type BuildLevel, type BuildRound } from './build/buildRounds'
 import { useTileDrag } from './build/useTileDrag'
 import { useCompleteOnce } from './useCompleteOnce'
+import type { PracticeAnswerFn } from './types'
 import { withAllKana, type WithAllKanaProps } from './withAllKana'
 
 /** How long wrong tiles stay in their slots before returning to the tray. */
@@ -53,15 +56,36 @@ function markTip(kana: string[]): string | null {
   return null
 }
 
-function recordWord(progress: KanaProgressStore, round: BuildRound, misplaced: Set<string>) {
-  const grades = new Map<string, KanaGrade>()
-  round.ids.forEach((id) => grades.set(id, misplaced.has(id) ? 'again' : 'good'))
-  void Promise.all([...grades].map(([id, grade]) => progress.recordReview(id, grade))).catch(() => {
-    /* progress is best-effort; the round itself still counts */
+/**
+ * One answer per character of a finished word, each with its own event id.
+ * A character placed wrong on the first try counts as a second attempt, and
+ * its first placement is sent as the chosen tile.
+ */
+function saveWord(
+  onAnswer: PracticeAnswerFn,
+  timer: AnswerTimerControls,
+  round: BuildRound,
+  kanaById: ReadonlyMap<string, KanaChar>,
+  firstFill: readonly string[],
+  misplaced: ReadonlySet<string>,
+) {
+  const tiles = round.tiles.map((t) => t.char)
+  round.ids.forEach((id, i) => {
+    const target = kanaById.get(id)
+    if (!target) return
+    const attempts = misplaced.has(id) ? 2 : 1
+    const builder = {
+      buildAnswer: (details: Parameters<AnswerTimerControls['buildAnswer']>[0]) => ({
+        ...timer.buildAnswer(details),
+        client_event_id: newClientEventId(),
+        attempts,
+      }),
+    }
+    onAnswer(target, 'kana_build', choiceAnswer(firstFill[i] ?? target.character, tiles), builder)
   })
 }
 
-function WordBuilderSession({ kana, all, isSubset, script, progress, onExit, onComplete }: WithAllKanaProps) {
+function WordBuilderSession({ kana, all, isSubset, script, onAnswer, onExit, onComplete }: WithAllKanaProps) {
   // Unit sessions build words from the whole chart but only words that use
   // at least one of the unit's kana (a 3-kana unit can't spell much alone).
   const focus = isSubset ? kana : undefined
@@ -88,6 +112,12 @@ function WordBuilderSession({ kana, all, isSubset, script, progress, onExit, onC
   const [missed, setMissed] = useState<string[]>([])
   const [finished, setFinished] = useState(false)
 
+  const kanaById = useMemo(() => new Map(all.map((k) => [k.id, k])), [all])
+  // Bumped by a new game so its first word gets a fresh answer timer.
+  const [run, setRun] = useState(0)
+  const timer = useAnswerTimer(`${run}-${roundIndex}`)
+  /** The characters placed on the first check of the current word. */
+  const firstFillRef = useRef<string[]>([])
   const misplacedRef = useRef<Set<string>>(new Set())
   const returnTimer = useRef<number | null>(null)
   /** Wrong tiles waiting to go back to the tray (see RETURN_WRONG_MS). */
@@ -107,6 +137,7 @@ function WordBuilderSession({ kana, all, isSubset, script, progress, onExit, onC
     returnTimer.current = null
     pendingReturn.current = null
     misplacedRef.current = new Set()
+    firstFillRef.current = []
     setSlots(next?.word.kana.map(() => null) ?? [])
     setPhase('building')
     setWrongSlots(new Set())
@@ -117,6 +148,7 @@ function WordBuilderSession({ kana, all, isSubset, script, progress, onExit, onC
     (nextLevel: BuildLevel) => {
       const next = createRounds(script, all, nextLevel, focus)
       setRounds(next)
+      setRun((r) => r + 1)
       setRoundIndex(0)
       setScore({ correct: 0, firstTry: 0 })
       setMissed([])
@@ -129,6 +161,8 @@ function WordBuilderSession({ kana, all, isSubset, script, progress, onExit, onC
   const evaluate = useCallback(
     (filled: string[]) => {
       if (!round) return
+      timer.attempt()
+      if (phase === 'building') firstFillRef.current = filled.map((key) => tileByKey.get(key)?.char ?? '')
       const wrong = new Set<number>()
       filled.forEach((key, i) => {
         if (tileByKey.get(key)?.char !== round.word.kana[i]) wrong.add(i)
@@ -142,7 +176,7 @@ function WordBuilderSession({ kana, all, isSubset, script, progress, onExit, onC
         setScore((s) => ({ correct: s.correct + 1, firstTry: s.firstTry + (phase === 'building' ? 1 : 0) }))
         setFeedback(`Correct! ${round.word.word} (${round.word.romaji}): ${round.word.meaning}.`)
         speak(round.word.word)
-        recordWord(progress, round, misplacedRef.current)
+        saveWord(onAnswer, timer, round, kanaById, firstFillRef.current, misplacedRef.current)
         return
       }
 
@@ -165,11 +199,11 @@ function WordBuilderSession({ kana, all, isSubset, script, progress, onExit, onC
         setPhase('revealed')
         setFeedback(`The word is ${round.word.word}, ${round.word.romaji}.`)
         speak(round.word.word)
-        recordWord(progress, round, misplacedRef.current)
+        saveWord(onAnswer, timer, round, kanaById, firstFillRef.current, misplacedRef.current)
       }
       setMissed((m) => [...new Set([...m, ...missedChars])])
     },
-    [phase, round, tileByKey, speak, progress],
+    [phase, round, tileByKey, speak, timer, onAnswer, kanaById],
   )
 
   /** Applies any pending "send wrong tiles back" right away. */
@@ -185,6 +219,7 @@ function WordBuilderSession({ kana, all, isSubset, script, progress, onExit, onC
   const placeTile = useCallback(
     (tileKey: string, slotIndex?: number) => {
       if (done || placedKeys.has(tileKey)) return
+      timer.markInput()
       const base = flushReturn(slots)
       const target = slotIndex ?? base.findIndex((s) => s === null)
       if (target < 0 || target >= base.length) return
@@ -200,7 +235,7 @@ function WordBuilderSession({ kana, all, isSubset, script, progress, onExit, onC
       }
       if (next.every((s) => s !== null)) evaluate(next as string[])
     },
-    [done, placedKeys, slots, wrongSlots, evaluate, flushReturn],
+    [done, placedKeys, slots, wrongSlots, evaluate, flushReturn, timer],
   )
 
   const removeFromSlot = useCallback(

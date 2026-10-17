@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { KanaChar } from '@/types'
+import { useAnswerTimer } from '@/hooks/useAnswerTimer'
 import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
+import { choiceAnswer } from '@/lib/learn/practiceSession'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Icon } from '@/components/ui/Icon'
@@ -23,14 +25,17 @@ function needsGesture(): boolean {
 }
 
 /** Hear a kana, tap the matching one of four look-alike tiles. */
-function ListenTapSession({ kana, all, script, progress, onExit, onComplete }: WithAllKanaProps) {
+function ListenTapSession({ kana, all, script, focusIds, onAnswer, onExit, onComplete }: WithAllKanaProps) {
   const { speak, supported } = useJapaneseSpeech()
-  const [rounds, setRounds] = useState<ListenRound[]>(() => buildListenRounds(progress, kana, all, script.lookAlikes))
+  const [rounds, setRounds] = useState<ListenRound[]>(() => buildListenRounds(focusIds, kana, all, script.lookAlikes))
   const [index, setIndex] = useState(0)
   const [picked, setPicked] = useState<KanaChar | null>(null)
   const [missed, setMissed] = useState<KanaChar[]>([])
   const [phase, setPhase] = useState<Phase>(() => (supported && needsGesture() ? 'intro' : 'playing'))
   const [announcement, setAnnouncement] = useState('')
+  // Bumped by "Play again" so the first round of a new run gets a fresh answer timer.
+  const [run, setRun] = useState(0)
+  const timer = useAnswerTimer(`${run}-${index}`)
   const roundRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<number>()
 
@@ -44,9 +49,9 @@ function ListenTapSession({ kana, all, script, progress, onExit, onComplete }: W
     if (phase !== 'playing' || !round) return
     roundRef.current?.querySelector<HTMLElement>('[data-round-focus]')?.focus({ preventScroll: true })
     if (!supported) return
-    const t = window.setTimeout(() => speak(round.target.character), 250)
+    const t = window.setTimeout(() => speak(round.target.character, { onStart: timer.audioStart, onEnd: timer.audioStop }), 250)
     return () => window.clearTimeout(t)
-  }, [phase, round, supported, speak])
+  }, [phase, round, supported, speak, timer])
 
   const pick = useCallback(
     (choice: KanaChar) => {
@@ -54,7 +59,9 @@ function ListenTapSession({ kana, all, script, progress, onExit, onComplete }: W
       const target = round.target
       const correct = choice.id === target.id
       setPicked(choice)
-      void progress.recordReview(target.id, correct ? 'good' : 'again').catch(() => {})
+      timer.markInput()
+      timer.attempt()
+      onAnswer(target, 'kana_listen', choiceAnswer(choice.character, round.options.map((o) => o.character)), timer)
       if (correct) {
         setAnnouncement(`Correct. ${target.character}, ${target.romaji}.`)
       } else {
@@ -71,10 +78,13 @@ function ListenTapSession({ kana, all, script, progress, onExit, onComplete }: W
         correct ? NEXT_DELAY_MS.correct : NEXT_DELAY_MS.wrong,
       )
     },
-    [round, picked, index, rounds.length, speak, progress],
+    [round, picked, index, rounds.length, speak, timer, onAnswer],
   )
 
-  const replay = useCallback(() => round && speak(round.target.character), [round, speak])
+  const replay = useCallback(
+    () => round && speak(round.target.character, { onStart: timer.audioStart, onEnd: timer.audioStop }),
+    [round, speak, timer],
+  )
 
   useEffect(() => {
     if (phase !== 'playing') return
@@ -90,13 +100,14 @@ function ListenTapSession({ kana, all, script, progress, onExit, onComplete }: W
 
   const restart = useCallback(() => {
     window.clearTimeout(timerRef.current)
-    setRounds(buildListenRounds(progress, kana, all, script.lookAlikes))
+    setRounds(buildListenRounds(focusIds, kana, all, script.lookAlikes))
+    setRun((r) => r + 1)
     setIndex(0)
     setPicked(null)
     setMissed([])
     setAnnouncement('')
     setPhase('playing')
-  }, [progress, kana, all, script.lookAlikes])
+  }, [focusIds, kana, all, script.lookAlikes])
 
   useCompleteOnce(phase === 'done' && rounds.length > 0, onComplete)
 

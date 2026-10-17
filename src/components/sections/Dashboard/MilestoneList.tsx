@@ -9,19 +9,11 @@ interface MilestoneListProps {
 export function MilestoneList({ milestones }: MilestoneListProps) {
   return (
     <section className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <Eyebrow variant="plain">Achievements</Eyebrow>
-          <h2 className="text-2xl font-extrabold tracking-tight text-on-surface font-headline">
-            Recent Milestones
-          </h2>
-        </div>
-        <a
-          href="#"
-          className="text-sm font-semibold font-label text-primary hover:underline underline-offset-4 transition-all"
-        >
-          View All
-        </a>
+      <div className="space-y-1">
+        <Eyebrow variant="plain">Achievements</Eyebrow>
+        <h2 className="text-2xl font-extrabold tracking-tight text-on-surface font-headline">
+          Milestones
+        </h2>
       </div>
 
       <div className="space-y-4">

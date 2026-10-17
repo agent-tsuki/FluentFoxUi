@@ -4,6 +4,7 @@ import type { KanaMastery } from '@/types/kanaProgress'
 import { Icon } from '@/components/ui/Icon'
 import { cn } from '@/lib/cn'
 import { MASTERY_SURFACE, MasteryMarks } from './CharCard'
+import { MASTERY_LABEL, MASTERY_LEVELS } from '@/lib/learn/mastery'
 
 /** 'all', or a set's `?set=` value from the script's chart sets (e.g. 'basic', 'yoon'). */
 export type ChartSet = string
@@ -93,24 +94,18 @@ export function ChartSetSwitcher({ options, value, onChange }: ChartSetSwitcherP
   )
 }
 
-const LEGEND: readonly { mastery: KanaMastery; label: string }[] = [
-  { mastery: 'new', label: 'New' },
-  { mastery: 'seen', label: 'Seen' },
-  { mastery: 'learning', label: 'Learning' },
-  { mastery: 'mastered', label: 'Mastered' },
-]
 
 /** Key for the cell states, with counts for the visible set. Swatches reuse the cell classes. */
 export function MasteryLegend({ counts }: { counts: Record<KanaMastery, number> }) {
   return (
     <ul aria-label="Progress key" className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-on-surface-variant">
-      {LEGEND.map(({ mastery, label }) => (
+      {MASTERY_LEVELS.map((mastery) => (
         <li key={mastery} className="flex items-center gap-1.5">
           <span aria-hidden className={cn('relative block h-5 w-5 shrink-0 rounded-md border', MASTERY_SURFACE[mastery])}>
             <MasteryMarks mastery={mastery} className="right-0.5 top-0.5" />
           </span>
           <span>
-            {label} <span className="font-semibold tabular-nums text-on-surface">{counts[mastery]}</span>
+            {MASTERY_LABEL[mastery]} <span className="font-semibold tabular-nums text-on-surface">{counts[mastery]}</span>
           </span>
         </li>
       ))}

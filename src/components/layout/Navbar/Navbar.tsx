@@ -1,7 +1,6 @@
-import { useState, useRef, useEffect } from 'react'
+import { lazy, Suspense, useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { mockNavItems } from '@/api/mock/navigation'
-import { mockDashboardData } from '@/api/mock/dashboard'
 import type { NavItem } from '@/types'
 import { useModal } from '@/context/ModalContext'
 import { useAuth } from '@/context/AuthContext'
@@ -12,178 +11,13 @@ import { Icon } from '@/components/ui/Icon'
 import { useUI, type BackgroundAnimation } from '@/context/UIContext'
 import { authModalPrefetchHandlers } from '@/components/sections/AuthModal'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { useLearnSummary } from '@/hooks/useLearnSummary'
+import { useProgressOverview } from '@/hooks/useProgress'
+import { DueBadge } from '@/components/learnSession/DueBadge'
+import { PROGRESS_PATH, reviewPath } from '@/lib/learn/paths'
 
-const MOCK_STREAK    = mockDashboardData.stats.currentStreak
-const MOCK_ACTIVITIES = mockDashboardData.streakCalendar.activities
-
-const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December']
-
-// Intensity tier: 0=none 1=light 2=medium 3=strong 4=hard
-function intensityTier(minutes: number): 0 | 1 | 2 | 3 | 4 {
-  if (minutes === 0)  return 0
-  if (minutes <= 20)  return 1
-  if (minutes <= 45)  return 2
-  if (minutes <= 75)  return 3
-  return 4
-}
-
-// `primary` is a CSS-var-backed token that dims correctly in dark mode — use it via
-// opacity utilities instead of static rgba literals so the tiers stay theme-aware.
-const TIER_BG: Record<number, string> = {
-  1: 'bg-primary/15',
-  2: 'bg-primary/35',
-  3: 'bg-primary/65',
-  4: 'bg-primary/100',
-}
-const TIER_FLAME_OPACITY = ['', 'opacity-40', 'opacity-60', 'opacity-85', 'opacity-100']
-const TIER_NUM_COLOR     = ['text-on-surface-variant', 'text-primary', 'text-primary', 'text-white', 'text-white']
-const TIER_LABEL         = ['', 'Light', 'Steady', 'Strong', 'Hard day!']
-
-function StreakMonthPopup() {
-  const [hoveredDay, setHoveredDay] = useState<number | null>(null)
-
-  const year  = 2026
-  const month = 3 // April (0-indexed)
-
-  const actMap      = new Map(MOCK_ACTIVITIES.map(a => [a.date, a.minutes]))
-  const firstDow    = new Date(year, month, 1).getDay()
-  const daysInMonth = new Date(year, month + 1, 0).getDate()
-  const today       = 7
-
-  const cells: (number | null)[] = [
-    ...Array(firstDow).fill(null),
-    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
-  ]
-  while (cells.length % 7 !== 0) cells.push(null)
-
-  function dayKey(day: number) {
-    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-  }
-
-  const activeDaysThisMonth = Array.from({ length: daysInMonth }, (_, i) => i + 1)
-    .filter(d => (actMap.get(dayKey(d)) ?? 0) > 0).length
-
-  const hoveredMinutes = hoveredDay ? (actMap.get(dayKey(hoveredDay)) ?? 0) : 0
-  const hoveredTier    = hoveredDay ? intensityTier(hoveredMinutes) : 0
-
-  return (
-    <div className="absolute top-[calc(100%+0.6rem)] left-1/2 -translate-x-1/2 w-72 bg-surface-container-lowest border border-outline-variant/40 rounded-2xl shadow-elevation-2 p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-      {/* Caret */}
-      <div className="absolute -top-[7px] left-1/2 -translate-x-1/2 w-3.5 h-3.5 rotate-45 bg-surface-container-lowest border-l border-t border-outline-variant/40 rounded-tl-sm" />
-
-      {/* Header */}
-      <div className="flex items-start justify-between mb-3">
-        <div>
-          <p className="text-sm font-extrabold text-on-surface font-headline tracking-tight">
-            {MONTH_NAMES[month]} {year}
-          </p>
-          <p className="text-2xs text-on-surface-variant font-body mt-0.5">
-            {activeDaysThisMonth} day{activeDaysThisMonth !== 1 ? 's' : ''} studied this month
-          </p>
-        </div>
-        <div className="flex items-center gap-1 bg-primary/10 rounded-full px-2.5 py-1">
-          <Icon name="local_fire_department" className="text-sm text-primary animate-streak-flame" />
-          <span className="text-xs font-bold text-primary font-label">{MOCK_STREAK}</span>
-        </div>
-      </div>
-
-      {/* DOW labels */}
-      <div className="grid grid-cols-7 mb-1.5 px-0.5">
-        {['Su','Mo','Tu','We','Th','Fr','Sa'].map((d, i) => (
-          <span key={i} className="text-center text-2xs font-bold text-on-surface-variant/60 font-label tracking-wide">
-            {d}
-          </span>
-        ))}
-      </div>
-
-      {/* Day grid */}
-      <div className="grid grid-cols-7 gap-1 px-0.5">
-        {cells.map((day, i) => {
-          if (!day) return <div key={i} className="aspect-square" />
-
-          const minutes = actMap.get(dayKey(day)) ?? 0
-          const tier    = intensityTier(minutes)
-          const isToday = day === today
-          const isHovered = hoveredDay === day
-          const isFuture  = day > today
-
-          return (
-            <div
-              key={i}
-              onMouseEnter={() => !isFuture && setHoveredDay(day)}
-              onMouseLeave={() => setHoveredDay(null)}
-              className="aspect-square"
-            >
-              <div
-                className={[
-                  'relative w-full h-full rounded-lg flex flex-col items-center justify-center transition-all duration-150 cursor-default select-none',
-                  tier > 0 && !isFuture
-                    ? TIER_BG[tier]
-                    : 'bg-surface-container-high',
-                  isToday
-                    ? 'ring-2 ring-primary ring-offset-1 ring-offset-surface-container-lowest'
-                    : '',
-                  isHovered && !isFuture
-                    ? 'scale-110 shadow-md z-10'
-                    : '',
-                  isFuture ? 'opacity-30' : '',
-                ].join(' ')}
-              >
-                {/* Flame — shown for active days */}
-                {tier > 0 && !isFuture && (
-                  <span className="leading-none" style={{ fontSize: tier === 4 ? 11 : 9 }}>
-                    <Icon
-                      name="local_fire_department"
-                      className={`leading-none ${TIER_FLAME_OPACITY[tier]} ${tier >= 3 ? 'text-white' : 'text-primary'}`}
-                    />
-                  </span>
-                )}
-                {/* Day number */}
-                <span
-                  className={`font-bold font-label leading-none ${
-                    isFuture ? 'text-on-surface-variant' : TIER_NUM_COLOR[tier]
-                  }`}
-                  style={{ fontSize: 10 }}
-                >
-                  {day}
-                </span>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Hover info / legend */}
-      <div className="mt-3 pt-2.5 border-t border-outline-variant/40 min-h-[28px] flex items-center justify-between gap-2">
-        {hoveredDay && hoveredTier > 0 ? (
-          <div className="flex items-center gap-1.5">
-            <Icon name="local_fire_department" className="text-sm text-primary" />
-            <span className="text-xs font-bold text-on-surface font-label">
-              Apr {hoveredDay} —
-            </span>
-            <span className="text-xs text-on-surface-variant font-body">
-              {hoveredMinutes} min · {TIER_LABEL[hoveredTier]}
-            </span>
-          </div>
-        ) : hoveredDay ? (
-          <div className="flex items-center gap-1.5">
-            <Icon name="bedtime" className="text-sm text-on-surface-variant" />
-            <span className="text-xs text-on-surface-variant font-body">Apr {hoveredDay} — Rest day</span>
-          </div>
-        ) : (
-          <div className="flex items-center gap-3">
-            {([1, 2, 3, 4] as const).map(t => (
-              <div key={t} className="flex items-center gap-1">
-                <div className={`w-2.5 h-2.5 rounded-sm ${TIER_BG[t]}`} />
-                <span className="text-2xs text-on-surface-variant font-label">{TIER_LABEL[t]}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
+// Loaded on first open: the month view and its calendar request stay out of the first paint.
+const StreakMonthPopup = lazy(() => import('./StreakMonthPopup').then((m) => ({ default: m.StreakMonthPopup })))
 
 const navItems: NavItem[] = mockNavItems
 
@@ -198,6 +32,8 @@ export function Navbar() {
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false)
   const { openModal } = useModal()
   const { user, logout } = useAuth()
+  const dueNow = useLearnSummary().summary?.due_now ?? 0
+  const streak = useProgressOverview().data?.streak.current ?? 0
   const { darkMode, toggleDarkMode, backgroundAnimation, setBackgroundAnimation } = useUI()
 
   const isDesktop       = useMediaQuery('(min-width: 768px)')
@@ -320,6 +156,18 @@ export function Navbar() {
 
           {/* Right side: dark mode + auth */}
           <div className="flex items-center gap-3">
+            {/* Review all — shown when logged in, with the due count */}
+            {user && (
+              <Link
+                to={reviewPath()}
+                className="hidden md:flex items-center gap-1.5 min-h-11 px-3 rounded-full text-sm font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+              >
+                <Icon name="replay" className="text-base" />
+                Review
+                <DueBadge count={dueNow} />
+              </Link>
+            )}
+
             {/* Streak pill — shown when logged in */}
             {user && (
               <div ref={streakRef} className="relative hidden md:block">
@@ -343,10 +191,14 @@ export function Navbar() {
                     className="text-base text-primary animate-streak-flame"
                   />
                   <span className="text-sm font-bold text-primary font-label leading-none">
-                    {MOCK_STREAK}
+                    {streak}
                   </span>
                 </Link>
-                {streakOpen && <StreakMonthPopup />}
+                {streakOpen && (
+                  <Suspense fallback={null}>
+                    <StreakMonthPopup streak={streak} />
+                  </Suspense>
+                )}
               </div>
             )}
 
@@ -414,6 +266,14 @@ export function Navbar() {
                   >
                     <Icon name="dashboard" className="text-base" />
                     Dashboard
+                  </Link>
+                  <Link
+                    to={PROGRESS_PATH}
+                    onClick={() => setAvatarMenuOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2 hover:bg-surface-container rounded-lg text-on-surface-variant text-sm transition-colors"
+                  >
+                    <Icon name="insights" className="text-base" />
+                    Progress
                   </Link>
 
                   {/* Background animation picker */}
@@ -517,7 +377,7 @@ export function Navbar() {
                     <div className="flex items-center gap-2 px-3 py-2 mb-1">
                       <Icon name="local_fire_department" className="text-base text-primary animate-streak-flame" />
                       <span className="text-sm font-bold text-primary font-label">
-                        {MOCK_STREAK}-day streak
+                        {streak}-day streak
                       </span>
                     </div>
                     <div className="flex items-center gap-3 px-3 py-3">
@@ -549,6 +409,21 @@ export function Navbar() {
                       className="flex items-center gap-2 px-3 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container text-sm transition-colors"
                     >
                       <Icon name="dashboard" className="text-base" /> Dashboard
+                    </Link>
+                    <Link
+                      to={PROGRESS_PATH}
+                      onClick={closeMobile}
+                      className="flex items-center gap-2 px-3 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container text-sm transition-colors"
+                    >
+                      <Icon name="insights" className="text-base" /> Progress
+                    </Link>
+                    <Link
+                      to={reviewPath()}
+                      onClick={closeMobile}
+                      className="flex items-center gap-2 px-3 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container text-sm transition-colors"
+                    >
+                      <Icon name="replay" className="text-base" /> Review all
+                      <DueBadge count={dueNow} />
                     </Link>
                     <button
                       onClick={() => { logout(); closeMobile() }}

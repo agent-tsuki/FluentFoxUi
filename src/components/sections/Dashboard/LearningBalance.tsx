@@ -10,42 +10,46 @@ const MAX_R = 60
 const LABEL_R = 76
 const GRID_RINGS = [0.25, 0.5, 0.75, 1.0]
 
-const SKILLS = [
-  { key: 'kanji',      label: 'Kanji',      angle: 0   },
-  { key: 'grammar',   label: 'Grammar',    angle: 60  },
-  { key: 'listening', label: 'Listening',  angle: 120 },
-  { key: 'vocabulary',label: 'Vocabulary', angle: 180 },
-  { key: 'reading',   label: 'Reading',    angle: 240 },
-  { key: 'speaking',  label: 'Speaking',   angle: 300 },
-] as const
+// The skills the app asks today; grammar, vocabulary and speaking have no
+// questions yet, so they are left off instead of showing as 0 %.
+const SKILL_KEYS = [
+  { key: 'kanaReading',  label: 'Kana reading' },
+  { key: 'kanjiMeaning', label: 'Kanji meaning' },
+  { key: 'kanjiReading', label: 'Kanji reading' },
+  { key: 'listening',    label: 'Listening' },
+] as const satisfies readonly { key: keyof SkillBalance; label: string }[]
+
+const FULL_TURN = 360
+const SKILLS = SKILL_KEYS.map((s, i) => ({ ...s, angle: (FULL_TURN / SKILL_KEYS.length) * i }))
 
 function pt(angle: number, r: number) {
   const rad = ((angle - 90) * Math.PI) / 180
   return { x: CENTER + r * Math.cos(rad), y: CENTER + r * Math.sin(rad) }
 }
 
-function hexPoints(r: number): string {
+function ringPoints(r: number): string {
   return SKILLS.map(({ angle }) => {
     const p = pt(angle, r)
     return `${p.x},${p.y}`
   }).join(' ')
 }
 
+// Labels on the right start at the point, on the left end there; top and bottom centre.
 function getTextAnchor(angle: number): 'middle' | 'start' | 'end' {
-  if (angle === 0 || angle === 180) return 'middle'
-  if (angle === 60 || angle === 120) return 'start'
-  return 'end'
+  const a = angle % FULL_TURN
+  if (a === 0 || a === FULL_TURN / 2) return 'middle'
+  return a < FULL_TURN / 2 ? 'start' : 'end'
 }
 
 function getDominantBaseline(angle: number): 'auto' | 'hanging' | 'middle' {
   if (angle === 0) return 'auto'
-  if (angle === 180) return 'hanging'
+  if (angle === FULL_TURN / 2) return 'hanging'
   return 'middle'
 }
 
 export function LearningBalance({ balance }: LearningBalanceProps) {
   const dataPoints = SKILLS.map(({ key, angle }) => {
-    const val = balance[key] / 100
+    const val = Math.min(Math.max(balance[key], 0), 100) / 100
     return pt(angle, val * MAX_R)
   })
   const dataPolygon = dataPoints.map(p => `${p.x},${p.y}`).join(' ')
@@ -57,6 +61,7 @@ export function LearningBalance({ balance }: LearningBalanceProps) {
         <h2 className="text-2xl font-extrabold tracking-tight text-on-surface font-headline">
           Learning Balance
         </h2>
+        <p className="text-xs text-on-surface-variant font-body">Share of answers right per skill</p>
       </div>
 
       <div className="flex justify-center">
@@ -65,7 +70,7 @@ export function LearningBalance({ balance }: LearningBalanceProps) {
           {GRID_RINGS.map((frac) => (
             <polygon
               key={frac}
-              points={hexPoints(frac * MAX_R)}
+              points={ringPoints(frac * MAX_R)}
               className="stroke-outline-variant"
               fill="none"
               strokeWidth={0.5}
@@ -132,13 +137,13 @@ export function LearningBalance({ balance }: LearningBalanceProps) {
       </div>
 
       {/* Legend */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         {SKILLS.map(({ key, label }) => (
           <div key={key} className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
             <div className="min-w-0">
               <p className="text-xs font-label font-semibold text-on-surface truncate">{label}</p>
-              <p className="text-xs text-on-surface-variant font-body">{balance[key]}%</p>
+              <p className="text-xs text-on-surface-variant font-body">{Math.round(balance[key])}% right</p>
             </div>
           </div>
         ))}

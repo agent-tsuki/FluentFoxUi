@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useKanjiLevel } from '@/context/KanjiLevelContext'
-import { useKanjiLevelIndex, useKanjiProgress } from '@/hooks/useKanji'
-import { buildReviewQueue } from '@/api/services/kanjiProgressService'
+import { useKanjiLevelIndex } from '@/hooks/useKanji'
+import { useLearnSummary } from '@/hooks/useLearnSummary'
+import { KANJI_TRACK } from '@/lib/learn/paths'
 import { LoadingState, SkeletonBlock } from '@/components/ui/LoadingState'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -24,7 +25,6 @@ export function KanjiCourseLayout() {
   const { pathname, hash } = useLocation()
   const headingRef = useRef<HTMLHeadingElement>(null)
   const { data: index, isLoading, error, refetch } = useKanjiLevelIndex(level.id)
-  const progress = useKanjiProgress()
 
   const context = useMemo(() => (index ? buildKanjiCourseContext(index) : null), [index])
   const pages = useMemo(
@@ -32,11 +32,7 @@ export function KanjiCourseLayout() {
     [level, index],
   )
   const page = kanjiPageFor(pages, pathname)
-  const dueCount = useMemo(() => {
-    if (!context) return 0
-    const queue = buildReviewQueue(progress, context.chars)
-    return queue.due.length + queue.fresh.length
-  }, [context, progress])
+  const dueCount = useLearnSummary(KANJI_TRACK).summary?.due_now ?? 0
 
   useEffect(() => {
     document.title = page.documentTitle

@@ -4,9 +4,8 @@
  * `useKanaScript()` inside a course route, or a config passed in) instead of
  * importing hiragana content directly, so katakana runs on the same code.
  *
- * Progress storage keys live in the progress services (kanaProgressService,
- * learningPathService), not here, so only service files change when a
- * backend arrives. The keys below are per-script UI preferences.
+ * Progress lives on the learn API (learningPathService for the path), not
+ * here. The keys below are per-script UI preferences.
  */
 import type { KanaSection } from '@/types'
 import type { RawStrokeData } from '@/lib/pdf/glyphs'
@@ -26,6 +25,7 @@ import { KATAKANA_SAMPLE_WORDS } from '@/lib/content/kana/katakanaSampleWords'
 import { KATAKANA_WORDS } from '@/lib/content/kana/katakanaWords'
 import { KATAKANA_LOOK_ALIKES } from '@/lib/content/kana/katakanaLookAlikes'
 import { katakanaService } from '@/api/services/katakanaService'
+import { kanaContentService } from '@/api/services/kanaContentService'
 
 export { KANA_SCRIPT_IDS, kanaBasePath, type KanaScriptId, type RegisteredKanaScriptId }
 
@@ -187,7 +187,9 @@ const HIRAGANA: KanaScriptConfig = {
   },
   pdfSlug: 'hiragana',
   loadSections: () => hiraganaService.getSections(),
-  loadStrokes: cached(() => import('@/assets/kana-strokes/hiragana.json').then((m) => m.default as RawStrokeData)),
+  loadStrokes: cached(() =>
+    kanaContentService.getStrokes('hiragana', () => import('@/assets/kana-strokes/hiragana.json').then((m) => m.default as RawStrokeData)),
+  ),
   memoryHint: kanaMemoryHint,
   sampleWords: KANA_SAMPLE_WORDS,
   practiceWords: PRACTICE_WORDS,
@@ -268,7 +270,9 @@ const KATAKANA: KanaScriptConfig = {
   },
   pdfSlug: 'katakana',
   loadSections: () => katakanaService.getSections(),
-  loadStrokes: cached(() => import('@/assets/kana-strokes/katakana.json').then((m) => m.default as RawStrokeData)),
+  loadStrokes: cached(() =>
+    kanaContentService.getStrokes('katakana', () => import('@/assets/kana-strokes/katakana.json').then((m) => m.default as RawStrokeData)),
+  ),
   memoryHint: katakanaMemoryHint,
   sampleWords: {
     ...KATAKANA_SAMPLE_WORDS,

@@ -1,7 +1,7 @@
 import type { KanaChar } from '@/types'
 import { useKanaScript } from '@/context/KanaScriptContext'
 import { useLearningPath } from '@/hooks/useLearningPath'
-import { useKanaProgress } from '@/hooks/useKanaProgress'
+import { useKanaMastery } from '@/hooks/useKanaProgress'
 import { isUnitComplete } from '@/components/learn/unitStatus'
 
 export interface CourseProgress {
@@ -21,9 +21,9 @@ export interface CourseProgress {
 export function useCourseProgress(allKana: readonly KanaChar[]): CourseProgress {
   const { units } = useKanaScript()
   const path = useLearningPath()
-  const { mastery } = useKanaProgress()
+  const mastery = useKanaMastery()
   return {
-    unitsDone: units.filter((u) => isUnitComplete(u, path.units[u.id], mastery)).length,
+    unitsDone: units.filter((u) => isUnitComplete(u, path.units[u.id])).length,
     unitsTotal: units.length,
     kanaMastered: allKana.filter((k) => mastery(k.id) === 'mastered').length,
     kanaTotal: allKana.length,

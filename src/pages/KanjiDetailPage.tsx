@@ -1,17 +1,15 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import type { KanjiEntry, KanjiIndexRow, KanjiLevelIndex } from '@/types/kanji'
-import { useAllKanjiIndexes, useKanjiEntry, useKanjiProgress, useKanjiStrokes } from '@/hooks/useKanji'
+import { useAllKanjiIndexes, useKanjiEntry, useKanjiStrokes } from '@/hooks/useKanji'
 import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
-import {
-  KANJI_STAGE_LABEL,
-  cardStage,
-  getKanjiNote,
-  getKanjiProgress,
-  setKanjiNote,
-} from '@/api/services/kanjiProgressService'
+import { useKanjiNote, type KanjiNoteSave } from '@/hooks/useKanjiNote'
+import { LearnerOnly } from '@/components/auth/SignInPrompt'
+import { YourProgress } from '@/components/progress/YourProgress'
+import { useAuth } from '@/context/AuthContext'
+import { kanjiTrack } from '@/lib/learn/practiceSession'
 import { isKanjiChar, isKanjiLevelId, kanjiCharPath, kanjiLevelMeta, kanjiLevelPagePath, kanjiLevelPath, kanjiUnitPath } from '@/lib/content/kanji/levels'
-import { kanjiCardId, kunLabel } from '@/lib/content/kanji/kanjiText'
+import { kunLabel } from '@/lib/content/kanji/kanjiText'
 import { Eyebrow } from '@/components/ui/SectionHeader'
 import { Icon } from '@/components/ui/Icon'
 import { ErrorState } from '@/components/ui/ErrorState'
@@ -30,7 +28,7 @@ import { cn } from '@/lib/cn'
  * The kanji page (/kanji/日, shareable): stroke order and tracing, meanings,
  * every reading with the key one starred, parts (and where else they
  * appear), the memory hint and your own note, example words with audio,
- * look-alikes and review state. `?in=n5` or `?in=browse` sets the back link
+ * look-alikes. `?in=n5` or `?in=browse` sets the back link
  * and previous / next.
  */
 export function KanjiDetailPage() {
@@ -46,10 +44,6 @@ function KanjiDetail({ char }: { char: string }) {
   useEffect(() => {
     document.title = entry ? `${char} · ${entry.meanings[0]} · Kanji · FoxSensei` : `${char} · Kanji · FoxSensei`
   }, [char, entry])
-
-  useEffect(() => {
-    if (entry) getKanjiProgress().markSeen(char)
-  }, [entry, char])
 
   return (
     <main className="pb-24 pt-nav">
@@ -150,6 +144,8 @@ function Section({ id, title, children, className }: { id: string; title: string
 function EntryView({ entry, indexes }: { entry: KanjiEntry; indexes: KanjiLevelIndex[] }) {
   const { speak, supported } = useJapaneseSpeech()
   const level = kanjiLevelMeta(entry.jlpt)
+  const track = kanjiTrack(entry.jlpt)
+  const { user } = useAuth()
   const unitIndex = indexes.find((i) => i.level === entry.jlpt)
   const unitNumber = unitIndex ? unitIndex.units.findIndex((u) => u.id === entry.unitId) + 1 : 0
   const unit = unitIndex?.units[unitNumber - 1]
@@ -214,7 +210,13 @@ function EntryView({ entry, indexes }: { entry: KanjiEntry; indexes: KanjiLevelI
           </ul>
         </Section>
         <LookAlikes entry={entry} indexes={indexes} />
-        <ReviewState char={entry.char} />
+        {track && user?.emailVerified && (
+          <Section id="progress-heading" title="Your progress">
+            <div className={PANEL}>
+              <YourProgress itemType="kanji" id={entry.char} track={track} />
+            </div>
+          </Section>
+        )}
       </div>
     </div>
   )
@@ -257,7 +259,7 @@ function StrokePanel({ char }: { char: string }) {
           (mode === 'watch' ? (
             <StrokeOrder glyph={kanjiGlyph(strokes.data)} character={char} />
           ) : (
-            <TracePad glyph={kanjiGlyph(strokes.data)} onComplete={() => getKanjiProgress().markTraced(char)} />
+            <TracePad glyph={kanjiGlyph(strokes.data)} />
           ))}
       </div>
     </div>
@@ -357,15 +359,6 @@ function Parts({ entry, indexes }: { entry: KanjiEntry; indexes: KanjiLevelIndex
 }
 
 function MemoryHint({ entry }: { entry: KanjiEntry }) {
-  const [note, setNote] = useState(() => getKanjiNote(entry.char))
-  const [saved, setSaved] = useState<'idle' | 'saved' | 'failed'>('idle')
-
-  useEffect(() => {
-    if (note === getKanjiNote(entry.char)) return
-    const t = window.setTimeout(() => setSaved(setKanjiNote(entry.char, note) ? 'saved' : 'failed'), 500)
-    return () => window.clearTimeout(t)
-  }, [note, entry.char])
-
   return (
     <Section id="hint-heading" title="Remember it">
       <div className={cn(PANEL, 'space-y-4')}>
@@ -379,27 +372,63 @@ function MemoryHint({ entry }: { entry: KanjiEntry }) {
             )}
           </p>
         )}
-        <div>
-          <label htmlFor="kanji-note" className="text-sm font-semibold text-on-surface">
-            Your note
-          </label>
-          <textarea
-            id="kanji-note"
-            value={note}
-            onChange={(e) => {
-              setNote(e.target.value)
-              setSaved('idle')
-            }}
-            rows={2}
-            placeholder="Write your own way to remember it"
-            className="mt-1 w-full resize-y rounded-xl border border-outline-variant/60 bg-surface px-3 py-2 text-base text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          />
-          <p aria-live="polite" className="min-h-4 text-xs text-on-surface-variant">
-            {saved === 'saved' ? 'Saved in this browser.' : saved === 'failed' ? "Couldn't save: storage is blocked." : ''}
-          </p>
-        </div>
+        <LearnerOnly>
+          <KanjiNoteField char={entry.char} />
+        </LearnerOnly>
       </div>
     </Section>
+  )
+}
+
+const NOTE_SAVE_DELAY_MS = 500
+/** The server keeps notes up to 1000 characters. */
+const NOTE_MAX_LENGTH = 1000
+
+const NOTE_STATUS: Record<KanjiNoteSave, string> = {
+  idle: '',
+  saving: 'Saving…',
+  saved: 'Saved to your account.',
+  failed: "Couldn't save your note. Check your connection, then edit it to try again.",
+}
+
+function KanjiNoteField({ char }: { char: string }) {
+  const { text, isLoading, error, refetch, save, saveState } = useKanjiNote(char)
+  if (isLoading) return <SkeletonBlock className="h-20 w-full rounded-xl" />
+  if (error || text === undefined) return <ErrorState message="We couldn't load your note." onRetry={refetch} />
+  return <NoteEditor initial={text} onSave={save} saveState={saveState} />
+}
+
+function NoteEditor({ initial, onSave, saveState }: { initial: string; onSave: (text: string) => void; saveState: KanjiNoteSave }) {
+  const [note, setNote] = useState(initial)
+  const [edited, setEdited] = useState(false)
+
+  useEffect(() => {
+    if (!edited) return
+    const t = window.setTimeout(() => onSave(note), NOTE_SAVE_DELAY_MS)
+    return () => window.clearTimeout(t)
+  }, [note, edited, onSave])
+
+  return (
+    <div>
+      <label htmlFor="kanji-note" className="text-sm font-semibold text-on-surface">
+        Your note
+      </label>
+      <textarea
+        id="kanji-note"
+        value={note}
+        onChange={(e) => {
+          setNote(e.target.value)
+          setEdited(true)
+        }}
+        rows={2}
+        maxLength={NOTE_MAX_LENGTH}
+        placeholder="Write your own way to remember it"
+        className="mt-1 w-full resize-y rounded-xl border border-outline-variant/60 bg-surface px-3 py-2 text-base text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      />
+      <p aria-live="polite" className="min-h-4 text-xs text-on-surface-variant">
+        {edited ? NOTE_STATUS[saveState] : ''}
+      </p>
+    </div>
   )
 }
 
@@ -442,29 +471,3 @@ function LookAlikes({ entry, indexes }: { entry: KanjiEntry; indexes: KanjiLevel
   )
 }
 
-function ReviewState({ char }: { char: string }) {
-  const progress = useKanjiProgress()
-  const faces = (['meaning', 'reading'] as const).map((face) => {
-    const card = progress.items[kanjiCardId(char, face)]?.card
-    return { face, stage: cardStage(card), due: card ? new Date(card.due) : undefined }
-  })
-  const fmt = (d?: Date) => {
-    if (!d) return 'not scheduled'
-    if (d.getTime() <= Date.now()) return 'due now'
-    return `next ${d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}`
-  }
-  return (
-    <Section id="review-heading" title="Your progress">
-      <dl className={cn(PANEL, 'grid gap-3 sm:grid-cols-2')}>
-        {faces.map((f) => (
-          <div key={f.face}>
-            <dt className="text-sm font-semibold capitalize text-on-surface">{f.face}</dt>
-            <dd className="text-sm text-on-surface-variant">
-              {KANJI_STAGE_LABEL[f.stage]} · {fmt(f.due)}
-            </dd>
-          </div>
-        ))}
-      </dl>
-    </Section>
-  )
-}

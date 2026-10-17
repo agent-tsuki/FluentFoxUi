@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import type { KanjiEntry, KanjiLevelIndex, KanjiUnit } from '@/types/kanji'
 import { useKanjiLevel } from '@/context/KanjiLevelContext'
-import { downloadKanjiWorksheet, useKanjiLevelData, useKanjiPath, useKanjiProgress } from '@/hooks/useKanji'
+import { downloadKanjiWorksheet, useKanjiLevelData, useKanjiPath } from '@/hooks/useKanji'
 import { getKanjiPath, kanjiUnitSteps } from '@/api/services/kanjiProgressService'
 import { KANJI_UNIT_STEPS, type KanjiUnitStep } from '@/lib/content/kanji/courseTypes'
 import {
@@ -22,6 +22,7 @@ import { StepProgress } from '@/components/learn/StepProgress'
 import { UnitStepItem } from '@/components/learn/UnitStepItem'
 import { KanjiLesson } from '@/components/kanji/KanjiLesson'
 import { KanjiWriteStep } from '@/components/kanji/KanjiWriteStep'
+import { LearnerOnly } from '@/components/auth/SignInPrompt'
 import { KANJI_PRACTICE_MODES } from '@/components/kanji/practiceModes'
 import { percent } from '@/components/kanji/kanjiUnits'
 import { KanjiDataCredit } from '@/components/kanji/KanjiCourseHeader'
@@ -100,9 +101,8 @@ interface UnitViewProps {
 function UnitView({ unit, number, levelIndex, entries }: UnitViewProps) {
   const level = useKanjiLevel()
   const path = useKanjiPath(level.id)
-  const progress = useKanjiProgress()
   const store = getKanjiPath(level.id)
-  const done = kanjiUnitSteps(unit, path.units[unit.id], progress)
+  const done = kanjiUnitSteps(unit, path.units[unit.id])
   const completed = KANJI_UNIT_STEPS.filter((s) => done[s]).length
   const skipped = Boolean(path.units[unit.id]?.skippedAt)
   const prev = levelIndex.units[number - 2]
@@ -114,40 +114,51 @@ function UnitView({ unit, number, levelIndex, entries }: UnitViewProps) {
   }, [number, unit.title, level.title])
 
   const body: Record<KanjiUnitStep, JSX.Element> = {
-    learn: <KanjiLesson entries={entries} batchSize={level.batchSize} onFinish={() => document.getElementById('step-write')?.scrollIntoView({ block: 'start' })} />,
+    learn: (
+      <KanjiLesson
+        entries={entries}
+        batchSize={level.batchSize}
+        onFinish={() => document.getElementById('step-write')?.scrollIntoView({ block: 'start' })}
+        onLearned={() => store.markTraced(unit.id)}
+      />
+    ),
     write: <KanjiWriteStep entries={entries} onComplete={() => store.markWritten(unit.id)} />,
     practise: (
-      <ul className="grid gap-2 sm:grid-cols-2">
-        {KANJI_PRACTICE_MODES.map((mode) => (
-          <li key={mode.id}>
-            <Link
-              to={kanjiPracticePath(level.id, mode.id, { unit: unit.id })}
-              className="flex min-h-14 items-center gap-3 rounded-2xl border border-outline-variant/60 bg-surface-container-lowest px-3 py-2 hover:bg-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:bg-surface-container-low"
-            >
-              <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                <Icon name={mode.icon} className="text-xl text-primary" />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-sm font-semibold text-on-surface">{mode.title}</span>
-                <span className="block text-xs text-on-surface-variant">{mode.summary}</span>
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <LearnerOnly>
+        <ul className="grid gap-2 sm:grid-cols-2">
+          {KANJI_PRACTICE_MODES.map((mode) => (
+            <li key={mode.id}>
+              <Link
+                to={kanjiPracticePath(level.id, mode.id, { unit: unit.id })}
+                className="flex min-h-14 items-center gap-3 rounded-2xl border border-outline-variant/60 bg-surface-container-lowest px-3 py-2 hover:bg-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:bg-surface-container-low"
+              >
+                <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                  <Icon name={mode.icon} className="text-xl text-primary" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold text-on-surface">{mode.title}</span>
+                  <span className="block text-xs text-on-surface-variant">{mode.summary}</span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </LearnerOnly>
     ),
     print: <PrintButton unit={unit} number={number} entries={entries} onPrinted={() => store.markPrinted(unit.id)} />,
     quiz: (
-      <div className="flex flex-wrap items-center gap-4">
-        <ActionLink to={kanjiUnitQuizPath(level.id, unit.id)}>
-          <Icon name="quiz" className="text-xl" />
-          {path.units[unit.id]?.quizBest !== undefined ? 'Retake the quiz' : 'Take the quiz'}
-        </ActionLink>
-        <p className="text-sm tabular-nums text-on-surface-variant">
-          {entries.length * 2} questions · {Math.round(level.unitQuizPassMark * 100)}% to pass
-          {path.units[unit.id]?.quizBest !== undefined && ` · best ${percent(path.units[unit.id]?.quizBest ?? 0)}`}
-        </p>
-      </div>
+      <LearnerOnly>
+        <div className="flex flex-wrap items-center gap-4">
+          <ActionLink to={kanjiUnitQuizPath(level.id, unit.id)}>
+            <Icon name="quiz" className="text-xl" />
+            {path.units[unit.id]?.quizBest !== undefined ? 'Retake the quiz' : 'Take the quiz'}
+          </ActionLink>
+          <p className="text-sm tabular-nums text-on-surface-variant">
+            {entries.length * 2} questions · {Math.round(level.unitQuizPassMark * 100)}% to pass
+            {path.units[unit.id]?.quizBest !== undefined && ` · best ${percent(path.units[unit.id]?.quizBest ?? 0)}`}
+          </p>
+        </div>
+      </LearnerOnly>
     ),
   }
 

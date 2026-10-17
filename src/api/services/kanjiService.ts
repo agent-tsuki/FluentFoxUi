@@ -12,24 +12,20 @@ import type {
 import { KANJI_LEVELS, availableKanjiLevels, kanjiLevelMeta } from '@/lib/content/kanji/levels'
 import { KANJI_LEVEL_CONFIGS } from '@/lib/content/kanji/levelConfigs'
 import { toHiragana } from '@/lib/content/kanji/kanjiText'
+import { fetchStrokeJson, getStrokesBaseUrl, loadContent } from '@/api/services/contentSource'
 
 /**
- * Kanji data service: an API-shaped async contract. Every method returns the
- * same payloads the backend will serve, so the UI never changes when a level
- * moves from bundled JSON to the API.
+ * Kanji data service: an API-shaped async contract, so the UI never changes
+ * when a level moves from bundled JSON to the API.
  *
- * Today:
- * - available levels with `bundled` loaders (N5, N4) load lazily-imported JSON/TS;
- * - coming-soon levels (N3–N1) throw `LevelUnavailableError`;
- * - strokes are fetched per kanji from `public/kanji-data/<version>/strokes/`.
- *
- * Swap to the API (per level, when the backend serves it):
- *   getLevels:      apiClient.get<KanjiLevelSummary[]>('/api/kanji/levels')
- *   getLevelIndex:  apiClient.get<KanjiLevelIndex>(`/api/kanji/levels/${level}/index`)
- *   getLevelDetail: apiClient.get<KanjiLevelDetail>(`/api/kanji/levels/${level}/detail`)
- *   getKanji:       apiClient.get<KanjiEntry>(`/api/kanji/chars/${encodeURIComponent(char)}`)  (404 → null)
- *   getStrokes:     apiClient.get<KanjiStrokeData>(`/api/kanji/chars/${encodeURIComponent(char)}/strokes`)
- *   search:         apiClient.get<KanjiIndexRow[]>(`/api/kanji/search?q=…&level=…&sort=…`)
+ * - Available levels load from the public API
+ *   (`/content/kanji/{level}/index|detail`, `/content/kanji/chars/{char}`) and
+ *   fall back to the lazily-imported bundled JSON when the API does not serve
+ *   the level yet (v1 serves N5 only) or is unreachable.
+ * - Coming-soon levels (N3–N1) throw `LevelUnavailableError`.
+ * - Strokes come from R2 (`strokes_base_url` of the content responses) when
+ *   known, else from `public/kanji-data/<version>/strokes/`.
+ * - getLevels and search are derived from the level indexes on the client.
  */
 
 /** Version folder of the static stroke files (bump when the data is regenerated). */
@@ -57,25 +53,29 @@ export function kanjiStrokeFileId(char: string): string {
   return (char.codePointAt(0) ?? 0).toString(16).padStart(5, '0')
 }
 
-function loadersFor(level: KanjiLevelId) {
+function isLevelAvailable(level: KanjiLevelId): boolean {
+  return KANJI_LEVEL_CONFIGS[level].status === 'available'
+}
+
+function bundledLoadersFor(level: KanjiLevelId) {
   const config = KANJI_LEVEL_CONFIGS[level]
-  // Future: a level that is 'available' but has no bundled loaders is served by the API here.
   if (config.status !== 'available' || !config.bundled) throw new LevelUnavailableError(level)
   return config.bundled
 }
 
 async function getLevelIndex(level: KanjiLevelId): Promise<KanjiLevelIndex> {
-  return loadersFor(level).loadIndex()
+  if (!isLevelAvailable(level)) throw new LevelUnavailableError(level)
+  return loadContent(`/content/kanji/${level}/index`, () => bundledLoadersFor(level).loadIndex(), (d) => Array.isArray(d.rows))
 }
 
 async function getLevelDetail(level: KanjiLevelId): Promise<KanjiLevelDetail> {
-  return loadersFor(level).loadDetail()
+  if (!isLevelAvailable(level)) throw new LevelUnavailableError(level)
+  return loadContent(`/content/kanji/${level}/detail`, () => bundledLoadersFor(level).loadDetail(), (d) => Array.isArray(d.entries))
 }
 
 /** Indexes of the given levels that have data (unavailable levels are skipped, not thrown). */
 async function loadIndexes(levels: readonly KanjiLevelId[]): Promise<KanjiLevelIndex[]> {
-  const usable = levels.filter((l) => KANJI_LEVEL_CONFIGS[l].status === 'available' && KANJI_LEVEL_CONFIGS[l].bundled)
-  return Promise.all(usable.map(getLevelIndex))
+  return Promise.all(levels.filter(isLevelAvailable).map(getLevelIndex))
 }
 
 async function getLevels(): Promise<KanjiLevelSummary[]> {
@@ -95,6 +95,16 @@ async function getLevels(): Promise<KanjiLevelSummary[]> {
 
 /** Full entry for one kanji from any available level; null if no level has it (yet). */
 async function getKanji(char: string): Promise<KanjiEntry | null> {
+  // A 404 also lands in the fallback: the API may not serve this kanji's level yet.
+  const entry = await loadContent<KanjiEntry | { missing: true }>(
+    `/content/kanji/chars/${encodeURIComponent(char)}`,
+    async () => (await findKanjiInLevels(char)) ?? { missing: true },
+    (d) => 'char' in d && d.char === char,
+  )
+  return 'missing' in entry ? null : entry
+}
+
+async function findKanjiInLevels(char: string): Promise<KanjiEntry | null> {
   const indexes = await loadIndexes(availableKanjiLevels())
   const row = indexes.flatMap((i) => i.rows).find((r) => r.char === char)
   if (!row) return null
@@ -115,6 +125,22 @@ function isStrokeData(value: unknown): value is KanjiStrokeData {
 
 const strokeCache = new Map<string, Promise<KanjiStrokeData | null>>()
 
+async function loadStrokeFile(url: string): Promise<KanjiStrokeData | null> {
+  const data = await fetchStrokeJson(url)
+  return isStrokeData(data) ? data : null
+}
+
+/** R2 keeps the same layout as the bundled folder: `<base>/kanji/<version>/strokes/<file>.json`. */
+async function loadStrokes(char: string): Promise<KanjiStrokeData | null> {
+  const file = `${kanjiStrokeFileId(char)}.json`
+  const base = getStrokesBaseUrl()
+  if (base) {
+    const remote = await loadStrokeFile(`${base}/kanji/${KANJI_DATA_VERSION}/strokes/${file}`).catch(() => null)
+    if (remote) return remote
+  }
+  return loadStrokeFile(`/kanji-data/${KANJI_DATA_VERSION}/strokes/${file}`)
+}
+
 /**
  * KanjiVG strokes for one kanji, or null when no stroke file exists (yet).
  * Network errors reject (so the UI can offer a retry); a missing or malformed
@@ -123,12 +149,7 @@ const strokeCache = new Map<string, Promise<KanjiStrokeData | null>>()
 function getStrokes(char: string): Promise<KanjiStrokeData | null> {
   const hit = strokeCache.get(char)
   if (hit) return hit
-  const load = fetch(`/kanji-data/${KANJI_DATA_VERSION}/strokes/${kanjiStrokeFileId(char)}.json`).then(async (res) => {
-    // The SPA fallback answers unknown paths with index.html, so check the type too.
-    if (!res.ok || !(res.headers.get('content-type') ?? '').includes('json')) return null
-    const data: unknown = await res.json().catch(() => null)
-    return isStrokeData(data) ? data : null
-  })
+  const load = loadStrokes(char)
   strokeCache.set(char, load)
   load.catch(() => strokeCache.delete(char))
   return load

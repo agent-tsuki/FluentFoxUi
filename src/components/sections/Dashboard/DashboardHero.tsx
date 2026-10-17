@@ -33,7 +33,7 @@ export function DashboardHero({ firstName, stats }: DashboardHeroProps) {
         <div className="flex flex-wrap gap-3">
           <Chip icon="local_fire_department" label={`${stats.currentStreak} day streak`} accent />
           <Chip icon="stars" label={`Targeting JLPT ${stats.targetLevel}`} />
-          <Chip icon="emoji_events" label={stats.globalRank} />
+          {stats.globalRank && <Chip icon="emoji_events" label={stats.globalRank} />}
         </div>
       </div>
 
@@ -46,7 +46,7 @@ export function DashboardHero({ firstName, stats }: DashboardHeroProps) {
 
         <div className="relative z-10 space-y-4 mt-6">
           <div className="flex justify-between items-end">
-            <span className="text-4xl font-extrabold tracking-tight">{stats.jlptProgress}%</span>
+            <span className="text-4xl font-extrabold tracking-tight">{Math.round(stats.jlptProgress)}%</span>
             <span className="text-xs font-bold uppercase tracking-widest opacity-60">
               JLPT {stats.targetLevel} Goal
             </span>

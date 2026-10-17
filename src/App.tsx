@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useSyncExternalStore, type ReactNode } from 
 import { createBrowserRouter, Navigate, RouterProvider, Outlet, useSearchParams, type RouteObject } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
+import { PathUserSync } from '@/components/auth/PathUserSync'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { LazyAuthModal } from '@/components/sections/AuthModal'
@@ -20,6 +21,7 @@ import { KANA_SCRIPT_IDS, kanaBasePath, type RegisteredKanaScriptId } from '@/li
 import { DEFAULT_KANJI_LEVEL, KANJI_LAST_LEVEL_KEY, KANJI_LEVELS, isKanjiLevelAvailable, isKanjiLevelId, kanjiLevelPath, type KanjiLevelMeta } from '@/lib/content/kanji/levels'
 // The landing page stays eager: it is the first paint for most visitors.
 import { HomePage } from '@/pages/HomePage'
+import { KANJI_TRACK, reviewPath } from '@/lib/learn/paths'
 
 // ─── Lazy routes ──────────────────────────────────────────────────────────────
 // Each page is its own chunk, fetched on first navigation.
@@ -48,13 +50,16 @@ const KanjiUnitQuizPage      = lazy(() => import('@/pages/KanjiUnitQuizPage').th
 const KanjiPracticePage      = lazy(() => import('@/pages/KanjiPracticePage').then(m => ({ default: m.KanjiPracticePage })))
 const KanjiSkipTestPage      = lazy(() => import('@/pages/KanjiTestPages').then(m => ({ default: m.KanjiSkipTestPage })))
 const KanjiLevelTestPage     = lazy(() => import('@/pages/KanjiTestPages').then(m => ({ default: m.KanjiLevelTestPage })))
-const KanjiReviewSessionPage = lazy(() => import('@/pages/KanjiReviewSessionPage').then(m => ({ default: m.KanjiReviewSessionPage })))
 const KanjiDetailPage        = lazy(() => import('@/pages/KanjiDetailPage').then(m => ({ default: m.KanjiDetailPage })))
 const KanjiComingSoonPage    = lazy(() => import('@/pages/KanjiComingSoonPage').then(m => ({ default: m.KanjiComingSoonPage })))
+const LearnLessonPage   = lazy(() => import('@/pages/LearnLessonPage').then(m => ({ default: m.LearnLessonPage })))
+const ReviewPage        = lazy(() => import('@/pages/ReviewPage').then(m => ({ default: m.ReviewPage })))
+const HowGradingWorksPage = lazy(() => import('@/pages/HowGradingWorksPage').then(m => ({ default: m.HowGradingWorksPage })))
 const QuizPage          = lazy(() => import('@/pages/QuizPage').then(m => ({ default: m.QuizPage })))
 const ProfilePage       = lazy(() => import('@/pages/ProfilePage').then(m => ({ default: m.ProfilePage })))
 const GrammarPage       = lazy(() => import('@/pages/GrammarPage').then(m => ({ default: m.GrammarPage })))
 const DashboardPage     = lazy(() => import('@/pages/DashboardPage').then(m => ({ default: m.DashboardPage })))
+const ProgressPage      = lazy(() => import('@/pages/ProgressPage').then(m => ({ default: m.ProgressPage })))
 const AboutPage         = lazy(() => import('@/pages/AboutPage').then(m => ({ default: m.AboutPage })))
 const TermsPage         = lazy(() => import('@/pages/TermsPage').then(m => ({ default: m.TermsPage })))
 const PrivacyPage       = lazy(() => import('@/pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })))
@@ -171,6 +176,10 @@ function Shell() {
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
+// Guests may browse charts, unit pages and kanji pages. Every quiz, test,
+// practice and review route needs a signed-in, verified user (RequireAuth),
+// because answers are graded and stored on the server.
+
 /**
  * One kana script's route tree under /kana/<script>, built per registered
  * script (explicit paths, so /kana/kanji is never captured and unknown
@@ -193,11 +202,11 @@ function kanaCourseRoutes(script: RegisteredKanaScriptId): RouteObject {
         ],
       },
       { path: 'print',          element: <Navigate to={`${base}/downloads`} replace /> },
-      { path: 'practice/:mode', element: <KanaPracticePage /> },
+      { path: 'practice/:mode', element: <RequireAuth guestPrompt><KanaPracticePage /></RequireAuth> },
       { path: 'unit/:unitId',   element: <KanaUnitPage /> },
-      { path: 'quiz/:unitId',   element: <KanaUnitQuizPage /> },
-      { path: 'test',           element: <KanaFinalTestPage /> },
-      { path: 'skip/:scope',    element: <KanaSkipTestPage /> },
+      { path: 'quiz/:unitId',   element: <RequireAuth guestPrompt><KanaUnitQuizPage /></RequireAuth> },
+      { path: 'test',           element: <RequireAuth guestPrompt><KanaFinalTestPage /></RequireAuth> },
+      { path: 'skip/:scope',    element: <RequireAuth guestPrompt><KanaSkipTestPage /></RequireAuth> },
     ],
   }
 }
@@ -221,17 +230,17 @@ function kanjiLevelRoutes(level: KanjiLevelMeta): RouteObject {
         element: <KanjiCourseLayout />,
         children: [
           { index: true,         element: <CoursePageSuspense><KanjiCoursePage /></CoursePageSuspense> },
-          { path: 'reviews',     element: <CoursePageSuspense><KanjiReviewsPage /></CoursePageSuspense> },
+          { path: 'reviews',     element: <CoursePageSuspense><RequireAuth guestPrompt="inline"><KanjiReviewsPage /></RequireAuth></CoursePageSuspense> },
           { path: 'browse',      element: <CoursePageSuspense><KanjiBrowsePage /></CoursePageSuspense> },
           { path: 'tests',       element: <CoursePageSuspense><KanjiTestsPage /></CoursePageSuspense> },
           { path: 'downloads',   element: <CoursePageSuspense><KanjiDownloadsPage /></CoursePageSuspense> },
         ],
       },
       { path: 'unit/:unitId',   element: <KanjiUnitPage /> },
-      { path: 'quiz/:unitId',   element: <KanjiUnitQuizPage /> },
-      { path: 'practice/:mode', element: <KanjiPracticePage /> },
-      { path: 'skip/:scope',    element: <KanjiSkipTestPage /> },
-      { path: 'test',           element: <KanjiLevelTestPage /> },
+      { path: 'quiz/:unitId',   element: <RequireAuth guestPrompt><KanjiUnitQuizPage /></RequireAuth> },
+      { path: 'practice/:mode', element: <RequireAuth guestPrompt><KanjiPracticePage /></RequireAuth> },
+      { path: 'skip/:scope',    element: <RequireAuth guestPrompt><KanjiSkipTestPage /></RequireAuth> },
+      { path: 'test',           element: <RequireAuth guestPrompt><KanjiLevelTestPage /></RequireAuth> },
       { path: '*',              element: <Navigate to={base} replace /> },
     ],
   }
@@ -279,11 +288,16 @@ const router = createBrowserRouter([
       { path: 'kana/kanji',      element: <Navigate to={kanjiLevelPath(DEFAULT_KANJI_LEVEL)} replace /> },
       { path: 'kanji',           element: <KanjiIndexRedirect /> },
       ...KANJI_LEVELS.map(kanjiLevelRoutes),
-      { path: 'kanji/reviews/session', element: <KanjiReviewSessionPage /> },
+      // The old local review runner; reviews now run on the learn API.
+      { path: 'kanji/reviews/session', element: <Navigate to={reviewPath(KANJI_TRACK)} replace /> },
+      // Lessons and reviews on the learn API (graded and scheduled by the server).
+      { path: 'learn/lesson/:track', element: <RequireAuth guestPrompt><LearnLessonPage /></RequireAuth> },
+      { path: 'learn/how-grading-works', element: <HowGradingWorksPage /> },
+      { path: 'review',          element: <RequireAuth guestPrompt><ReviewPage /></RequireAuth> },
       // /kanji/日 (validated inside: anything that isn't one kanji is a 404).
       { path: 'kanji/:char',     element: <KanjiDetailPage /> },
       { path: 'grammar/:level/:chapterId?',  element: <GrammarPage /> },
-      { path: 'quiz',            element: <QuizPage /> },
+      { path: 'quiz',            element: <RequireAuth guestPrompt><QuizPage /></RequireAuth> },
       { path: 'classes',         element: <ClassesPage /> },
       { path: 'classes/:teacherId', element: <ClassDetailPage /> },
       { path: 'about',           element: <AboutPage /> },
@@ -297,9 +311,15 @@ const router = createBrowserRouter([
         element: <RequireAuth><DashboardPage /></RequireAuth>,
       },
       {
+        // Login + verified email: the progress API needs both.
+        path: 'progress',
+        element: <RequireAuth guestPrompt><ProgressPage /></RequireAuth>,
+      },
+      {
         path: 'profile',
         element: <RequireAuth><ProfilePage /></RequireAuth>,
       },
+      { path: 'settings/learning', element: <Navigate to="/profile?tab=learning" replace /> },
       {
         // Logged in but email not verified yet (auth guide §5)
         path: 'verify-email',
@@ -318,6 +338,7 @@ export function App() {
         <UIProvider>
           <ModalProvider>
             <AmbientMouseFollower />
+            <PathUserSync />
             <RouterProvider router={router} />
             <Analytics />
             <SpeedInsights />

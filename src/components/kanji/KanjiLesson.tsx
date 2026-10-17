@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { KanjiEntry } from '@/types/kanji'
 import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
-import { useKanjiProgress, useKanjiStrokes } from '@/hooks/useKanji'
-import { getKanjiProgress, isKanjiSeen } from '@/api/services/kanjiProgressService'
+import { useKanjiStrokes } from '@/hooks/useKanji'
 import { kanjiCharPath } from '@/lib/content/kanji/levels'
 import { kunLabel } from '@/lib/content/kanji/kanjiText'
 import { Icon } from '@/components/ui/Icon'
@@ -18,24 +17,34 @@ import { cn } from '@/lib/cn'
 /**
  * KanjiLesson — the Learn step: one kanji at a time (meaning, key reading,
  * key word with audio, memory hint, stroke order), in batches of
- * `batchSize`. Showing a kanji marks it as seen; the tabs above jump to any
- * kanji and show which are done.
+ * `batchSize`. Showing a kanji marks it as seen for this visit; the tabs
+ * above jump to any kanji and show which are done. Once every kanji has been
+ * shown, `onLearned` runs (it ticks the unit's Learn step).
  */
 interface KanjiLessonProps {
   entries: KanjiEntry[]
   batchSize: number
   /** Called after the last kanji, e.g. to move on to Write. */
   onFinish?: () => void
+  /** Called once every kanji has been shown. */
+  onLearned?: () => void
 }
 
-export function KanjiLesson({ entries, batchSize, onFinish }: KanjiLessonProps) {
-  const progress = useKanjiProgress()
-  const [at, setAt] = useState(() => Math.max(0, entries.findIndex((e) => !isKanjiSeen(progress, e.char))))
+export function KanjiLesson({ entries, batchSize, onFinish, onLearned }: KanjiLessonProps) {
+  const [at, setAt] = useState(0)
+  const [seenChars, setSeenChars] = useState<ReadonlySet<string>>(() => new Set())
   const entry = entries[at]
 
   useEffect(() => {
-    if (entry) getKanjiProgress().markSeen(entry.char)
+    if (entry) setSeenChars((seen) => (seen.has(entry.char) ? seen : new Set(seen).add(entry.char)))
   }, [entry])
+
+  const allSeen = entries.length > 0 && entries.every((e) => seenChars.has(e.char))
+  useEffect(() => {
+    if (allSeen) onLearned?.()
+    // Once per visit: a new callback identity must not report again.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allSeen])
 
   if (!entry) return null
   const isLast = at === entries.length - 1
@@ -45,7 +54,7 @@ export function KanjiLesson({ entries, batchSize, onFinish }: KanjiLessonProps) 
     <div>
       <div role="tablist" aria-label="Kanji in this unit" className="flex flex-wrap gap-1.5">
         {entries.map((e, i) => {
-          const seen = isKanjiSeen(progress, e.char)
+          const seen = seenChars.has(e.char)
           return (
             <button
               key={e.char}

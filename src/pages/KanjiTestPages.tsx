@@ -1,11 +1,17 @@
-import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import type { KanjiEntry, KanjiLevelIndex } from '@/types/kanji'
 import { useKanjiLevel } from '@/context/KanjiLevelContext'
 import { useKanjiLevelData } from '@/hooks/useKanji'
-import { getKanjiPath, recordKanjiReviews } from '@/api/services/kanjiProgressService'
+import { getKanjiPath } from '@/api/services/kanjiProgressService'
+import type { AnswerTimerControls } from '@/hooks/useAnswerTimer'
+import { useLearnTest } from '@/hooks/useLearnTest'
+import { finalTestRequest, kanjiTrack, skipTestRequest } from '@/lib/learn/practiceSession'
+import type { LearnQuestion, LearningTrack, SessionStart } from '@/types/learn'
+import { TestGate } from '@/components/learnSession/TestGate'
+import { kanjiTestQuestions, saveKanjiTestAnswer } from '@/components/kanjiQuiz/testQuestions'
+import { KanjiTestsComingSoon } from '@/components/kanji/KanjiTestsComingSoon'
 import { kanjiLevelPagePath, kanjiLevelPath } from '@/lib/content/kanji/levels'
-import { shuffle } from '@/lib/pdf/shared'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { Button } from '@/components/ui/Button'
@@ -15,13 +21,8 @@ import { formatClock, formatDuration, useQuizTimer } from '@/components/kanaQuiz
 import { KanjiQuizRunner } from '@/components/kanjiQuiz/KanjiQuizRunner'
 import { KanjiQuizResults } from '@/components/kanjiQuiz/KanjiQuizResults'
 import { useKanjiQuizSession } from '@/components/kanjiQuiz/useKanjiQuizSession'
-import { buildKanjiQuestion } from '@/components/kanjiQuiz/buildKanjiQuestions'
-import type { KanjiAnswer, KanjiQuestion, KanjiQuestionKind } from '@/components/kanjiQuiz/types'
+import type { KanjiAnswer, KanjiQuestion } from '@/components/kanjiQuiz/types'
 import { formatPercent } from '@/components/kanaCourse/testsPercent'
-
-function toReviews(answers: KanjiAnswer[]) {
-  return answers.map((a) => ({ char: a.question.target.char, face: a.question.face, correct: a.correct }))
-}
 
 function Frame({ children }: { children: ReactNode }) {
   return <main className="min-h-dvh bg-surface pt-nav">{children}</main>
@@ -55,16 +56,17 @@ function Intro({ title, lines, onStart, onExit }: { title: string; lines: string
 
 /**
  * /kanji/<level>/skip/:scope — test out of the whole level (`all`) or one
- * group: a few kanji from every unit, meaning + reading each. Units scored
- * at the pass mark are marked tested out; every answer also feeds reviews,
- * so tested-out kanji still come back now and then.
+ * group on the learn API (see SkipTest).
  */
 export function KanjiSkipTestPage() {
   const level = useKanjiLevel()
   const { scope = 'all' } = useParams<{ scope: string }>()
   const { data, isLoading, error, refetch } = useKanjiLevelData(level.id)
   const group = data?.index.groups.find((g) => g.id === scope)
+  const navigate = useNavigate()
+  const track = kanjiTrack(level.id)
   if (data && scope !== 'all' && !group) return <Navigate to={kanjiLevelPagePath(level.id, 'tests')} replace />
+  if (!track) return <KanjiTestsComingSoon levelLabel={level.label} onBack={() => navigate(kanjiLevelPath(level.id))} />
 
   return (
     <Frame>
@@ -74,6 +76,7 @@ export function KanjiSkipTestPage() {
         <SkipTest
           key={scope}
           scope={scope}
+          track={track}
           title={group ? `Test out: ${group.title}` : `Test out of ${level.label}`}
           index={data.index}
           unitIds={group ? group.unitIds : data.index.units.map((u) => u.id)}
@@ -88,32 +91,54 @@ export function KanjiSkipTestPage() {
 interface SkipTestProps {
   scope: string
   title: string
+  track: LearningTrack
   index: KanjiLevelIndex
   unitIds: string[]
   byChar: ReadonlyMap<string, KanjiEntry>
   pool: KanjiEntry[]
 }
 
-function SkipTest({ scope, title, index, unitIds, byChar, pool }: SkipTestProps) {
+/**
+ * The test-out on the learn API: the server asks the meaning and reading of
+ * every kanji in scope and scores the whole scope. Passing schedules them all
+ * as known, so every unit in scope is marked tested out; the per-unit
+ * breakdown shows where to start otherwise.
+ */
+function SkipTest({ scope, title, track, index, unitIds, byChar, pool }: SkipTestProps) {
   const level = useKanjiLevel()
   const navigate = useNavigate()
   const [started, setStarted] = useState(false)
   const back = useCallback(() => navigate(kanjiLevelPagePath(level.id, 'tests')), [navigate, level.id])
   const units = useMemo(() => index.units.filter((u) => unitIds.includes(u.id)), [index, unitIds])
 
-  const build = useCallback((): KanjiQuestion[] => {
-    const qs = units.flatMap((u) =>
-      shuffle(u.kanji)
-        .slice(0, level.skipSamplePerUnit)
-        .flatMap((c, i) => {
-          const e = byChar.get(c)
-          return e
-            ? [buildKanjiQuestion(e, 'meaning', pool, 'choice', `${c}-m-${i}`), buildKanjiQuestion(e, 'reading', pool, 'choice', `${c}-r-${i}`)]
-            : []
-        }),
-    )
-    return shuffle(qs)
-  }, [units, byChar, pool, level.skipSamplePerUnit])
+  const quiz = useKanjiQuizSession(() => [], () => undefined)
+  const [cards, setCards] = useState<ReadonlyMap<string, LearnQuestion>>(() => new Map())
+  const request = useMemo(() => skipTestRequest(track, scope), [track, scope])
+  const { start } = quiz
+  const onSession = useCallback(
+    (session: SessionStart) => {
+      const built = kanjiTestQuestions(session, byChar, pool, 'choice')
+      setCards(built.cards)
+      start(built.questions)
+    },
+    [byChar, pool, start],
+  )
+  const test = useLearnTest(request, level.skipPassMark, onSession)
+  const { submit, check, recorder } = test
+
+  useEffect(() => {
+    if (started && quiz.done) submit(quiz.questions.length)
+  }, [started, quiz.done, quiz.questions.length, submit])
+
+  const outcome = check.state === 'done' ? check.outcome : undefined
+  useEffect(() => {
+    if (outcome) getKanjiPath(level.id).recordSkipTest(scope, outcome.score, outcome.passed)
+  }, [outcome, level.id, scope])
+
+  const onAnswer = useCallback(
+    (question: KanjiQuestion, given: string, timer: AnswerTimerControls) => saveKanjiTestAnswer(recorder.answerCard, cards, question, given, timer),
+    [recorder.answerCard, cards],
+  )
 
   const scoreByUnit = useCallback(
     (answers: KanjiAnswer[]) =>
@@ -125,24 +150,16 @@ function SkipTest({ scope, title, index, unitIds, byChar, pool }: SkipTestProps)
     [units],
   )
 
-  const onFinish = useCallback(
-    (answers: KanjiAnswer[]) => {
-      const score = answers.filter((a) => a.correct).length / Math.max(1, answers.length)
-      const passed = scoreByUnit(answers).filter((u) => u.score >= level.skipPassMark).map((u) => u.unit.id)
-      getKanjiPath(level.id).recordSkipTest(scope, score, passed)
-      void recordKanjiReviews(toReviews(answers))
-    },
-    [scope, level, scoreByUnit],
-  )
-  const session = useKanjiQuizSession(build, onFinish)
+  const gate = <TestGate test={test} questionCount={quiz.questions.length} title={title} onExit={back} />
+  if (!test.session || test.starting || test.startFailed || quiz.questions.length === 0) return gate
 
   if (!started) {
     return (
       <Intro
         title={title}
         lines={[
-          `${units.length * level.skipSamplePerUnit} kanji, meaning and reading for each (choose the answer).`,
-          `Units where you score ${formatPercent(level.skipPassMark)} or more are marked done.`,
+          `${quiz.questions.length} questions: the meaning and reading of every kanji here (choose the answer).`,
+          `Score ${formatPercent(level.skipPassMark)} or more and every unit here is marked done.`,
           'Nothing is locked: you can still open any unit afterwards.',
         ]}
         onStart={() => setStarted(true)}
@@ -150,15 +167,17 @@ function SkipTest({ scope, title, index, unitIds, byChar, pool }: SkipTestProps)
       />
     )
   }
-  if (!session.done) return <KanjiQuizRunner title={title} session={session} onExit={back} />
+  if (!quiz.done) return <KanjiQuizRunner title={title} session={quiz} onAnswer={onAnswer} onExit={back} />
+  if (!outcome) return gate
 
-  const perUnit = scoreByUnit(session.answers)
-  const passedCount = perUnit.filter((u) => u.score >= level.skipPassMark).length
+  const perUnit = scoreByUnit(quiz.answers)
   return (
     <PracticeShell title={title} progress={1} onExit={back}>
       <KanjiQuizResults
-        answers={session.answers}
-        detail={`${passedCount} of ${units.length} units tested out.`}
+        answers={quiz.answers}
+        passMark={level.skipPassMark}
+        score={outcome}
+        detail={outcome.passed ? `You tested out of ${units.length === 1 ? 'this unit' : `all ${units.length} units`}.` : 'Not tested out this time. Your score per unit shows where to start.'}
         breakdown={
           <ul className="divide-y divide-outline-variant/40 rounded-2xl border border-outline-variant/40 bg-surface-container-low">
             {perUnit.map(({ unit, score }) => {
@@ -168,7 +187,7 @@ function SkipTest({ scope, title, index, unitIds, byChar, pool }: SkipTestProps)
                   <Icon name={ok ? 'check_circle' : 'radio_button_unchecked'} filled={ok} className={ok ? 'text-lg text-success' : 'text-lg text-on-surface-variant'} />
                   <span className="min-w-0 flex-1 font-semibold text-on-surface">{unit.title}</span>
                   <span className="tabular-nums text-on-surface-variant">
-                    {formatPercent(score)} · {ok ? 'Tested out' : 'Keep learning'}
+                    {formatPercent(score)} · {ok ? 'Known' : 'Keep learning'}
                   </span>
                 </li>
               )
@@ -180,7 +199,7 @@ function SkipTest({ scope, title, index, unitIds, byChar, pool }: SkipTestProps)
             <Button onClick={() => navigate(kanjiLevelPath(level.id))} className="flex min-h-12 items-center justify-center gap-2">
               <Icon name="arrow_forward" className="text-xl" /> Back to the course
             </Button>
-            <Button variant="outline" onClick={() => session.start(build())} className="flex min-h-12 items-center justify-center gap-2">
+            <Button variant="outline" onClick={test.retake} className="flex min-h-12 items-center justify-center gap-2">
               <Icon name="refresh" className="text-xl" /> Try again
             </Button>
           </>
@@ -193,69 +212,85 @@ function SkipTest({ scope, title, index, unitIds, byChar, pool }: SkipTestProps)
 // ─── Level test ──────────────────────────────────────────────────────────────
 
 /**
- * /kanji/<level>/test — the timed level test: questions from every kanji of
- * the level (meaning, reading and "which kanji"), some typed. Passing unlocks
- * the level certificate on the Tests page.
+ * /kanji/<level>/test — the timed level test on the learn API: the meaning
+ * and reading of every kanji of the level, some typed. Passing unlocks the
+ * level certificate on the Tests page.
  */
 export function KanjiLevelTestPage() {
   const level = useKanjiLevel()
   const { data, isLoading, error, refetch } = useKanjiLevelData(level.id)
+  const navigate = useNavigate()
+  const track = kanjiTrack(level.id)
+  if (!track) return <KanjiTestsComingSoon levelLabel={level.label} onBack={() => navigate(kanjiLevelPath(level.id))} />
   return (
     <Frame>
       {isLoading && <LoadingState label="Loading test…" className="mx-auto max-w-xl px-4 pt-6" />}
       {error && <ErrorState message="We couldn't load the level test." onRetry={refetch} />}
-      {data && <LevelTest entries={data.entries} />}
+      {data && <LevelTest track={track} byChar={data.byChar} entries={data.entries} />}
     </Frame>
   )
 }
 
-const KINDS: KanjiQuestionKind[] = ['meaning', 'reading', 'kanji']
-
-function LevelTest({ entries }: { entries: KanjiEntry[] }) {
+function LevelTest({ track, byChar, entries }: { track: LearningTrack; byChar: ReadonlyMap<string, KanjiEntry>; entries: KanjiEntry[] }) {
   const level = useKanjiLevel()
   const navigate = useNavigate()
-  const { questions, minutes, passMark, typedShare } = level.levelTest
+  const { minutes, passMark } = level.levelTest
   const [started, setStarted] = useState(false)
   const title = `${level.title} level test`
   const back = useCallback(() => navigate(kanjiLevelPagePath(level.id, 'tests')), [navigate, level.id])
 
-  const build = useCallback((): KanjiQuestion[] => {
-    const targets = shuffle(entries).slice(0, Math.min(questions, entries.length))
-    while (targets.length < questions && entries.length) targets.push(...shuffle(entries).slice(0, questions - targets.length))
-    return targets.map((t, i) => {
-      const kind = KINDS[i % KINDS.length]
-      const typed = kind !== 'kanji' && Math.random() < typedShare / (2 / 3)
-      return buildKanjiQuestion(t, kind, entries, typed ? 'typed' : 'choice', `${t.char}-${kind}-${i}`)
-    })
-  }, [entries, questions, typedShare])
-
   const [elapsedAtEnd, setElapsedAtEnd] = useState(0)
   const elapsedMs = useRef<() => number>(() => 0)
-  const onFinish = useCallback(
-    (answers: KanjiAnswer[]) => {
-      const score = answers.filter((a) => a.correct).length / Math.max(1, answers.length)
-      getKanjiPath(level.id).recordFinalTest(score, score >= passMark)
-      void recordKanjiReviews(toReviews(answers.filter((a) => a.given !== null)))
-      setElapsedAtEnd(Math.round(elapsedMs.current() / 1000))
-    },
-    [level.id, passMark],
-  )
-  const session = useKanjiQuizSession(build, onFinish)
-  const timer = useQuizTimer(minutes * 60, started && !session.done, session.expire)
+  const quiz = useKanjiQuizSession(() => [], () => setElapsedAtEnd(Math.round(elapsedMs.current() / 1000)))
+  const timer = useQuizTimer(minutes * 60, started && !quiz.done, quiz.expire)
   elapsedMs.current = timer.getElapsedMs
+
+  const [cards, setCards] = useState<ReadonlyMap<string, LearnQuestion>>(() => new Map())
+  const request = useMemo(() => finalTestRequest(track), [track])
+  const { start } = quiz
+  const { reset: resetTimer } = timer
+  const onSession = useCallback(
+    (session: SessionStart) => {
+      const built = kanjiTestQuestions(session, byChar, entries)
+      setCards(built.cards)
+      start(built.questions)
+      resetTimer()
+    },
+    [byChar, entries, start, resetTimer],
+  )
+  const test = useLearnTest(request, passMark, onSession)
+  const { submit, check, recorder } = test
+
+  useEffect(() => {
+    if (started && quiz.done) submit(quiz.questions.length)
+  }, [started, quiz.done, quiz.questions.length, submit])
+
+  const outcome = check.state === 'done' ? check.outcome : undefined
+  useEffect(() => {
+    if (outcome) getKanjiPath(level.id).recordFinalTest(outcome.score, outcome.passed)
+  }, [outcome, level.id])
+
+  const onAnswer = useCallback(
+    (question: KanjiQuestion, given: string, answerTimer: AnswerTimerControls) =>
+      saveKanjiTestAnswer(recorder.answerCard, cards, question, given, answerTimer),
+    [recorder.answerCard, cards],
+  )
+
+  const gate = <TestGate test={test} questionCount={quiz.questions.length} title={title} onExit={back} />
+  if (!test.session || test.starting || test.startFailed || quiz.questions.length === 0) return gate
 
   if (!started) {
     return (
       <Intro
         title={title}
         lines={[
-          `${questions} questions from all ${entries.length} kanji: meanings, readings and “which kanji”.`,
-          `About ${Math.round(typedShare * 100)}% are typed; readings can be typed in romaji.`,
-          `${minutes} minutes (the clock pauses when you leave the tab). ${formatPercent(passMark)} to pass.`,
+          `${quiz.questions.length} questions: the meaning and reading of all ${entries.length} kanji, some typed.`,
+          'Readings can be typed in romaji.',
+          `${minutes} minutes (the clock pauses when you leave the tab). ${formatPercent(passMark)} to pass; questions not reached count as wrong.`,
           'Pass to earn your certificate. It is a FoxSensei certificate, not an official JLPT result.',
         ]}
         onStart={() => {
-          timer.reset()
+          resetTimer()
           setStarted(true)
         }}
         onExit={back}
@@ -263,14 +298,15 @@ function LevelTest({ entries }: { entries: KanjiEntry[] }) {
     )
   }
 
-  if (!session.done) {
+  if (!quiz.done) {
     return (
       <KanjiQuizRunner
         title={title}
-        session={session}
+        session={quiz}
+        onAnswer={onAnswer}
         status={
           <span>
-            {session.index + 1}/{session.questions.length} · <span aria-hidden>{formatClock(timer.remaining)}</span>
+            {quiz.index + 1}/{quiz.questions.length} · <span aria-hidden>{formatClock(timer.remaining)}</span>
             <span className="sr-only">{formatDuration(timer.remaining)} left</span>
           </span>
         }
@@ -278,28 +314,23 @@ function LevelTest({ entries }: { entries: KanjiEntry[] }) {
       />
     )
   }
+  if (!outcome) return gate
 
-  const passed = session.correctCount / Math.max(1, session.questions.length) >= passMark
   return (
     <PracticeShell title={title} progress={1} onExit={back}>
       <KanjiQuizResults
-        answers={session.answers}
+        answers={quiz.answers}
         passMark={passMark}
-        detail={`Time: ${formatDuration(elapsedAtEnd)}${passed ? ' · Your certificate is ready on the Tests page.' : ''}`}
+        score={outcome}
+        detail={`Time: ${formatDuration(elapsedAtEnd)}${outcome.passed ? ' · Your certificate is ready on the Tests page.' : ''}`}
         actions={
           <>
-            {passed ? (
+            {outcome.passed ? (
               <Button onClick={() => navigate(`${kanjiLevelPagePath(level.id, 'tests')}#certificate`)} className="flex min-h-12 items-center justify-center gap-2">
                 <Icon name="workspace_premium" className="text-xl" /> Get your certificate
               </Button>
             ) : (
-              <Button
-                onClick={() => {
-                  timer.reset()
-                  session.start(build())
-                }}
-                className="flex min-h-12 items-center justify-center gap-2"
-              >
+              <Button onClick={test.retake} className="flex min-h-12 items-center justify-center gap-2">
                 <Icon name="refresh" className="text-xl" /> Try again
               </Button>
             )}

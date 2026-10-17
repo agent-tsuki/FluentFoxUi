@@ -10,6 +10,8 @@ interface KanjiQuizResultsProps {
   answers: KanjiAnswer[]
   /** 0–1. Omit for practice / reviews (no pass or fail). */
   passMark?: number
+  /** The server's score for a test; otherwise the score comes from `answers`. */
+  score?: { correct: number; total: number; passed: boolean }
   detail?: ReactNode
   breakdown?: ReactNode
   missedTitle?: string
@@ -21,11 +23,11 @@ interface KanjiQuizResultsProps {
  * Score, pass/fail (when there is a pass mark), the kanji to revisit (each a
  * link to its kanji page), then the next steps. Same layout as the kana QuizResults.
  */
-export function KanjiQuizResults({ answers, passMark, detail, breakdown, missedTitle = 'Kanji to revisit', actions, children }: KanjiQuizResultsProps) {
-  const total = answers.length
-  const correct = answers.filter((a) => a.correct).length
+export function KanjiQuizResults({ answers, passMark, score, detail, breakdown, missedTitle = 'Kanji to revisit', actions, children }: KanjiQuizResultsProps) {
+  const total = score?.total ?? answers.length
+  const correct = score?.correct ?? answers.filter((a) => a.correct).length
   const pct = total > 0 ? Math.round((correct / total) * 100) : 0
-  const passed = passMark === undefined ? undefined : correct / Math.max(1, total) >= passMark
+  const passed = passMark === undefined ? undefined : (score?.passed ?? correct / Math.max(1, total) >= passMark)
   const missed = [...new Map(answers.filter((a) => !a.correct).map((a) => [a.question.target.char, a.question.target])).values()]
 
   return (

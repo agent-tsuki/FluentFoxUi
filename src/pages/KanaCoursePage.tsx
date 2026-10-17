@@ -7,6 +7,7 @@ import { ContinueCard } from '@/components/kanaCourse/ContinueCard'
 import { CurriculumGroup, FinalTestRow } from '@/components/kanaCourse/CurriculumGroup'
 import { CourseRail } from '@/components/kanaCourse/CourseRail'
 import { useCourseUnits } from '@/components/kanaCourse/courseUnits'
+import { TrackLearnBar } from '@/components/learnSession/TrackLearnBar'
 
 /** How long a row stays tinted after arriving via `#unit-<id>`. */
 const HIGHLIGHT_MS = 2000
@@ -28,6 +29,7 @@ export function KanaCoursePage() {
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-10">
         <div className="min-w-0 space-y-8 md:space-y-10">
           <ContinueCard next={next} isFresh={isFresh} finalTest={finalTest} kanaCount={allKana.length} />
+          <TrackLearnBar track={script.id} />
           <div className="space-y-8">
             {script.groups.map((group) => (
               <CurriculumGroup
@@ -43,7 +45,7 @@ export function KanaCoursePage() {
         </div>
         <CourseRail byId={byId} className="mt-10 lg:mt-0" />
       </div>
-      <p className="mt-10 text-xs text-on-surface-variant">Progress is saved in this browser.</p>
+      <p className="mt-10 text-xs text-on-surface-variant">Progress is saved to your account when you are signed in; print marks stay on this device.</p>
     </>
   )
 }

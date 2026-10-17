@@ -27,7 +27,7 @@ export function SkipTestIntro({ test, questionCount, unitCount, best, speech, on
         speech ? 'Read the kana, find the kana, or pick the one you hear.' : 'Read the kana or find the kana.'
       }`,
     },
-    { icon: 'check_circle', text: `Score ${mark}% on a unit and it's marked Tested out. Units you miss stay open for you to learn.` },
+    { icon: 'check_circle', text: `Score ${mark}% overall and every unit here is marked Tested out. Otherwise they stay open for you to learn.` },
     ...(scope === 'all'
       ? [{ icon: 'workspace_premium', text: `Score ${Math.round(script.finalTest.passMark * 100)}% overall to pass the final test and unlock your certificate.` }]
       : []),

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import type { KanjiEntry } from '@/types/kanji'
 import { useKanjiStrokes } from '@/hooks/useKanji'
-import { getKanjiProgress } from '@/api/services/kanjiProgressService'
 import { TracePad, type TraceGuide } from '@/components/kana/TracePad'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
@@ -78,7 +77,6 @@ export function KanjiWriteStep({ entries, onComplete }: { entries: KanjiEntry[];
         verb={STAGES[stage].verb}
         onDone={() => {
           setStageDone(true)
-          getKanjiProgress().markTraced(entry.char)
           if (isLastStage && isLastKanji) onComplete()
         }}
       />

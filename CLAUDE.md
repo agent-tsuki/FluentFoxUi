@@ -7,6 +7,7 @@ React Router 6 + Zustand + framer-motion.
 - `npm run dev` — start Vite dev server
 - `npm run build` — `tsc && vite build`
 - `npm run preview` — preview the production build
+- `npm test` — Vitest unit tests (`src/**/*.test.ts`, node environment)
 - (to add) `npm run lint`, `npm run format` — see PLAN.md
 
 ## The standards live in docs/

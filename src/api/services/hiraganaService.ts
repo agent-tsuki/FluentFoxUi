@@ -1,11 +1,8 @@
 import type { KanaSection } from '@/types'
-import { mockHiraganaSections } from '@/api/mock/hiragana'
+import { kanaContentService } from '@/api/services/kanaContentService'
 
-// ─── Swap mock data for real fetch() calls when API is ready ──────────────────
-// getSections: fetch('/api/kana/hiragana/sections').then(r => r.json())
+// Served by GET /content/kana/hiragana, with the bundled chart as the fallback (see kanaContentService).
 
 export const hiraganaService = {
-  getSections: async (): Promise<KanaSection[]> => {
-    return mockHiraganaSections
-  },
+  getSections: (): Promise<KanaSection[]> => kanaContentService.getSections('hiragana'),
 }

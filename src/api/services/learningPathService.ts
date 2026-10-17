@@ -1,81 +1,129 @@
 import type { KanaScriptId } from '@/lib/content/kana/scriptIds'
+import type { KanjiLevelId } from '@/types/kanji'
+import type { LearningTrack, TestHistoryEntry, TestKind, UnitProgressStep, UnitType } from '@/types/learn'
+import type { CourseScopes, FinalTestResult, LearningPathState, LocalPathRecord, UnitProgress } from '@/types/learningPath'
+import { learnService } from '@/api/services/learnService'
+import { kanjiTrack } from '@/lib/learn/practiceSession'
+import { pathTestsFromHistory, withLocalAttempt } from '@/lib/learn/testHistory'
+import { EMPTY_LOCAL_PATH, mergePath, parseLocalPath, unitsBySlug } from '@/lib/learn/unitProgress'
 
-// Guided path progress per kana script, stored in this browser only (like
-// kanaProgressService). When the backend exists, only this file changes.
+export type { FinalTestResult, LearningPathState, SkipTestBest, UnitProgress, UnitStep } from '@/types/learningPath'
 
-/** The five steps of a unit. 'learn' is derived from kana progress, not stored. */
-export type UnitStep = 'watch' | 'learn' | 'practise' | 'print' | 'quiz'
+// One store per course (kana script or kanji level). Unit steps and quiz
+// results live on the learn API (GET /learn/units, PUT .../progress; tests
+// are recorded by the server when they complete). Tested-out units and skip /
+// final test bests come from GET /learn/tests/history. Printing, "put back in
+// the path" and the certificate name have no API, so they are kept in this
+// browser under the signed-in user's id. Guests get an empty path and
+// nothing is stored for them.
 
-export interface UnitProgress {
-  watchedAt?: string
-  /** Kanji units: every kanji written once from memory (Write step). */
-  writtenAt?: string
-  practisedAt?: string
-  printedAt?: string
-  /** Best row-quiz score, 0–1. */
-  quizBest?: number
-  quizPassedAt?: string
-  /** Set when the learner tested out of this unit with a skip test. */
-  skippedAt?: string
+const LOCAL_KEY_PREFIX = 'ff-path-v2'
+
+interface Course {
+  /** Store id, also part of the local storage key. */
+  id: string
+  unitType: UnitType
+  /** Null when the API has no track for the course (kanji levels other than N5). */
+  track: LearningTrack | null
 }
 
-export interface FinalTestResult {
-  /** Best score, 0–1. */
-  best: number
-  passedAt?: string
-  /** Name the learner typed for the certificate. */
-  certificateName?: string
+export interface PathUser {
+  userId: string
+  /** Only verified learners may call the learn API. */
+  verified: boolean
 }
-
-/** Best score per skip scope ('all' | a group id), 0–1. */
-export type SkipTestBest = Partial<Record<string, number>>
-
-export interface LearningPathState {
-  version: 1
-  units: Record<string, UnitProgress>
-  finalTest?: FinalTestResult
-  skipTests?: SkipTestBest
-}
-
-/** Hiragana keeps its original key so existing progress keeps working. */
-const STORAGE_KEYS: Record<KanaScriptId, string> = {
-  hiragana: 'ff-hiragana-path-v1',
-  katakana: 'ff-katakana-path-v1',
-}
-const EMPTY: LearningPathState = { version: 1, units: {} }
 
 type Listener = () => void
 
-/** One script's guided-path progress: unit steps, quizzes, skip tests, final test. */
+/** One course's guided-path progress: unit steps, quizzes, skip tests, final test. */
 export type LearningPathStore = ReturnType<typeof createLearningPathStore>
 
-function createLearningPathStore(storageKey: string) {
-  const listeners = new Set<Listener>()
-  let state: LearningPathState = load()
+const EMPTY: LearningPathState = { version: 1, units: {} }
 
-  function load(): LearningPathState {
-    try {
-      const raw = localStorage.getItem(storageKey)
-      if (!raw) return EMPTY
-      const parsed = JSON.parse(raw) as LearningPathState
-      return parsed?.version === 1 && parsed.units ? parsed : EMPTY
-    } catch {
-      return EMPTY
-    }
+function readLocal(key: string): LocalPathRecord {
+  try {
+    return parseLocalPath(localStorage.getItem(key))
+  } catch {
+    return EMPTY_LOCAL_PATH
   }
+}
 
-  function commit(next: LearningPathState) {
-    state = next
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(next))
-    } catch {
-      /* keep in memory for this session */
-    }
+function createLearningPathStore(course: Course) {
+  const listeners = new Set<Listener>()
+  let user: PathUser | null = null
+  let server: Record<string, UnitProgress> = {}
+  let history: TestHistoryEntry[] = []
+  // Which units each skip scope covers; set by the course once its content is known.
+  let scopes: CourseScopes = { groups: [] }
+  let local: LocalPathRecord = EMPTY_LOCAL_PATH
+  let state: LearningPathState = EMPTY
+  // Bumped on every user change so a late response for the previous user is dropped.
+  let generation = 0
+
+  const localKey = () => (user ? `${LOCAL_KEY_PREFIX}:${user.userId}:${course.id}` : null)
+  const apiTrack = () => (user?.verified ? course.track : null)
+
+  function publish() {
+    const tests = course.track ? pathTestsFromHistory(history, course.track, scopes) : undefined
+    state = mergePath(server, local, tests)
     listeners.forEach((l) => l())
   }
 
-  function patchUnit(unitId: string, patch: (u: UnitProgress) => UnitProgress) {
-    commit({ ...state, units: { ...state.units, [unitId]: patch(state.units[unitId] ?? {}) } })
+  function commitLocal(next: LocalPathRecord) {
+    const key = localKey()
+    if (!key) return
+    local = next
+    try {
+      localStorage.setItem(key, JSON.stringify(next))
+    } catch {
+      /* storage full or blocked: keep it in memory for this visit */
+    }
+    publish()
+  }
+
+  function patchServerUnit(slug: string, patch: (u: UnitProgress) => UnitProgress) {
+    server = { ...server, [slug]: patch(server[slug] ?? {}) }
+    publish()
+  }
+
+  async function reload(): Promise<void> {
+    const track = apiTrack()
+    if (!track) return
+    const gen = generation
+    const [units, tests] = await Promise.allSettled([learnService.getUnits(track), learnService.getTestHistory(track)])
+    if (gen !== generation) return
+    // Either half failing keeps what it had; the next page visit loads again.
+    if (units.status === 'fulfilled') server = unitsBySlug(units.value)
+    if (tests.status === 'fulfilled') history = tests.value
+    publish()
+  }
+
+  /** Shows a test result at once, then reloads the server's history. */
+  function recordAttempt(kind: TestKind, scope: string, score: number, passed: boolean, now: Date) {
+    const track = apiTrack()
+    if (!track) return
+    history = withLocalAttempt(history, { kind, track, scope, passed, share: score, at: now.toISOString() })
+    publish()
+    void reload()
+  }
+
+  async function markStep(slug: string, step: UnitProgressStep, field: keyof UnitProgress) {
+    const track = apiTrack()
+    if (!track || server[slug]?.[field]) return
+    const gen = generation
+    patchServerUnit(slug, (u) => ({ ...u, [field]: new Date().toISOString() }))
+    try {
+      const saved = await learnService.updateUnitProgress(course.unitType, slug, track, { step })
+      if (gen !== generation) return
+      server = { ...server, ...unitsBySlug([saved]) }
+      publish()
+    } catch {
+      await reload()
+    }
+  }
+
+  function patchLocalUnit(slug: string, patch: (u: LocalPathRecord['units'][string]) => LocalPathRecord['units'][string]) {
+    commitLocal({ ...local, units: { ...local.units, [slug]: patch(local.units[slug] ?? {}) } })
   }
 
   return {
@@ -88,92 +136,116 @@ function createLearningPathStore(storageKey: string) {
       return () => listeners.delete(listener)
     },
 
-    markWatched(unitId: string, now = new Date()) {
-      if (state.units[unitId]?.watchedAt) return
-      patchUnit(unitId, (u) => ({ ...u, watchedAt: now.toISOString() }))
+    /** Switches to the signed-in user (null for guests) and loads their path. */
+    setUser(next: PathUser | null) {
+      if (next?.userId === user?.userId && next?.verified === user?.verified) return
+      generation += 1
+      user = next
+      server = {}
+      history = []
+      const key = localKey()
+      local = key ? readLocal(key) : EMPTY_LOCAL_PATH
+      publish()
+      void reload()
     },
 
-    markWritten(unitId: string, now = new Date()) {
-      if (state.units[unitId]?.writtenAt) return
-      patchUnit(unitId, (u) => ({ ...u, writtenAt: now.toISOString() }))
+    /** Loads the server's units again, e.g. after a unit quiz was completed. */
+    reload,
+
+    /** The groups the course's skip tests cover, so passed skip tests can mark units tested out. */
+    setScopes(next: CourseScopes) {
+      scopes = next
+      publish()
     },
 
-    markPractised(unitId: string, now = new Date()) {
-      patchUnit(unitId, (u) => ({ ...u, practisedAt: now.toISOString() }))
+    markWatched(unitId: string) {
+      void markStep(unitId, 'watched', 'watchedAt')
+    },
+
+    /** Every character of the unit opened (the Learn step). */
+    markTraced(unitId: string) {
+      void markStep(unitId, 'traced', 'tracedAt')
+    },
+
+    markWritten(unitId: string) {
+      void markStep(unitId, 'written', 'writtenAt')
+    },
+
+    markPractised(unitId: string) {
+      void markStep(unitId, 'practised', 'practisedAt')
     },
 
     markPrinted(unitId: string, now = new Date()) {
-      patchUnit(unitId, (u) => ({ ...u, printedAt: now.toISOString() }))
+      patchLocalUnit(unitId, (u) => ({ ...u, printedAt: now.toISOString() }))
     },
 
-    /** Keeps the best score; `passed` uses the script's unit-quiz pass mark. */
+    /**
+     * The server records unit quizzes when the test completes; this shows the
+     * result at once and then reloads the server's numbers.
+     */
     recordQuiz(unitId: string, score: number, passed: boolean, now = new Date()) {
-      patchUnit(unitId, (u) => ({
+      if (!apiTrack()) return
+      patchServerUnit(unitId, (u) => ({
         ...u,
         quizBest: Math.max(u.quizBest ?? 0, score),
         quizPassedAt: u.quizPassedAt ?? (passed ? now.toISOString() : undefined),
       }))
+      void reload()
     },
 
+    /** The server records the final test when it completes; this shows the result at once. */
     recordFinalTest(score: number, passed: boolean, now = new Date()) {
-      const prev = state.finalTest
-      commit({
-        ...state,
-        finalTest: {
-          ...prev,
-          best: Math.max(prev?.best ?? 0, score),
-          passedAt: prev?.passedAt ?? (passed ? now.toISOString() : undefined),
-        },
-      })
+      recordAttempt('final', 'all', score, passed, now)
     },
 
     /**
-     * Result of a skip test. `passedUnitIds` are marked as tested out (already
-     * skipped units keep their date); units not passed are left as they were.
+     * Result of a skip test, recorded by the server when it completes. A pass
+     * marks every unit in `scope` as tested out (see setScopes).
      */
-    recordSkipTest(scope: string, score: number, passedUnitIds: string[], now = new Date()) {
-      const units = { ...state.units }
-      for (const id of passedUnitIds) {
-        units[id] = { ...units[id], skippedAt: units[id]?.skippedAt ?? now.toISOString() }
-      }
-      const skipTests = { ...state.skipTests, [scope]: Math.max(state.skipTests?.[scope] ?? 0, score) }
-      commit({ ...state, units, skipTests })
+    recordSkipTest(scope: string, score: number, passed: boolean, now = new Date()) {
+      recordAttempt('skip', scope, score, passed, now)
     },
 
-    /** Puts a tested-out unit back into the normal step-by-step flow. */
-    undoSkip(unitId: string) {
+    /** Puts a tested-out unit back into the normal step-by-step flow (on this device). */
+    undoSkip(unitId: string, now = new Date()) {
       if (!state.units[unitId]?.skippedAt) return
-      patchUnit(unitId, ({ skippedAt: _skipped, ...rest }) => rest)
+      patchLocalUnit(unitId, (u) => ({ ...u, skipUndoneAt: now.toISOString() }))
     },
 
+    /** The API has no place for the certificate name, so it stays on this device. */
     setCertificateName(name: string) {
-      commit({ ...state, finalTest: { best: state.finalTest?.best ?? 0, ...state.finalTest, certificateName: name } })
-    },
-
-    reset() {
-      commit(EMPTY)
+      commitLocal({ ...local, certificateName: name })
     },
   }
 }
 
 const stores = new Map<string, LearningPathStore>()
+let currentUser: PathUser | null = null
 
-/**
- * A path store by storage key (created, and read from storage, on first use).
- * The kanji course keeps one per JLPT level (kanjiProgressService).
- */
-export function getPathStore(storageKey: string): LearningPathStore {
-  let store = stores.get(storageKey)
+function storeFor(course: Course): LearningPathStore {
+  let store = stores.get(course.id)
   if (!store) {
-    store = createLearningPathStore(storageKey)
-    stores.set(storageKey, store)
+    store = createLearningPathStore(course)
+    store.setUser(currentUser)
+    stores.set(course.id, store)
   }
   return store
 }
 
-/** The path store for a script. */
+/** Call on sign-in, sign-out and email verification: every course's path follows the user. */
+export function setPathUser(user: PathUser | null): void {
+  currentUser = user
+  stores.forEach((store) => store.setUser(user))
+}
+
+/** The path store for a kana script. */
 export function getLearningPath(script: KanaScriptId): LearningPathStore {
-  return getPathStore(STORAGE_KEYS[script])
+  return storeFor({ id: script, unitType: 'kana', track: script })
+}
+
+/** One kanji level's path store (units, quizzes, test-outs, level test). */
+export function getKanjiPath(level: KanjiLevelId): LearningPathStore {
+  return storeFor({ id: `kanji-${level}`, unitType: 'kanji', track: kanjiTrack(level) })
 }
 
 /**

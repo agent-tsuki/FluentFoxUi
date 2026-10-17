@@ -1,7 +1,7 @@
 import type { KanaChar } from '@/types'
-import type { KanaProgressStore } from '@/api/services/kanaProgressService'
 import type { KanaLookAlikeSet } from '@/lib/content/kana/lookAlikeSets'
 import { shuffle } from '@/components/practice/listen/pickOptions'
+import { prioritise } from '@/lib/learn/practiceSession'
 
 export const LOOK_ALIKE_ROUNDS = 10
 
@@ -34,12 +34,12 @@ function resolveSets(sets: readonly KanaLookAlikeSet[], kanaById: ReadonlyMap<st
 }
 
 /**
- * Ten rounds of look-alike targets: due / never-reviewed first (FSRS order),
- * topped up at random. `focusIds` (a unit's kana) limits which kana are asked
+ * Ten rounds of look-alike targets: the kana the learn API picked first
+ * (`priorityIds`, weakest first), topped up at random. `focusIds` (a unit's kana) limits which kana are asked
  * about; their siblings still appear as options. Few targets play twice.
  */
 export function buildLookAlikeRounds(
-  progress: KanaProgressStore,
+  priorityIds: readonly string[],
   sets: readonly KanaLookAlikeSet[],
   all: readonly KanaChar[],
   focusIds?: readonly string[],
@@ -53,7 +53,7 @@ export function buildLookAlikeRounds(
   const targetIds = all.map((k) => k.id).filter((id) => memberIds.has(id) && (!focus || focus.has(id)))
   if (targetIds.length === 0) return []
 
-  const due = progress.getDue(targetIds, LOOK_ALIKE_ROUNDS)
+  const due = prioritise(priorityIds, targetIds, LOOK_ALIKE_ROUNDS)
   const rest = shuffle(targetIds.filter((id) => !due.includes(id)))
   let order = shuffle([...due, ...rest].slice(0, LOOK_ALIKE_ROUNDS))
   while (order.length < LOOK_ALIKE_ROUNDS / 2) {
