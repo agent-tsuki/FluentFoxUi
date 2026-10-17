@@ -69,6 +69,24 @@ describe('kanjiPracticeRequest', () => {
   it('asks for the unit cards when a unit is given', () => {
     expect(kanjiPracticeRequest('kanji_n5', 'reading', 'u01')).toEqual({ track: 'kanji_n5', mode: 'unit', unit: 'u01' })
   })
+
+  it('drills one mix-up pair in the look-alike mode', () => {
+    expect(kanjiPracticeRequest('kanji_n5', 'lookalikes', undefined, '日:目')).toEqual({ track: 'kanji_n5', mode: 'lookalike', pair: '日:目' })
+  })
+
+  it('ignores a pair outside the look-alike mode', () => {
+    expect(kanjiPracticeRequest('kanji_n5', 'meaning', undefined, '日:目')).toEqual({ track: 'kanji_n5', mode: 'weak' })
+  })
+})
+
+describe('kanaPracticeRequest with a pair', () => {
+  it('sends the pair to the look-alike drill', () => {
+    expect(kanaPracticeRequest('hiragana', 'lookalike', undefined, 'ぬ:め')).toEqual({ track: 'hiragana', mode: 'lookalike', pair: 'ぬ:め' })
+  })
+
+  it('prefers the unit over a pair', () => {
+    expect(kanaPracticeRequest('hiragana', 'lookalike', 'na', 'ぬ:め')).toEqual({ track: 'hiragana', mode: 'unit', unit: 'na' })
+  })
 })
 
 describe('kanjiTrack', () => {
