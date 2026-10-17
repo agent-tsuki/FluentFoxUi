@@ -128,7 +128,7 @@ describe('StudyRecorder', () => {
     await r.finish()
     r.record(answer('a2'))
     await r.open()
-    expect(log.at(-1)).toBe('enqueue s2 a2')
+    expect(log[log.length - 1]).toBe('enqueue s2 a2')
     expect(r.card('か', 'recognition')).toBeDefined()
     expect(r.card('き', 'recognition')).toBeDefined()
   })
