@@ -8,9 +8,8 @@ export interface DropdownItem {
 export interface NavItem {
   label: string
   href?: string
+  /** Desktop dropdown; on phones the same links open as an expandable section. */
   dropdown?: DropdownItem[]
-  /** Flat links shown instead of the dropdown in the phone menu. */
-  mobileLinks?: DropdownItem[]
 }
 
 // ─── Flashcard ────────────────────────────────────────────────────────────────

@@ -11,18 +11,12 @@ export const mockNavItems: NavItem[] = [
       { label: 'N2 Advanced', href: '/grammar/n2' },
       { label: 'N1 Mastery', href: '/grammar/n1' },
     ],
-    // Only N5 is unlocked; the other levels are reachable from the grammar page.
-    mobileLinks: [{ label: 'Grammar', href: '/grammar/n5' }],
   },
   {
     label: 'Kanas',
     dropdown: [
       { label: 'Hiragana', href: '/kana/hiragana' },
       { label: 'Katakana', href: '/kana/katakana' },
-      { label: 'Kanji', href: '/kanji' },
-    ],
-    mobileLinks: [
-      { label: 'Hiragana', href: '/kana/hiragana' },
       { label: 'Kanji', href: '/kanji' },
     ],
   },

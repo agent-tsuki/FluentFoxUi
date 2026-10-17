@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { mockNavItems } from '@/api/mock/navigation'
 import { mockDashboardData } from '@/api/mock/dashboard'
 import type { NavItem } from '@/types'
@@ -187,10 +187,58 @@ function StreakMonthPopup() {
 
 const navItems: NavItem[] = mockNavItems
 
-// The phone menu shows plain links instead of dropdown sections.
-const mobileNavLinks = navItems.flatMap((item) =>
-  item.mobileLinks ?? item.dropdown ?? [{ label: item.label, href: item.href ?? '/' }],
-)
+const MOBILE_LINK =
+  'block px-3 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
+
+/**
+ * One item of the phone menu. Items with a dropdown on desktop (Grammar,
+ * Kanas) become an expandable section with the same links; the section
+ * holding the current page starts open.
+ */
+function MobileNavItem({ item, onNavigate }: { item: NavItem; onNavigate: () => void }) {
+  const { pathname } = useLocation()
+  const links = item.dropdown
+  const [open, setOpen] = useState(() => Boolean(links?.some((l) => pathname.startsWith(l.href))))
+  const panelId = `mobile-nav-${item.label.toLowerCase().replace(/\W+/g, '-')}`
+
+  if (!links) {
+    return (
+      <Link to={item.href ?? '/'} onClick={onNavigate} className={MOBILE_LINK}>
+        {item.label}
+      </Link>
+    )
+  }
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-controls={panelId}
+        className={`${MOBILE_LINK} flex w-full items-center justify-between text-left`}
+      >
+        {item.label}
+        <Icon name="expand_more" className={`text-xl transition-transform duration-200 motion-reduce:transition-none ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <ul id={panelId} className="ml-3 mt-1 space-y-1 border-l border-outline-variant/50 pl-3">
+          {links.map((link) => (
+            <li key={link.href}>
+              <Link
+                to={link.href}
+                onClick={onNavigate}
+                aria-current={pathname.startsWith(link.href) ? 'page' : undefined}
+                className={`${MOBILE_LINK} font-medium aria-[current=page]:text-primary`}
+              >
+                {link.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen]         = useState(false)
@@ -499,15 +547,8 @@ export function Navbar() {
             className="relative mt-nav bg-surface-container-lowest border-b border-outline-variant/40 shadow-elevation-2 animate-in slide-in-from-top-2 duration-200"
           >
             <div className="px-6 py-6 space-y-2 max-h-[80vh] overflow-y-auto">
-              {mobileNavLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  onClick={closeMobile}
-                  className="block px-3 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container text-sm font-semibold transition-colors"
-                >
-                  {link.label}
-                </Link>
+              {navItems.map((item) => (
+                <MobileNavItem key={item.label} item={item} onNavigate={closeMobile} />
               ))}
 
               <div className="border-t border-outline-variant/30 pt-4 mt-4">
