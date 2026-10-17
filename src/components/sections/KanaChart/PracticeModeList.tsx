@@ -8,7 +8,7 @@ import { lookAlikeSetsFor, lookAlikeSetsTouching } from '@/lib/content/kana/look
 import { KANA_MARK_IDS } from '@/lib/content/kana/kanaMarks'
 
 const MODES = [
-  { id: 'review', title: 'Swipe review', icon: 'style', minutes: 2, description: 'Flip through due kana and rate how well you knew each.' },
+  { id: 'review', title: 'Review due kana', icon: 'replay', minutes: 2, description: 'Answer the kana that are due; we grade how well and how fast you knew each.' },
   { id: 'listen', title: 'Listen & tap', icon: 'headset', minutes: 2, description: 'Hear a sound, tap the kana that matches it.' },
   { id: 'build', title: 'Word builder', icon: 'translate', minutes: 3, description: 'Spell real words from kana tiles.' },
   { id: 'speed', title: 'Speed round', icon: 'timer', minutes: 1, description: 'Read as many kana as you can before time runs out.' },

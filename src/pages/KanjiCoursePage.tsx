@@ -20,7 +20,7 @@ const HIGHLIGHT_MS = 2000
  * Practice rail at `lg`. Inside KanjiCourseLayout.
  */
 export function KanjiCoursePage() {
-  const { index, chars } = useKanjiCourse()
+  const { index } = useKanjiCourse()
   const { byId, next, isFresh, levelTest } = useKanjiCourseUnits(index)
   const highlightId = useUnitHashTarget()
 
@@ -28,7 +28,7 @@ export function KanjiCoursePage() {
     <>
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start lg:gap-10">
         <div className="min-w-0 space-y-8 md:space-y-10">
-          <KanjiTodayCard chars={chars} next={next} isFresh={isFresh} unitCount={index.units.length} levelTest={levelTest} />
+          <KanjiTodayCard next={next} isFresh={isFresh} unitCount={index.units.length} levelTest={levelTest} />
           <div className="space-y-8">
             {index.groups.map((group) => (
               <KanjiCurriculumGroup

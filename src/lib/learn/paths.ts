@@ -3,6 +3,9 @@ import type { LearningTrack } from '@/types/learn'
 export const REVIEW_PATH = '/review'
 export const HOW_GRADING_WORKS_PATH = '/learn/how-grading-works'
 
+/** The kanji track of v1: N5 only. */
+export const KANJI_TRACK: LearningTrack = 'kanji_n5'
+
 export const LEARNING_TRACKS: readonly LearningTrack[] = ['hiragana', 'katakana', 'kanji_n5']
 
 export const TRACK_LABEL: Record<LearningTrack, string> = {

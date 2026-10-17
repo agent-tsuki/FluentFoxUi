@@ -8,9 +8,10 @@ import type {
 } from '@/types/kanaProgress'
 import type { KanaScriptId } from '@/lib/content/kana/scriptIds'
 
-// Progress lives in this browser only for now, one store per script. Every
-// read and write goes through this service, so syncing to the account later
-// means changing this file only — components and hooks keep the same API.
+// Reviews, lessons and their schedule live on the learn API. This browser
+// record, one per script, serves the flows the API does not cover yet
+// (practice modes, unit quizzes, tests, the chart's mastery colours): it keeps
+// what was seen, traced and answered, but no longer schedules anything.
 
 /** Hiragana keeps its original key so existing progress keeps working. */
 const STORAGE_KEYS: Record<KanaScriptId, string> = {
@@ -20,8 +21,10 @@ const STORAGE_KEYS: Record<KanaScriptId, string> = {
 const DAILY_GOAL_SIZE = 5
 /** A kana counts as mastered once FSRS expects it to stick for a week. */
 const MASTERED_STABILITY_DAYS = 7
-/** ts-fsrs State.Review; kept local so the chart page doesn't load ts-fsrs. */
+/** FSRS State.Review, as stored by the old browser scheduler. */
 const STATE_REVIEW = 2
+/** FSRS State.Learning: what a newly answered item is recorded as. */
+const STATE_LEARNING = 1
 
 const EMPTY_STATE: KanaProgressState = { version: 1, items: {} }
 
@@ -32,21 +35,19 @@ function localDate(now: Date): string {
   return `${y}-${m}-${d}`
 }
 
-function toStoredCard(card: {
-  due: Date
-  last_review?: Date
-} & Omit<KanaReviewCard, 'due' | 'last_review'>): KanaReviewCard {
+/** The record after one practice answer: counts it, keeps any earlier schedule fields as they were. */
+function practisedCard(previous: KanaReviewCard | undefined, grade: KanaGrade, now: Date): KanaReviewCard {
   return {
-    due: card.due.toISOString(),
-    stability: card.stability,
-    difficulty: card.difficulty,
-    elapsed_days: card.elapsed_days,
-    scheduled_days: card.scheduled_days,
-    learning_steps: card.learning_steps,
-    reps: card.reps,
-    lapses: card.lapses,
-    state: card.state,
-    last_review: card.last_review?.toISOString(),
+    due: previous?.due ?? now.toISOString(),
+    stability: previous?.stability ?? 0,
+    difficulty: previous?.difficulty ?? 0,
+    elapsed_days: previous?.elapsed_days ?? 0,
+    scheduled_days: previous?.scheduled_days ?? 0,
+    learning_steps: previous?.learning_steps ?? 0,
+    reps: (previous?.reps ?? 0) + 1,
+    lapses: (previous?.lapses ?? 0) + (grade === 'again' ? 1 : 0),
+    state: previous?.state ?? STATE_LEARNING,
+    last_review: now.toISOString(),
   }
 }
 
@@ -131,33 +132,22 @@ export function createKanaProgressStore(storageKey: string) {
       }))
     },
 
-    /**
-     * Schedules the next review with FSRS and ticks the kana off today's goal.
-     * ts-fsrs is loaded on first use so pages that only show mastery stay light.
-     */
+    /** Records one practice answer (see `recordReviews`). */
     async recordReview(id: string, grade: KanaGrade, now: Date = new Date()): Promise<void> {
       await store.recordReviews([id], grade, now)
     },
 
-    /** Grades several items in one write (one ts-fsrs load, one storage commit). */
+    /**
+     * Records practice answers in one write and ticks them off today's goal.
+     * Nothing is scheduled here: graded reviews go through the learn API.
+     * Async so callers written for the old lazily loaded scheduler keep working.
+     */
     async recordReviews(ids: readonly string[], grade: KanaGrade, now: Date = new Date()): Promise<void> {
       if (ids.length === 0) return
-      const { fsrs, createEmptyCard, Rating } = await import('ts-fsrs')
-      const ratings = { again: Rating.Again, hard: Rating.Hard, good: Rating.Good, easy: Rating.Easy } as const
-      const scheduler = fsrs({ enable_fuzz: true })
       const items = { ...state.items }
       for (const id of ids) {
-        const stored = items[id]?.card
-        const card = stored
-          ? {
-              ...stored,
-              due: new Date(stored.due),
-              last_review: stored.last_review ? new Date(stored.last_review) : undefined,
-            }
-          : createEmptyCard(now)
-        const { card: next } = scheduler.next(card, now, ratings[grade])
         const item = items[id] ?? { id }
-        items[id] = { ...item, seenAt: item.seenAt ?? now.toISOString(), card: toStoredCard(next) }
+        items[id] = { ...item, seenAt: item.seenAt ?? now.toISOString(), card: practisedCard(item.card, grade, now) }
       }
       commit({ ...state, items })
       ids.forEach((id) => store.markGoalDone(id, now))

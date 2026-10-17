@@ -17,7 +17,7 @@ export interface KanaReviewCard {
   learning_steps: number
   reps: number
   lapses: number
-  /** 0 New, 1 Learning, 2 Review, 3 Relearning (ts-fsrs State). */
+  /** 0 New, 1 Learning, 2 Review, 3 Relearning (FSRS State). */
   state: number
   last_review?: string
 }

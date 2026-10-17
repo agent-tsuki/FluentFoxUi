@@ -3,20 +3,14 @@ import { Link } from 'react-router-dom'
 import { useKanjiLevel } from '@/context/KanjiLevelContext'
 import { useKanjiProgress } from '@/hooks/useKanji'
 import { useKanjiCourse } from '@/pages/kanjiCourseContext'
-import {
-  KANJI_STAGES,
-  KANJI_STAGE_LABEL,
-  NEW_KANJI_PER_DAY,
-  buildReviewQueue,
-  kanjiStage,
-  newKanjiToday,
-  reviewForecast,
-  type KanjiStage,
-} from '@/api/services/kanjiProgressService'
+import { KANJI_STAGES, KANJI_STAGE_LABEL, kanjiStage, type KanjiStage } from '@/api/services/kanjiProgressService'
+import { useLearnSummary } from '@/hooks/useLearnSummary'
+import { useReviewForecast } from '@/hooks/useReviewForecast'
+import { KANJI_TRACK, lessonPath, reviewPath } from '@/lib/learn/paths'
 import { Icon } from '@/components/ui/Icon'
 import { ActionLink } from '@/components/learn/ActionLink'
 import { ReviewForecast } from '@/components/kanji/ReviewForecast'
-import { kanjiCharPath, kanjiReviewSessionPath } from '@/lib/content/kanji/levels'
+import { kanjiCharPath } from '@/lib/content/kanji/levels'
 import { cn } from '@/lib/cn'
 
 const CARD =
@@ -31,24 +25,23 @@ const STAGE_HINT: Record<KanjiStage, string> = {
 }
 
 /**
- * Reviews page of a level (/kanji/<level>/reviews): what is due now, the
- * daily new-kanji allowance, a 7-day forecast and every kanji by stage.
+ * Reviews page of a level (/kanji/<level>/reviews): what is due now and the
+ * new kanji left today (GET /learn/summary), a 7-day forecast when the
+ * progress API serves one, and every kanji by stage. The stages still come
+ * from this browser's practice record until the progress API replaces them.
  */
 export function KanjiReviewsPage() {
   const level = useKanjiLevel()
   const { chars, rowsByChar } = useKanjiCourse()
   const progress = useKanjiProgress()
-  const { queue, forecast, byStage, newToday } = useMemo(() => {
+  const { summary } = useLearnSummary(KANJI_TRACK)
+  const forecast = useReviewForecast(KANJI_TRACK)
+  const byStage = useMemo(() => {
     const groups = new Map<KanjiStage, string[]>(KANJI_STAGES.map((s) => [s, []]))
     for (const c of chars) groups.get(kanjiStage(progress, c))?.push(c)
-    return {
-      queue: buildReviewQueue(progress, chars),
-      forecast: reviewForecast(progress, chars),
-      byStage: groups,
-      newToday: newKanjiToday().length,
-    }
+    return groups
   }, [progress, chars])
-  const dueCount = queue.due.length + queue.fresh.length * 2
+  const dueCount = summary?.due_now ?? 0
 
   return (
     <div className="max-w-3xl space-y-8">
@@ -57,20 +50,29 @@ export function KanjiReviewsPage() {
         <h2 id="due-heading" className="mt-1.5 font-headline text-xl font-bold text-on-surface md:text-2xl">
           {dueCount > 0 ? `${dueCount} review${dueCount === 1 ? '' : 's'} ready` : 'Nothing due right now'}
         </h2>
-        <p className="mt-1 text-sm tabular-nums text-on-surface-variant">
-          {queue.due.length} due · {queue.fresh.length} new kanji ({newToday} of {NEW_KANJI_PER_DAY} new today)
-          {queue.waiting > 0 && ` · ${queue.waiting} waiting for tomorrow`}
-        </p>
+        {summary && (
+          <p className="mt-1 text-sm tabular-nums text-on-surface-variant">
+            {summary.due_today} due today · {summary.new_left_today} new kanji left today
+          </p>
+        )}
         <p className="mt-2 text-sm text-on-surface-variant">
           Each kanji has two cards, meaning and reading, asked separately. Any correct reading counts.
         </p>
-        {dueCount > 0 && (
-          <ActionLink to={kanjiReviewSessionPath(level.id)} className="mt-4 w-full sm:w-auto">
-            <Icon name="replay" className="text-xl" />
-            Start reviews
-          </ActionLink>
-        )}
-        <ReviewForecast counts={forecast} className="mt-6" />
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+          {dueCount > 0 && (
+            <ActionLink to={reviewPath(KANJI_TRACK)} className="w-full sm:w-auto">
+              <Icon name="replay" className="text-xl" />
+              Start reviews
+            </ActionLink>
+          )}
+          {summary && summary.new_left_today > 0 && (
+            <ActionLink to={lessonPath(KANJI_TRACK)} variant={dueCount > 0 ? 'outline' : 'primary'} className="w-full sm:w-auto">
+              <Icon name="school" className="text-xl" />
+              Learn new kanji
+            </ActionLink>
+          )}
+        </div>
+        {forecast && <ReviewForecast counts={forecast} className="mt-6" />}
       </section>
 
       <section aria-labelledby="stages-heading">

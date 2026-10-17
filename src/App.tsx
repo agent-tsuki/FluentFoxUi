@@ -20,6 +20,7 @@ import { KANA_SCRIPT_IDS, kanaBasePath, type RegisteredKanaScriptId } from '@/li
 import { DEFAULT_KANJI_LEVEL, KANJI_LAST_LEVEL_KEY, KANJI_LEVELS, isKanjiLevelAvailable, isKanjiLevelId, kanjiLevelPath, type KanjiLevelMeta } from '@/lib/content/kanji/levels'
 // The landing page stays eager: it is the first paint for most visitors.
 import { HomePage } from '@/pages/HomePage'
+import { KANJI_TRACK, reviewPath } from '@/lib/learn/paths'
 
 // ─── Lazy routes ──────────────────────────────────────────────────────────────
 // Each page is its own chunk, fetched on first navigation.
@@ -48,7 +49,6 @@ const KanjiUnitQuizPage      = lazy(() => import('@/pages/KanjiUnitQuizPage').th
 const KanjiPracticePage      = lazy(() => import('@/pages/KanjiPracticePage').then(m => ({ default: m.KanjiPracticePage })))
 const KanjiSkipTestPage      = lazy(() => import('@/pages/KanjiTestPages').then(m => ({ default: m.KanjiSkipTestPage })))
 const KanjiLevelTestPage     = lazy(() => import('@/pages/KanjiTestPages').then(m => ({ default: m.KanjiLevelTestPage })))
-const KanjiReviewSessionPage = lazy(() => import('@/pages/KanjiReviewSessionPage').then(m => ({ default: m.KanjiReviewSessionPage })))
 const KanjiDetailPage        = lazy(() => import('@/pages/KanjiDetailPage').then(m => ({ default: m.KanjiDetailPage })))
 const KanjiComingSoonPage    = lazy(() => import('@/pages/KanjiComingSoonPage').then(m => ({ default: m.KanjiComingSoonPage })))
 const LearnLessonPage   = lazy(() => import('@/pages/LearnLessonPage').then(m => ({ default: m.LearnLessonPage })))
@@ -286,7 +286,8 @@ const router = createBrowserRouter([
       { path: 'kana/kanji',      element: <Navigate to={kanjiLevelPath(DEFAULT_KANJI_LEVEL)} replace /> },
       { path: 'kanji',           element: <KanjiIndexRedirect /> },
       ...KANJI_LEVELS.map(kanjiLevelRoutes),
-      { path: 'kanji/reviews/session', element: <RequireAuth><KanjiReviewSessionPage /></RequireAuth> },
+      // The old local review runner; reviews now run on the learn API.
+      { path: 'kanji/reviews/session', element: <Navigate to={reviewPath(KANJI_TRACK)} replace /> },
       // Lessons and reviews on the learn API (graded and scheduled by the server).
       { path: 'learn/lesson/:track', element: <RequireAuth><LearnLessonPage /></RequireAuth> },
       { path: 'learn/how-grading-works', element: <HowGradingWorksPage /> },

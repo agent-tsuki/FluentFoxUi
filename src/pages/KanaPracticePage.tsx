@@ -7,10 +7,11 @@ import { ErrorState } from '@/components/ui/ErrorState'
 import type { PracticeModeId, PracticeModeProps } from '@/components/practice/types'
 import { useLearningPathStore } from '@/hooks/useLearningPath'
 import { lookAlikeSetsFor } from '@/lib/content/kana/lookAlikeSets'
+import { reviewPath } from '@/lib/learn/paths'
 
 // Each mode is its own chunk; only the one being played is downloaded.
-const MODES: Record<PracticeModeId, ComponentType<PracticeModeProps>> = {
-  review: lazy(() => import('@/components/practice/SwipeReview').then((m) => ({ default: m.SwipeReview }))),
+// 'review' is not here: kana reviews run on the learn API (/review), see below.
+const MODES: Record<Exclude<PracticeModeId, 'review'>, ComponentType<PracticeModeProps>> = {
   listen: lazy(() => import('@/components/practice/ListenTap').then((m) => ({ default: m.ListenTap }))),
   build:  lazy(() => import('@/components/practice/WordBuilder').then((m) => ({ default: m.WordBuilder }))),
   speed:  lazy(() => import('@/components/practice/SpeedRound').then((m) => ({ default: m.SpeedRound }))),
@@ -56,7 +57,8 @@ export function KanaPracticePage() {
 
   // The look-alike drill exists only for scripts with look-alike sets.
   const available = mode !== 'lookalike' || lookAlikeSetsFor(script.id).length > 0
-  const Mode = mode && mode in MODES && available ? MODES[mode as PracticeModeId] : null
+  if (mode === 'review') return <Navigate to={reviewPath(script.id)} replace />
+  const Mode = mode && mode in MODES && available ? MODES[mode as keyof typeof MODES] : null
   if (!Mode) return <Navigate to={`${script.basePath}#practice`} replace />
 
   return (
