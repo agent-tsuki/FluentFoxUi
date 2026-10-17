@@ -1,19 +1,23 @@
 import { useState, useEffect, useCallback } from 'react'
 import { profileService } from '@/api/services/profileService'
 import type { UserProfile } from '@/types'
-import { ProfileHero, PersonalInfoForm, AccountSettings } from '@/components/sections/Profile'
+import { ProfileHero, PersonalInfoForm, AccountSettings, LearningSettings } from '@/components/sections/Profile'
 import { Icon } from '@/components/ui/Icon'
 import { LoadingState, SkeletonBlock } from '@/components/ui/LoadingState'
 import { ErrorState } from '@/components/ui/ErrorState'
 
 type Status = 'loading' | 'error' | 'ready'
+type Tab = 'info' | 'learning' | 'settings'
+
+function tabFromUrl(): Tab {
+  const tab = new URLSearchParams(window.location.search).get('tab')
+  return tab === 'settings' || tab === 'learning' ? tab : 'info'
+}
 
 export function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [status, setStatus] = useState<Status>('loading')
-  const [activeTab, setActiveTab] = useState<'info' | 'settings'>(() =>
-    new URLSearchParams(window.location.search).get('tab') === 'settings' ? 'settings' : 'info',
-  )
+  const [activeTab, setActiveTab] = useState<Tab>(tabFromUrl)
 
   const fetchProfile = useCallback(() => {
     setStatus('loading')
@@ -82,6 +86,12 @@ export function ProfilePage() {
             label="Personal Info"
           />
           <TabButton
+            active={activeTab === 'learning'}
+            onClick={() => setActiveTab('learning')}
+            icon="school"
+            label="Learning"
+          />
+          <TabButton
             active={activeTab === 'settings'}
             onClick={() => setActiveTab('settings')}
             icon="settings"
@@ -96,6 +106,8 @@ export function ProfilePage() {
               profile={profile}
               onSaved={(updated) => setProfile({ ...profile, ...updated })}
             />
+          ) : activeTab === 'learning' ? (
+            <LearningSettings />
           ) : (
             <AccountSettings />
           )}

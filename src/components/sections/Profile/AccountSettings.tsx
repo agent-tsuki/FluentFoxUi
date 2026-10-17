@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext'
 import { useModal } from '@/context/ModalContext'
 import { authService } from '@/api/services/authService'
 import { resolveErrorMessage } from '@/api/errors'
+import { SettingToggle as Toggle } from './SettingToggle'
 
 const BG_OPTIONS: { value: BackgroundAnimation; icon: string; label: string; desc: string }[] = [
   { value: 'petals', icon: 'local_florist', label: 'Sakura Petals', desc: 'Falling cherry blossom petals' },
@@ -383,46 +384,6 @@ export function AccountSettings() {
           )}
         </div>
       </div>
-    </div>
-  )
-}
-
-// ─── Toggle row ───────────────────────────────────────────────────────────────
-
-interface ToggleProps {
-  icon: string
-  label: string
-  description: string
-  checked: boolean
-  onChange: (v: boolean) => void
-}
-
-function Toggle({ icon, label, description, checked, onChange }: ToggleProps) {
-  return (
-    <div className="flex items-center justify-between gap-4">
-      <div className="flex items-center gap-4">
-        <div className="w-10 h-10 bg-surface-container rounded-lg flex items-center justify-center text-on-surface-variant">
-          <Icon name={icon} className="text-xl" />
-        </div>
-        <div>
-          <p className="text-sm font-semibold text-on-surface font-body">{label}</p>
-          <p className="text-xs text-on-surface-variant font-body">{description}</p>
-        </div>
-      </div>
-      <button
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={`relative w-11 h-6 rounded-full transition-colors ${
-          checked ? 'bg-primary' : 'bg-surface-container-highest'
-        }`}
-      >
-        <span
-          className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${
-            checked ? 'translate-x-5' : 'translate-x-0'
-          }`}
-        />
-      </button>
     </div>
   )
 }

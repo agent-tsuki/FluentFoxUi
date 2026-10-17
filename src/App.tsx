@@ -313,6 +313,7 @@ const router = createBrowserRouter([
         path: 'profile',
         element: <RequireAuth><ProfilePage /></RequireAuth>,
       },
+      { path: 'settings/learning', element: <Navigate to="/profile?tab=learning" replace /> },
       {
         // Logged in but email not verified yet (auth guide §5)
         path: 'verify-email',
