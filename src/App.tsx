@@ -17,6 +17,7 @@ import { RequireAuth } from '@/components/auth/RequireAuth'
 import { useAmbientMotion } from '@/hooks/useAmbientMotion'
 // Ids and paths only (no course content), so the router stays light.
 import { KANA_SCRIPT_IDS, kanaBasePath, type RegisteredKanaScriptId } from '@/lib/content/kana/scriptIds'
+import { DEFAULT_KANJI_LEVEL, KANJI_LAST_LEVEL_KEY, KANJI_LEVELS, isKanjiLevelAvailable, isKanjiLevelId, kanjiLevelPath, type KanjiLevelMeta } from '@/lib/content/kanji/levels'
 // The landing page stays eager: it is the first paint for most visitors.
 import { HomePage } from '@/pages/HomePage'
 
@@ -34,7 +35,22 @@ const KanaUnitPage      = lazy(() => import('@/pages/KanaUnitPage').then(m => ({
 const KanaUnitQuizPage  = lazy(() => import('@/pages/KanaUnitQuizPage').then(m => ({ default: m.KanaUnitQuizPage })))
 const KanaFinalTestPage = lazy(() => import('@/pages/KanaFinalTestPage').then(m => ({ default: m.KanaFinalTestPage })))
 const KanaSkipTestPage  = lazy(() => import('@/pages/KanaSkipTestPage').then(m => ({ default: m.KanaSkipTestPage })))
-const KanjiPage         = lazy(() => import('@/pages/KanjiPage').then(m => ({ default: m.KanjiPage })))
+// The kanji course: one set of pages for every JLPT level with data.
+const KanjiLevelRoute        = lazy(() => import('@/pages/KanjiLevelRoute').then(m => ({ default: m.KanjiLevelRoute })))
+const KanjiCourseLayout      = lazy(() => import('@/pages/KanjiCourseLayout').then(m => ({ default: m.KanjiCourseLayout })))
+const KanjiCoursePage        = lazy(() => import('@/pages/KanjiCoursePage').then(m => ({ default: m.KanjiCoursePage })))
+const KanjiReviewsPage       = lazy(() => import('@/pages/KanjiReviewsPage').then(m => ({ default: m.KanjiReviewsPage })))
+const KanjiBrowsePage        = lazy(() => import('@/pages/KanjiBrowsePage').then(m => ({ default: m.KanjiBrowsePage })))
+const KanjiTestsPage         = lazy(() => import('@/pages/KanjiTestsPage').then(m => ({ default: m.KanjiTestsPage })))
+const KanjiDownloadsPage     = lazy(() => import('@/pages/KanjiDownloadsPage').then(m => ({ default: m.KanjiDownloadsPage })))
+const KanjiUnitPage          = lazy(() => import('@/pages/KanjiUnitPage').then(m => ({ default: m.KanjiUnitPage })))
+const KanjiUnitQuizPage      = lazy(() => import('@/pages/KanjiUnitQuizPage').then(m => ({ default: m.KanjiUnitQuizPage })))
+const KanjiPracticePage      = lazy(() => import('@/pages/KanjiPracticePage').then(m => ({ default: m.KanjiPracticePage })))
+const KanjiSkipTestPage      = lazy(() => import('@/pages/KanjiTestPages').then(m => ({ default: m.KanjiSkipTestPage })))
+const KanjiLevelTestPage     = lazy(() => import('@/pages/KanjiTestPages').then(m => ({ default: m.KanjiLevelTestPage })))
+const KanjiReviewSessionPage = lazy(() => import('@/pages/KanjiReviewSessionPage').then(m => ({ default: m.KanjiReviewSessionPage })))
+const KanjiDetailPage        = lazy(() => import('@/pages/KanjiDetailPage').then(m => ({ default: m.KanjiDetailPage })))
+const KanjiComingSoonPage    = lazy(() => import('@/pages/KanjiComingSoonPage').then(m => ({ default: m.KanjiComingSoonPage })))
 const QuizPage          = lazy(() => import('@/pages/QuizPage').then(m => ({ default: m.QuizPage })))
 const ProfilePage       = lazy(() => import('@/pages/ProfilePage').then(m => ({ default: m.ProfilePage })))
 const GrammarPage       = lazy(() => import('@/pages/GrammarPage').then(m => ({ default: m.GrammarPage })))
@@ -186,6 +202,52 @@ function kanaCourseRoutes(script: RegisteredKanaScriptId): RouteObject {
   }
 }
 
+/**
+ * One kanji level's route tree under /kanji/<level>. Levels with data get the
+ * full course; coming-soon levels (N3–N1 until the API serves them) get a
+ * placeholder for every path below them.
+ */
+function kanjiLevelRoutes(level: KanjiLevelMeta): RouteObject {
+  const base = kanjiLevelPath(level.id)
+  if (!isKanjiLevelAvailable(level.id)) {
+    return { path: `${base.slice(1)}/*`, element: <KanjiComingSoonPage level={level.id} /> }
+  }
+  return {
+    path: base.slice(1),
+    element: <KanjiLevelRoute level={level.id} />,
+    children: [
+      {
+        // Course · Reviews · Browse · Tests · Downloads share one header, sub-nav and index fetch.
+        element: <KanjiCourseLayout />,
+        children: [
+          { index: true,         element: <CoursePageSuspense><KanjiCoursePage /></CoursePageSuspense> },
+          { path: 'reviews',     element: <CoursePageSuspense><KanjiReviewsPage /></CoursePageSuspense> },
+          { path: 'browse',      element: <CoursePageSuspense><KanjiBrowsePage /></CoursePageSuspense> },
+          { path: 'tests',       element: <CoursePageSuspense><KanjiTestsPage /></CoursePageSuspense> },
+          { path: 'downloads',   element: <CoursePageSuspense><KanjiDownloadsPage /></CoursePageSuspense> },
+        ],
+      },
+      { path: 'unit/:unitId',   element: <KanjiUnitPage /> },
+      { path: 'quiz/:unitId',   element: <KanjiUnitQuizPage /> },
+      { path: 'practice/:mode', element: <KanjiPracticePage /> },
+      { path: 'skip/:scope',    element: <KanjiSkipTestPage /> },
+      { path: 'test',           element: <KanjiLevelTestPage /> },
+      { path: '*',              element: <Navigate to={base} replace /> },
+    ],
+  }
+}
+
+/** /kanji → the last level visited (or N5). */
+function KanjiIndexRedirect() {
+  let level: string | null = null
+  try {
+    level = localStorage.getItem(KANJI_LAST_LEVEL_KEY)
+  } catch {
+    /* storage blocked */
+  }
+  return <Navigate to={kanjiLevelPath(isKanjiLevelId(level ?? undefined) ? (level as KanjiLevelMeta['id']) : DEFAULT_KANJI_LEVEL)} replace />
+}
+
 const router = createBrowserRouter([
   {
     // /verify is outside Shell — it has its own minimal layout
@@ -213,7 +275,13 @@ const router = createBrowserRouter([
     children: [
       { index: true,              element: <HomePage /> },
       ...KANA_SCRIPT_IDS.map(kanaCourseRoutes),
-      { path: 'kana/kanji',      element: <KanjiPage /> },
+      // The old kanji chart lived here; the kanji course replaced it.
+      { path: 'kana/kanji',      element: <Navigate to={kanjiLevelPath(DEFAULT_KANJI_LEVEL)} replace /> },
+      { path: 'kanji',           element: <KanjiIndexRedirect /> },
+      ...KANJI_LEVELS.map(kanjiLevelRoutes),
+      { path: 'kanji/reviews/session', element: <KanjiReviewSessionPage /> },
+      // /kanji/日 (validated inside: anything that isn't one kanji is a 404).
+      { path: 'kanji/:char',     element: <KanjiDetailPage /> },
       { path: 'grammar/:level/:chapterId?',  element: <GrammarPage /> },
       { path: 'quiz',            element: <QuizPage /> },
       { path: 'classes',         element: <ClassesPage /> },

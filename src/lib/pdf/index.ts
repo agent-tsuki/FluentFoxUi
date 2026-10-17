@@ -7,6 +7,7 @@ import type { KanaChar } from '@/types'
 import type { KanaUnit } from '@/lib/content/kana/courseTypes'
 import type { KanaScriptConfig } from '@/lib/content/kana/scripts'
 import type { RawStrokeData } from '@/lib/pdf/glyphs'
+import type { KanjiEntry, KanjiStrokeData, KanjiUnit } from '@/types/kanji'
 
 export interface CertificateInput {
   name: string
@@ -74,4 +75,53 @@ export async function generateKanaMasterCertificate(input: {
     import('@/lib/pdf/certificate'),
   ])
   buildKanaMasterCertificate(jsPDF, hiragana, katakana, input).save('foxsensei-kana-master-certificate.pdf')
+}
+
+export interface KanjiWorksheetRequest {
+  levelTitle: string
+  /** File-name slug, e.g. "kanji-n5". */
+  pdfSlug: string
+  unit: KanjiUnit
+  unitNumber: number
+  entries: KanjiEntry[]
+  /** KanjiVG strokes of the unit's kanji (and of kanji in their key words), by character. */
+  strokes: Record<string, KanjiStrokeData>
+}
+
+/** Trace-and-write sheet for one kanji unit. Kana stroke data is loaded here for readings. */
+export async function generateKanjiWorksheet(req: KanjiWorksheetRequest): Promise<void> {
+  const [{ jsPDF }, hiragana, katakana, { buildKanjiWorksheet }] = await Promise.all([
+    import('jspdf'),
+    import('@/assets/kana-strokes/hiragana.json').then((m) => m.default as RawStrokeData),
+    import('@/assets/kana-strokes/katakana.json').then((m) => m.default as RawStrokeData),
+    import('@/lib/pdf/kanjiWorksheet'),
+  ])
+  const data: RawStrokeData = { ...hiragana, ...katakana, ...req.strokes }
+  buildKanjiWorksheet(jsPDF, { levelTitle: req.levelTitle, unit: req.unit, unitNumber: req.unitNumber, entries: req.entries, data }).save(
+    `foxsensei-${req.pdfSlug}-${req.unit.id}.pdf`,
+  )
+}
+
+export interface KanjiCertificateRequest {
+  title: string
+  levelLabel: string
+  kanjiCount: number
+  pdfSlug: string
+  name: string
+  score: number
+  date: Date
+  /** Strokes of 漢 and 字 for the heading (missing ones are left out). */
+  strokes: Record<string, KanjiStrokeData>
+}
+
+/** A kanji level's certificate (level test passed). */
+export async function generateKanjiCertificate(req: KanjiCertificateRequest): Promise<void> {
+  const [{ jsPDF }, hiragana, katakana, { buildKanjiCertificate }] = await Promise.all([
+    import('jspdf'),
+    import('@/assets/kana-strokes/hiragana.json').then((m) => m.default as RawStrokeData),
+    import('@/assets/kana-strokes/katakana.json').then((m) => m.default as RawStrokeData),
+    import('@/lib/pdf/certificate'),
+  ])
+  const data: RawStrokeData = { ...hiragana, ...katakana, ...req.strokes }
+  buildKanjiCertificate(jsPDF, data, req).save(`foxsensei-${req.pdfSlug}-certificate.pdf`)
 }

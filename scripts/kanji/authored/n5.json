@@ -1,0 +1,722 @@
+{
+  "level": "n5",
+  "groups": [
+    {
+      "id": "numbers",
+      "title": "Numbers",
+      "summary": "Count from one to a thousand.",
+      "unitIds": [
+        "u01",
+        "u02"
+      ]
+    },
+    {
+      "id": "nature",
+      "title": "Days & nature",
+      "summary": "The days of the week, the land and the sky.",
+      "unitIds": [
+        "u03",
+        "u04"
+      ]
+    },
+    {
+      "id": "people",
+      "title": "People & places",
+      "summary": "Family, sizes and directions.",
+      "unitIds": [
+        "u05",
+        "u06",
+        "u07"
+      ]
+    },
+    {
+      "id": "time",
+      "title": "Time & money",
+      "summary": "Years, hours, prices and questions.",
+      "unitIds": [
+        "u08",
+        "u09"
+      ]
+    },
+    {
+      "id": "life",
+      "title": "Daily life",
+      "summary": "Going places, school, talking and reading.",
+      "unitIds": [
+        "u10",
+        "u11",
+        "u12",
+        "u13"
+      ]
+    }
+  ],
+  "units": [
+    {
+      "id": "u01",
+      "title": "Numbers 1–6",
+      "summary": "Lines and boxes that count from one to six.",
+      "kanji": [
+        "一",
+        "二",
+        "三",
+        "四",
+        "五",
+        "六"
+      ]
+    },
+    {
+      "id": "u02",
+      "title": "Numbers 7–1,000",
+      "summary": "Seven to ten, then hundreds and thousands.",
+      "kanji": [
+        "七",
+        "八",
+        "九",
+        "十",
+        "百",
+        "千"
+      ]
+    },
+    {
+      "id": "u03",
+      "title": "Days of the week",
+      "summary": "Sun, moon and the five elements that name the days.",
+      "kanji": [
+        "日",
+        "月",
+        "火",
+        "水",
+        "木",
+        "金"
+      ]
+    },
+    {
+      "id": "u04",
+      "title": "Land & sky",
+      "summary": "Earth, mountains, rivers, sky, air and rain.",
+      "kanji": [
+        "土",
+        "山",
+        "川",
+        "天",
+        "気",
+        "雨"
+      ]
+    },
+    {
+      "id": "u05",
+      "title": "Family",
+      "summary": "People, children, women, men and parents.",
+      "kanji": [
+        "人",
+        "子",
+        "女",
+        "男",
+        "父",
+        "母"
+      ]
+    },
+    {
+      "id": "u06",
+      "title": "Size & position",
+      "summary": "Big, small, middle, up, down, right and left.",
+      "kanji": [
+        "大",
+        "小",
+        "中",
+        "上",
+        "下",
+        "右",
+        "左"
+      ]
+    },
+    {
+      "id": "u07",
+      "title": "Compass",
+      "summary": "North, south, east, west and outside.",
+      "kanji": [
+        "東",
+        "西",
+        "南",
+        "北",
+        "外"
+      ]
+    },
+    {
+      "id": "u08",
+      "title": "Telling time",
+      "summary": "Years, hours, noon, before and after.",
+      "kanji": [
+        "年",
+        "時",
+        "間",
+        "午",
+        "前",
+        "後"
+      ]
+    },
+    {
+      "id": "u09",
+      "title": "Money & questions",
+      "summary": "Now, every, half, what, ten thousand and yen.",
+      "kanji": [
+        "今",
+        "毎",
+        "半",
+        "何",
+        "万",
+        "円"
+      ]
+    },
+    {
+      "id": "u10",
+      "title": "Coming & going",
+      "summary": "Go, come, exit, enter, rest and car.",
+      "kanji": [
+        "行",
+        "来",
+        "出",
+        "入",
+        "休",
+        "車"
+      ]
+    },
+    {
+      "id": "u11",
+      "title": "At school",
+      "summary": "Study, school, teacher, friends and names.",
+      "kanji": [
+        "学",
+        "校",
+        "先",
+        "生",
+        "友",
+        "名"
+      ]
+    },
+    {
+      "id": "u12",
+      "title": "See, hear, speak",
+      "summary": "Look, listen, talk, language, read and write.",
+      "kanji": [
+        "見",
+        "聞",
+        "話",
+        "語",
+        "読",
+        "書"
+      ]
+    },
+    {
+      "id": "u13",
+      "title": "Around Japan",
+      "summary": "Country, book, long, tall, white, electric and eat.",
+      "kanji": [
+        "国",
+        "本",
+        "長",
+        "高",
+        "白",
+        "電",
+        "食"
+      ]
+    }
+  ],
+  "keys": {
+    "一": "イチ",
+    "四": "よん",
+    "上": "うえ",
+    "下": "した",
+    "出": "で",
+    "子": "こ",
+    "人": "ジン",
+    "大": "ダイ",
+    "行": "い",
+    "書": "か",
+    "食": "た",
+    "高": "たか",
+    "今": "いま",
+    "前": "まえ",
+    "水": "みず",
+    "父": "ちち",
+    "母": "はは",
+    "男": "おとこ",
+    "女": "おんな",
+    "入": "はい",
+    "見": "み",
+    "休": "やす",
+    "読": "よ",
+    "聞": "き",
+    "話": "はな",
+    "名": "な",
+    "北": "きた",
+    "南": "みなみ",
+    "東": "ひがし",
+    "小": "ちい",
+    "中": "なか",
+    "金": "キン",
+    "土": "ド",
+    "火": "カ",
+    "木": "き",
+    "月": "ゲツ",
+    "日": "ニチ",
+    "白": "しろ",
+    "長": "なが",
+    "車": "くるま",
+    "国": "くに",
+    "円": "エン",
+    "外": "そと",
+    "何": "なに",
+    "友": "とも",
+    "先": "セン",
+    "生": "セイ",
+    "学": "ガク",
+    "校": "コウ",
+    "電": "デン",
+    "語": "ゴ",
+    "本": "ホン",
+    "天": "テン",
+    "気": "キ"
+  },
+  "readingTips": {
+    "日": "Alone it is ひ (day) or び in 日曜日; in compounds it is usually ニチ.",
+    "月": "Months of the year use ガツ (一月 いちがつ); \"this month\" uses ゲツ; the moon itself is つき.",
+    "一": "Counting uses イチ; \"one thing\" is ひとつ and \"one person\" is ひとり.",
+    "人": "Nationalities use ジン (日本人); counting people uses ニン (三人); alone it is ひと.",
+    "四": "Say よん in most numbers (四十 よんじゅう); し appears in 四月 しがつ.",
+    "七": "Both しち and なな are used; なな is clearer on the phone.",
+    "九": "キュウ in most numbers; ク in 九月 くがつ.",
+    "大": "ダイ in 大学; タイ in 大会; おお- in words like 大きい.",
+    "生": "This kanji has many readings: セイ in 学生, う(まれる) \"be born\", い(きる) \"live\", なま \"raw\".",
+    "行": "い(く) \"go\" is the one to learn first; ギョウ is \"a line of text\", コウ appears in 銀行.",
+    "下": "した \"below\"; さ(げる)/くだ(る) for lowering or going down; カ/ゲ in compounds.",
+    "上": "うえ \"above\"; あ(がる) \"go up\"; ジョウ in compounds like 上手.",
+    "後": "ゴ in 午後; うし(ろ) \"behind\"; あと \"after\".",
+    "何": "なに before most sounds; なん before d, n and t sounds and counters (何時 なんじ)."
+  },
+  "mnemonics": {
+    "一": "One finger laid flat: a single line means one.",
+    "二": "Two fingers laid flat, the bottom one a little longer: two.",
+    "三": "Three lines stacked like three fingers held sideways: three.",
+    "四": "A box with legs inside: four walls holding a pair of legs. Think of a four-poster bed.",
+    "五": "Two lines with a zigzag between them, like a crooked 5 lying on a shelf: five.",
+    "六": "A little hat on top and two legs below: six is a person in a hat doing the splits.",
+    "七": "An upside-down 7 with a line through it: seven.",
+    "八": "Two strokes spreading apart like the bottom of a skirt or a mountain path: eight.",
+    "九": "An arm reaching out with a hooked elbow: nine looks like a strong arm flexing.",
+    "十": "A cross: count to ten on your fingers and cross them.",
+    "百": "One (一) on top of white (白): one white sheet holds a hundred grains of rice.",
+    "千": "Ten (十) with a slash on top: a thousand is ten with a stroke of extra effort.",
+    "日": "A window with one bar: you see the sun through it every day.",
+    "月": "A crescent moon leaning to the side with two clouds across it.",
+    "火": "A person (人) with sparks flying out on both sides: fire.",
+    "水": "A central stream with splashes flicking off left and right: water.",
+    "木": "A trunk with one branch across and two roots spreading below: a tree.",
+    "金": "A roof over a mine shaft, with two gold nuggets glinting in the earth.",
+    "土": "A small cross planted on a long line of ground: soil.",
+    "山": "Three peaks, the middle one tallest: a mountain.",
+    "川": "Three lines of water running side by side: a river.",
+    "天": "A person standing with arms out (大) under one line: the sky above everyone.",
+    "気": "Steam rising in wavy lines over a pot, with an X of energy inside: spirit and air.",
+    "雨": "A window or sky frame with raindrops falling inside: rain.",
+    "人": "Two legs walking: a person.",
+    "子": "A baby wrapped up with arms reaching out: child.",
+    "女": "A woman kneeling with crossed legs and arms gracefully folded.",
+    "男": "A rice field (田) above power (力): the man works in the field.",
+    "父": "Two crossed tools under a pair of marks: father with his tools crossed, ready to work.",
+    "母": "A woman shape with two dots for a mother nursing her baby.",
+    "大": "A person (人) stretching their arms wide: big!",
+    "小": "A small hook with a dot on each side: tiny bits scattering, small.",
+    "中": "A line straight through the middle of a box: middle, inside.",
+    "上": "A line pointing up from the ground: above, up.",
+    "下": "A line hanging down from the ceiling: below, down.",
+    "右": "A hand reaching over a mouth (口): you eat with your right hand.",
+    "左": "A hand holding a carpenter's square (工): the left hand holds the tool.",
+    "東": "The sun (日) rising behind a tree (木): east, where the sun comes up.",
+    "西": "A bird settling into its nest at sunset: west.",
+    "南": "A tent with a cross on top and a warm fire below: south, where it is warm.",
+    "北": "Two people sitting back to back, turning away from the cold north wind.",
+    "外": "Evening (夕) plus a fortune-telling stick (卜): going outside at night to read the stars.",
+    "年": "A person carrying a big bundle of rice: a year's harvest.",
+    "時": "The sun (日) beside a temple (寺): the temple bell tells the time.",
+    "間": "The sun (日) shining through a gate (門): the space between the doors.",
+    "午": "A cow (牛) without its horn sticking up: noon, when even the cow rests.",
+    "前": "Horns on top, flesh (月) and a knife (刂): the butcher works in front of you.",
+    "後": "Small steps (彳) and a thread with a slow foot: walking behind, after.",
+    "今": "A roof over a single line: right now, under this roof.",
+    "毎": "A person wearing a hat over mother (母): every mother, every day.",
+    "半": "Two horns on top and a cross cut in half: half.",
+    "何": "A person (亻) next to \"can\" (可): what can a person do?",
+    "万": "One (一) over a hook like a pen flourish: ten thousand.",
+    "円": "A round window frame: a circle, and the round yen coin.",
+    "行": "A crossroads split in two (彳 + 亍): go along the road.",
+    "来": "A tree (木) with rice grains blowing in: next year's rice is coming.",
+    "出": "Two mountains (山) stacked: climb out over the peaks.",
+    "入": "A person (人) leaning forward to enter through a doorway.",
+    "休": "A person (亻) leaning against a tree (木): rest.",
+    "車": "A cart seen from above: wheel, axle and body. Car.",
+    "学": "A child (子) under a roof with sparks of ideas above: study.",
+    "校": "A tree (木) beside people mixing (交): school under the trees.",
+    "先": "A person with legs (儿) walking out in front: ahead, previous.",
+    "生": "A plant sprouting from the earth: life, to be born.",
+    "友": "Two hands reaching across to each other: friend.",
+    "名": "Evening (夕) and a mouth (口): in the dark you call out your name.",
+    "見": "An eye (目) on legs (儿): going to see.",
+    "聞": "An ear (耳) at a gate (門): listening at the door.",
+    "話": "Words (言) and a tongue (舌): talking.",
+    "語": "Words (言) and \"I\" (吾): the words I speak, a language.",
+    "読": "Words (言) and sell (売): a seller reading out the words.",
+    "書": "A hand holding a brush (聿) over the sun (日): writing all day.",
+    "国": "A jewel (玉) inside borders (囗): a country's treasure.",
+    "本": "A tree (木) with a line at the root: the origin, and books made from trees.",
+    "長": "Long flowing hair: long.",
+    "高": "A tall tower with a roof, a window and a door: tall, expensive.",
+    "白": "The sun (日) with a ray shining on top: white light.",
+    "電": "Rain (雨) above a field with a lightning tail: electricity.",
+    "食": "A roof (人) over good food: eat."
+  },
+  "lookAlikes": {
+    "日": [
+      {
+        "char": "目",
+        "note": "目 eye has two inner lines"
+      },
+      {
+        "char": "白",
+        "note": "白 white has a tick on top"
+      }
+    ],
+    "目": [
+      {
+        "char": "日",
+        "note": "日 sun has one inner line"
+      }
+    ],
+    "白": [
+      {
+        "char": "日",
+        "note": "日 sun has no tick on top"
+      },
+      {
+        "char": "百",
+        "note": "百 adds a line on top"
+      }
+    ],
+    "百": [
+      {
+        "char": "白",
+        "note": "白 has no top line"
+      }
+    ],
+    "人": [
+      {
+        "char": "入",
+        "note": "入 enter: the right stroke starts higher"
+      },
+      {
+        "char": "八",
+        "note": "八 eight: the strokes do not touch"
+      }
+    ],
+    "入": [
+      {
+        "char": "人",
+        "note": "人 person: the left stroke starts higher"
+      }
+    ],
+    "八": [
+      {
+        "char": "人",
+        "note": "人 person: the strokes join at the top"
+      }
+    ],
+    "大": [
+      {
+        "char": "天",
+        "note": "天 sky adds a line on top"
+      },
+      {
+        "char": "犬",
+        "note": "犬 dog adds a dot"
+      }
+    ],
+    "天": [
+      {
+        "char": "大",
+        "note": "大 big has no top line"
+      }
+    ],
+    "土": [
+      {
+        "char": "士",
+        "note": "士 samurai has a longer top line"
+      }
+    ],
+    "木": [
+      {
+        "char": "本",
+        "note": "本 book adds a line at the root"
+      },
+      {
+        "char": "休",
+        "note": "休 rest adds a person"
+      }
+    ],
+    "本": [
+      {
+        "char": "木",
+        "note": "木 tree has no root line"
+      }
+    ],
+    "休": [
+      {
+        "char": "体",
+        "note": "体 body has 本, not 木"
+      }
+    ],
+    "午": [
+      {
+        "char": "牛",
+        "note": "牛 cow pokes through the top"
+      },
+      {
+        "char": "千",
+        "note": "千 thousand has a slash, not a line"
+      }
+    ],
+    "千": [
+      {
+        "char": "午",
+        "note": "午 noon has a flat top line"
+      },
+      {
+        "char": "十",
+        "note": "十 ten has no slash"
+      }
+    ],
+    "右": [
+      {
+        "char": "石",
+        "note": "石 stone (N3)"
+      },
+      {
+        "char": "左",
+        "note": "左 left has 工 instead of 口"
+      }
+    ],
+    "左": [
+      {
+        "char": "右",
+        "note": "右 right has 口 instead of 工"
+      }
+    ],
+    "名": [
+      {
+        "char": "各",
+        "note": "各 each (N3)"
+      }
+    ],
+    "間": [
+      {
+        "char": "聞",
+        "note": "聞 hear has an ear (耳)"
+      },
+      {
+        "char": "問",
+        "note": "問 question has a mouth (口)"
+      }
+    ],
+    "聞": [
+      {
+        "char": "間",
+        "note": "間 space has the sun (日)"
+      },
+      {
+        "char": "問",
+        "note": "問 question has a mouth (口)"
+      }
+    ],
+    "話": [
+      {
+        "char": "語",
+        "note": "語 language has 吾 on the right"
+      },
+      {
+        "char": "読",
+        "note": "読 read has 売 on the right"
+      }
+    ],
+    "語": [
+      {
+        "char": "話",
+        "note": "話 talk has 舌 on the right"
+      }
+    ],
+    "読": [
+      {
+        "char": "話",
+        "note": "話 talk has 舌 on the right"
+      }
+    ],
+    "見": [
+      {
+        "char": "貝",
+        "note": "貝 shell has short legs"
+      }
+    ],
+    "今": [
+      {
+        "char": "会",
+        "note": "会 meet adds 云 below"
+      }
+    ],
+    "何": [
+      {
+        "char": "可",
+        "note": "可 can has no person"
+      }
+    ],
+    "西": [
+      {
+        "char": "四",
+        "note": "四 four has legs inside a box"
+      }
+    ],
+    "四": [
+      {
+        "char": "西",
+        "note": "西 west has a lid sticking out"
+      }
+    ],
+    "子": [
+      {
+        "char": "字",
+        "note": "字 character adds a roof"
+      },
+      {
+        "char": "学",
+        "note": "学 study adds sparks and a cover"
+      }
+    ],
+    "学": [
+      {
+        "char": "字",
+        "note": "字 character has a plain roof"
+      }
+    ],
+    "先": [
+      {
+        "char": "生",
+        "note": "生 life has no legs"
+      }
+    ],
+    "生": [
+      {
+        "char": "先",
+        "note": "先 ahead ends with legs (儿)"
+      }
+    ],
+    "東": [
+      {
+        "char": "車",
+        "note": "車 car has no slanting legs"
+      }
+    ],
+    "車": [
+      {
+        "char": "東",
+        "note": "東 east has slanting legs"
+      }
+    ],
+    "外": [
+      {
+        "char": "夕",
+        "note": "夕 evening on its own"
+      }
+    ],
+    "万": [
+      {
+        "char": "方",
+        "note": "方 direction has a dot on top"
+      },
+      {
+        "char": "力",
+        "note": "力 power has no top line"
+      }
+    ],
+    "男": [
+      {
+        "char": "田",
+        "note": "田 field on its own"
+      }
+    ],
+    "二": [
+      {
+        "char": "三",
+        "note": "三 three has three lines"
+      }
+    ],
+    "三": [
+      {
+        "char": "二",
+        "note": "二 two has two lines"
+      }
+    ],
+    "上": [
+      {
+        "char": "下",
+        "note": "下 down points the other way"
+      }
+    ],
+    "下": [
+      {
+        "char": "上",
+        "note": "上 up points the other way"
+      }
+    ],
+    "水": [
+      {
+        "char": "氷",
+        "note": "氷 ice (N3) adds a dot"
+      }
+    ],
+    "母": [
+      {
+        "char": "毎",
+        "note": "毎 every adds a hat"
+      }
+    ],
+    "毎": [
+      {
+        "char": "母",
+        "note": "母 mother has no hat"
+      }
+    ],
+    "気": [
+      {
+        "char": "汽",
+        "note": "汽 steam (N3) adds water"
+      }
+    ]
+  },
+  "meanings": {
+    "中": "middle",
+    "校": "school",
+    "先": "ahead",
+    "話": "talk",
+    "語": "language",
+    "天": "sky",
+    "間": "between",
+    "大": "big",
+    "小": "small",
+    "男": "man",
+    "川": "river",
+    "土": "earth",
+    "円": "yen",
+    "行": "go",
+    "来": "come",
+    "月": "moon",
+    "後": "after",
+    "前": "before"
+  }
+}

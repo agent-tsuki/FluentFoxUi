@@ -90,24 +90,6 @@ export interface KanaSection {
 
 export type JlptLevel = 'N5' | 'N4' | 'N3' | 'N2' | 'N1'
 
-export interface KanjiChar {
-  id: string
-  character: string
-  meaning: string          // English meaning
-  onyomi: string           // 音読み (Chinese-derived reading)
-  kunyomi: string          // 訓読み (native Japanese reading)
-  strokes: number
-  jlpt: JlptLevel
-}
-
-export interface KanjiGroup {
-  id: string
-  level: JlptLevel
-  title: string
-  description: string
-  chars: KanjiChar[]
-}
-
 // ─── Quiz Config ──────────────────────────────────────────────────────────────
 
 export type QuizCategory = 'kanji' | 'hiragana' | 'katakana' | 'grammar' | 'pyq'

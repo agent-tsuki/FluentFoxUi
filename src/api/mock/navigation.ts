@@ -19,11 +19,11 @@ export const mockNavItems: NavItem[] = [
     dropdown: [
       { label: 'Hiragana', href: '/kana/hiragana' },
       { label: 'Katakana', href: '/kana/katakana' },
-      { label: 'Kanji', href: '/kana/kanji' },
+      { label: 'Kanji', href: '/kanji' },
     ],
     mobileLinks: [
       { label: 'Hiragana', href: '/kana/hiragana' },
-      { label: 'Kanji', href: '/kana/kanji' },
+      { label: 'Kanji', href: '/kanji' },
     ],
   },
   { label: 'Quiz', href: '/quiz' },

@@ -8,6 +8,8 @@ export type UnitStep = 'watch' | 'learn' | 'practise' | 'print' | 'quiz'
 
 export interface UnitProgress {
   watchedAt?: string
+  /** Kanji units: every kanji written once from memory (Write step). */
+  writtenAt?: string
   practisedAt?: string
   printedAt?: string
   /** Best row-quiz score, 0–1. */
@@ -91,6 +93,11 @@ function createLearningPathStore(storageKey: string) {
       patchUnit(unitId, (u) => ({ ...u, watchedAt: now.toISOString() }))
     },
 
+    markWritten(unitId: string, now = new Date()) {
+      if (state.units[unitId]?.writtenAt) return
+      patchUnit(unitId, (u) => ({ ...u, writtenAt: now.toISOString() }))
+    },
+
     markPractised(unitId: string, now = new Date()) {
       patchUnit(unitId, (u) => ({ ...u, practisedAt: now.toISOString() }))
     },
@@ -149,16 +156,24 @@ function createLearningPathStore(storageKey: string) {
   }
 }
 
-const stores = new Map<KanaScriptId, LearningPathStore>()
+const stores = new Map<string, LearningPathStore>()
 
-/** The path store for a script (created, and read from storage, on first use). */
-export function getLearningPath(script: KanaScriptId): LearningPathStore {
-  let store = stores.get(script)
+/**
+ * A path store by storage key (created, and read from storage, on first use).
+ * The kanji course keeps one per JLPT level (kanjiProgressService).
+ */
+export function getPathStore(storageKey: string): LearningPathStore {
+  let store = stores.get(storageKey)
   if (!store) {
-    store = createLearningPathStore(STORAGE_KEYS[script])
-    stores.set(script, store)
+    store = createLearningPathStore(storageKey)
+    stores.set(storageKey, store)
   }
   return store
+}
+
+/** The path store for a script. */
+export function getLearningPath(script: KanaScriptId): LearningPathStore {
+  return getPathStore(STORAGE_KEYS[script])
 }
 
 /**
