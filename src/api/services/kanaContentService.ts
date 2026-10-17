@@ -6,6 +6,7 @@
 import type { KanaSection } from '@/types'
 import type { KanaContentData } from '@/types/content'
 import type { RegisteredKanaScriptId } from '@/lib/content/kana/scriptIds'
+import { buildKanaSections } from '@/lib/content/kana/buildKanaSections'
 import type { RawStrokeData } from '@/lib/pdf/glyphs'
 import { mockHiraganaSections } from '@/api/mock/hiragana'
 import { mockKatakanaSections } from '@/api/mock/katakana'
@@ -16,12 +17,29 @@ const BUNDLED_SECTIONS: Readonly<Record<RegisteredKanaScriptId, KanaSection[]>> 
   katakana: mockKatakanaSections,
 }
 
-function loadKanaContent(script: RegisteredKanaScriptId): Promise<KanaContentData> {
-  return loadContent<KanaContentData>(
+const SCRIPT_LABELS: Readonly<Record<RegisteredKanaScriptId, string>> = {
+  hiragana: 'Hiragana',
+  katakana: 'Katakana',
+}
+
+/** The bundled chart, already laid out; used while the API does not serve the script. */
+interface BundledKanaContent {
+  script: RegisteredKanaScriptId
+  sections: KanaSection[]
+}
+
+type KanaContentPayload = KanaContentData | BundledKanaContent
+
+function isBundled(data: KanaContentPayload): data is BundledKanaContent {
+  return 'sections' in data
+}
+
+function loadKanaContent(script: RegisteredKanaScriptId): Promise<KanaContentPayload> {
+  return loadContent<KanaContentPayload>(
     `/content/kana/${script}`,
     async () => ({ script, sections: BUNDLED_SECTIONS[script] }),
-    // A payload without chart sections is unusable; the bundled chart beats a blank page.
-    (data) => Array.isArray(data.sections),
+    // A payload without kana is unusable; the bundled chart beats a blank page.
+    (data) => isBundled(data) || (Array.isArray(data.kana) && data.kana.length > 0),
   )
 }
 
@@ -32,8 +50,17 @@ function isRawStrokeData(value: unknown): value is RawStrokeData {
   )
 }
 
+const sectionsCache = new Map<RegisteredKanaScriptId, KanaSection[]>()
+
 async function getSections(script: RegisteredKanaScriptId): Promise<KanaSection[]> {
-  return (await loadKanaContent(script)).sections
+  const data = await loadKanaContent(script)
+  if (isBundled(data)) return data.sections
+  let sections = sectionsCache.get(script)
+  if (!sections) {
+    sections = buildKanaSections(data.kana, SCRIPT_LABELS[script])
+    sectionsCache.set(script, sections)
+  }
+  return sections
 }
 
 /**
