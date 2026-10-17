@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
-import type { UnitStep } from '@/api/services/learningPathService'
+import type { UnitStep } from '@/types/learningPath'
 import type { KanaUnit } from '@/lib/content/kana/courseTypes'
 import { groupOfUnit } from '@/lib/content/kana/scripts'
 import { useKanaScript } from '@/context/KanaScriptContext'
@@ -118,14 +118,14 @@ function UnitView({ unit, index }: UnitViewProps) {
     learn: () =>
       kana.some(isKanaMark) ? (
         <>
-          <UnitLearnGrid kana={kana} />
+          <UnitLearnGrid kana={kana} onLearned={() => path.markTraced(unit.id)} />
           <p className="mt-4 max-w-prose text-sm leading-relaxed text-on-surface-variant">
             Neither mark has a sound of its own. <JaText text="ー" /> doubles the vowel before it (<JaText text="コーヒー" />, koohii); small{' '}
             <JaText text="ッ" /> doubles the next consonant (<JaText text="ベッド" />, beddo). The quiz checks them with real loanwords.
           </p>
         </>
       ) : (
-        <UnitLearnGrid kana={kana} />
+        <UnitLearnGrid kana={kana} onLearned={() => path.markTraced(unit.id)} />
       ),
     practise: () => (
       <LearnerOnly>

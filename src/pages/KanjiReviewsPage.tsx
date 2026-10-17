@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useKanjiLevel } from '@/context/KanjiLevelContext'
-import { useKanjiProgress } from '@/hooks/useKanji'
 import { useKanjiCourse } from '@/pages/kanjiCourseContext'
 import { KANJI_STAGES, KANJI_STAGE_LABEL, kanjiStage, type KanjiStage } from '@/api/services/kanjiProgressService'
 import { useLearnSummary } from '@/hooks/useLearnSummary'
@@ -27,20 +26,19 @@ const STAGE_HINT: Record<KanjiStage, string> = {
 /**
  * Reviews page of a level (/kanji/<level>/reviews): what is due now and the
  * new kanji left today (GET /learn/summary), a 7-day forecast when the
- * progress API serves one, and every kanji by stage. The stages still come
- * from this browser's practice record until the progress API replaces them.
+ * progress API serves one, and every kanji by stage. Stages need the
+ * progress API (phase 6); until then every kanji shows as new.
  */
 export function KanjiReviewsPage() {
   const level = useKanjiLevel()
   const { chars, rowsByChar } = useKanjiCourse()
-  const progress = useKanjiProgress()
   const { summary } = useLearnSummary(KANJI_TRACK)
   const forecast = useReviewForecast(KANJI_TRACK)
   const byStage = useMemo(() => {
     const groups = new Map<KanjiStage, string[]>(KANJI_STAGES.map((s) => [s, []]))
-    for (const c of chars) groups.get(kanjiStage(progress, c))?.push(c)
+    for (const c of chars) groups.get(kanjiStage(c))?.push(c)
     return groups
-  }, [progress, chars])
+  }, [chars])
   const dueCount = summary?.due_now ?? 0
 
   return (

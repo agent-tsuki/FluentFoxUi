@@ -1,7 +1,6 @@
 import { useEffect, useRef, type PointerEvent as ReactPointerEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion, useDragControls, type PanInfo } from 'framer-motion'
-import { useKanaProgressStore } from '@/hooks/useKanaProgress'
 import { useKanaScript } from '@/context/KanaScriptContext'
 import { kanaSpeechText } from '@/lib/content/kana/kanaMarks'
 import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
@@ -45,7 +44,6 @@ export function KanaDetailSheet({ char, onClose, onPrev, onNext }: KanaDetailShe
   const scrollRef = useRef<HTMLDivElement>(null)
   const swipeStart = useRef<{ x: number; y: number } | null>(null)
   const dragControls = useDragControls()
-  const progress = useKanaProgressStore()
   const script = useKanaScript()
 
   const open = char !== null
@@ -54,9 +52,8 @@ export function KanaDetailSheet({ char, onClose, onPrev, onNext }: KanaDetailShe
 
   useEffect(() => {
     if (!charId) return
-    progress.markSeen(charId)
     scrollRef.current?.scrollTo({ top: 0 })
-  }, [charId, progress])
+  }, [charId])
 
   const onSwipeStart = (e: ReactPointerEvent) => {
     const onPad = (e.target as Element).closest('[data-trace-pad]')

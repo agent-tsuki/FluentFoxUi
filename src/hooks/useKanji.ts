@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
-import type { KanaProgressState } from '@/types/kanaProgress'
 import type { KanjiEntry, KanjiLevelDetail, KanjiLevelId, KanjiLevelIndex, KanjiStrokeData } from '@/types/kanji'
 import type { LearningPathState } from '@/api/services/learningPathService'
 import { kanjiService } from '@/api/services/kanjiService'
-import { getKanjiPath, getKanjiProgress } from '@/api/services/kanjiProgressService'
+import { getKanjiPath } from '@/api/services/kanjiProgressService'
 import { useAsync, type AsyncState } from '@/hooks/useAsync'
 
 /**
@@ -75,13 +74,7 @@ export function useKanjiStrokes(char: string): StrokeState & { retry: () => void
   return { ...state, retry }
 }
 
-/** Live kanji review progress (every level); re-renders on any change. */
-export function useKanjiProgress(): KanaProgressState {
-  const store = getKanjiProgress()
-  return useSyncExternalStore(store.subscribe, store.getState)
-}
-
-/** Live guided-path progress of one level. */
+/** Live guided-path progress of one level (unit steps from the learn API for signed-in learners). */
 export function useKanjiPath(level: KanjiLevelId): LearningPathState {
   const store = getKanjiPath(level)
   return useSyncExternalStore(store.subscribe, store.getState)

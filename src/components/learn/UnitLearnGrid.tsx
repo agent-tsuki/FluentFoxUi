@@ -1,6 +1,6 @@
-import { lazy, Suspense, useCallback, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import type { KanaChar } from '@/types'
-import { useKanaProgress } from '@/hooks/useKanaProgress'
+import { useKanaMastery } from '@/hooks/useKanaProgress'
 import { CharCard } from '@/components/sections/KanaChart/CharCard'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 import { cn } from '@/lib/cn'
@@ -12,6 +12,8 @@ const KanaDetailSheet = lazy(() =>
 
 interface UnitLearnGridProps {
   kana: KanaChar[]
+  /** Called once every kana of the unit has been opened in this visit (ticks the Learn step). */
+  onLearned?: () => void
 }
 
 /** Returns focus to the tile of the kana that was last open. */
@@ -22,10 +24,22 @@ function focusTile(id: string) {
 }
 
 /** The unit's kana as mastery-coloured tiles; tapping opens the detail sheet, which steps through this unit only. */
-export function UnitLearnGrid({ kana }: UnitLearnGridProps) {
-  const { mastery } = useKanaProgress()
+export function UnitLearnGrid({ kana, onLearned }: UnitLearnGridProps) {
+  const mastery = useKanaMastery()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [sheetRequested, setSheetRequested] = useState(false)
+  const [openedIds, setOpenedIds] = useState<ReadonlySet<string>>(() => new Set())
+
+  useEffect(() => {
+    if (selectedId) setOpenedIds((ids) => (ids.has(selectedId) ? ids : new Set(ids).add(selectedId)))
+  }, [selectedId])
+
+  const allOpened = kana.length > 0 && kana.every((c) => openedIds.has(c.id))
+  useEffect(() => {
+    if (allOpened) onLearned?.()
+    // Once per visit: a new callback identity must not report again.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allOpened])
 
   // Rows of five read like the chart; compounds and 3-kana rows go three across.
   const fiveAcross = kana.length % 5 === 0 && !kana.some((c) => c.isCompound)

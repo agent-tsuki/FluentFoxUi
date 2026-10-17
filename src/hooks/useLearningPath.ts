@@ -8,10 +8,9 @@ import {
   type UnitStep,
 } from '@/api/services/learningPathService'
 import { useKanaScript } from '@/context/KanaScriptContext'
-import { useKanaProgress } from '@/hooks/useKanaProgress'
 import type { KanaUnit } from '@/lib/content/kana/courseTypes'
 
-/** The current script's path store, for writes (markPrinted, recordQuiz, …). */
+/** The current script's path store, for writes (markTraced, markPrinted, …). */
 export function useLearningPathStore(): LearningPathStore {
   return getLearningPath(useKanaScript().id)
 }
@@ -24,8 +23,8 @@ export function useLearningPath(): LearningPathState {
 
 /**
  * Which of a unit's steps are done. 'learn' counts as done once every kana in
- * the unit has at least been opened in the character sheet. 'watch' is only
- * offered (and counted) when the unit has a video.
+ * the unit has been opened in the character sheet (the API's 'traced' step).
+ * 'watch' is only offered (and counted) when the unit has a video.
  */
 export function useUnitSteps(unit: KanaUnit): {
   steps: UnitStep[]
@@ -35,14 +34,13 @@ export function useUnitSteps(unit: KanaUnit): {
   skipped: boolean
 } {
   const path = useLearningPath()
-  const { mastery } = useKanaProgress() // re-renders when kana mastery changes
   const progress = path.units[unit.id] ?? {}
   const steps: UnitStep[] = unit.youtubeId
     ? ['watch', 'learn', 'practise', 'print', 'quiz']
     : ['learn', 'practise', 'print', 'quiz']
   const done: Record<UnitStep, boolean> = {
     watch: Boolean(progress.watchedAt),
-    learn: unit.kanaIds.every((id) => mastery(id) !== 'new'),
+    learn: Boolean(progress.tracedAt),
     practise: Boolean(progress.practisedAt),
     print: Boolean(progress.printedAt),
     quiz: Boolean(progress.quizPassedAt),

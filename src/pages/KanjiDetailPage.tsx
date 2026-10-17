@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import type { KanjiEntry, KanjiIndexRow, KanjiLevelIndex } from '@/types/kanji'
-import { useAllKanjiIndexes, useKanjiEntry, useKanjiProgress, useKanjiStrokes } from '@/hooks/useKanji'
+import { useAllKanjiIndexes, useKanjiEntry, useKanjiStrokes } from '@/hooks/useKanji'
 import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
-import { KANJI_STAGE_LABEL, cardStage, getKanjiProgress } from '@/api/services/kanjiProgressService'
 import { useKanjiNote, type KanjiNoteSave } from '@/hooks/useKanjiNote'
 import { LearnerOnly } from '@/components/auth/SignInPrompt'
 import { isKanjiChar, isKanjiLevelId, kanjiCharPath, kanjiLevelMeta, kanjiLevelPagePath, kanjiLevelPath, kanjiUnitPath } from '@/lib/content/kanji/levels'
-import { kanjiCardId, kunLabel } from '@/lib/content/kanji/kanjiText'
+import { kunLabel } from '@/lib/content/kanji/kanjiText'
 import { Eyebrow } from '@/components/ui/SectionHeader'
 import { Icon } from '@/components/ui/Icon'
 import { ErrorState } from '@/components/ui/ErrorState'
@@ -26,7 +25,7 @@ import { cn } from '@/lib/cn'
  * The kanji page (/kanji/日, shareable): stroke order and tracing, meanings,
  * every reading with the key one starred, parts (and where else they
  * appear), the memory hint and your own note, example words with audio,
- * look-alikes and review state. `?in=n5` or `?in=browse` sets the back link
+ * look-alikes. `?in=n5` or `?in=browse` sets the back link
  * and previous / next.
  */
 export function KanjiDetailPage() {
@@ -42,10 +41,6 @@ function KanjiDetail({ char }: { char: string }) {
   useEffect(() => {
     document.title = entry ? `${char} · ${entry.meanings[0]} · Kanji · FoxSensei` : `${char} · Kanji · FoxSensei`
   }, [char, entry])
-
-  useEffect(() => {
-    if (entry) getKanjiProgress().markSeen(char)
-  }, [entry, char])
 
   return (
     <main className="pb-24 pt-nav">
@@ -210,7 +205,6 @@ function EntryView({ entry, indexes }: { entry: KanjiEntry; indexes: KanjiLevelI
           </ul>
         </Section>
         <LookAlikes entry={entry} indexes={indexes} />
-        <ReviewState char={entry.char} />
       </div>
     </div>
   )
@@ -253,7 +247,7 @@ function StrokePanel({ char }: { char: string }) {
           (mode === 'watch' ? (
             <StrokeOrder glyph={kanjiGlyph(strokes.data)} character={char} />
           ) : (
-            <TracePad glyph={kanjiGlyph(strokes.data)} onComplete={() => getKanjiProgress().markTraced(char)} />
+            <TracePad glyph={kanjiGlyph(strokes.data)} />
           ))}
       </div>
     </div>
@@ -465,29 +459,3 @@ function LookAlikes({ entry, indexes }: { entry: KanjiEntry; indexes: KanjiLevel
   )
 }
 
-function ReviewState({ char }: { char: string }) {
-  const progress = useKanjiProgress()
-  const faces = (['meaning', 'reading'] as const).map((face) => {
-    const card = progress.items[kanjiCardId(char, face)]?.card
-    return { face, stage: cardStage(card), due: card ? new Date(card.due) : undefined }
-  })
-  const fmt = (d?: Date) => {
-    if (!d) return 'not scheduled'
-    if (d.getTime() <= Date.now()) return 'due now'
-    return `next ${d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}`
-  }
-  return (
-    <Section id="review-heading" title="Your progress">
-      <dl className={cn(PANEL, 'grid gap-3 sm:grid-cols-2')}>
-        {faces.map((f) => (
-          <div key={f.face}>
-            <dt className="text-sm font-semibold capitalize text-on-surface">{f.face}</dt>
-            <dd className="text-sm text-on-surface-variant">
-              {KANJI_STAGE_LABEL[f.stage]} · {fmt(f.due)}
-            </dd>
-          </div>
-        ))}
-      </dl>
-    </Section>
-  )
-}

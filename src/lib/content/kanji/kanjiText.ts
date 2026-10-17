@@ -1,7 +1,7 @@
 /**
  * Small pure helpers over the kanji data shapes (no data, no React).
  */
-import type { KanjiCardFace, KanjiEntry, KanjiIndexRow, KanjiKunReading } from '@/types/kanji'
+import type { KanjiEntry, KanjiIndexRow, KanjiKunReading } from '@/types/kanji'
 
 const KATAKANA_START = 0x30a1
 const KATAKANA_END = 0x30f6
@@ -28,11 +28,6 @@ export function kunLabel(kun: KanjiKunReading): string {
 /** Every reading of an entry: on'yomi (katakana) then kun'yomi stems (hiragana), de-duplicated. */
 export function readingsOf(entry: Pick<KanjiEntry, 'on' | 'kun'>): string[] {
   return [...new Set([...entry.on, ...entry.kun.map((k) => k.kana)])]
-}
-
-/** SRS card id: `日:m` (meaning) / `日:r` (reading). Keyed by char, so progress is shared by every level. */
-export function kanjiCardId(char: string, face: KanjiCardFace): string {
-  return `${char}:${face === 'meaning' ? 'm' : 'r'}`
 }
 
 /** The index row of a full entry (mirrors index_row in scripts/kanji/build.py). */

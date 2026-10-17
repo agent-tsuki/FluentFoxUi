@@ -4,9 +4,8 @@
  * `useKanaScript()` inside a course route, or a config passed in) instead of
  * importing hiragana content directly, so katakana runs on the same code.
  *
- * Progress storage keys live in the progress services (kanaProgressService,
- * learningPathService), not here, so only service files change when a
- * backend arrives. The keys below are per-script UI preferences.
+ * Progress lives on the learn API (learningPathService for the path), not
+ * here. The keys below are per-script UI preferences.
  */
 import type { KanaSection } from '@/types'
 import type { RawStrokeData } from '@/lib/pdf/glyphs'

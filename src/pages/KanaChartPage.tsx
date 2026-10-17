@@ -2,7 +2,7 @@ import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import type { KanaChar, KanaSection } from '@/types'
 import type { KanaMastery } from '@/types/kanaProgress'
-import { useKanaProgress } from '@/hooks/useKanaProgress'
+import { useKanaMastery } from '@/hooks/useKanaProgress'
 import { RowCelebration } from '@/components/sections/KanaChart/RowCelebration'
 import { useRowCelebration } from '@/components/sections/KanaChart/useRowCelebration'
 import { ChartGrid } from '@/components/sections/KanaChart/ChartGrid'
@@ -185,7 +185,7 @@ export function KanaChartPage() {
     [visibleSets],
   )
 
-  const { mastery } = useKanaProgress()
+  const mastery = useKanaMastery()
   const basicChars = sections.find((s) => s.id === 'basic')?.chars ?? EMPTY_CHARS
   const celebration = useRowCelebration(basicChars, mastery, script.storageKeys.rowsCelebrated)
 

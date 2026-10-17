@@ -1,6 +1,5 @@
 export type { QuestionKind, QuizAnswer, QuizQuestion } from './types'
 export { buildQuestions, drawTargets, quizOptionsFor } from './buildQuestions'
-export { recordQuizReviews } from './recordReviews'
 export { useQuizSession, type QuizSession } from './useQuizSession'
 export { useQuizTimer, formatClock, formatDuration } from './useQuizTimer'
 export { QuizRunner } from './QuizRunner'

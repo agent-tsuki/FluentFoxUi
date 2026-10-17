@@ -4,7 +4,6 @@ import type { FinalTestResult } from '@/api/services/learningPathService'
 import type { KanaUnit } from '@/lib/content/kana/courseTypes'
 import { useKanaScript } from '@/context/KanaScriptContext'
 import { useLearningPath } from '@/hooks/useLearningPath'
-import { useKanaProgress } from '@/hooks/useKanaProgress'
 import { kanaPreview, unitKana, unitStatusSummary, type UnitStatusSummary } from '@/components/learn/unitStatus'
 
 /** One unit as the Course page shows it. */
@@ -32,16 +31,15 @@ export interface CourseUnits {
 
 /**
  * Every unit's status for the Course page (rows, Continue card, rail), from
- * the learning path and kana progress. Re-renders when either changes.
+ * the learning path. Re-renders when it changes.
  */
 export function useCourseUnits(kanaById: ReadonlyMap<string, KanaChar>): CourseUnits {
   const { units: scriptUnits } = useKanaScript()
   const path = useLearningPath()
-  const { state: kanaState, mastery } = useKanaProgress()
 
   return useMemo(() => {
     const units = scriptUnits.map((unit, i): CourseUnitView => {
-      const status = unitStatusSummary(unit, path.units[unit.id], mastery)
+      const status = unitStatusSummary(unit, path.units[unit.id])
       return {
         unit,
         number: i + 1,
@@ -58,9 +56,7 @@ export function useCourseUnits(kanaById: ReadonlyMap<string, KanaChar>): CourseU
       isFresh: units.every((u) => u.status.state === 'not-started'),
       finalTest: path.finalTest,
     }
-    // `mastery` is a fresh closure each render; `kanaState` is what it reads.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scriptUnits, path, kanaState, kanaById])
+  }, [scriptUnits, path, kanaById])
 }
 
 /** "72%" from a 0–1 score. */

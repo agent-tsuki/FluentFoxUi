@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useSyncExternalStore, type ReactNode } from 
 import { createBrowserRouter, Navigate, RouterProvider, Outlet, useSearchParams, type RouteObject } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
+import { PathUserSync } from '@/components/auth/PathUserSync'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { LazyAuthModal } from '@/components/sections/AuthModal'
@@ -330,6 +331,7 @@ export function App() {
         <UIProvider>
           <ModalProvider>
             <AmbientMouseFollower />
+            <PathUserSync />
             <RouterProvider router={router} />
             <Analytics />
             <SpeedInsights />

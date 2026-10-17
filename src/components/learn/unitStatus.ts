@@ -1,5 +1,4 @@
 import type { KanaChar } from '@/types'
-import type { KanaMastery } from '@/types/kanaProgress'
 import type { UnitProgress } from '@/api/services/learningPathService'
 import type { KanaUnit } from '@/lib/content/kana/courseTypes'
 
@@ -13,10 +12,10 @@ export const UNIT_STATE_LABEL: Record<UnitState, string> = {
 }
 
 /** State shown on a unit card, from the counts useUnitSteps returns. */
-export function unitState(completed: number, total: number, anyKanaOpened: boolean, skipped = false): UnitState {
+export function unitState(completed: number, total: number, skipped = false): UnitState {
   if (completed >= total) return 'done'
   if (skipped) return 'skipped'
-  return completed > 0 || anyKanaOpened ? 'in-progress' : 'not-started'
+  return completed > 0 ? 'in-progress' : 'not-started'
 }
 
 /**
@@ -24,16 +23,12 @@ export function unitState(completed: number, total: number, anyKanaOpened: boole
  * (which is a per-unit hook and can't be called in a loop); the path section
  * needs it for all 13 units to find the next suggested one.
  */
-export function isUnitComplete(
-  unit: KanaUnit,
-  progress: UnitProgress | undefined,
-  mastery: (id: string) => KanaMastery,
-): boolean {
+export function isUnitComplete(unit: KanaUnit, progress: UnitProgress | undefined): boolean {
   const p = progress ?? {}
   if (p.skippedAt) return true
   return (
     (!unit.youtubeId || Boolean(p.watchedAt)) &&
-    unit.kanaIds.every((id) => mastery(id) !== 'new') &&
+    Boolean(p.tracedAt) &&
     Boolean(p.practisedAt) &&
     Boolean(p.printedAt) &&
     Boolean(p.quizPassedAt)
@@ -72,20 +67,15 @@ export interface UnitStatusSummary {
  * course menu). Mirrors useUnitSteps: 'watch' only counts when the unit has a
  * video; 'learn' is done once every kana has been opened.
  */
-export function unitStatusSummary(
-  unit: KanaUnit,
-  progress: UnitProgress | undefined,
-  mastery: (id: string) => KanaMastery,
-): UnitStatusSummary {
+export function unitStatusSummary(unit: KanaUnit, progress: UnitProgress | undefined): UnitStatusSummary {
   const p = progress ?? {}
   const done = [
     ...(unit.youtubeId ? [Boolean(p.watchedAt)] : []),
-    unit.kanaIds.every((id) => mastery(id) !== 'new'),
+    Boolean(p.tracedAt),
     Boolean(p.practisedAt),
     Boolean(p.printedAt),
     Boolean(p.quizPassedAt),
   ]
   const completed = done.filter(Boolean).length
-  const anyOpened = unit.kanaIds.some((id) => mastery(id) !== 'new')
-  return { state: unitState(completed, done.length, anyOpened, Boolean(p.skippedAt)), completed, total: done.length }
+  return { state: unitState(completed, done.length, Boolean(p.skippedAt)), completed, total: done.length }
 }

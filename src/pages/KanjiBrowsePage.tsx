@@ -3,7 +3,6 @@ import { Link, useSearchParams } from 'react-router-dom'
 import type { KanjiIndexRow, KanjiLevelId, KanjiSort } from '@/types/kanji'
 import { useKanjiLevel } from '@/context/KanjiLevelContext'
 import { useAsync } from '@/hooks/useAsync'
-import { useKanjiProgress } from '@/hooks/useKanji'
 import { kanjiService } from '@/api/services/kanjiService'
 import { kanjiStage, KANJI_STAGE_LABEL } from '@/api/services/kanjiProgressService'
 import { KANJI_LEVELS, isKanjiLevelId, kanjiCharPath } from '@/lib/content/kanji/levels'
@@ -179,8 +178,7 @@ export function KanjiBrowsePage() {
 }
 
 const KanjiTile = memo(function KanjiTile({ row }: { row: KanjiIndexRow }) {
-  const progress = useKanjiProgress()
-  const stage = kanjiStage(progress, row.char)
+  const stage = kanjiStage(row.char)
   return (
     <li>
       <Link

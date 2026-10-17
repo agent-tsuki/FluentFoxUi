@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import type { KanjiEntry, KanjiLevelIndex, KanjiUnit } from '@/types/kanji'
 import { useKanjiLevel } from '@/context/KanjiLevelContext'
-import { downloadKanjiWorksheet, useKanjiLevelData, useKanjiPath, useKanjiProgress } from '@/hooks/useKanji'
+import { downloadKanjiWorksheet, useKanjiLevelData, useKanjiPath } from '@/hooks/useKanji'
 import { getKanjiPath, kanjiUnitSteps } from '@/api/services/kanjiProgressService'
 import { KANJI_UNIT_STEPS, type KanjiUnitStep } from '@/lib/content/kanji/courseTypes'
 import {
@@ -101,9 +101,8 @@ interface UnitViewProps {
 function UnitView({ unit, number, levelIndex, entries }: UnitViewProps) {
   const level = useKanjiLevel()
   const path = useKanjiPath(level.id)
-  const progress = useKanjiProgress()
   const store = getKanjiPath(level.id)
-  const done = kanjiUnitSteps(unit, path.units[unit.id], progress)
+  const done = kanjiUnitSteps(unit, path.units[unit.id])
   const completed = KANJI_UNIT_STEPS.filter((s) => done[s]).length
   const skipped = Boolean(path.units[unit.id]?.skippedAt)
   const prev = levelIndex.units[number - 2]
@@ -115,7 +114,14 @@ function UnitView({ unit, number, levelIndex, entries }: UnitViewProps) {
   }, [number, unit.title, level.title])
 
   const body: Record<KanjiUnitStep, JSX.Element> = {
-    learn: <KanjiLesson entries={entries} batchSize={level.batchSize} onFinish={() => document.getElementById('step-write')?.scrollIntoView({ block: 'start' })} />,
+    learn: (
+      <KanjiLesson
+        entries={entries}
+        batchSize={level.batchSize}
+        onFinish={() => document.getElementById('step-write')?.scrollIntoView({ block: 'start' })}
+        onLearned={() => store.markTraced(unit.id)}
+      />
+    ),
     write: <KanjiWriteStep entries={entries} onComplete={() => store.markWritten(unit.id)} />,
     practise: (
       <LearnerOnly>
