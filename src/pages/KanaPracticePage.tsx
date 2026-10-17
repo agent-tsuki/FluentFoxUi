@@ -54,7 +54,9 @@ function Practice({ mode }: { mode: KanaPracticeMode }) {
   const [kana, setKana] = useState<KanaChar[]>([])
   const [all, setAll] = useState<KanaChar[]>([])
   const [status, setStatus] = useState<Status>('loading')
-  const recorder = useStudyRecorder(() => learnService.startPractice(kanaPracticeRequest(script.id, mode, unit?.id)))
+  // ?pair=ぬ:め drills one mix-up pair (the progress pages link here).
+  const pair = searchParams.get('pair') ?? undefined
+  const recorder = useStudyRecorder(() => learnService.startPractice(kanaPracticeRequest(script.id, mode, unit?.id, pair)))
 
   const load = useCallback(() => {
     setStatus('loading')

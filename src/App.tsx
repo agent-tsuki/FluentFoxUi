@@ -59,6 +59,7 @@ const QuizPage          = lazy(() => import('@/pages/QuizPage').then(m => ({ def
 const ProfilePage       = lazy(() => import('@/pages/ProfilePage').then(m => ({ default: m.ProfilePage })))
 const GrammarPage       = lazy(() => import('@/pages/GrammarPage').then(m => ({ default: m.GrammarPage })))
 const DashboardPage     = lazy(() => import('@/pages/DashboardPage').then(m => ({ default: m.DashboardPage })))
+const ProgressPage      = lazy(() => import('@/pages/ProgressPage').then(m => ({ default: m.ProgressPage })))
 const AboutPage         = lazy(() => import('@/pages/AboutPage').then(m => ({ default: m.AboutPage })))
 const TermsPage         = lazy(() => import('@/pages/TermsPage').then(m => ({ default: m.TermsPage })))
 const PrivacyPage       = lazy(() => import('@/pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })))
@@ -308,6 +309,11 @@ const router = createBrowserRouter([
       {
         path: 'dashboard',
         element: <RequireAuth><DashboardPage /></RequireAuth>,
+      },
+      {
+        // Login + verified email: the progress API needs both.
+        path: 'progress',
+        element: <RequireAuth guestPrompt><ProgressPage /></RequireAuth>,
       },
       {
         path: 'profile',

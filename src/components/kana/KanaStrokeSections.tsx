@@ -14,7 +14,8 @@ interface KanaStrokeSectionsProps {
   onSpeak?: (text: string) => void
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+/** One titled block of the kana sheet. */
+export function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section aria-label={title} className="border-t border-outline-variant/40 px-5 py-5">
       <h3>

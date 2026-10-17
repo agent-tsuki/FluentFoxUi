@@ -12,6 +12,11 @@ function subscribe(listener: () => void): () => void {
   return () => listeners.delete(listener)
 }
 
+/** Bumped by invalidateLearnSummary; progress views reload with it. */
+export function useLearnDataVersion(): number {
+  return useSyncExternalStore(subscribe, () => version)
+}
+
 /** Call after a session completes so due badges reload. */
 export function invalidateLearnSummary(): void {
   version += 1

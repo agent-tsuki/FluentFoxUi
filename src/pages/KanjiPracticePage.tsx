@@ -71,8 +71,10 @@ function PracticeLoader({ mode, track }: { mode: KanjiPracticeModeId; track: Lea
   const level = useKanjiLevel()
   const [params] = useSearchParams()
   const unitId = params.get('unit') ?? undefined
+  // ?pair=日:目 drills one mix-up pair (the progress pages link here).
+  const pair = params.get('pair') ?? undefined
   const { data, isLoading, error, refetch } = useKanjiLevelData(level.id)
-  const recorder = useStudyRecorder(() => learnService.startPractice(kanjiPracticeRequest(track, mode, unitId)))
+  const recorder = useStudyRecorder(() => learnService.startPractice(kanjiPracticeRequest(track, mode, unitId, pair)))
   const { session } = recorder
 
   const targets = useMemo(() => {

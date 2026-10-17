@@ -49,17 +49,19 @@ const KANJI_API_MODE: Partial<Record<KanjiPracticeMode, PracticeMode>> = {
   lookalikes: 'lookalike',
 }
 
-function practiceRequest(track: LearningTrack, mode: PracticeMode | undefined, unit?: string): StartPracticeRequest {
+/** A look-alike drill on one mix-up pair ("ぬ:め", from the progress pages) sends it along. */
+function practiceRequest(track: LearningTrack, mode: PracticeMode | undefined, unit?: string, pair?: string): StartPracticeRequest {
   if (unit) return { track, mode: 'unit', unit }
+  if (pair && mode === 'lookalike') return { track, mode, pair }
   return { track, mode: mode ?? 'weak' }
 }
 
-export function kanaPracticeRequest(script: KanaScriptId, mode: KanaPracticeMode, unit?: string): StartPracticeRequest {
-  return practiceRequest(kanaTrack(script), KANA_API_MODE[mode], unit)
+export function kanaPracticeRequest(script: KanaScriptId, mode: KanaPracticeMode, unit?: string, pair?: string): StartPracticeRequest {
+  return practiceRequest(kanaTrack(script), KANA_API_MODE[mode], unit, pair)
 }
 
-export function kanjiPracticeRequest(track: LearningTrack, mode: KanjiPracticeMode, unit?: string): StartPracticeRequest {
-  return practiceRequest(track, KANJI_API_MODE[mode], unit)
+export function kanjiPracticeRequest(track: LearningTrack, mode: KanjiPracticeMode, unit?: string, pair?: string): StartPracticeRequest {
+  return practiceRequest(track, KANJI_API_MODE[mode], unit, pair)
 }
 
 // ─── Test requests ───────────────────────────────────────────────────────────

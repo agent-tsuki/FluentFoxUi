@@ -191,20 +191,30 @@ export interface ProfileUpdatePayload {
 
 export interface DashboardStats {
   studyHours: number
+  /** Answers on cards already introduced. */
   cardsReviewed: number
-  globalRank: string
+  /** Null until there is a leaderboard; hidden when null. */
+  globalRank: string | null
   currentStreak: number
-  jlptProgress: number   // 0–100
+  jlptProgress: number   // 0–100: share of N5 items (kana included) mastered
   targetLevel: JlptLevel
 }
 
+/**
+ * Accuracy per skill, 0–100. Grammar, vocabulary and speaking have no
+ * questions yet and stay 0; the dashboard shows the skills that are asked.
+ */
 export interface SkillBalance {
   kanji: number
   grammar: number
   listening: number
   vocabulary: number
+  /** Kana reading answers. */
   reading: number
   speaking: number
+  kanaReading: number
+  kanjiMeaning: number
+  kanjiReading: number
 }
 
 export interface Milestone {
@@ -234,6 +244,8 @@ export interface StudyLogEntry {
 export interface DayActivity {
   date: string     // ISO YYYY-MM-DD
   minutes: number  // study minutes; 0 = no activity
+  /** Daily goal met (counts for the streak); from GET /progress/calendar. */
+  goalMet?: boolean
 }
 
 export interface StreakCalendarData {

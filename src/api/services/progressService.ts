@@ -63,8 +63,9 @@ export const progressService = {
     return (await get<ConfusionsResponse>(withQuery('/progress/confusions', { track, limit }))).pairs
   },
 
-  getItemHistory(itemType: SrsItemType, itemId: string): Promise<ItemHistory> {
-    return get(`/progress/items/${encodeURIComponent(itemType)}/${encodeURIComponent(itemId)}`)
+  /** `itemId`: kana slug or character, kanji char, or item id; `track` tells a shared kana slug apart. */
+  getItemHistory(itemType: SrsItemType, itemId: string, track?: LearningTrack): Promise<ItemHistory> {
+    return get(withQuery(`/progress/items/${encodeURIComponent(itemType)}/${encodeURIComponent(itemId)}`, { track }))
   },
 
   getDashboard(): Promise<ProgressDashboard> {

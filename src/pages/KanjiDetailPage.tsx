@@ -5,6 +5,9 @@ import { useAllKanjiIndexes, useKanjiEntry, useKanjiStrokes } from '@/hooks/useK
 import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
 import { useKanjiNote, type KanjiNoteSave } from '@/hooks/useKanjiNote'
 import { LearnerOnly } from '@/components/auth/SignInPrompt'
+import { YourProgress } from '@/components/progress/YourProgress'
+import { useAuth } from '@/context/AuthContext'
+import { kanjiTrack } from '@/lib/learn/practiceSession'
 import { isKanjiChar, isKanjiLevelId, kanjiCharPath, kanjiLevelMeta, kanjiLevelPagePath, kanjiLevelPath, kanjiUnitPath } from '@/lib/content/kanji/levels'
 import { kunLabel } from '@/lib/content/kanji/kanjiText'
 import { Eyebrow } from '@/components/ui/SectionHeader'
@@ -141,6 +144,8 @@ function Section({ id, title, children, className }: { id: string; title: string
 function EntryView({ entry, indexes }: { entry: KanjiEntry; indexes: KanjiLevelIndex[] }) {
   const { speak, supported } = useJapaneseSpeech()
   const level = kanjiLevelMeta(entry.jlpt)
+  const track = kanjiTrack(entry.jlpt)
+  const { user } = useAuth()
   const unitIndex = indexes.find((i) => i.level === entry.jlpt)
   const unitNumber = unitIndex ? unitIndex.units.findIndex((u) => u.id === entry.unitId) + 1 : 0
   const unit = unitIndex?.units[unitNumber - 1]
@@ -205,6 +210,13 @@ function EntryView({ entry, indexes }: { entry: KanjiEntry; indexes: KanjiLevelI
           </ul>
         </Section>
         <LookAlikes entry={entry} indexes={indexes} />
+        {track && user?.emailVerified && (
+          <Section id="progress-heading" title="Your progress">
+            <div className={PANEL}>
+              <YourProgress itemType="kanji" id={entry.char} track={track} />
+            </div>
+          </Section>
+        )}
       </div>
     </div>
   )

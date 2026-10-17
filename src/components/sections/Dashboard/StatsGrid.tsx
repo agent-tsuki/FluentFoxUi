@@ -8,7 +8,7 @@ export function StatsGrid({ stats }: StatsGridProps) {
   const cells = [
     {
       label: 'Total Focus',
-      value: `${stats.studyHours.toLocaleString()}h`,
+      value: `${stats.studyHours.toLocaleString(undefined, { maximumFractionDigits: 1 })}h`,
       sub: 'Study hours recorded',
       accent: false,
     },
@@ -18,16 +18,14 @@ export function StatsGrid({ stats }: StatsGridProps) {
       sub: 'SRS cards reviewed',
       accent: false,
     },
-    {
-      label: 'Session Rank',
-      value: stats.globalRank,
-      sub: 'Global monthly rank',
-      accent: true,
-    },
+    // No leaderboard yet: the rank cell is only shown once the API sends one.
+    ...(stats.globalRank
+      ? [{ label: 'Session Rank', value: stats.globalRank, sub: 'Global monthly rank', accent: true }]
+      : []),
   ]
 
   return (
-    <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <section className={`grid grid-cols-1 gap-6 ${cells.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
       {cells.map((cell) => (
         <div
           key={cell.label}
