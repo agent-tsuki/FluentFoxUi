@@ -12,6 +12,9 @@ import { Icon } from '@/components/ui/Icon'
 import { useUI, type BackgroundAnimation } from '@/context/UIContext'
 import { authModalPrefetchHandlers } from '@/components/sections/AuthModal'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { useLearnSummary } from '@/hooks/useLearnSummary'
+import { DueBadge } from '@/components/learnSession/DueBadge'
+import { reviewPath } from '@/lib/learn/paths'
 
 const MOCK_STREAK    = mockDashboardData.stats.currentStreak
 const MOCK_ACTIVITIES = mockDashboardData.streakCalendar.activities
@@ -198,6 +201,7 @@ export function Navbar() {
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false)
   const { openModal } = useModal()
   const { user, logout } = useAuth()
+  const dueNow = useLearnSummary().summary?.due_now ?? 0
   const { darkMode, toggleDarkMode, backgroundAnimation, setBackgroundAnimation } = useUI()
 
   const isDesktop       = useMediaQuery('(min-width: 768px)')
@@ -320,6 +324,18 @@ export function Navbar() {
 
           {/* Right side: dark mode + auth */}
           <div className="flex items-center gap-3">
+            {/* Review all — shown when logged in, with the due count */}
+            {user && (
+              <Link
+                to={reviewPath()}
+                className="hidden md:flex items-center gap-1.5 min-h-11 px-3 rounded-full text-sm font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+              >
+                <Icon name="replay" className="text-base" />
+                Review
+                <DueBadge count={dueNow} />
+              </Link>
+            )}
+
             {/* Streak pill — shown when logged in */}
             {user && (
               <div ref={streakRef} className="relative hidden md:block">
@@ -549,6 +565,14 @@ export function Navbar() {
                       className="flex items-center gap-2 px-3 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container text-sm transition-colors"
                     >
                       <Icon name="dashboard" className="text-base" /> Dashboard
+                    </Link>
+                    <Link
+                      to={reviewPath()}
+                      onClick={closeMobile}
+                      className="flex items-center gap-2 px-3 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container text-sm transition-colors"
+                    >
+                      <Icon name="replay" className="text-base" /> Review all
+                      <DueBadge count={dueNow} />
                     </Link>
                     <button
                       onClick={() => { logout(); closeMobile() }}

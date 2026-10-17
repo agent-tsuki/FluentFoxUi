@@ -11,6 +11,7 @@ import {
   StreakCalendar,
 } from '@/components/sections/Dashboard'
 import { ErrorState } from '@/components/ui/ErrorState'
+import { TodayPanel } from '@/components/learnSession/TodayPanel'
 
 // ── Skeleton helpers ──────────────────────────────────────────────────────────
 function SkeletonBlock({ className = '' }: { className?: string }) {
@@ -83,6 +84,7 @@ export function DashboardPage() {
   return (
     <main className="pt-nav pb-20 px-6 max-w-6xl mx-auto space-y-12">
       <DashboardHero firstName={user?.firstName ?? 'Learner'} stats={data.stats} />
+      <TodayPanel />
       <StatsGrid stats={data.stats} />
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         <LearningBalance balance={data.skillBalance} />

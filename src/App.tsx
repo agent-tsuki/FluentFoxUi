@@ -51,6 +51,9 @@ const KanjiLevelTestPage     = lazy(() => import('@/pages/KanjiTestPages').then(
 const KanjiReviewSessionPage = lazy(() => import('@/pages/KanjiReviewSessionPage').then(m => ({ default: m.KanjiReviewSessionPage })))
 const KanjiDetailPage        = lazy(() => import('@/pages/KanjiDetailPage').then(m => ({ default: m.KanjiDetailPage })))
 const KanjiComingSoonPage    = lazy(() => import('@/pages/KanjiComingSoonPage').then(m => ({ default: m.KanjiComingSoonPage })))
+const LearnLessonPage   = lazy(() => import('@/pages/LearnLessonPage').then(m => ({ default: m.LearnLessonPage })))
+const ReviewPage        = lazy(() => import('@/pages/ReviewPage').then(m => ({ default: m.ReviewPage })))
+const HowGradingWorksPage = lazy(() => import('@/pages/HowGradingWorksPage').then(m => ({ default: m.HowGradingWorksPage })))
 const QuizPage          = lazy(() => import('@/pages/QuizPage').then(m => ({ default: m.QuizPage })))
 const ProfilePage       = lazy(() => import('@/pages/ProfilePage').then(m => ({ default: m.ProfilePage })))
 const GrammarPage       = lazy(() => import('@/pages/GrammarPage').then(m => ({ default: m.GrammarPage })))
@@ -284,6 +287,10 @@ const router = createBrowserRouter([
       { path: 'kanji',           element: <KanjiIndexRedirect /> },
       ...KANJI_LEVELS.map(kanjiLevelRoutes),
       { path: 'kanji/reviews/session', element: <RequireAuth><KanjiReviewSessionPage /></RequireAuth> },
+      // Lessons and reviews on the learn API (graded and scheduled by the server).
+      { path: 'learn/lesson/:track', element: <RequireAuth><LearnLessonPage /></RequireAuth> },
+      { path: 'learn/how-grading-works', element: <HowGradingWorksPage /> },
+      { path: 'review',          element: <RequireAuth><ReviewPage /></RequireAuth> },
       // /kanji/日 (validated inside: anything that isn't one kanji is a 404).
       { path: 'kanji/:char',     element: <KanjiDetailPage /> },
       { path: 'grammar/:level/:chapterId?',  element: <GrammarPage /> },

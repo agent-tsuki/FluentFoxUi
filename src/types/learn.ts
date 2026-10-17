@@ -105,6 +105,10 @@ export interface LearnQuestion {
   /** Other answers the server also accepts (synonyms, alt romaji). */
   accepted_answers?: string[]
   card_state?: CardState
+  /** The kana or kanji the card is about (the prompt may be romaji, a meaning or a word). */
+  char?: string
+  /** 8+ lapses: after a miss the UI shows the mnemonic and look-alike comparison. */
+  is_leech?: boolean
 }
 
 /** A new item a lesson teaches before its check quiz. */
