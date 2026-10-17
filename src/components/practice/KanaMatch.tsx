@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { PracticeModeProps } from '@/components/practice/types'
-import type { KanaProgressStore } from '@/api/services/kanaProgressService'
+import type { PracticeAnswerFn, PracticeModeProps } from '@/components/practice/types'
 import type { KanaScriptConfig } from '@/lib/content/kana/scripts'
 import { useKanaScript } from '@/context/KanaScriptContext'
-import { useKanaProgressStore } from '@/hooks/useKanaProgress'
+import { useAnswerTimer } from '@/hooks/useAnswerTimer'
 import { useKanaPairs, type KanaPair } from '@/hooks/useKanaPairs'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
+import { choiceAnswer } from '@/lib/learn/practiceSession'
 import { KATAKANA_HIRAGANA_TWINS, type KanaTwin } from '@/lib/content/kana/katakanaLookAlikes'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -39,7 +39,9 @@ interface SessionProps {
   pairs: KanaPair[]
   focusIds: string[]
   script: KanaScriptConfig
-  progress: KanaProgressStore
+  /** Kana ids the learn API picked, asked first. */
+  priorityIds: readonly string[]
+  onAnswer: PracticeAnswerFn
   onExit: () => void
   onComplete?: () => void
 }
@@ -49,9 +51,9 @@ interface SessionProps {
  * per round, three rounds. Look-alike twins (か/カ, り/リ) show a tip when
  * matched. Reviews go to the current course's store only.
  */
-function MatchSession({ pairs, focusIds, script, progress, onExit, onComplete }: SessionProps) {
+function MatchSession({ pairs, focusIds, script, priorityIds, onAnswer, onExit, onComplete }: SessionProps) {
   const reducedMotion = useReducedMotion()
-  const build = useCallback(() => buildMatchRounds(progress, pairs, focusIds), [progress, pairs, focusIds])
+  const build = useCallback(() => buildMatchRounds(priorityIds, pairs, focusIds), [priorityIds, pairs, focusIds])
   const [rounds, setRounds] = useState<MatchRound[]>(build)
   const [roundIndex, setRoundIndex] = useState(0)
   const [matched, setMatched] = useState<ReadonlySet<string>>(() => new Set())
@@ -63,6 +65,9 @@ function MatchSession({ pairs, focusIds, script, progress, onExit, onComplete }:
   const [done, setDone] = useState(false)
   const [announcement, setAnnouncement] = useState('')
   const missedInRound = useRef(new Set<string>())
+  // Bumped by "Play again"; with the round and the pairs matched so far it times each pair from the previous match.
+  const [run, setRun] = useState(0)
+  const timer = useAnswerTimer(`${run}-${roundIndex}-${matched.size}`)
   const wrongTimer = useRef<number>()
   const nextRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
@@ -81,6 +86,7 @@ function MatchSession({ pairs, focusIds, script, progress, onExit, onComplete }:
   const press = useCallback(
     (side: Side, id: string) => {
       if (!round || matched.has(id) || roundDone) return
+      timer.markInput()
       if (!selected || selected.side === side) {
         // First pick, or changing the pick within a column (tap again to clear).
         setSelected(selected?.side === side && selected.id === id ? null : { side, id })
@@ -95,8 +101,11 @@ function MatchSession({ pairs, focusIds, script, progress, onExit, onComplete }:
       if (!hira || !kata) return
 
       if (hiraId === kataId) {
-        const grade = missedInRound.current.has(hiraId) ? 'again' : 'good'
-        void progress.recordReview(hiraId, grade).catch(() => {})
+        // A pair tapped wrong earlier in the round counts as a second attempt.
+        const attempts = missedInRound.current.has(hiraId) ? 2 : 1
+        const target = script.id === 'hiragana' ? hira.hiragana : hira.katakana
+        const builder = { buildAnswer: (d: Parameters<typeof timer.buildAnswer>[0]) => ({ ...timer.buildAnswer(d), attempts }) }
+        onAnswer(target, 'kana_match', choiceAnswer(target.character, []), builder)
         const next = new Set(matched).add(hiraId)
         setMatched(next)
         setWrong(null)
@@ -124,7 +133,7 @@ function MatchSession({ pairs, focusIds, script, progress, onExit, onComplete }:
       window.clearTimeout(wrongTimer.current)
       wrongTimer.current = window.setTimeout(() => setWrong(null), WRONG_MS)
     },
-    [round, matched, roundDone, selected, byId, progress],
+    [round, matched, roundDone, selected, byId, timer, onAnswer, script.id],
   )
 
   const nextRound = useCallback(() => {
@@ -146,6 +155,7 @@ function MatchSession({ pairs, focusIds, script, progress, onExit, onComplete }:
   const restart = useCallback(() => {
     window.clearTimeout(wrongTimer.current)
     setRounds(build())
+    setRun((r) => r + 1)
     setRoundIndex(0)
     setMatched(new Set())
     setSelected(null)
@@ -269,9 +279,8 @@ function MatchSession({ pairs, focusIds, script, progress, onExit, onComplete }:
 }
 
 /** Hiragana ↔ katakana match: loads both charts, then plays the current course's kana (or ?unit= kana). */
-export function KanaMatch({ kana, onExit, onComplete }: PracticeModeProps) {
+export function KanaMatch({ kana, focusIds: priorityIds, onAnswer, onExit, onComplete }: PracticeModeProps) {
   const script = useKanaScript()
-  const progress = useKanaProgressStore()
   const { pairs, isLoading, error, refetch } = useKanaPairs()
   const focusIds = useMemo(() => kana.map((k) => k.id), [kana])
 
@@ -283,5 +292,15 @@ export function KanaMatch({ kana, onExit, onComplete }: PracticeModeProps) {
     )
   }
   if (isLoading || !pairs) return <LoadingState label="Loading practice…" />
-  return <MatchSession pairs={pairs} focusIds={focusIds} script={script} progress={progress} onExit={onExit} onComplete={onComplete} />
+  return (
+    <MatchSession
+      pairs={pairs}
+      focusIds={focusIds}
+      script={script}
+      priorityIds={priorityIds}
+      onAnswer={onAnswer}
+      onExit={onExit}
+      onComplete={onComplete}
+    />
+  )
 }

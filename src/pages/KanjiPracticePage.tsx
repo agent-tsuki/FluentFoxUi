@@ -1,14 +1,28 @@
 import { useCallback, useMemo, useState } from 'react'
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import type { KanjiEntry } from '@/types/kanji'
+import type { LearningTrack } from '@/types/learn'
 import { useKanjiLevel } from '@/context/KanjiLevelContext'
 import { useKanjiLevelData, useKanjiStrokes } from '@/hooks/useKanji'
 import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
-import { getKanjiPath, getKanjiProgress, isKanjiSeen } from '@/api/services/kanjiProgressService'
+import type { AnswerTimerControls } from '@/hooks/useAnswerTimer'
+import { useStudyRecorder, type StudyRecorderControls } from '@/hooks/useStudyRecorder'
+import { getKanjiPath } from '@/api/services/kanjiProgressService'
+import { learnService } from '@/api/services/learnService'
+import {
+  choiceAnswer,
+  focusChars,
+  kanjiPracticeRequest,
+  kanjiQuestionType,
+  kanjiQuizFacet,
+  kanjiTrack,
+  typedAnswer,
+} from '@/lib/learn/practiceSession'
 import { kanjiLevelPath, kanjiUnitPath } from '@/lib/content/kanji/levels'
 import { shuffle } from '@/lib/pdf/shared'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { ErrorState } from '@/components/ui/ErrorState'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { PracticeShell } from '@/components/practice/PracticeShell'
@@ -18,41 +32,65 @@ import { KanjiQuizResults } from '@/components/kanjiQuiz/KanjiQuizResults'
 import { useKanjiQuizSession } from '@/components/kanjiQuiz/useKanjiQuizSession'
 import { useKanjiAnswerMode } from '@/components/kanjiQuiz/answerMode'
 import { buildKanjiQuestion, keyReadingLabel } from '@/components/kanjiQuiz/buildKanjiQuestions'
-import type { KanjiAnswerMode, KanjiQuestionKind } from '@/components/kanjiQuiz/types'
+import type { KanjiAnswerMode, KanjiQuestion, KanjiQuestionKind } from '@/components/kanjiQuiz/types'
 import { KANJI_PRACTICE_MODES, isKanjiPracticeMode, type KanjiPracticeModeId } from '@/components/kanji/practiceModes'
 import { kanjiGlyph } from '@/components/kanji/kanjiGlyph'
 
 const ROUND = 10
 
 /**
- * /kanji/<level>/practice/:mode — a short round over the kanji you have opened
- * in this level (or one unit's kanji with `?unit=`). Practice never changes the
- * review schedule; finishing a round with `?unit=` ticks that unit's Practise step.
+ * /kanji/<level>/practice/:mode — a short round on the learn API
+ * (POST /learn/practice): a unit's kanji with `?unit=`, otherwise the kanji
+ * the server picks as weakest (the first unit when there are none yet).
+ * Finishing a round with `?unit=` ticks that unit's Practise step.
  */
 export function KanjiPracticePage() {
   const level = useKanjiLevel()
+  const navigate = useNavigate()
   const { mode } = useParams<{ mode: string }>()
+  const track = kanjiTrack(level.id)
+
+  if (!isKanjiPracticeMode(mode)) return <Navigate to={kanjiLevelPath(level.id)} replace />
+  if (!track) {
+    return (
+      <main className="min-h-dvh bg-surface pt-nav">
+        <EmptyState
+          icon="schedule"
+          title={`${level.label} practice is coming soon`}
+          description="Practice is saved to your account, and for now that works for N5 kanji."
+          actionLabel="Back to the course"
+          onAction={() => navigate(kanjiLevelPath(level.id))}
+        />
+      </main>
+    )
+  }
+  return <PracticeLoader key={mode} mode={mode} track={track} />
+}
+
+function PracticeLoader({ mode, track }: { mode: KanjiPracticeModeId; track: LearningTrack }) {
+  const level = useKanjiLevel()
   const [params] = useSearchParams()
   const unitId = params.get('unit') ?? undefined
   const { data, isLoading, error, refetch } = useKanjiLevelData(level.id)
+  const recorder = useStudyRecorder(() => learnService.startPractice(kanjiPracticeRequest(track, mode, unitId)))
+  const { session } = recorder
 
   const targets = useMemo(() => {
-    if (!data) return []
+    if (!data || !session) return []
     const unit = unitId ? data.index.units.find((u) => u.id === unitId) : undefined
     if (unit) return unit.kanji.flatMap((c) => data.byChar.get(c) ?? [])
-    const state = getKanjiProgress().getState()
-    const seen = data.entries.filter((e) => isKanjiSeen(state, e.char))
-    // Nothing opened yet: practise the first unit.
-    return seen.length ? seen : data.index.units[0].kanji.flatMap((c) => data.byChar.get(c) ?? [])
-  }, [data, unitId])
+    const focus = focusChars(session.questions).flatMap((c) => data.byChar.get(c) ?? [])
+    // Nothing learned yet: practise the first unit.
+    return focus.length ? focus : data.index.units[0].kanji.flatMap((c) => data.byChar.get(c) ?? [])
+  }, [data, session, unitId])
 
-  if (!isKanjiPracticeMode(mode)) return <Navigate to={kanjiLevelPath(level.id)} replace />
-
+  const startFailed = recorder.status === 'start-error' && !session
   return (
     <main className="min-h-dvh bg-surface pt-nav">
-      {isLoading && <LoadingState label="Loading practice…" className="mx-auto max-w-xl px-4 pt-6" />}
+      {(isLoading || (!session && !startFailed)) && !error && <LoadingState label="Loading practice…" className="mx-auto max-w-xl px-4 pt-6" />}
       {error && <ErrorState message="We couldn't load this practice." onRetry={refetch} />}
-      {data && targets.length > 0 && <Practice key={`${mode}-${unitId}`} mode={mode} targets={targets} pool={data.entries} unitId={unitId} />}
+      {startFailed && !error && <ErrorState message="We couldn't start this practice." onRetry={recorder.retry} />}
+      {data && targets.length > 0 && <Practice mode={mode} targets={targets} pool={data.entries} unitId={unitId} recorder={recorder} />}
     </main>
   )
 }
@@ -62,21 +100,33 @@ interface PracticeProps {
   targets: KanjiEntry[]
   pool: KanjiEntry[]
   unitId?: string
+  recorder: StudyRecorderControls
 }
 
-function Practice({ mode, targets, pool, unitId }: PracticeProps) {
+function Practice({ mode, targets, pool, unitId, recorder }: PracticeProps) {
   const level = useKanjiLevel()
   const navigate = useNavigate()
   const title = KANJI_PRACTICE_MODES.find((m) => m.id === mode)?.title ?? 'Practice'
   const backTo = unitId ? kanjiUnitPath(level.id, unitId) : kanjiLevelPath(level.id)
   const exit = useCallback(() => navigate(backTo), [navigate, backTo])
+  const { finish, answer } = recorder
   const finished = useCallback(() => {
+    // Unsent answers stay in the answer queue; completing is best-effort for practice.
+    finish().catch(() => undefined)
     if (unitId) getKanjiPath(level.id).markPractised(unitId)
-  }, [unitId, level.id])
+  }, [unitId, level.id, finish])
+  const onAnswer = useCallback(
+    (q: KanjiQuestion, given: string, timer: AnswerTimerControls) => {
+      const typed = q.answerKind === 'typed'
+      answer(q.target.char, kanjiQuizFacet(q.kind), kanjiQuestionType(q.kind, typed), typed ? typedAnswer(given) : choiceAnswer(given, q.options), timer)
+    },
+    [answer],
+  )
 
+  // Flashcards (self-graded) and writing have no graded question type, so their answers are not sent.
   if (mode === 'flashcards') return <Flashcards title={title} targets={targets} onExit={exit} onFinish={finished} />
   if (mode === 'writing') return <Writing title={title} targets={targets} onExit={exit} onFinish={finished} />
-  return <QuizPractice title={title} mode={mode} targets={targets} pool={pool} onExit={exit} onFinish={finished} />
+  return <QuizPractice title={title} mode={mode} targets={targets} pool={pool} onExit={exit} onFinish={finished} onAnswer={onAnswer} />
 }
 
 const KIND: Record<Exclude<KanjiPracticeModeId, 'flashcards' | 'writing'>, KanjiQuestionKind> = {
@@ -99,7 +149,13 @@ function draw(targets: KanjiEntry[], n: number): KanjiEntry[] {
   return out
 }
 
-function QuizPractice({ title, mode, targets, pool, onExit, onFinish }: ModeProps & { mode: keyof typeof KIND; pool: KanjiEntry[] }) {
+interface QuizPracticeProps extends ModeProps {
+  mode: keyof typeof KIND
+  pool: KanjiEntry[]
+  onAnswer: (question: KanjiQuestion, given: string, timer: AnswerTimerControls) => void
+}
+
+function QuizPractice({ title, mode, targets, pool, onExit, onFinish, onAnswer }: QuizPracticeProps) {
   const [answerMode, setAnswerMode] = useKanjiAnswerMode()
   const kind = KIND[mode]
   // Look-alikes: prefer kanji that have look-alikes in this level.
@@ -123,7 +179,16 @@ function QuizPractice({ title, mode, targets, pool, onExit, onFinish }: ModeProp
 
   if (!session.done) {
     const toggle = kind === 'meaning' || kind === 'reading'
-    return <KanjiQuizRunner title={title} session={session} mode={toggle ? answerMode : undefined} onModeChange={toggle ? changeMode : undefined} onExit={onExit} />
+    return (
+      <KanjiQuizRunner
+        title={title}
+        session={session}
+        mode={toggle ? answerMode : undefined}
+        onModeChange={toggle ? changeMode : undefined}
+        onAnswer={onAnswer}
+        onExit={onExit}
+      />
+    )
   }
   return (
     <PracticeShell title={title} progress={1} onExit={onExit}>

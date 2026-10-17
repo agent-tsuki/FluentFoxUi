@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import type { KanaChar } from '@/types'
+import { useAnswerTimer } from '@/hooks/useAnswerTimer'
 import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
+import { choiceAnswer } from '@/lib/learn/practiceSession'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { lookAlikeSetsFor } from '@/lib/content/kana/lookAlikeSets'
 import { durations, easings } from '@/lib/motion'
@@ -22,7 +24,7 @@ const TITLE = 'Look-alikes'
  * only its siblings — read it (pick the romaji) or find it (pick the kana).
  * After every answer the set's distinguishing tip is shown before moving on.
  */
-function LookAlikeSession({ kana, all, isSubset, script, progress, onExit, onComplete }: WithAllKanaProps) {
+function LookAlikeSession({ kana, all, isSubset, script, focusIds: priorityIds, onAnswer, onExit, onComplete }: WithAllKanaProps) {
   const sets = lookAlikeSetsFor(script.id)
   const { speak, supported } = useJapaneseSpeech()
   const reducedMotion = useReducedMotion()
@@ -36,13 +38,16 @@ function LookAlikeSession({ kana, all, isSubset, script, progress, onExit, onCom
   }, [isSubset, kana, sets])
   const unitFallback = isSubset && !focusIds
 
-  const build = useCallback(() => buildLookAlikeRounds(progress, sets, all, focusIds), [progress, sets, all, focusIds])
+  const build = useCallback(() => buildLookAlikeRounds(priorityIds, sets, all, focusIds), [priorityIds, sets, all, focusIds])
   const [rounds, setRounds] = useState<LookAlikeRound[]>(build)
   const [index, setIndex] = useState(0)
   const [picked, setPicked] = useState<KanaChar | null>(null)
   const [missed, setMissed] = useState<KanaChar[]>([])
   const [done, setDone] = useState(false)
   const [announcement, setAnnouncement] = useState('')
+  // Bumped by "Play again" so the first round of a new run gets a fresh answer timer.
+  const [run, setRun] = useState(0)
+  const timer = useAnswerTimer(`${run}-${index}`)
   const promptRef = useRef<HTMLDivElement>(null)
   const nextRef = useRef<HTMLDivElement>(null)
 
@@ -65,7 +70,9 @@ function LookAlikeSession({ kana, all, isSubset, script, progress, onExit, onCom
       const { target, tip } = round
       const right = choice.id === target.id
       setPicked(choice)
-      void progress.recordReview(target.id, right ? 'good' : 'again').catch(() => {})
+      timer.markInput()
+      timer.attempt()
+      onAnswer(target, 'kana_lookalike', choiceAnswer(choice.character, round.options.map((o) => o.character)), timer)
       if (!right) setMissed((m) => (m.some((k) => k.id === target.id) ? m : [...m, target]))
       setAnnouncement(
         right
@@ -73,7 +80,7 @@ function LookAlikeSession({ kana, all, isSubset, script, progress, onExit, onCom
           : `Not quite. ${target.character} is ${target.romaji}; you chose ${choice.character}, ${choice.romaji}. ${tip}`,
       )
     },
-    [round, picked, progress],
+    [round, picked, timer, onAnswer],
   )
 
   const next = useCallback(() => {
@@ -85,6 +92,7 @@ function LookAlikeSession({ kana, all, isSubset, script, progress, onExit, onCom
 
   const restart = useCallback(() => {
     setRounds(build())
+    setRun((r) => r + 1)
     setIndex(0)
     setPicked(null)
     setMissed([])
@@ -175,7 +183,7 @@ function LookAlikeSession({ kana, all, isSubset, script, progress, onExit, onCom
             {supported && (
               <button
                 type="button"
-                onClick={() => speak(target.character)}
+                onClick={() => speak(target.character, { onStart: timer.audioStart, onEnd: timer.audioStop })}
                 aria-label={`Hear ${target.romaji}`}
                 className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               >

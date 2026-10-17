@@ -1,6 +1,6 @@
 import type { KanaChar } from '@/types'
-import type { KanaProgressStore } from '@/api/services/kanaProgressService'
 import { isTypeableKana } from '@/lib/content/kana/kanaMarks'
+import { prioritise } from '@/lib/learn/practiceSession'
 import { pickOptions, shuffle, type Confusables } from './pickOptions'
 
 export const LISTEN_ROUNDS = 10
@@ -42,15 +42,16 @@ function twice(ids: string[]): string[] {
 }
 
 /**
- * Ten rounds over the prompt pool: due/never-reviewed ones first (FSRS order),
- * topped up at random, then shuffled so rows don't come in chart order.
+ * Ten rounds over the prompt pool: the kana the learn API picked first
+ * (`focusIds`, weakest first), topped up at random, then shuffled so rows
+ * don't come in chart order.
  *
  * `all` is the full chart: when a unit has fewer than four kana (や row,
  * わ row) the distractors are topped up from it, but prompts stay in the unit.
  * Tiny units play each kana twice so the session isn't over in three taps.
  */
 export function buildListenRounds(
-  progress: KanaProgressStore,
+  focusIds: readonly string[],
   kana: KanaChar[],
   all: KanaChar[] = kana,
   confusables?: Confusables,
@@ -62,7 +63,7 @@ export function buildListenRounds(
       : [...pool, ...all.filter((k) => isAudible(k) && !pool.some((p) => p.id === k.id))]
   const byId = new Map(pool.map((k) => [k.id, k]))
   const ids = pool.map((k) => k.id)
-  const due = progress.getDue(ids, LISTEN_ROUNDS)
+  const due = prioritise(focusIds, ids, LISTEN_ROUNDS)
   const rest = shuffle(ids.filter((id) => !due.includes(id)))
   const order = [...due, ...rest]
   const prompts = order.length < LISTEN_ROUNDS / 2 ? twice(order) : shuffle(order.slice(0, LISTEN_ROUNDS))

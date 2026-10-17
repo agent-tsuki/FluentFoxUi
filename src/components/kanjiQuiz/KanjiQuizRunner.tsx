@@ -3,6 +3,7 @@ import { cn } from '@/lib/cn'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { PracticeShell } from '@/components/practice/PracticeShell'
+import { useAnswerTimer, type AnswerTimerControls } from '@/hooks/useAnswerTimer'
 import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
 import { romajiToHiragana } from '@/lib/content/kanji/romaji'
 import type { KanjiQuizSession } from './useKanjiQuizSession'
@@ -18,6 +19,8 @@ interface KanjiQuizRunnerProps {
   /** The typed ⇄ choice preference; omit both to hide the toggle (e.g. timed tests). */
   mode?: KanjiAnswerMode
   onModeChange?: (mode: KanjiAnswerMode) => void
+  /** Each answer as it is given, with the question's timer (to save it to the learn API). */
+  onAnswer?: (question: KanjiQuestion, given: string, timer: AnswerTimerControls) => void
   onExit: () => void
 }
 
@@ -34,7 +37,7 @@ const ASK: Record<KanjiQuestion['kind'], string> = {
  * and Next in the lower half. Keys: 1–4 pick, Enter submits / moves on,
  * R replays a listening prompt. Readings can be typed in romaji.
  */
-export function KanjiQuizRunner({ title, session, status, notice, mode, onModeChange, onExit }: KanjiQuizRunnerProps) {
+export function KanjiQuizRunner({ title, session, status, notice, mode, onModeChange, onAnswer, onExit }: KanjiQuizRunnerProps) {
   const { speak } = useJapaneseSpeech()
   const { question, answer, index, questions, submit, next } = session
   const headingRef = useRef<HTMLHeadingElement>(null)
@@ -42,22 +45,37 @@ export function KanjiQuizRunner({ title, session, status, notice, mode, onModeCh
   const total = questions.length
   const isLast = index + 1 >= total
   const keyWord = question?.target.vocab.find((v) => v.isKey) ?? question?.target.vocab[0]
+  const timer = useAnswerTimer(question?.key ?? '')
+
+  const answerWith = useCallback(
+    (given: string) => {
+      if (!question || answer) return
+      timer.markInput()
+      timer.attempt()
+      onAnswer?.(question, given, timer)
+      submit(given)
+    },
+    [question, answer, timer, onAnswer, submit],
+  )
 
   useEffect(() => {
     if (!question) return
     headingRef.current?.focus({ preventScroll: true })
     if (question.kind !== 'listen' || !keyWord) return
-    const t = window.setTimeout(() => speak(keyWord.reading), 250)
+    const t = window.setTimeout(() => speak(keyWord.reading, { onStart: timer.audioStart, onEnd: timer.audioStop }), 250)
     return () => window.clearTimeout(t)
     // keyWord derives from question.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [question, speak])
+  }, [question, speak, timer])
 
   useEffect(() => {
     if (answer) nextRef.current?.querySelector('button')?.focus({ preventScroll: true })
   }, [answer])
 
-  const replay = useCallback(() => keyWord && speak(keyWord.reading), [keyWord, speak])
+  const replay = useCallback(
+    () => keyWord && speak(keyWord.reading, { onStart: timer.audioStart, onEnd: timer.audioStop }),
+    [keyWord, speak, timer],
+  )
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -65,12 +83,12 @@ export function KanjiQuizRunner({ title, session, status, notice, mode, onModeCh
       if (e.target instanceof HTMLInputElement) return
       if (!question || question.answerKind !== 'choice') return
       const option = question.options[Number(e.key) - 1]
-      if (option && !answer) submit(option)
+      if (option && !answer) answerWith(option)
       else if (e.key.toLowerCase() === 'r' && question.kind === 'listen') replay()
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [question, answer, submit, replay])
+  }, [question, answer, answerWith, replay])
 
   if (!question) return null
   const showToggle = mode !== undefined && onModeChange && (question.kind === 'meaning' || question.kind === 'reading') && !answer
@@ -82,9 +100,9 @@ export function KanjiQuizRunner({ title, session, status, notice, mode, onModeCh
       {showToggle && <AnswerModeToggle mode={mode} onChange={onModeChange} />}
       <Feedback answer={answer} />
       {question.answerKind === 'choice' ? (
-        <ChoiceGrid key={question.key} question={question} answer={answer} onPick={submit} />
+        <ChoiceGrid key={question.key} question={question} answer={answer} onPick={answerWith} />
       ) : (
-        <TypedAnswer key={question.key} question={question} answer={answer} onSubmit={submit} />
+        <TypedAnswer key={question.key} question={question} answer={answer} onInput={timer.markInput} onSubmit={answerWith} />
       )}
       <div ref={nextRef} className={cn('mt-4', !answer && 'invisible')}>
         <Button onClick={next} className="flex min-h-14 w-full items-center justify-center gap-2">
@@ -241,7 +259,15 @@ function ChoiceGrid({ question, answer, onPick }: { question: KanjiQuestion; ans
   )
 }
 
-function TypedAnswer({ question, answer, onSubmit }: { question: KanjiQuestion; answer?: KanjiAnswer; onSubmit: (text: string) => void }) {
+interface TypedAnswerProps {
+  question: KanjiQuestion
+  answer?: KanjiAnswer
+  /** Every keystroke (the timer keeps the first). */
+  onInput: () => void
+  onSubmit: (text: string) => void
+}
+
+function TypedAnswer({ question, answer, onInput, onSubmit }: TypedAnswerProps) {
   const [value, setValue] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
   const isReading = question.kind === 'reading'
@@ -267,7 +293,10 @@ function TypedAnswer({ question, answer, onSubmit }: { question: KanjiQuestion; 
           ref={inputRef}
           id={`answer-${question.key}`}
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => {
+            onInput()
+            setValue(e.target.value)
+          }}
           readOnly={Boolean(answer)}
           autoComplete="off"
           autoCorrect="off"

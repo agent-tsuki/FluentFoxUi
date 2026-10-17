@@ -1,9 +1,7 @@
 import { type ComponentType } from 'react'
 import type { KanaChar } from '@/types'
-import type { KanaProgressStore } from '@/api/services/kanaProgressService'
 import type { KanaScriptConfig } from '@/lib/content/kana/scripts'
 import { useKanaScript } from '@/context/KanaScriptContext'
-import { useKanaProgressStore } from '@/hooks/useKanaProgress'
 import { useKanaSections } from '@/hooks/useKanaSections'
 import { LoadingState } from '@/components/ui/LoadingState'
 import type { PracticeModeProps } from './types'
@@ -16,8 +14,6 @@ export interface WithAllKanaProps extends PracticeModeProps {
   isSubset: boolean
   /** The current script's config (words, sample words, storage keys…). */
   script: KanaScriptConfig
-  /** The current script's progress store, for recording reviews. */
-  progress: KanaProgressStore
 }
 
 /**
@@ -29,11 +25,10 @@ export interface WithAllKanaProps extends PracticeModeProps {
 export function withAllKana(Mode: ComponentType<WithAllKanaProps>): ComponentType<PracticeModeProps> {
   function WithAllKana(props: PracticeModeProps) {
     const script = useKanaScript()
-    const progress = useKanaProgressStore()
     const { kana: loaded, error, isLoading } = useKanaSections()
     const all = loaded ?? (error ? props.kana : undefined)
     if (isLoading || !all) return <LoadingState label="Loading practice…" />
-    return <Mode {...props} all={all} isSubset={props.kana.length < all.length} script={script} progress={progress} />
+    return <Mode {...props} all={all} isSubset={props.kana.length < all.length} script={script} />
   }
   WithAllKana.displayName = `WithAllKana(${Mode.displayName ?? Mode.name})`
   return WithAllKana
