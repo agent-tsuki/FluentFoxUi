@@ -47,11 +47,12 @@ function messageFor(rows: KanaRow[]): string {
   return `${heads.slice(0, -1).join(', ')} and ${heads[heads.length - 1]} rows learned!`
 }
 
-const isLearned = (m: KanaMastery) => m === 'learning' || m === 'mastered'
+// Familiar or better: remembered for a day or more.
+const isLearned = (m: KanaMastery) => m === 'familiar' || m === 'strong' || m === 'mastered'
 
 /**
  * Watches the basic chart and returns a message the first time a whole row
- * reaches 'learning'. Rows are remembered in localStorage so each one is only
+ * reaches 'familiar'. Rows are remembered in localStorage so each one is only
  * ever celebrated once (progress made on the practice pages is picked up when
  * the learner comes back to the chart). `storageKey` is per script.
  */

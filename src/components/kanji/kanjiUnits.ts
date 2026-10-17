@@ -3,10 +3,10 @@ import type { KanjiLevelIndex, KanjiUnit } from '@/types/kanji'
 import type { FinalTestResult } from '@/api/services/learningPathService'
 import type { UnitState } from '@/components/learn/unitStatus'
 import { unitState } from '@/components/learn/unitStatus'
-import { kanjiStage, kanjiUnitSteps } from '@/api/services/kanjiProgressService'
+import { kanjiUnitSteps } from '@/api/services/kanjiProgressService'
 import { KANJI_UNIT_STEPS, type KanjiUnitStep } from '@/lib/content/kanji/courseTypes'
 import { useKanjiLevel } from '@/context/KanjiLevelContext'
-import { useKanjiPath } from '@/hooks/useKanji'
+import { useKanjiPath, useKanjiStage } from '@/hooks/useKanji'
 
 /** One kanji unit as the Course page, Tests page and unit page show it. */
 export interface KanjiUnitView {
@@ -38,6 +38,7 @@ export interface KanjiCourseUnits {
 export function useKanjiCourseUnits(index: KanjiLevelIndex): KanjiCourseUnits {
   const level = useKanjiLevel()
   const path = useKanjiPath(level.id)
+  const stageOf = useKanjiStage()
 
   return useMemo(() => {
     const units = index.units.map((unit, i): KanjiUnitView => {
@@ -63,11 +64,11 @@ export function useKanjiCourseUnits(index: KanjiLevelIndex): KanjiCourseUnits {
       next: units.find((u) => !u.complete),
       isFresh: units.every((u) => u.state === 'not-started'),
       unitsDone: units.filter((u) => u.complete).length,
-      kanjiMastered: index.rows.filter((r) => kanjiStage(r.char) === 'mastered').length,
+      kanjiMastered: index.rows.filter((r) => stageOf(r.char) === 'mastered').length,
       levelTest: path.finalTest,
       skipTests: path.skipTests ?? {},
     }
-  }, [index, path])
+  }, [index, path, stageOf])
 }
 
 /** "72%" from a 0–1 score. */

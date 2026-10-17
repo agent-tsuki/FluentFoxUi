@@ -190,7 +190,7 @@ export function KanaChartPage() {
   const celebration = useRowCelebration(basicChars, mastery, script.storageKeys.rowsCelebrated)
 
   const counts = useMemo(() => {
-    const c: Record<KanaMastery, number> = { new: 0, seen: 0, learning: 0, mastered: 0 }
+    const c: Record<KanaMastery, number> = { new: 0, learning: 0, familiar: 0, strong: 0, mastered: 0 }
     for (const ch of visibleKana) c[mastery(ch.id)] += 1
     return c
   }, [visibleKana, mastery])

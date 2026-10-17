@@ -4,7 +4,9 @@ import type { KanjiIndexRow, KanjiLevelId, KanjiSort } from '@/types/kanji'
 import { useKanjiLevel } from '@/context/KanjiLevelContext'
 import { useAsync } from '@/hooks/useAsync'
 import { kanjiService } from '@/api/services/kanjiService'
-import { kanjiStage, KANJI_STAGE_LABEL } from '@/api/services/kanjiProgressService'
+import { KANJI_STAGE_LABEL, type KanjiStage } from '@/api/services/kanjiProgressService'
+import { useKanjiStage } from '@/hooks/useKanji'
+import { MASTERY_TONE } from '@/lib/learn/mastery'
 import { KANJI_LEVELS, isKanjiLevelId, kanjiCharPath } from '@/lib/content/kanji/levels'
 import { romajiToHiragana } from '@/lib/content/kanji/romaji'
 import { Icon } from '@/components/ui/Icon'
@@ -33,6 +35,7 @@ const FIELD =
  */
 export function KanjiBrowsePage() {
   const level = useKanjiLevel()
+  const stageOf = useKanjiStage()
   const [params, setParams] = useSearchParams()
   const query = params.get('q') ?? ''
   const deferredQuery = useDeferredValue(query)
@@ -168,7 +171,7 @@ export function KanjiBrowsePage() {
           </p>
           <ul className="grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-7">
             {rows.map((row) => (
-              <KanjiTile key={row.char} row={row} />
+              <KanjiTile key={row.char} row={row} stage={stageOf(row.char)} />
             ))}
           </ul>
         </>
@@ -177,8 +180,7 @@ export function KanjiBrowsePage() {
   )
 }
 
-const KanjiTile = memo(function KanjiTile({ row }: { row: KanjiIndexRow }) {
-  const stage = kanjiStage(row.char)
+const KanjiTile = memo(function KanjiTile({ row, stage }: { row: KanjiIndexRow; stage: KanjiStage }) {
   return (
     <li>
       <Link
@@ -193,7 +195,7 @@ const KanjiTile = memo(function KanjiTile({ row }: { row: KanjiIndexRow }) {
         <span lang="ja" className="font-jp text-xs text-on-surface-variant">
           {row.keyReading}
         </span>
-        {stage !== 'new' && <span className="mt-1 text-2xs font-semibold text-primary">{KANJI_STAGE_LABEL[stage]}</span>}
+        {stage !== 'new' && <span className={cn('mt-1 text-2xs font-semibold', MASTERY_TONE[stage].text)}>{KANJI_STAGE_LABEL[stage]}</span>}
       </Link>
     </li>
   )

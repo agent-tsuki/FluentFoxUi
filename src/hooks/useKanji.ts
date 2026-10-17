@@ -2,8 +2,10 @@ import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
 import type { KanjiEntry, KanjiLevelDetail, KanjiLevelId, KanjiLevelIndex, KanjiStrokeData } from '@/types/kanji'
 import type { LearningPathState } from '@/api/services/learningPathService'
 import { kanjiService } from '@/api/services/kanjiService'
-import { getKanjiPath } from '@/api/services/kanjiProgressService'
+import { getKanjiPath, type KanjiStage } from '@/api/services/kanjiProgressService'
 import { useAsync, type AsyncState } from '@/hooks/useAsync'
+import { useItemLevels } from '@/hooks/useProgress'
+import { KANJI_TRACK } from '@/lib/learn/paths'
 
 /**
  * Kanji data + progress hooks. Pages and components read kanji only through
@@ -72,6 +74,14 @@ export function useKanjiStrokes(char: string): StrokeState & { retry: () => void
 
   const retry = useCallback(() => setAttempt((a) => a + 1), [])
   return { ...state, retry }
+}
+
+/**
+ * A kanji's stage from the progress overview (N5, the only kanji track in
+ * v1). Every kanji reads New for guests, while loading, and for other levels.
+ */
+export function useKanjiStage(): (char: string) => KanjiStage {
+  return useItemLevels(KANJI_TRACK)
 }
 
 /** Live guided-path progress of one level (unit steps from the learn API for signed-in learners). */

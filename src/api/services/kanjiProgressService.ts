@@ -1,6 +1,8 @@
 import type { KanjiUnit } from '@/types/kanji'
 import type { UnitProgress } from '@/types/learningPath'
+import type { MasteryLevel } from '@/types/progress'
 import type { KanjiUnitStep } from '@/lib/content/kanji/courseTypes'
+import { MASTERY_LABEL, MASTERY_LEVELS } from '@/lib/learn/mastery'
 
 // Reviews, lessons, practice and tests run on the learn API; a level's path
 // (unit steps, quizzes, test-outs, level test) is in learningPathService.
@@ -8,26 +10,16 @@ export { getKanjiPath } from '@/api/services/learningPathService'
 
 // ─── Stages ──────────────────────────────────────────────────────────────────
 
-/** The five friendly SRS stages a learner sees (plan §7.4 levels). */
-export type KanjiStage = 'new' | 'learning' | 'familiar' | 'strong' | 'mastered'
-
-export const KANJI_STAGES: readonly KanjiStage[] = ['new', 'learning', 'familiar', 'strong', 'mastered']
-
-export const KANJI_STAGE_LABEL: Record<KanjiStage, string> = {
-  new: 'New',
-  learning: 'Learning',
-  familiar: 'Familiar',
-  strong: 'Strong',
-  mastered: 'Mastered',
-}
-
 /**
- * A kanji's stage. Stages need card stability from the progress API
- * (phase 6), which is not served yet, so every kanji shows as new until then.
+ * The five friendly SRS stages a learner sees: the progress API's mastery
+ * levels (plan §7.4). A kanji takes the lower of its two cards. Read them
+ * with useKanjiStage (hooks/useKanji).
  */
-export function kanjiStage(_char: string): KanjiStage {
-  return 'new'
-}
+export type KanjiStage = MasteryLevel
+
+export const KANJI_STAGES: readonly KanjiStage[] = MASTERY_LEVELS
+
+export const KANJI_STAGE_LABEL: Record<KanjiStage, string> = MASTERY_LABEL
 
 // ─── Units ───────────────────────────────────────────────────────────────────
 

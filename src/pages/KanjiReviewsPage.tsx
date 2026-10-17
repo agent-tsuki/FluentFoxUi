@@ -2,7 +2,9 @@ import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useKanjiLevel } from '@/context/KanjiLevelContext'
 import { useKanjiCourse } from '@/pages/kanjiCourseContext'
-import { KANJI_STAGES, KANJI_STAGE_LABEL, kanjiStage, type KanjiStage } from '@/api/services/kanjiProgressService'
+import { KANJI_STAGES, KANJI_STAGE_LABEL, type KanjiStage } from '@/api/services/kanjiProgressService'
+import { useKanjiStage } from '@/hooks/useKanji'
+import { MASTERY_HINT, MASTERY_TONE } from '@/lib/learn/mastery'
 import { useLearnSummary } from '@/hooks/useLearnSummary'
 import { useReviewForecast } from '@/hooks/useReviewForecast'
 import { KANJI_TRACK, lessonPath, reviewPath } from '@/lib/learn/paths'
@@ -15,30 +17,22 @@ import { cn } from '@/lib/cn'
 const CARD =
   'rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-4 dark:border-outline/60 dark:bg-surface-container-low sm:p-6'
 
-const STAGE_HINT: Record<KanjiStage, string> = {
-  new: 'Not reviewed yet',
-  learning: 'Coming back within a day',
-  familiar: 'Holding for a few days',
-  strong: 'Holding for most of a week',
-  mastered: 'Holding for a week or more',
-}
-
 /**
  * Reviews page of a level (/kanji/<level>/reviews): what is due now and the
  * new kanji left today (GET /learn/summary), a 7-day forecast when the
- * progress API serves one, and every kanji by stage. Stages need the
- * progress API (phase 6); until then every kanji shows as new.
+ * progress API serves one, and every kanji by stage (GET /progress/overview).
  */
 export function KanjiReviewsPage() {
   const level = useKanjiLevel()
   const { chars, rowsByChar } = useKanjiCourse()
   const { summary } = useLearnSummary(KANJI_TRACK)
   const forecast = useReviewForecast(KANJI_TRACK)
+  const stageOf = useKanjiStage()
   const byStage = useMemo(() => {
     const groups = new Map<KanjiStage, string[]>(KANJI_STAGES.map((s) => [s, []]))
-    for (const c of chars) groups.get(kanjiStage(c))?.push(c)
+    for (const c of chars) groups.get(stageOf(c))?.push(c)
     return groups
-  }, [chars])
+  }, [chars, stageOf])
   const dueCount = summary?.due_now ?? 0
 
   return (
@@ -83,10 +77,11 @@ export function KanjiReviewsPage() {
             return (
               <li key={stage} className={cn(CARD, 'p-4 sm:p-4')}>
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <h3 className="font-bold text-on-surface">
+                  <h3 className="flex items-center gap-2 font-bold text-on-surface">
+                    <span aria-hidden className={cn('h-2.5 w-2.5 rounded-full', MASTERY_TONE[stage].fill)} />
                     {KANJI_STAGE_LABEL[stage]} <span className="font-normal tabular-nums text-on-surface-variant">· {list.length}</span>
                   </h3>
-                  <span className="text-xs text-on-surface-variant">{STAGE_HINT[stage]}</span>
+                  <span className="text-xs text-on-surface-variant">{MASTERY_HINT[stage]}</span>
                 </div>
                 {list.length > 0 && (
                   <ul className="mt-2 flex flex-wrap gap-1">
