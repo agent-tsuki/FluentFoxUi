@@ -15,6 +15,7 @@ import { UnitStepItem } from '@/components/learn/UnitStepItem'
 import { UnitLearnGrid } from '@/components/learn/UnitLearnGrid'
 import { UnitPrintButton } from '@/components/learn/UnitPrintButton'
 import { UnitQuizPanel } from '@/components/learn/UnitQuizPanel'
+import { LearnerOnly } from '@/components/auth/SignInPrompt'
 import { JaText } from '@/components/learn/JaText'
 import { unitKana } from '@/components/learn/unitStatus'
 import { isKanaMark } from '@/lib/content/kana/kanaMarks'
@@ -127,14 +128,20 @@ function UnitView({ unit, index }: UnitViewProps) {
         <UnitLearnGrid kana={kana} />
       ),
     practise: () => (
-      <PracticeModeList
-        unitId={unit.id}
-        layout="narrow"
-        hints={nonBasic ? { build: 'Best for the basic rows' } : undefined}
-      />
+      <LearnerOnly>
+        <PracticeModeList
+          unitId={unit.id}
+          layout="narrow"
+          hints={nonBasic ? { build: 'Best for the basic rows' } : undefined}
+        />
+      </LearnerOnly>
     ),
     print: () => <UnitPrintButton unit={unit} kana={kana} />,
-    quiz: () => <UnitQuizPanel unit={unit} />,
+    quiz: () => (
+      <LearnerOnly>
+        <UnitQuizPanel unit={unit} />
+      </LearnerOnly>
+    ),
   }
 
   return (
