@@ -32,13 +32,13 @@ const ASK: Partial<Record<QuestionType, string>> = {
   kana_mcq_kana: 'Which kana is this?',
   kana_typed: 'Type the reading of this kana',
   kana_listen: 'Which kana did you hear?',
-  kana_lookalike: 'Careful, they look alike. Which one is it?',
+  kana_lookalike: 'Which kana is this? Careful, some look alike.',
   kanji_meaning_mcq: 'What does this kanji mean?',
   kanji_meaning_typed: 'Type the meaning of this kanji',
   kanji_reading_mcq: 'How do you read this kanji?',
   kanji_reading_typed: 'Type a reading of this kanji',
   kanji_listen: 'Which kanji is in the word you heard?',
-  kanji_lookalike: 'Careful, they look alike. Which one is it?',
+  kanji_lookalike: 'Which kanji means this? Careful, some look alike.',
 }
 
 export function questionView(question: LearnQuestion): QuestionView {

@@ -50,15 +50,15 @@ function emptyCounts(): GradeCounts {
 }
 
 /**
- * Joins the server's per-card result with the answer results of this session
- * (`answersByCard`: the card's answers in the order given; the first one is
- * the one that counted for the schedule). Counts come from the server when
- * present, else from the rows.
+ * One row per card of the server's result. Times come from the card result;
+ * when it has none, from this session's answer results (`answersByCard`: the
+ * card's answers in the order given; the first one is the one that counted).
+ * Counts come from the server when present, else from the rows.
  */
 export function buildResultView(result: SessionResult, answersByCard: ReadonlyMap<string, readonly AnswerResultItem[]>): ResultView {
   const rows: ResultRow[] = result.cards.map((card) => {
     const first = answersByCard.get(card.card_id)?.[0]
-    return { ...card, activeMs: first?.active_ms ?? null, usualMs: first?.usual_ms ?? null }
+    return { ...card, activeMs: card.active_ms ?? first?.active_ms ?? null, usualMs: card.usual_ms ?? first?.usual_ms ?? null }
   })
   const byLabel: Record<GradeLabel, ResultRow[]> = { strong: [], good: [], shaky: [], missed: [] }
   const counted = emptyCounts()

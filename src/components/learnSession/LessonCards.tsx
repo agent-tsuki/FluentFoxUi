@@ -68,6 +68,15 @@ function LessonCard({ item }: { item: LessonItem }) {
             </p>
           )}
         </>
+      ) : item.romaji || item.meanings?.length ? (
+        <>
+          <p className="font-headline text-3xl font-extrabold text-primary">{item.romaji ?? item.meanings?.[0]}</p>
+          {item.key_reading && (
+            <p lang="ja" className="font-jp text-on-surface-variant">
+              {item.key_reading}
+            </p>
+          )}
+        </>
       ) : (
         <p className="text-sm text-on-surface-variant">Details for this one are not available right now.</p>
       )}

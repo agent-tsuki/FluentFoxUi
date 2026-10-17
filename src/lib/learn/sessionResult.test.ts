@@ -92,3 +92,12 @@ describe('formatSeconds', () => {
     expect(formatSeconds(12_400)).toBe('12 s')
   })
 })
+
+describe('buildResultView times', () => {
+  it('prefers the times the server puts on the card result', () => {
+    const withTimes = { ...card('あ', 'good'), active_ms: 800, usual_ms: 1_900 }
+    const answers = new Map([['あ', [answer('e1', 1_200, 2_000)]]])
+    const [row] = buildResultView(result([withTimes]), answers).rows
+    expect(row).toMatchObject({ activeMs: 800, usualMs: 1_900 })
+  })
+})

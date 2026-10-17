@@ -115,8 +115,14 @@ export interface LearnQuestion {
 export interface LessonItem {
   item_type: SrsItemType
   item_id: string
-  /** Kana character or kanji char; content comes from `/content/*`. */
+  /** Kana character or kanji char; the full content comes from `/content/*`. */
   char: string
+  /** Kana only. */
+  romaji?: string
+  /** Kanji only. */
+  meanings?: string[]
+  /** Kanji only. */
+  key_reading?: string
 }
 
 /** Response of every session-start endpoint (lessons, reviews, practice, tests). */
@@ -211,6 +217,9 @@ export interface SessionCardResult {
   char: string
   label: GradeLabel
   reason: GradeReason
+  /** From the card's first graded answer in the session. */
+  active_ms?: number
+  usual_ms?: number
   next_due: string | null
 }
 
