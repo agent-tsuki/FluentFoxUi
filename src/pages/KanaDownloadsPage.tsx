@@ -7,6 +7,7 @@ import { unitKana } from '@/components/learn/unitStatus'
 import { Icon } from '@/components/ui/Icon'
 import { TestsSection } from '@/components/kanaCourse/TestsSection'
 import { DownloadWorksheetRow } from '@/components/kanaCourse/DownloadWorksheetRow'
+import { useCourseUnits } from '@/components/kanaCourse/courseUnits'
 
 /**
  * Downloads page (/kana/<script>/downloads): three chart posters and one
@@ -15,14 +16,40 @@ import { DownloadWorksheetRow } from '@/components/kanaCourse/DownloadWorksheetR
 export function KanaDownloadsPage() {
   const script = useKanaScript()
   const { allKana, kanaById } = useKanaCourse()
-  const { units } = useLearningPath()
+  const { units: pathUnits } = useLearningPath()
+  const { next, units: courseUnits } = useCourseUnits(kanaById)
+  const recommended = next ?? courseUnits.find((unit) => !pathUnits[unit.unit.id]?.printedAt) ?? courseUnits[0]
+  const printedCount = courseUnits.filter((unit) => Boolean(pathUnits[unit.unit.id]?.printedAt)).length
 
   return (
     <div className="space-y-10 md:space-y-12">
+      {recommended && (
+        <section aria-labelledby="print-next-title" className="rounded-2xl border border-primary/25 bg-primary/5 p-5 sm:p-6">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Recommended for your next study session</p>
+          <div className="mt-2 flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-5">
+            <div>
+              <h2 id="print-next-title" className="font-headline text-xl font-bold text-on-surface sm:text-2xl">
+                Print Unit {recommended.number}: {recommended.unit.title}
+              </h2>
+              <p className="mt-1 text-sm text-on-surface-variant">Trace the row, then use the mini check when you are offline.</p>
+            </div>
+            <p className="shrink-0 text-sm tabular-nums text-on-surface-variant">{printedCount} / {courseUnits.length} worksheets saved</p>
+          </div>
+          <ul className="mt-4 max-w-2xl">
+            <DownloadWorksheetRow
+              unit={recommended.unit}
+              number={recommended.number}
+              kana={unitKana(recommended.unit, kanaById)}
+              printed={Boolean(pathUnits[recommended.unit.id]?.printedAt)}
+            />
+          </ul>
+        </section>
+      )}
+
       <TestsSection
         id="posters"
         title="Chart posters"
-        description={`All ${scriptKanaCount(script)} ${script.label.toLowerCase()} on one page, with stroke order. Print one and keep it where you'll see it every day.`}
+        description={`Choose a daily wall reference, a printer-friendly chart or a colour-in revision sheet. Each includes all ${scriptKanaCount(script)} ${script.label.toLowerCase()} with stroke order.`}
       >
         <ChartDownloads kana={allKana} />
       </TestsSection>
@@ -51,7 +78,7 @@ export function KanaDownloadsPage() {
                       unit={unit}
                       number={script.units.indexOf(unit) + 1}
                       kana={unitKana(unit, kanaById)}
-                      printed={Boolean(units[unit.id]?.printedAt)}
+                      printed={Boolean(pathUnits[unit.id]?.printedAt)}
                     />
                   ))}
                 </ul>

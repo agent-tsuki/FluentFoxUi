@@ -12,9 +12,8 @@ interface ChartGridProps {
   showRomaji: boolean
   onSelect: (char: KanaChar) => void
   /**
-   * Content for the free tracks beside a short table at ≥ lg (Dakuten uses 5
-   * of the 11 tracks). It spans the table's full height there and stacks
-   * under the grid on smaller screens.
+   * Content beside a short table at ≥ lg. It matches the table's width,
+   * grows only to its content height, and stacks under the grid on phones.
    */
   aside?: ReactNode
 }
@@ -168,8 +167,8 @@ export const ChartGrid = memo(function ChartGrid({ section, title, mastery, show
 
         {aside && (
           <div
-            className={cn(PLACED, 'mt-4 min-w-0 lg:mt-0')}
-            style={place(groups.length + 2, '1 / -1', `1 / ${rows + 2}`, `${groups.length + 2} / -1`)}
+            className={cn(PLACED, 'mt-4 min-w-0 lg:mt-0 lg:self-start')}
+            style={place(groups.length + 2, '1 / -1', `1 / ${rows + 2}`, `${groups.length + 2} / span ${groups.length}`)}
           >
             {aside}
           </div>

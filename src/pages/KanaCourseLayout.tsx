@@ -10,9 +10,9 @@ import { COURSE_CONTAINER, coursePageFor } from '@/components/kanaCourse/courseP
 import { cn } from '@/lib/cn'
 import type { KanaCourseContext } from '@/pages/kanaCourseContext'
 
-/** Where the old `?tab=` values now live, relative to the course base (anything else goes to Course). */
+/** Where the old `?tab=` values now live, relative to the course base (anything else goes to Chart). */
 const LEGACY_TABS: ReadonlyMap<string, string> = new Map([
-  ['learn', ''],
+  ['learn', '/learn'],
   ['chart', '/downloads'], // the old "chart" tab held the poster downloads
   ['test', '/tests'],
 ])

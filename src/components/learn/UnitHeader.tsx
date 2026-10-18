@@ -39,7 +39,7 @@ export function UnitHeader({ unit, index, total, prev, next, steps, done, comple
     <header className="mb-10 md:mb-14">
       <nav aria-label="Unit navigation" className="-mx-3 mb-6 flex items-center justify-between gap-2">
         <span className="flex min-w-0 items-center">
-          <Link to={`${script.basePath}#unit-${unit.id}`} className={NAV_LINK}>
+          <Link to={`${script.basePath}/learn#unit-${unit.id}`} className={NAV_LINK}>
             <span aria-hidden className="flex">
               <Icon name="chevron_left" className="text-xl" />
             </span>

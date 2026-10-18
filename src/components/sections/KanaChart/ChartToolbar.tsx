@@ -101,8 +101,8 @@ export function MasteryLegend({ counts }: { counts: Record<KanaMastery, number> 
     <ul aria-label="Progress key" className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-on-surface-variant">
       {MASTERY_LEVELS.map((mastery) => (
         <li key={mastery} className="flex items-center gap-1.5">
-          <span aria-hidden className={cn('relative block h-5 w-5 shrink-0 rounded-md border', MASTERY_SURFACE[mastery])}>
-            <MasteryMarks mastery={mastery} className="right-0.5 top-0.5" />
+          <span aria-hidden className={cn('relative block h-5 w-5 shrink-0 overflow-hidden rounded-md border', MASTERY_SURFACE[mastery])}>
+            <MasteryMarks mastery={mastery} className="right-1 top-1 [&>span]:h-1 [&>span]:w-1" />
           </span>
           <span>
             {MASTERY_LABEL[mastery]} <span className="font-semibold tabular-nums text-on-surface">{counts[mastery]}</span>
@@ -120,7 +120,7 @@ interface ChartToolbarProps extends ChartSetSwitcherProps {
   downloadsTo: string
 }
 
-/** The chart's toolbar: set switcher, mastery key, hide-romaji toggle and poster link. */
+/** The chart's toolbar: set switcher, mastery key, hide-romaji toggle and print link. */
 export function ChartToolbar({ counts, hideRomaji, onToggleRomaji, downloadsTo, ...switcher }: ChartToolbarProps) {
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
@@ -150,7 +150,7 @@ export function ChartToolbar({ counts, hideRomaji, onToggleRomaji, downloadsTo, 
           to={downloadsTo}
           className="inline-flex min-h-11 items-center gap-0.5 rounded-lg text-sm font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
         >
-          Download poster
+          Print chart
           <span aria-hidden className="flex">
             <Icon name="chevron_right" className="text-lg" />
           </span>

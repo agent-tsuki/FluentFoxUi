@@ -39,7 +39,7 @@ const ChapterItem = memo(function ChapterItem({ level, chapter, isActive, isDone
         {/* Chapter number / done badge */}
         <span
           className={cn(
-            'flex-shrink-0 w-6 h-6 rounded-full text-2xs font-bold flex items-center justify-center mt-0.5 transition-colors',
+            'flex-shrink-0 size-7 rounded-full text-2xs font-bold flex items-center justify-center mt-0.5 transition-colors',
             isDone
               ? 'bg-primary text-on-primary'
               : isActive
@@ -47,7 +47,7 @@ const ChapterItem = memo(function ChapterItem({ level, chapter, isActive, isDone
               : 'bg-surface-container-highest text-on-surface-variant group-hover:bg-outline-variant/30',
           )}
         >
-          {isDone ? <Icon name="check" /> : chapter.id}
+          {isDone ? <Icon name="check" className="text-[1.05rem]" /> : chapter.id}
         </span>
 
         <div className="min-w-0 flex-1">

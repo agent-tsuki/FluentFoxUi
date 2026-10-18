@@ -35,7 +35,7 @@ export function KanaPracticePage() {
   // The look-alike drill exists only for scripts with look-alike sets.
   const available = mode !== 'lookalike' || lookAlikeSetsFor(script.id).length > 0
   if (mode === 'review') return <Navigate to={reviewPath(script.id)} replace />
-  if (!isKanaPracticeMode(mode) || !available) return <Navigate to={`${script.basePath}#practice`} replace />
+  if (!isKanaPracticeMode(mode) || !available) return <Navigate to={`${script.basePath}/learn#practice`} replace />
   return <Practice key={mode} mode={mode} />
 }
 
@@ -74,7 +74,7 @@ function Practice({ mode }: { mode: KanaPracticeMode }) {
   useEffect(load, [load])
 
   const onExit = useCallback(
-    () => navigate(unit ? `${script.basePath}/unit/${unit.id}` : `${script.basePath}#practice`),
+    () => navigate(unit ? `${script.basePath}/unit/${unit.id}` : `${script.basePath}/learn#practice`),
     [navigate, unit, script.basePath],
   )
   const { finish } = recorder

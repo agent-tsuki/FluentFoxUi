@@ -13,6 +13,8 @@ import {
 } from '@/components/sections/KanaChart/ChartToolbar'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 import { Icon } from '@/components/ui/Icon'
+import { ChartStudyPanel } from '@/components/kanaCourse/ChartStudyPanel'
+import { useCourseUnits } from '@/components/kanaCourse/courseUnits'
 import { useKanaCourse } from '@/pages/kanaCourseContext'
 import { useKanaScript } from '@/context/KanaScriptContext'
 import type { KanaChartMarks, KanaMarkPair, KanaScriptConfig } from '@/lib/content/kana/scripts'
@@ -74,7 +76,7 @@ function focusCard(id: string) {
 
 function PairList({ pairs }: { pairs: readonly KanaMarkPair[] }) {
   return (
-    <ul className="mt-2 grid lg:mt-3 grid-cols-1 gap-x-6 gap-y-1.5 sm:grid-cols-2">
+    <ul className="mt-2 grid grid-cols-1 gap-x-6 gap-y-1.5 sm:grid-cols-2">
       {pairs.map((p) => (
         <li key={p.to} className="flex items-baseline gap-3">
           <span className="whitespace-nowrap font-jp text-2xl font-bold text-on-surface lg:text-3xl" lang="ja">
@@ -92,14 +94,14 @@ function PairList({ pairs }: { pairs: readonly KanaMarkPair[] }) {
   )
 }
 
-/** Fills the 6 free tracks beside the Dakuten table at ≥ lg; stacks under it on phones. */
+/** Matches the Dakuten table width at ≥ lg; stacks under it on phones. */
 function MarksAside({ marks, basePath }: { marks: KanaChartMarks; basePath: string }) {
   const [rareA, rareB, commonA, commonB] = marks.rareNote
   return (
     <aside
       aria-labelledby="chart-marks-title"
       data-chart-aside
-      className="flex h-full flex-col gap-5 rounded-2xl lg:gap-6 border border-outline-variant bg-surface-container-lowest p-5 dark:border-outline/60 dark:bg-surface-container-low lg:p-6"
+      className="flex self-start flex-col gap-4 rounded-2xl border border-outline-variant bg-surface-container-lowest p-4 dark:border-outline/60 dark:bg-surface-container-low"
     >
       <h3 id="chart-marks-title" className="font-headline text-base font-bold text-on-surface">
         How the marks work
@@ -144,7 +146,7 @@ function MarksAside({ marks, basePath }: { marks: KanaChartMarks; basePath: stri
 /**
  * Chart page (/kana/<script>/chart): every kana, tap for the detail sheet.
  * Rendered inside KanaCourseLayout (header, nav and kana data via
- * useKanaCourse). `?set=` picks the visible set (all by default).
+ * useKanaCourse). `?set=` picks the visible set (Basic by default).
  */
 export function KanaChartPage() {
   const script = useKanaScript()
@@ -153,7 +155,11 @@ export function KanaChartPage() {
 
   const chartSets = useMemo(() => chartSetsFor(script, sections), [script, sections])
   const rawSet = searchParams.get('set')
-  const set: ChartSet = chartSets.some((c) => c.set === rawSet) && rawSet ? rawSet : 'all'
+  // A chart is less intimidating when it opens on the first teachable set;
+  // "All" remains one tap away for learners using it as a reference.
+  const defaultSet = chartSets[0]?.set ?? 'all'
+  const isKnownSet = rawSet === 'all' || chartSets.some((c) => c.set === rawSet)
+  const set: ChartSet = isKnownSet && rawSet ? rawSet : defaultSet
 
   const hideRomajiKey = script.storageKeys.hideRomaji
   const [hideRomaji, setHideRomaji] = useState(() => readHideRomaji(hideRomajiKey))
@@ -184,6 +190,13 @@ export function KanaChartPage() {
     () => visibleSets.flatMap((c) => c.section.chars.filter((ch) => !ch.isEmpty)),
     [visibleSets],
   )
+
+  const kanaById = useMemo(
+    () => new Map(sections.flatMap((section) => section.chars).filter((char) => !char.isEmpty).map((char) => [char.id, char])),
+    [sections],
+  )
+  const { next: nextUnit, units: courseUnits } = useCourseUnits(kanaById)
+  const unitsDone = courseUnits.filter((unit) => unit.complete).length
 
   const mastery = useKanaMastery()
   const basicChars = sections.find((s) => s.id === 'basic')?.chars ?? EMPTY_CHARS
@@ -232,32 +245,45 @@ export function KanaChartPage() {
 
   return (
     <section aria-label={`${script.label} chart`}>
-      <p className="text-base text-on-surface-variant">Tap any kana to hear it, see its strokes and trace it.</p>
+      <p className="max-w-2xl text-base leading-relaxed text-on-surface-variant">
+        Start with one row, tap a kana to hear it and see its strokes, then continue into a short Learn unit.
+      </p>
 
-      <div className="mt-5">
-        <ChartToolbar
-          options={options}
-          value={set}
-          onChange={changeSet}
-          counts={counts}
-          hideRomaji={hideRomaji}
-          onToggleRomaji={toggleRomaji}
-          downloadsTo={`${script.basePath}/downloads`}
-        />
-      </div>
-
-      <div className="mt-8 flex flex-col gap-12 lg:gap-14">
-        {visibleSets.map((c) => (
-          <ChartGrid
-            key={c.set}
-            section={c.section}
-            title={c.title}
-            mastery={mastery}
-            showRomaji={!hideRomaji}
-            onSelect={select}
-            aside={script.chartMarks?.sectionId === c.section.id ? <MarksAside marks={script.chartMarks} basePath={script.basePath} /> : undefined}
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start lg:gap-8">
+        <div className="min-w-0">
+          <ChartToolbar
+            options={options}
+            value={set}
+            onChange={changeSet}
+            counts={counts}
+            hideRomaji={hideRomaji}
+            onToggleRomaji={toggleRomaji}
+            downloadsTo={`${script.basePath}/downloads`}
           />
-        ))}
+
+          <div className="mt-8 flex flex-col gap-12 lg:gap-14">
+            {visibleSets.map((c) => (
+              <ChartGrid
+                key={c.set}
+                section={c.section}
+                title={c.title}
+                mastery={mastery}
+                showRomaji={!hideRomaji}
+                onSelect={select}
+                aside={script.chartMarks?.sectionId === c.section.id ? <MarksAside marks={script.chartMarks} basePath={script.basePath} /> : undefined}
+              />
+            ))}
+          </div>
+        </div>
+
+        <ChartStudyPanel
+          basePath={script.basePath}
+          next={nextUnit}
+          unitsDone={unitsDone}
+          unitsTotal={courseUnits.length}
+          masteredInView={counts.mastered}
+          kanaInView={visibleKana.length}
+        />
       </div>
 
       <RowCelebration message={celebration.message} onDismiss={celebration.dismiss} />

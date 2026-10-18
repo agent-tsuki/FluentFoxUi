@@ -195,8 +195,9 @@ function kanaCourseRoutes(script: RegisteredKanaScriptId): RouteObject {
         // Course · Chart · Tests · Downloads share one header, sub-nav and kana fetch.
         element: <KanaCourseLayout />,
         children: [
-          { index: true,         element: <CoursePageSuspense><KanaCoursePage /></CoursePageSuspense> },
+          { index: true,         element: <Navigate to="chart" replace /> },
           { path: 'chart',       element: <CoursePageSuspense><KanaChartPage /></CoursePageSuspense> },
+          { path: 'learn',       element: <CoursePageSuspense><KanaCoursePage /></CoursePageSuspense> },
           { path: 'tests',       element: <CoursePageSuspense><KanaTestsPage /></CoursePageSuspense> },
           { path: 'downloads',   element: <CoursePageSuspense><KanaDownloadsPage /></CoursePageSuspense> },
         ],

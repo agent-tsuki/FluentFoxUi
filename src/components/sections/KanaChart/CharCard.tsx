@@ -70,9 +70,15 @@ export function MasteryMarks({ mastery, className }: { mastery: KanaMastery; cla
     <>
       {tint && <span aria-hidden className={cn('absolute inset-0 rounded-[inherit]', tint)} />}
       {dots > 0 && (
-        <span aria-hidden className={cn('absolute flex gap-0.5', className ?? 'right-1.5 top-1.5')}>
+        <span
+          aria-hidden
+          className={cn(
+            'pointer-events-none absolute flex max-w-[calc(100%-0.75rem)] items-center justify-end gap-px',
+            className ?? 'right-1.5 top-1.5',
+          )}
+        >
           {Array.from({ length: dots }, (_, i) => (
-            <span key={i} className={cn('block h-1.5 w-1.5 rounded-full', MASTERY_TONE[mastery].fill)} />
+            <span key={i} className={cn('block h-1.5 w-1.5 shrink-0 rounded-full', MASTERY_TONE[mastery].fill)} />
           ))}
         </span>
       )}
@@ -107,7 +113,7 @@ export const CharCard = memo(function CharCard({
       aria-label={label}
       onClick={() => onSelect?.(char)}
       className={cn(
-        'relative flex w-full min-w-0 cursor-pointer select-none flex-col items-center justify-center gap-1 rounded-xl border transition-colors duration-200',
+        'relative flex w-full min-w-0 overflow-hidden cursor-pointer select-none flex-col items-center justify-center gap-1 rounded-xl border transition-colors duration-200',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
         'hover:border-primary/70',
         s.cell,

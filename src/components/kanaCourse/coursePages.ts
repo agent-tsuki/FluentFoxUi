@@ -1,7 +1,8 @@
 import { scriptKanaCount, type KanaScriptConfig } from '@/lib/content/kana/scripts'
 
 /**
- * The four pages of a kana course (the SectionNav items), in nav order.
+ * The four pages of a kana course (the SectionNav items), in learning order:
+ * Chart → Learn → Check → Print.
  * One source of truth for each page's path, nav label, h1, one-line
  * description and document title, shared by KanaCourseLayout,
  * CourseHeader, SectionNav and the unit page's course menu.
@@ -14,7 +15,7 @@ export interface CoursePage {
   to: string
   /** Label in the SectionNav. */
   navLabel: string
-  /** The page h1 (the script name, e.g. "Hiragana", on the Course page). */
+  /** The page h1 (the script name, e.g. "Hiragana", on the Learn page). */
   heading: string
   /** One line under the h1. */
   description: string
@@ -33,36 +34,36 @@ export function coursePagesFor(script: KanaScriptConfig): readonly CoursePage[] 
   const lower = name.toLowerCase()
   const pages: CoursePage[] = [
     {
-      id: 'course',
-      to: base,
-      navLabel: 'Course',
-      heading: name,
-      description: `Read every ${lower} in ${script.units.length} short units.`,
-      documentTitle: `Course · ${name} · FoxSensei`,
-    },
-    {
       id: 'chart',
       to: `${base}/chart`,
       navLabel: 'Chart',
-      heading: 'Chart',
-      description: `All ${scriptKanaCount(script)} ${lower}. Tap any kana to hear it and see its strokes.`,
+      heading: `${name} chart`,
+      description: `Explore all ${scriptKanaCount(script)} ${lower}, then move into the guided units when you are ready.`,
       documentTitle: `Chart · ${name} · FoxSensei`,
+    },
+    {
+      id: 'course',
+      to: `${base}/learn`,
+      navLabel: 'Learn',
+      heading: `Learn ${name}`,
+      description: `Build confidence through ${script.units.length} short, guided ${lower} units.`,
+      documentTitle: `Learn · ${name} · FoxSensei`,
     },
     {
       id: 'tests',
       to: `${base}/tests`,
-      navLabel: 'Tests',
-      heading: 'Tests',
-      description: 'Test out, unit quizzes and the final test for your certificate.',
-      documentTitle: `Tests · ${name} · FoxSensei`,
+      navLabel: 'Check',
+      heading: 'Check your progress',
+      description: 'Use short unit checks, test out if you already know it, then take the final test.',
+      documentTitle: `Check · ${name} · FoxSensei`,
     },
     {
       id: 'downloads',
       to: `${base}/downloads`,
-      navLabel: 'Downloads',
-      heading: 'Downloads',
-      description: 'Chart posters and unit worksheets to print or save.',
-      documentTitle: `Downloads · ${name} · FoxSensei`,
+      navLabel: 'Print',
+      heading: 'Print & practise',
+      description: 'Take chart posters and unit worksheets offline for focused revision.',
+      documentTitle: `Print · ${name} · FoxSensei`,
     },
   ]
   cache.set(script, pages)

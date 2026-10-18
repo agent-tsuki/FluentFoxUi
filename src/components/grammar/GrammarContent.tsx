@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { GrammarChapter, JapaneseSegment } from '@/types/grammar'
 import { InteractiveWord } from '@/components/ui/InteractiveWord'
 import { RichHtml } from '@/components/grammar/RichHtml'
+import { ChapterVisual } from '@/components/grammar/ChapterVisual'
 import { useState, useEffect } from 'react'
 import confetti from 'canvas-confetti'
 
@@ -163,6 +164,8 @@ export function GrammarContent({
         )}
       </header>
 
+      <ChapterVisual chapterId={chapter.id} />
+
       {/* Main grid */}
       <div className="grid grid-cols-12 gap-6 xl:gap-8">
 
@@ -297,7 +300,7 @@ export function GrammarContent({
         <aside className="col-span-12 lg:col-span-3 space-y-6">
 
           {/* Vocab card */}
-          <div className="bg-surface-container-low rounded-2xl border border-outline-variant/20 sticky top-24 max-h-[calc(100dvh-130px)] flex flex-col overflow-hidden">
+          <div className="bg-surface-container-low rounded-2xl border border-outline-variant/20 overflow-hidden">
             {/* Header */}
             <div className="px-5 py-4 border-b border-outline-variant/15 flex-shrink-0">
               <div className="flex items-center justify-between mb-1">
@@ -326,7 +329,7 @@ export function GrammarContent({
             </div>
 
             {/* Vocab list */}
-            <div className="overflow-y-auto flex-1 custom-scrollbar">
+            <div>
               {chapter.sidebar.vocab.length === 0 ? (
                 <div className="px-5 py-8 text-center text-sm text-on-surface-variant/50">
                   No vocabulary for this chapter.

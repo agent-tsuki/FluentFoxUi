@@ -18,6 +18,7 @@ interface VariantInfo {
   title: string
   description: string
   size: 'A3' | 'A4'
+  bestFor: string
 }
 
 const VARIANTS: VariantInfo[] = [
@@ -26,18 +27,21 @@ const VARIANTS: VariantInfo[] = [
     title: 'Colour wall poster',
     description: 'Each row on its own colour band, with stroke-order numbers.',
     size: 'A3',
+    bestFor: 'Best for a daily wall reference',
   },
   {
     id: 'print-a4',
     title: 'Printer-friendly chart',
     description: 'Black and white with thin lines, to save ink on a home printer.',
     size: 'A4',
+    bestFor: 'Best for a home printer',
   },
   {
     id: 'colour-in-a3',
     title: 'Colour-in poster',
     description: "Outlined kana: colour in each row once you've learned it.",
     size: 'A3',
+    bestFor: 'Best for active revision',
   },
 ]
 
@@ -82,6 +86,9 @@ function PosterCard({ info, kana, previewRows }: PosterCardProps) {
             <h3 id={titleId} className="text-base font-bold text-on-surface">
               {info.title}
             </h3>
+            <p className="mt-1 inline-flex rounded-full bg-primary/10 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-[0.1em] text-primary">
+              {info.bestFor}
+            </p>
             <p className="mt-0.5 flex items-center gap-1 text-xs font-semibold tabular-nums text-on-surface-variant">
               <span aria-hidden className="flex">
                 <Icon name="picture_as_pdf" className="text-base" />

@@ -5,7 +5,7 @@ import { useKanaScript } from '@/context/KanaScriptContext'
 import { COURSE_CONTAINER, coursePagesFor } from './coursePages'
 
 /**
- * SectionNav — the kana course sub-nav (Course · Chart · Tests · Downloads),
+ * SectionNav — the kana course sub-nav (Chart · Learn · Check · Print),
  * built on CourseSectionNav (also used by the kanji course).
  * Real links with `aria-current="page"` (NavLink), sticky just under the fixed
  * site navbar (`top-nav`). Flat with a bottom border at rest; once it sticks,
@@ -20,7 +20,7 @@ interface SectionNavProps {
 export interface CourseNavItem {
   to: string
   label: string
-  /** Match the path exactly (the course root). */
+  /** Match the path exactly. */
   end?: boolean
   /** Small count after the label, e.g. reviews due. */
   badge?: number
@@ -34,7 +34,7 @@ const ITEM =
 
 export function SectionNav({ className }: SectionNavProps) {
   const script = useKanaScript()
-  const items = coursePagesFor(script).map((page) => ({ to: page.to, label: page.navLabel, end: page.to === script.basePath }))
+  const items = coursePagesFor(script).map((page) => ({ to: page.to, label: page.navLabel, end: page.id === 'course' }))
   return <CourseSectionNav label={`${script.label} course`} items={items} className={className} />
 }
 

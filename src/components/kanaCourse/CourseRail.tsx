@@ -21,8 +21,8 @@ interface CourseRailProps {
 /** Quick links, relative to the course base. */
 const QUICK_LINKS = [
   { to: '/chart', label: 'Chart', icon: 'grid_view' },
-  { to: '/downloads', label: 'Downloads', icon: 'download' },
-  { to: '/tests', label: 'Tests', icon: 'quiz' },
+  { to: '/tests', label: 'Check', icon: 'quiz' },
+  { to: '/downloads', label: 'Print', icon: 'download' },
 ] as const
 
 export function CourseRail({ byId, className }: CourseRailProps) {

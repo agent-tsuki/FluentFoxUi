@@ -29,7 +29,7 @@ import { useMeasuredHeight } from '@/hooks/useMeasuredHeight'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 
 export function AuthModal() {
-  const { isOpen, activeTab, forgotRequest, openModal, openForgotPassword, closeModal, setActiveTab } = useModal()
+  const { isOpen, activeTab, returnTo, forgotRequest, openModal, openForgotPassword, closeModal, setActiveTab } = useModal()
   const { user, setUser } = useAuth()
 
   const [step, setStep]                   = useState<AuthStep>('form')
@@ -41,6 +41,7 @@ export function AuthModal() {
   const isDesktop     = useMediaQuery('(min-width: 768px)')
   const reducedMotion = useReducedMotion()
   const { ref: contentRef, height: contentHeight } = useMeasuredHeight<HTMLDivElement>()
+  const dialogRef = useRef<HTMLDivElement>(null)
 
   // ── Form values ───────────────────────────────────────────────────────────
   // Held here (not in the forms) so they survive Login ⇄ Sign Up switches.
@@ -93,6 +94,42 @@ export function AuthModal() {
     return () => window.removeEventListener('keydown', onKey)
   }, [isOpen, closeModal])
 
+  // Keep keyboard focus inside the popup and return it to the button that
+  // opened it. The popup is portal-based for its animation, so this behaviour
+  // is implemented here instead of relying on DOM nesting.
+  useEffect(() => {
+    if (!isOpen) return
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    const getFocusable = () =>
+      [...(dialogRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ) ?? [])].filter((element) => !element.hasAttribute('hidden') && element.getClientRects().length > 0)
+    const focusInitial = window.requestAnimationFrame(() => {
+      const firstField = dialogRef.current?.querySelector<HTMLElement>('input[type="email"]')
+      ;(firstField ?? getFocusable()[0])?.focus()
+    })
+    const trapFocus = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab') return
+      const focusable = getFocusable()
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+    window.addEventListener('keydown', trapFocus)
+    return () => {
+      window.cancelAnimationFrame(focusInitial)
+      window.removeEventListener('keydown', trapFocus)
+      if (opener?.isConnected) opener.focus()
+    }
+  }, [isOpen])
+
   // Lock body scroll
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : ''
@@ -102,11 +139,11 @@ export function AuthModal() {
   // Both entry points (desktop sidebar sheet and mobile screen) use this one
   // backend-owned OAuth navigation. No provider token is handled in React.
   const handleGoogle = useCallback(() => {
-    authService.startGoogleOAuth('/dashboard')
-  }, [])
+    authService.startGoogleOAuth(returnTo ?? '/dashboard')
+  }, [returnTo])
   const handleX = useCallback(() => {
-    authService.startXOAuth('/dashboard')
-  }, [])
+    authService.startXOAuth(returnTo ?? '/dashboard')
+  }, [returnTo])
 
   if (!isOpen) return null
 
@@ -115,9 +152,15 @@ export function AuthModal() {
   // Login or signup (auto-login) succeeded. Unverified users go to the
   // "Verify your email" screen instead of into the app (auth guide §5).
   const handleAuthenticated = (user: AuthUser) => {
+    const destination = returnTo
     setUser(user)
     closeModal() // closing also clears the form values
-    if (!user.emailVerified) navigate('/verify-email')
+    if (!user.emailVerified) {
+      const suffix = destination ? `?returnTo=${encodeURIComponent(destination)}` : ''
+      navigate(`/verify-email${suffix}`)
+    } else if (destination) {
+      navigate(destination, { replace: true })
+    }
   }
 
   // Account created but auto-login failed → show "check your inbox".
@@ -148,9 +191,10 @@ export function AuthModal() {
       onClick={e => e.target === e.currentTarget && closeModal()}
     >
       <motion.div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        aria-label={activeTab === 'signup' ? 'Create your account' : 'Log in'}
+        aria-labelledby="auth-dialog-title"
         initial={false}
         animate={{ height: isDesktop && contentHeight !== undefined ? contentHeight : '100%' }}
         transition={isDesktop && !reducedMotion ? resizeTransition : { duration: 0 }}
@@ -179,6 +223,9 @@ export function AuthModal() {
                 : 'px-6 pb-10 pt-2 max-md:animate-sheet-rise md:p-12',
             )}
           >
+            <h2 id="auth-dialog-title" className="sr-only">
+              {activeTab === 'signup' ? 'Create your FoxSensei account' : 'Log in to FoxSensei'}
+            </h2>
             {!isFullWidth && (
               <ArcEdge fillClassName="fill-surface-container-lowest" className="h-8 md:hidden" />
             )}
@@ -189,7 +236,7 @@ export function AuthModal() {
                 initialEmail={forgotRequest.email}
                 autoSend={forgotRequest.autoSend}
                 // Signed in (e.g. started from Settings): just close. Otherwise back to Login.
-                onExit={user ? closeModal : () => openModal('login')}
+                onExit={user ? closeModal : () => openModal('login', { returnTo: returnTo ?? undefined })}
                 exitLabel={user ? 'Close' : 'Back to login'}
               />
 
