@@ -1,17 +1,15 @@
-import { lazy, Suspense, useEffect, useSyncExternalStore, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { createBrowserRouter, Navigate, RouterProvider, Outlet, useSearchParams, type RouteObject } from 'react-router-dom'
 import { PathUserSync } from '@/components/auth/PathUserSync'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { LazyAuthModal } from '@/components/sections/AuthModal'
 import { ModalProvider, useModal } from '@/context/ModalContext'
-import { AuthProvider } from '@/context/AuthContext'
+import { AuthProvider, useAuth } from '@/context/AuthContext'
 import { UIProvider, useUI } from '@/context/UIContext'
 import { MouseFollower } from '@/components/ui/MouseFollower'
-import { PetalBackground } from '@/components/ui/PetalBackground'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 import { LoadingState } from '@/components/ui/LoadingState'
-import { ProfileOverlay } from '@/components/profile/ProfileOverlay'
 import { RequireAuth } from '@/components/auth/RequireAuth'
 import { useAmbientMotion } from '@/hooks/useAmbientMotion'
 // Ids and paths only (no course content), so the router stays light.
@@ -72,6 +70,11 @@ const OAuthCallbackPage = lazy(() => import('@/pages/OAuthCallbackPage').then(m 
 
 // lottie-web + the koi JSON load only when this background is actually shown.
 const KoiBackground = lazy(() => import('@/components/ui/KoiBackground').then(m => ({ default: m.KoiBackground })))
+// Background motion is off by default, so most visitors never need this chunk.
+const PetalBackground = lazy(() => import('@/components/ui/PetalBackground').then(m => ({ default: m.PetalBackground })))
+// framer-motion arrives with this overlay (via CloseButton); keeping it lazy keeps
+// framer-motion off the first page load.
+const ProfileOverlay = lazy(() => import('@/components/profile/ProfileOverlay').then(m => ({ default: m.ProfileOverlay })))
 
 /** Suspense boundary for a lazy route: the shared skeleton while its chunk loads. */
 function RouteSuspense({ children }: { children: ReactNode }) {
@@ -102,7 +105,13 @@ function AmbientBackground() {
   const ambientMotion = useAmbientMotion()
   const onHomePage = useSyncExternalStore(subscribeToRouter, isOnHomePage)
   if (!ambientMotion || onHomePage) return null
-  if (backgroundAnimation === 'petals') return <PetalBackground />
+  if (backgroundAnimation === 'petals') {
+    return (
+      <Suspense fallback={null}>
+        <PetalBackground />
+      </Suspense>
+    )
+  }
   if (backgroundAnimation === 'fish') {
     return (
       <Suspense fallback={null}>
@@ -142,10 +151,31 @@ function ModalFromUrl() {
   return null
 }
 
+// Only a signed-in avatar opens the overlay, so guests never download it. Once
+// loaded it stays mounted: it starts closed (so the open animation plays) and
+// logging out from inside it must not unmount it mid-close.
+function SignedInProfileOverlay() {
+  const { user } = useAuth()
+  const { isProfileOverlayOpen, setIsProfileOverlayOpen } = useUI()
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    if (user) setLoaded(true)
+  }, [user])
+
+  if (!loaded) return null
+  return (
+    <Suspense fallback={null}>
+      <ProfileOverlay
+        isOpen={isProfileOverlayOpen}
+        onClose={() => setIsProfileOverlayOpen(false)}
+      />
+    </Suspense>
+  )
+}
+
 // ─── Layout shell (shared Navbar + Footer + modals) ───────────────────────────
 function Shell() {
-  const { isProfileOverlayOpen, setIsProfileOverlayOpen } = useUI()
-
   return (
     <div className="bg-surface text-on-surface transition-colors duration-300 ease-in-out font-body selection:bg-primary-fixed selection:text-primary min-h-dvh flex flex-col relative overflow-x-clip">
       <AmbientBackground />
@@ -162,11 +192,7 @@ function Shell() {
         </div>
         <Footer />
         <LazyAuthModal />
-
-        <ProfileOverlay
-          isOpen={isProfileOverlayOpen}
-          onClose={() => setIsProfileOverlayOpen(false)}
-        />
+        <SignedInProfileOverlay />
       </div>
     </div>
   )

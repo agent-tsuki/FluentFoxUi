@@ -5,6 +5,7 @@ import { Icon } from '@/components/ui/Icon'
 import { CloseButton } from '@/components/ui/CloseButton'
 import { useAuth } from '@/context/AuthContext'
 import { useUI } from '@/context/UIContext'
+import { asset } from '@/lib/assets'
 
 interface ProfileOverlayProps {
   isOpen: boolean
@@ -128,7 +129,7 @@ export function ProfileOverlay({ isOpen, onClose }: ProfileOverlayProps) {
           style={isOpen ? finalStyles : initialStyles}
         >
           <img
-            src={getAvatarPath()}
+            src={asset(getAvatarPath())}
             alt="Profile"
             className="w-full h-full object-cover"
           />
@@ -207,7 +208,7 @@ export function ProfileOverlay({ isOpen, onClose }: ProfileOverlayProps) {
                     transitionDelay: `${index * 40}ms`
                   }}
                 >
-                  <img src={avatar} alt="Avatar option" className="w-full h-full object-cover" />
+                  <img src={asset(avatar)} alt="Avatar option" className="w-full h-full object-cover" />
                 </button>
               )
             })

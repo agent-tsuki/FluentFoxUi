@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { asset } from '@/lib/assets'
 
 type Motion = 'fall' | 'flutter' | 'glide' | 'tumble'
 
@@ -269,7 +270,7 @@ export function FallingPetals() {
       resize()
       frameId = window.requestAnimationFrame(draw)
     }
-    image.src = PETAL_SPRITE
+    image.src = asset(PETAL_SPRITE)
 
     return () => {
       observer.disconnect()

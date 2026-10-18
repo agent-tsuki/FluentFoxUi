@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useStartLearning } from '@/hooks/useStartLearning'
 import { Icon } from '@/components/ui/Icon'
 import { FallingPetals } from './FallingPetals'
+import { asset } from '@/lib/assets'
 
 const chapters = [
   { id: 'hiragana', number: '01', label: 'Hiragana', path: '/kana/hiragana' },
@@ -56,7 +57,7 @@ export function ConceptHome() {
       <section id="top" className="relative isolate h-[calc(100svh-5rem)] min-h-[37rem] overflow-hidden bg-[#cbdcc9]">
         <div
           className="absolute inset-0 scale-[1.03] bg-cover bg-[center_54%] motion-safe:animate-[concept-drift_25s_ease-in-out_infinite_alternate]"
-          style={{ backgroundImage: "url('/images/home/journey.webp')" }}
+          style={{ backgroundImage: `url('${asset('/images/home/journey.webp')}')` }}
         />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(248,247,237,.94)_0%,rgba(248,247,237,.72)_30%,rgba(248,247,237,.08)_68%),linear-gradient(0deg,rgba(27,68,61,.32),transparent_35%)]" />
         <FallingPetals />

@@ -6,6 +6,9 @@
 /** Backend base URL, no trailing slash. Empty string = same origin. */
 export const API_BASE: string = ((import.meta.env.VITE_API_URL as string | undefined) ?? '').replace(/\/+$/, '')
 
+/** R2 CDN base URL for images, no trailing slash. Empty string = serve from `public/`. */
+export const CDN_BASE: string = ((import.meta.env.VITE_CDN_URL as string | undefined) ?? '').replace(/\/+$/, '')
+
 /** Shown wherever users are told to contact support (suspended/deleted accounts, etc.). */
 export const SUPPORT_EMAIL = 'support@foxsensei.com'
 

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { FoxLogo } from '@/components/layout/Navbar/FoxLogo'
 import { useModal } from '@/context/ModalContext'
 import { authModalPrefetchHandlers } from '@/components/sections/AuthModal'
+import { asset } from '@/lib/assets'
 
 const team = [
   {
@@ -117,7 +118,7 @@ export function AboutPage() {
           {team.map((member) => (
             <div key={member.name} className="space-y-4">
               <div className="w-20 h-20 rounded-full overflow-hidden bg-surface-container border-2 border-outline-variant/30">
-                <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
+                <img src={asset(member.avatar)} alt={member.name} className="w-full h-full object-cover" />
               </div>
               <div>
                 <p className="font-headline font-bold text-on-surface">{member.name}</p>

@@ -31,6 +31,7 @@ function safeLocalStorage<T>(key: string, fallback: T): T {
 }
 
 const MOUSE_FOLLOWER_KEY = 'cursorTrailEnabled'
+const BACKGROUND_ANIMATION_KEY = 'backgroundAnimationChoice'
 
 const UIContext = createContext<UIContextType | undefined>(undefined)
 
@@ -45,8 +46,10 @@ export function UIProvider({ children }: { children: ReactNode }) {
     safeLocalStorage('darkMode', false)
   )
 
+  // Off by default: no background motion until the user picks one in Account Settings.
+  // New storage key so visitors who had the old auto-saved 'petals' also start calm.
   const [backgroundAnimation, setBackgroundAnimationState] = useState<BackgroundAnimation>(() =>
-    safeLocalStorage<BackgroundAnimation>('backgroundAnimation', 'petals')
+    safeLocalStorage<BackgroundAnimation>(BACKGROUND_ANIMATION_KEY, 'none')
   )
 
   const [isProfileOverlayOpen, setIsProfileOverlayOpen] = useState(false)
@@ -58,7 +61,7 @@ export function UIProvider({ children }: { children: ReactNode }) {
   }, [mouseFollowerEnabled])
 
   useEffect(() => {
-    try { localStorage.setItem('backgroundAnimation', JSON.stringify(backgroundAnimation)) } catch { /* storage unavailable */ }
+    try { localStorage.setItem(BACKGROUND_ANIMATION_KEY, JSON.stringify(backgroundAnimation)) } catch { /* storage unavailable */ }
   }, [backgroundAnimation])
 
   useEffect(() => {

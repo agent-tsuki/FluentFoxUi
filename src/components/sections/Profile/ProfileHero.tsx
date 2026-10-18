@@ -2,6 +2,7 @@ import type { UserProfile } from '@/types'
 import { Icon } from '@/components/ui/Icon'
 import { Eyebrow } from '@/components/ui/SectionHeader'
 import { useUI } from '@/context/UIContext'
+import { asset } from '@/lib/assets'
 
 interface ProfileHeroProps {
   profile: UserProfile
@@ -23,10 +24,10 @@ export function ProfileHero({ profile }: ProfileHeroProps) {
       >
         <div className="w-28 h-28 rounded-full border-4 border-primary/10 group-hover/hero-avatar:border-primary transition-all shadow-elevation-2 overflow-hidden bg-surface-container-highest">
           <img 
-            src={
-              profile.profileImage || 
+            src={asset(
+              profile.profileImage ||
               (profile.gender === 'female' ? '/avatars/women/geisha_1.png' : '/avatars/men/warrior.png')
-            } 
+            )}
             alt={`${profile.firstName} ${profile.lastName}`}
             className="w-full h-full object-cover group-hover/hero-avatar:scale-110 transition-transform duration-500"
           />

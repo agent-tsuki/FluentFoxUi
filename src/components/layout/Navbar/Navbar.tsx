@@ -15,6 +15,7 @@ import { useLearnSummary } from '@/hooks/useLearnSummary'
 import { useProgressOverview } from '@/hooks/useProgress'
 import { DueBadge } from '@/components/learnSession/DueBadge'
 import { PROGRESS_PATH, reviewPath } from '@/lib/learn/paths'
+import { asset } from '@/lib/assets'
 
 // Loaded on first open: the month view and its calendar request stay out of the first paint.
 const StreakMonthPopup = lazy(() => import('./StreakMonthPopup').then((m) => ({ default: m.StreakMonthPopup })))
@@ -230,10 +231,10 @@ export function Navbar() {
                 >
                   <div className="w-10 h-10 rounded-full border-2 border-primary/20 group-hover/avatar:border-primary transition-colors shadow-md overflow-hidden bg-surface-container">
                     <img
-                      src={
+                      src={asset(
                         user.profileImage ||
                         (user.gender === 'female' ? '/avatars/women/geisha_1.png' : '/avatars/men/warrior.png')
-                      }
+                      )}
                       alt="Avatar"
                       className="w-full h-full object-cover"
                     />
@@ -371,10 +372,10 @@ export function Navbar() {
                     <div className="flex items-center gap-3 px-3 py-3">
                       <div className="w-10 h-10 rounded-full overflow-hidden bg-surface-container flex-shrink-0">
                         <img
-                          src={
+                          src={asset(
                             user.profileImage ||
                             (user.gender === 'female' ? '/avatars/women/geisha_1.png' : '/avatars/men/warrior.png')
-                          }
+                          )}
                           alt="Avatar"
                           className="w-full h-full object-cover"
                         />

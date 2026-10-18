@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { AuthStep } from '@/types'
 import type { AuthUser } from '@/context/AuthContext'
@@ -35,6 +35,10 @@ export function AuthModal() {
   const [step, setStep]                   = useState<AuthStep>('form')
   const [registeredEmail, setRegisteredEmail] = useState('')
   const navigate = useNavigate()
+  const { pathname, search, hash } = useLocation()
+  // The navbar "Log in" opens the popup without a task: bring the learner back
+  // to the page they were on, not the dashboard.
+  const returnPath = returnTo ?? `${pathname}${search}${hash}`
 
   // Desktop popup: the card glides to its content's height when tabs/steps swap.
   // Phones use a full-screen scrolling page, so no height animation there.
@@ -139,11 +143,11 @@ export function AuthModal() {
   // Both entry points (desktop sidebar sheet and mobile screen) use this one
   // backend-owned OAuth navigation. No provider token is handled in React.
   const handleGoogle = useCallback(() => {
-    authService.startGoogleOAuth(returnTo ?? '/dashboard')
-  }, [returnTo])
+    authService.startGoogleOAuth(returnPath)
+  }, [returnPath])
   const handleX = useCallback(() => {
-    authService.startXOAuth(returnTo ?? '/dashboard')
-  }, [returnTo])
+    authService.startXOAuth(returnPath)
+  }, [returnPath])
 
   if (!isOpen) return null
 

@@ -1,3 +1,5 @@
+import { asset } from '@/lib/assets'
+
 type VisualKind = 'comparison' | 'direction' | 'exchange' | 'range' | 'sequence' | 'space'
 type Tone = 'amber' | 'blue' | 'coral' | 'moss' | 'plum'
 
@@ -394,7 +396,7 @@ export function ChapterVisual({ chapterId }: { chapterId: number }) {
       {spec.scene && (
         <div className="mb-5 overflow-hidden rounded-xl border border-[#d9d8cd] bg-white sm:grid sm:grid-cols-[minmax(0,1.4fr)_minmax(13rem,0.6fr)]">
           <img
-            src={spec.scene.src}
+            src={asset(spec.scene.src)}
             alt={spec.scene.alt}
             className="aspect-[3/2] h-full w-full object-cover"
             loading="lazy"
