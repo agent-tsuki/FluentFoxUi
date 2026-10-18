@@ -92,6 +92,15 @@ const ERROR_MESSAGES: Record<string, string> = {
 /** Codes where support needs the log id to investigate. */
 const SHOW_LOG_ID = new Set(['INTERNAL_ERROR', 'INTERNAL_SERVER_ERROR'])
 
+/** Gateway statuses: the server is restarting or unreachable, so a retry soon usually works. */
+const UNAVAILABLE_STATUSES = new Set([502, 503, 504])
+
+// The first block of the UUID is enough to find the line in the server logs.
+const SHORT_LOG_ID_LENGTH = 8
+
+const SERVER_ERROR_MESSAGE = "We couldn't finish that because of a problem on our side, not anything you did. Please try again in a minute."
+const UNAVAILABLE_MESSAGE  = 'FoxSensei is briefly unavailable. Please try again in a minute.'
+
 // ── resolveErrorMessage ───────────────────────────────────────────────────────
 
 /**
@@ -107,10 +116,13 @@ export function resolveErrorMessage(err: unknown): string {
     const mapped = ERROR_MESSAGES[err.errorCode]
     if (mapped) return mapped
 
-    const ref = err.logId ? ` (Ref: ${err.logId})` : ''
+    if (UNAVAILABLE_STATUSES.has(err.httpStatus)) return UNAVAILABLE_MESSAGE
+
     if (SHOW_LOG_ID.has(err.errorCode) || err.httpStatus >= 500) {
-      return `Something went wrong on our end. Please try again.${ref}`
+      const ref = err.logId ? ` If it keeps happening, contact support with code ${err.logId.slice(0, SHORT_LOG_ID_LENGTH)}.` : ''
+      return SERVER_ERROR_MESSAGE + ref
     }
+    const ref = err.logId ? ` (Ref: ${err.logId})` : ''
     return (err.message || 'An unexpected error occurred.') + ref
   }
 

@@ -163,7 +163,6 @@ export function Navbar() {
                 to={reviewPath()}
                 className="hidden md:flex items-center gap-1.5 min-h-11 px-3 rounded-full text-sm font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
               >
-                <Icon name="replay" className="text-base" />
                 Review
                 <DueBadge count={dueNow} />
               </Link>
@@ -273,7 +272,6 @@ export function Navbar() {
                     onClick={() => setAvatarMenuOpen(false)}
                     className="flex items-center gap-2 px-4 py-2 hover:bg-surface-container rounded-lg text-on-surface-variant text-sm transition-colors"
                   >
-                    <Icon name="insights" className="text-base" />
                     Progress
                   </Link>
                   <button
@@ -404,7 +402,7 @@ export function Navbar() {
                       onClick={closeMobile}
                       className="flex items-center gap-2 px-3 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container text-sm transition-colors"
                     >
-                      <Icon name="insights" className="text-base" /> Progress
+                      Progress
                     </Link>
                     <button
                       type="button"
@@ -420,7 +418,7 @@ export function Navbar() {
                       onClick={closeMobile}
                       className="flex items-center gap-2 px-3 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container text-sm transition-colors"
                     >
-                      <Icon name="replay" className="text-base" /> Review all
+                      Review all
                       <DueBadge count={dueNow} />
                     </Link>
                     <button
