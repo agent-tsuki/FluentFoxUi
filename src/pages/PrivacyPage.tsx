@@ -8,16 +8,17 @@ export function PrivacyPage() {
             Privacy Policy
           </h1>
           <p className="text-on-surface-variant text-sm">
-            Last updated: April 4, 2026
+            Last updated: October 18, 2026
           </p>
         </div>
 
         <div className="space-y-8 text-on-surface-variant leading-relaxed">
           <Section title="1. Information We Collect">
             We collect information you provide directly, such as your name and email address when
-            you create an account. We also automatically collect usage data including pages visited,
-            study sessions completed, quiz scores, and device/browser information to improve the
-            learning experience.
+            you create an account. We also automatically collect the usage data needed to provide
+            the learning experience, including study sessions completed and quiz scores. Cloudflare
+            Web Analytics measures aggregate page use and performance without using visitors’
+            personal data.
           </Section>
 
           <Section title="2. How We Use Your Information">
@@ -41,8 +42,9 @@ export function PrivacyPage() {
           </Section>
 
           <Section title="5. Third-Party Services">
-            We may use third-party services such as analytics providers and authentication providers
-            (Google, Apple). These services have their own privacy policies governing use of your
+            We use Cloudflare Web Analytics for privacy-first, aggregate site and performance
+            measurement, and authentication providers such as Google and Apple when you choose to
+            use them. These services have their own privacy policies governing use of your
             information. We encourage you to review their policies.
           </Section>
 

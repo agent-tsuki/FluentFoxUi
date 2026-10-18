@@ -2,10 +2,10 @@ import { useEffect, useMemo, useRef } from 'react'
 import { Navigate, Outlet, useLocation, useSearchParams } from 'react-router-dom'
 import { useKanaScript } from '@/context/KanaScriptContext'
 import { useKanaSections } from '@/hooks/useKanaSections'
-import { LoadingState, SkeletonBlock } from '@/components/ui/LoadingState'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { CourseHeader } from '@/components/kanaCourse/CourseHeader'
 import { SectionNav } from '@/components/kanaCourse/SectionNav'
+import { CourseContentSkeleton, type CourseSkeletonVariant } from '@/components/kanaCourse/CourseContentSkeleton'
 import { COURSE_CONTAINER, coursePageFor } from '@/components/kanaCourse/coursePages'
 import { cn } from '@/lib/cn'
 import type { KanaCourseContext } from '@/pages/kanaCourseContext'
@@ -16,6 +16,12 @@ const LEGACY_TABS: ReadonlyMap<string, string> = new Map([
   ['chart', '/downloads'], // the old "chart" tab held the poster downloads
   ['test', '/tests'],
 ])
+
+function kanaSkeletonVariant(pageId: ReturnType<typeof coursePageFor>['id']): CourseSkeletonVariant {
+  if (pageId === 'chart') return 'chart'
+  if (pageId === 'course') return 'course'
+  return 'list'
+}
 
 /**
  * Route layout for a kana course (/kana/<script> and its chart, tests and
@@ -87,13 +93,7 @@ export function KanaCourseLayout() {
         ) : error && !isLoading ? (
           <ErrorState message={`We couldn't load the ${script.label.toLowerCase()} course.`} onRetry={refetch} />
         ) : (
-          <LoadingState label={`Loading ${script.label.toLowerCase()} course…`}>
-            <div className="space-y-3">
-              <SkeletonBlock className="h-40 w-full rounded-2xl" />
-              <SkeletonBlock className="h-16 w-full rounded-2xl" />
-              <SkeletonBlock className="h-16 w-full rounded-2xl" />
-            </div>
-          </LoadingState>
+          <CourseContentSkeleton label={`Loading ${script.label.toLowerCase()} course…`} variant={kanaSkeletonVariant(page.id)} />
         )}
       </div>
     </main>

@@ -2,15 +2,15 @@
  * Zustand auth store — access token lives in memory ONLY.
  *
  * Why memory and not localStorage?
- *  - An XSS attack can read localStorage, stealing the token.
- *  - Memory is inaccessible to injected scripts.
+ *  - An XSS attack can read localStorage, stealing a persisted token.
+ *  - Keeping a short-lived token only in memory limits its lifetime and avoids
+ *    leaving a reusable credential behind after the tab closes.
  *
  * Trade-off: access token is lost on page refresh.
- * That is handled by AuthContext, which attempts a silent refresh
- * on every mount using the refresh token stored in localStorage.
+ * That is handled by AuthContext, which attempts a silent refresh on every
+ * mount using the HttpOnly refresh cookie.
  *
- * Refresh token stays in localStorage (via tokenManager) because
- * the backend returns it in the JSON body, not as an HttpOnly cookie.
+ * The refresh token is intentionally inaccessible to JavaScript.
  */
 
 import { create } from 'zustand'

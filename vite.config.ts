@@ -21,7 +21,8 @@ function apiOrigin(apiUrl: string | undefined): string | null {
  * `frame-ancestors`, HSTS and the other headers a meta tag can't carry are
  * set in vercel.json.
  *
- * - Scripts: same origin only. No inline scripts, no eval.
+ * - Scripts: same origin plus the Cloudflare Web Analytics beacon. No inline
+ *   scripts or eval.
  * - Styles: 'unsafe-inline' is needed for runtime style attributes
  *   (framer-motion, lottie). It does not allow script execution.
  * - Workers: blob: for canvas-confetti's off-main-thread renderer.
@@ -32,11 +33,11 @@ function contentSecurityPolicy(apiUrl: string | undefined): Plugin {
   const api = apiOrigin(apiUrl)
   const policy = [
     "default-src 'self'",
-    "script-src 'self'",
+    "script-src 'self' https://static.cloudflareinsights.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' data: https://fonts.gstatic.com",
     "img-src 'self' data: blob: https:",
-    `connect-src 'self'${api ? ` ${api}` : ''}`,
+    `connect-src 'self' https://cloudflareinsights.com${api ? ` ${api}` : ''}`,
     "worker-src 'self' blob:",
     'frame-src https://www.youtube-nocookie.com',
     "object-src 'none'",

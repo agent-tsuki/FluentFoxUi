@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { cn } from '@/lib/cn'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
@@ -29,7 +29,9 @@ interface SignInPromptProps {
 export function SignInPrompt({ variant = 'panel', className }: SignInPromptProps) {
   const { user } = useAuth()
   const { openModal } = useModal()
+  const { pathname, search, hash } = useLocation()
   const unverified = Boolean(user && !user.emailVerified)
+  const returnTo = `${pathname}${search}${hash}`
   return (
     <section
       aria-label="Sign in to practise"
@@ -52,10 +54,10 @@ export function SignInPrompt({ variant = 'panel', className }: SignInPromptProps
         </Link>
       ) : (
         <div className="mt-1 flex flex-wrap justify-center gap-2">
-          <Button onClick={() => openModal('login')} className="min-h-11" {...authModalPrefetchHandlers}>
+          <Button onClick={() => openModal('login', { returnTo })} className="min-h-11" {...authModalPrefetchHandlers}>
             Log in
           </Button>
-          <Button variant="outline" onClick={() => openModal('signup')} className="min-h-11" {...authModalPrefetchHandlers}>
+          <Button variant="outline" onClick={() => openModal('signup', { returnTo })} className="min-h-11" {...authModalPrefetchHandlers}>
             Sign up free
           </Button>
         </div>

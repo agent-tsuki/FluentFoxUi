@@ -46,10 +46,12 @@ export interface ApiUser {
 }
 
 // ── Auth token payload (login + refresh) ──────────────────────────────────────
+//
+// The refresh credential is deliberately not represented here. The API stores
+// it in an HttpOnly cookie, so JavaScript never receives, persists, or sends it.
 
 export interface AuthTokenData {
   access_token: string
-  refresh_token: string
   user: ApiUser
 }
 
@@ -86,10 +88,9 @@ export interface MessageData {
 }
 
 /**
- * POST /auth/register success payload. Newer backends start the session
- * straight away (same token/user shape as login); older ones return only
- * `message`, so the session fields are optional and the caller falls back
- * to an explicit login.
+ * POST /auth/register success payload. A successful registration starts a
+ * session: the access token is returned here and the refresh credential is set
+ * as an HttpOnly cookie by the API.
  */
 export interface RegisterData extends MessageData, Partial<AuthTokenData> {}
 
@@ -126,12 +127,4 @@ export interface RegisterRequest {
 export interface ChangeEmailRequest {
   new_email:        string
   current_password: string
-}
-
-export interface LogoutRequest {
-  refresh_token: string
-}
-
-export interface RefreshTokenRequest {
-  refresh_token: string
 }

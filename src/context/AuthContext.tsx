@@ -9,8 +9,8 @@
  *  - Inactive/suspended/deleted accounts are logged out with a `notice`
  *    the login form shows.
  *
- * Storage: access token in memory; refresh token in localStorage; a small
- * cached user object (no tokens) so the UI and email survive a reload.
+ * Storage: access token in memory; refresh credential in an HttpOnly cookie;
+ * a small cached user object (no tokens) so the UI and email survive a reload.
  */
 
 import {

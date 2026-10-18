@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useStartLearning } from '@/hooks/useStartLearning'
+import { Icon } from '@/components/ui/Icon'
 import { FallingPetals } from './FallingPetals'
 
 const chapters = [
@@ -82,14 +83,11 @@ export function ConceptHome() {
               >
                 Find my starting point
                 <span className="grid size-5 place-items-center rounded-full border border-white/35 bg-white/10 transition-transform duration-200 group-hover:-translate-y-px" aria-hidden="true">
-                  <svg viewBox="0 0 20 20" fill="none" className="size-3.5" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M16 8.25c0 4.47-6 8.25-6 8.25S4 12.72 4 8.25a6 6 0 1 1 12 0Z" />
-                    <circle cx="10" cy="8.25" r="2.15" />
-                  </svg>
+                  <Icon name="explore" className="text-sm" />
                 </span>
               </button>
               <a className="concept-text-link" href="#journey">
-                Explore the journey <span aria-hidden="true">↓</span>
+                Explore the journey <Icon name="south" className="ml-1 align-text-bottom text-base" />
               </a>
             </div>
             <p className="mt-4 text-xs text-[#53665a]">At your pace. On your own path.</p>
@@ -100,14 +98,16 @@ export function ConceptHome() {
           <span className="rounded-full border border-white/30 bg-[#153d35]/30 px-4 py-3 backdrop-blur-sm" lang="ja">
             日本への旅 <span lang="en">/ YOUR JOURNEY TO JAPANESE</span>
           </span>
-          <span className="hidden sm:block">SCROLL TO DISCOVER ↓</span>
+          <span className="hidden items-center gap-1 sm:flex">SCROLL TO DISCOVER <Icon name="south" className="text-sm" /></span>
         </div>
       </section>
 
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-b border-[#dfe3d8] px-6 py-5 text-xs sm:px-10 lg:px-[6%]">
-        <p className="font-semibold">🦊 &nbsp; A guide for every stage of your journey.</p>
-        <p className="hidden text-[#747c72] md:block">Discover → Practise → Understand → Grow</p>
-        <Link className="concept-text-link" to="/dashboard">Your learning space <span aria-hidden="true">↗</span></Link>
+        <p className="font-semibold">A guide for every stage of your journey.</p>
+        <p className="hidden items-center gap-1.5 text-[#747c72] md:flex">
+          Discover <Icon name="arrow_forward" className="text-sm" /> Practise <Icon name="arrow_forward" className="text-sm" /> Understand <Icon name="arrow_forward" className="text-sm" /> Grow
+        </p>
+        <Link className="concept-text-link" to="/dashboard">Your learning space <Icon name="arrow_forward" className="ml-1 align-text-bottom text-base" /></Link>
       </div>
 
       <section id="journey" className="scroll-mt-nav mx-auto max-w-[1240px] px-6 py-16 sm:px-10 lg:py-20">
@@ -127,7 +127,7 @@ export function ConceptHome() {
 
         <div className="mt-10 grid gap-9 lg:grid-cols-[11.25rem_minmax(0,1fr)] lg:gap-10">
           <nav className="sticky top-nav z-20 -mx-6 flex overflow-x-auto border-y border-[#dfe3d8] bg-[#f7f6f0]/95 px-6 py-2 backdrop-blur lg:top-24 lg:mx-0 lg:block lg:self-start lg:border-0 lg:bg-transparent lg:p-0" aria-label="Learning chapters">
-            <p className="mb-4 hidden text-[0.6rem] font-semibold tracking-[.16em] text-[#747c72] lg:block">YOUR JOURNEY &nbsp; 🦊</p>
+            <p className="mb-4 hidden text-[0.6rem] font-semibold tracking-[.16em] text-[#747c72] lg:block">YOUR JOURNEY / FOX SENSEI</p>
             <div className="flex min-w-max lg:block">
               {chapters.map((chapter) => (
                 <a
@@ -147,7 +147,7 @@ export function ConceptHome() {
                 <p className="concept-chapter-number">01 / THE FIRST SOUNDS</p>
                 <h3 className="concept-display mt-3 text-[clamp(2rem,3.2vw,2.8rem)] leading-[1.05] tracking-[-.035em]">It begins with あ.</h3>
                 <p className="mt-4 max-w-sm text-sm leading-7 text-[#747c72]">Meet hiragana. A few simple shapes open the door to reading your first Japanese words.</p>
-                <Link className="concept-text-link mt-4" to="/kana/hiragana">Meet your first characters <span aria-hidden="true">↗</span></Link>
+                <Link className="concept-text-link mt-4" to="/kana/hiragana">Meet your first characters <Icon name="arrow_forward" className="ml-1 align-text-bottom text-base" /></Link>
               </div>
               <div className="concept-mini bg-[#edeedf]">
                 <p className="concept-mini-label">SMALL CHARACTERS. A BIG BEGINNING.</p>
@@ -173,7 +173,7 @@ export function ConceptHome() {
                 <p className="concept-chapter-number">02 / THE FAMILIAR, REIMAGINED</p>
                 <h3 className="concept-display mt-3 text-[clamp(2rem,3.2vw,2.8rem)] leading-[1.05] tracking-[-.035em]">You know more<br />than you think.</h3>
                 <p className="mt-4 max-w-sm text-sm leading-7 text-[#747c72]">Coffee. Camera. Familiar words take on new shapes in katakana. Decode a little of everyday Japan.</p>
-                <Link className="concept-text-link mt-4" to="/kana/katakana">Explore katakana <span aria-hidden="true">↗</span></Link>
+                <Link className="concept-text-link mt-4" to="/kana/katakana">Explore katakana <Icon name="arrow_forward" className="ml-1 align-text-bottom text-base" /></Link>
               </div>
               <div className="concept-mini bg-[#e6efec]">
                 <p className="concept-mini-label">A SMALL STOP AT THE CAFÉ</p>
@@ -184,7 +184,7 @@ export function ConceptHome() {
                   className="mt-3 rounded-md border border-[#d7d8ca] bg-[#fffdf7] px-4 py-2 text-sm text-[#253e35] transition hover:border-[#c65b39] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#c65b39]"
                   aria-pressed={coffeeRevealed}
                 >
-                  コーヒー &nbsp; ↻
+                  コーヒー <Icon name="refresh" className="ml-1 align-text-bottom text-base" />
                 </button>
                 <p className="mt-4 min-h-5 text-xs text-[#53665a]" aria-live="polite">
                   {coffeeRevealed ? 'kōhī · coffee — ー makes the vowel longer' : 'Tap to turn the word over.'}
@@ -197,7 +197,7 @@ export function ConceptHome() {
                 <p className="concept-chapter-number">03 / A PICTURE OF MEANING</p>
                 <h3 className="concept-display mt-3 text-[clamp(2rem,3.2vw,2.8rem)] leading-[1.05] tracking-[-.035em]">One tree.<br />A thousand connections.</h3>
                 <p className="mt-4 max-w-sm text-sm leading-7 text-[#747c72]">Explore meaning through kanji, then discover how characters become the words you use.</p>
-                <Link className="concept-text-link mt-4" to="/kanji">Discover kanji <span aria-hidden="true">↗</span></Link>
+                <Link className="concept-text-link mt-4" to="/kanji">Discover kanji <Icon name="arrow_forward" className="ml-1 align-text-bottom text-base" /></Link>
               </div>
               <div className="concept-mini bg-[#edeedf]">
                 <p className="concept-mini-label">WATCH THE MEANING GROW</p>
@@ -207,7 +207,7 @@ export function ConceptHome() {
                   onClick={() => setForestStep((value) => (value + 1) % forest.length)}
                   className="mt-4 rounded-md border border-[#d7d8ca] bg-[#fffdf7] px-4 py-2 text-sm text-[#253e35] transition hover:border-[#c65b39] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#c65b39]"
                 >
-                  Grow a forest <span aria-hidden="true">+</span>
+                  Grow a forest <Icon name="add" className="ml-1 align-text-bottom text-base" />
                 </button>
                 <p className="mt-4 min-h-5 text-xs text-[#53665a]" aria-live="polite">{forest[forestStep].reading}</p>
               </div>
@@ -218,7 +218,7 @@ export function ConceptHome() {
                 <p className="concept-chapter-number">04 / WORDS THAT LIVE IN YOUR DAY</p>
                 <h3 className="concept-display mt-3 text-[clamp(2rem,3.2vw,2.8rem)] leading-[1.05] tracking-[-.035em]">Make the everyday<br />a little more Japanese.</h3>
                 <p className="mt-4 max-w-sm text-sm leading-7 text-[#747c72]">A cup of tea. A glass of water. Learn useful words in the moments where they belong.</p>
-                <Link className="concept-text-link mt-4" to="/classes">Find your everyday words <span aria-hidden="true">↗</span></Link>
+                <Link className="concept-text-link mt-4" to="/classes">Find your everyday words <Icon name="arrow_forward" className="ml-1 align-text-bottom text-base" /></Link>
               </div>
               <div className="concept-mini bg-[#f0e7df]">
                 <p className="concept-mini-label">WHAT WOULD YOU LIKE?</p>
@@ -244,7 +244,7 @@ export function ConceptHome() {
                 <p className="concept-chapter-number">05 / YOUR FIRST CONNECTIONS</p>
                 <h3 className="concept-display mt-3 text-[clamp(2rem,3.2vw,2.8rem)] leading-[1.05] tracking-[-.035em]">From little words<br />to your own ideas.</h3>
                 <p className="mt-4 max-w-sm text-sm leading-7 text-[#747c72]">Bring the pieces together. Learn how sentence patterns help you express something of your own.</p>
-                <Link className="concept-text-link mt-4" to="/grammar/n5">Build your first sentence <span aria-hidden="true">↗</span></Link>
+                <Link className="concept-text-link mt-4" to="/grammar/n5">Build your first sentence <Icon name="arrow_forward" className="ml-1 align-text-bottom text-base" /></Link>
               </div>
               <div className="concept-mini bg-[#e6efec]">
                 <p className="concept-mini-label">ARRANGE: I AM A STUDENT.</p>
@@ -283,7 +283,7 @@ export function ConceptHome() {
             {...prefetch}
             className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-md bg-[#253e35] px-5 py-3 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#17332c] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#253e35]"
           >
-            Find my path <span aria-hidden="true">↗</span>
+            Find my path <Icon name="arrow_forward" className="ml-1 text-base" />
           </button>
         </div>
       </section>

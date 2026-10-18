@@ -2,16 +2,17 @@
  * Session core — owns token lifecycle (auth guide §2, §7).
  *
  *  - Access token  → Zustand memory only (src/store/authStore.ts).
- *  - Refresh token → localStorage (tokenManager), protected by the CSP.
+ *  - Refresh token → Secure, HttpOnly, SameSite API cookie.
  *
- * Refresh tokens ROTATE and there is ONE session per user, so two parallel
+ * JavaScript never reads or persists the refresh credential. A non-sensitive
+ * localStorage hint merely avoids a refresh request for known guests; it is not
+ * trusted by the API and conveys no authentication or authorization.
+ *
+ * Refresh tokens rotate and there is one session per user, so two parallel
  * refreshes make one fail and log the user out. Therefore:
  *  - within a tab, concurrent callers share one in-flight refresh;
- *  - across tabs, refreshes are serialised with the Web Locks API, and the
- *    refresh token is re-read from storage inside the lock so each tab uses
- *    the newest token another tab may have just stored;
- *  - a rejected refresh clears storage only if the token it used is still the
- *    stored one (never wipe a newer token another tab just saved);
+ *  - across tabs, refreshes are serialised with the Web Locks API;
+ *  - a rejected refresh clears only local session state; and
  *  - network/5xx failures never clear tokens.
  *
  * Login/logout are broadcast to other tabs over a BroadcastChannel.
@@ -20,15 +21,18 @@
 
 import { API_BASE } from '@/lib/config'
 import { useAuthTokenStore } from '@/store/authStore'
-import { tokenManager } from './tokenManager'
 import { ApiError } from './errors'
 import { isApiFailedResponse, type ApiUser, type AuthApiResponse } from '@/types/api'
 
 const LOCK_NAME        = 'ff-auth-refresh'
 const CHANNEL_NAME     = 'ff-auth'
 const EARLY_REFRESH_MS = 30_000
+const SESSION_HINT_KEY  = 'ff-session-hint'
+const LEGACY_TOKEN_KEY  = 'ff_refresh_token'
 
-const JSON_HEADERS = { 'Content-Type': 'application/json', Accept: 'application/json' }
+// A non-simple header forces a CORS preflight. The API requires it (and an
+// allowlisted Origin) on cookie-authenticated refresh and logout requests.
+const COOKIE_AUTH_HEADERS = { Accept: 'application/json', 'X-CSRF-Token': '1' }
 
 // ── Local events (this tab) ───────────────────────────────────────────────────
 
@@ -62,7 +66,7 @@ const channel: BroadcastChannel | null =
 channel?.addEventListener('message', (e: MessageEvent<ChannelMessage>) => {
   if (e.data?.type === 'logout') {
     epoch++
-    clearLocalTokens()
+    clearLocalSession()
     emit({ type: 'ended' })
   } else if (e.data?.type === 'login') {
     emit({ type: 'remote-login' })
@@ -73,7 +77,7 @@ function broadcast(message: ChannelMessage): void {
   try { channel?.postMessage(message) } catch { /* channel closed */ }
 }
 
-// ── Token helpers ─────────────────────────────────────────────────────────────
+// ── Local session state ───────────────────────────────────────────────────────
 
 let refreshTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -104,16 +108,41 @@ function scheduleEarlyRefresh(accessToken: string): void {
   refreshTimer = setTimeout(() => { void refreshSession() }, delay)
 }
 
-function applyTokens(accessToken: string, refreshToken: string): void {
+function writeSessionHint(present: boolean): void {
+  try {
+    if (present) localStorage.setItem(SESSION_HINT_KEY, '1')
+    else localStorage.removeItem(SESSION_HINT_KEY)
+  } catch { /* storage unavailable: refresh remains safe, just less optimised */ }
+}
+
+function sessionHintExists(): boolean {
+  try {
+    return localStorage.getItem(SESSION_HINT_KEY) === '1'
+  } catch {
+    // Cookie sessions must still work when browser storage is blocked.
+    return true
+  }
+}
+
+function clearLegacyRefreshToken(): void {
+  try { localStorage.removeItem(LEGACY_TOKEN_KEY) } catch { /* storage unavailable */ }
+}
+
+// One-time client migration: raw refresh tokens from older builds must not be
+// left readable in storage after the API begins issuing HttpOnly cookies.
+clearLegacyRefreshToken()
+
+function applyAccessToken(accessToken: string): void {
   useAuthTokenStore.getState().setAccessToken(accessToken)
-  tokenManager.setRefreshToken(refreshToken)
+  writeSessionHint(true)
   scheduleEarlyRefresh(accessToken)
 }
 
-function clearLocalTokens(): void {
+function clearLocalSession(): void {
   clearTimeout(refreshTimer)
   useAuthTokenStore.getState().clearAccessToken()
-  tokenManager.clearRefreshToken()
+  writeSessionHint(false)
+  clearLegacyRefreshToken()
 }
 
 // ── Refresh (single-flight, cross-tab locked) ─────────────────────────────────
@@ -134,16 +163,14 @@ async function withRefreshLock<T>(fn: () => Promise<T>): Promise<T> {
 
 async function performRefresh(): Promise<RefreshResult> {
   const startEpoch = epoch
-  // Read inside the lock: another tab may have rotated it a moment ago.
-  const usedToken = tokenManager.getRefreshToken()
-  if (!usedToken) return { ok: false, reason: 'no-token' }
+  if (!sessionHintExists()) return { ok: false, reason: 'no-token' }
 
   let res: Response
   try {
     res = await fetch(`${API_BASE}/auth/refresh`, {
       method:  'POST',
-      headers: JSON_HEADERS,
-      body:    JSON.stringify({ refresh_token: usedToken }),
+      credentials: 'include',
+      headers: COOKIE_AUTH_HEADERS,
     })
   } catch {
     return { ok: false, reason: 'network' }
@@ -152,14 +179,13 @@ async function performRefresh(): Promise<RefreshResult> {
   const body: unknown = await res.json().catch(() => null)
 
   if (res.ok && (body as AuthApiResponse | null)?.status === 'success') {
-    const { access_token, refresh_token, user } = (body as AuthApiResponse).data
+    const { access_token, user } = (body as AuthApiResponse).data
     if (epoch !== startEpoch) {
-      // Logged out while this was in flight. Store only the rotated refresh
-      // token so the waiting logout (next in the lock) revokes the newest one.
-      tokenManager.setRefreshToken(refresh_token)
+      // A logout happened while refresh was in flight. endSession waits for
+      // this lock, then revokes the newly-rotated HttpOnly cookie.
       return { ok: false, reason: 'no-token' }
     }
-    applyTokens(access_token, refresh_token)
+    applyAccessToken(access_token)
     return { ok: true, user }
   }
 
@@ -170,16 +196,13 @@ async function performRefresh(): Promise<RefreshResult> {
     ? new ApiError(res.status, body.error.error_code, body.error.message, body.error.log_id)
     : new ApiError(res.status, 'SESSION_EXPIRED', 'Session expired', '')
 
-  // Only clear if nobody stored a newer token meanwhile.
-  if (tokenManager.getRefreshToken() === usedToken) {
-    clearLocalTokens()
-    broadcast({ type: 'logout' })
-  }
+  clearLocalSession()
+  broadcast({ type: 'logout' })
   return { ok: false, reason: 'rejected', error }
 }
 
 /**
- * Exchange the stored refresh token for a new pair. Safe to call from
+ * Exchange the HttpOnly refresh cookie for a new access token. Safe to call from
  * anywhere at any time: concurrent calls (and other tabs) are serialised.
  */
 export function refreshSession(): Promise<RefreshResult> {
@@ -197,40 +220,35 @@ export function refreshSession(): Promise<RefreshResult> {
 
 // ── Lifecycle ─────────────────────────────────────────────────────────────────
 
-/** Store a new session (after login) and tell other tabs. */
-export function startSession(accessToken: string, refreshToken: string): void {
-  applyTokens(accessToken, refreshToken)
+/** Store a new access token after login and tell other tabs. */
+export function startSession(accessToken: string): void {
+  applyAccessToken(accessToken)
   broadcast({ type: 'login' })
 }
 
 /** End the session locally and in every tab, e.g. after a retried request still fails. */
 export function expireSession(error?: ApiError): void {
   epoch++
-  clearLocalTokens()
+  clearLocalSession()
   broadcast({ type: 'logout' })
   emit({ type: 'ended', error })
 }
 
 /**
  * Log out: clear everything locally and in other tabs first (instant UI),
- * then revoke on the server. The revoke runs inside the refresh lock, so it
- * waits for any refresh already in flight (in any tab) and revokes the
- * newest refresh token instead of a rotated-away one. Never throws.
+ * then revoke the HttpOnly refresh cookie on the server. The revoke runs
+ * inside the refresh lock, so it waits for any refresh already in flight and
+ * revokes the newest rotated cookie. Never throws.
  */
 export async function endSession(): Promise<void> {
-  const tokenAtLogout = tokenManager.getRefreshToken()
   expireSession()
 
   await withRefreshLock(async () => {
-    // A refresh that finished meanwhile stored a newer token; prefer it.
-    const refreshToken = tokenManager.getRefreshToken() ?? tokenAtLogout
-    tokenManager.clearRefreshToken()
-    if (!refreshToken) return
     try {
       await fetch(`${API_BASE}/auth/logout`, {
         method:  'POST',
-        headers: JSON_HEADERS,
-        body:    JSON.stringify({ refresh_token: refreshToken }),
+        credentials: 'include',
+        headers: COOKIE_AUTH_HEADERS,
       })
     } catch { /* already logged out locally */ }
   })
@@ -242,5 +260,5 @@ export function notifyUnverified(): void {
 }
 
 export function hasStoredSession(): boolean {
-  return tokenManager.hasRefreshToken()
+  return sessionHintExists()
 }

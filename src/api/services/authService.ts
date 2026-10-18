@@ -106,15 +106,15 @@ export const authService = {
 
   /**
    * Exchanges the one-time code delivered in the callback URL fragment. The
-   * backend consumes it atomically and returns the same application token pair
-   * used by password login; no Google credential is ever exposed to the UI.
+   * backend consumes it atomically, returns an access token, and sets the
+   * HttpOnly refresh cookie; no Google credential reaches the UI.
    */
   async completeGoogleOAuth(code: string): Promise<{ user: AuthUser; returnTo: string }> {
     const res = await apiClient.post<OAuthExchangeApiResponse>('/auth/oauth/google/exchange', { code })
     if (!res.data.user.is_active) {
       throw new ApiError(403, 'ACCOUNT_INACTIVE', 'Account is not active', '')
     }
-    startSession(res.data.access_token, res.data.refresh_token)
+    startSession(res.data.access_token)
     return {
       user:     toAuthUser(res.data.user, normalizeEmail(res.data.email)),
       returnTo: safeOAuthReturnPath(res.data.return_to),
@@ -127,7 +127,7 @@ export const authService = {
     if (!res.data.user.is_active) {
       throw new ApiError(403, 'ACCOUNT_INACTIVE', 'Account is not active', '')
     }
-    startSession(res.data.access_token, res.data.refresh_token)
+    startSession(res.data.access_token)
     return {
       user:     toAuthUser(res.data.user, normalizeEmail(res.data.email)),
       returnTo: safeOAuthReturnPath(res.data.return_to),
@@ -191,7 +191,7 @@ export const authService = {
     if (!res.data.user.is_active) {
       throw new ApiError(403, 'ACCOUNT_INACTIVE', 'Account is not active', '')
     }
-    startSession(res.data.access_token, res.data.refresh_token)
+    startSession(res.data.access_token)
     return toAuthUser(res.data.user, normalized)
   },
 
@@ -211,9 +211,8 @@ export const authService = {
   /**
    * POST /auth/register. Optional fields are omitted when empty.
    *
-   * Newer backends return a token pair + user; the session starts here and
-   * the user comes back so the caller can skip a separate login. Older
-   * backends return only a message (`user: null`): the caller logs in itself.
+   * A successful registration returns an access token and sets an HttpOnly
+   * refresh cookie, so the session can start without a separate login.
    */
   async register(input: RegisterInput): Promise<RegisterResult> {
     const payload: RegisterRequest = {
@@ -225,12 +224,12 @@ export const authService = {
       ...(input.userName?.trim() ? { user_name: input.userName.trim() } : {}),
     }
     const res = await apiClient.post<RegisterApiResponse>('/auth/register', payload)
-    const { message, access_token, refresh_token, user } = res.data
+    const { message, access_token, user } = res.data
 
-    if (!access_token || !refresh_token || !user || !user.is_active) {
+    if (!access_token || !user || !user.is_active) {
       return { message, user: null }
     }
-    startSession(access_token, refresh_token)
+    startSession(access_token)
     return { message, user: toAuthUser(user, payload.email) }
   },
 

@@ -4,15 +4,21 @@ import { useKanjiLevel } from '@/context/KanjiLevelContext'
 import { useKanjiLevelIndex } from '@/hooks/useKanji'
 import { useLearnSummary } from '@/hooks/useLearnSummary'
 import { KANJI_TRACK } from '@/lib/learn/paths'
-import { LoadingState, SkeletonBlock } from '@/components/ui/LoadingState'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { CourseSectionNav } from '@/components/kanaCourse/SectionNav'
 import { COURSE_CONTAINER } from '@/components/kanaCourse/coursePages'
+import { CourseContentSkeleton, type CourseSkeletonVariant } from '@/components/kanaCourse/CourseContentSkeleton'
 import { KanjiCourseHeader, KanjiDataCredit } from '@/components/kanji/KanjiCourseHeader'
 import { kanjiPageFor, kanjiPagesFor } from '@/components/kanji/kanjiPages'
 import { buildKanjiCourseContext } from '@/pages/kanjiCourseContext'
 import { cn } from '@/lib/cn'
+
+function kanjiSkeletonVariant(pageId: ReturnType<typeof kanjiPageFor>['id']): CourseSkeletonVariant {
+  if (pageId === 'course') return 'course'
+  if (pageId === 'browse') return 'browse'
+  return 'list'
+}
 
 /**
  * Route layout for a kanji level (/kanji/<level> and its reviews, browse,
@@ -75,13 +81,7 @@ export function KanjiCourseLayout() {
         ) : error && !isLoading ? (
           <ErrorState message={`We couldn't load ${level.title}.`} onRetry={refetch} />
         ) : (
-          <LoadingState label={`Loading ${level.title}…`}>
-            <div className="space-y-3">
-              <SkeletonBlock className="h-40 w-full rounded-2xl" />
-              <SkeletonBlock className="h-16 w-full rounded-2xl" />
-              <SkeletonBlock className="h-16 w-full rounded-2xl" />
-            </div>
-          </LoadingState>
+          <CourseContentSkeleton label={`Loading ${level.title}…`} variant={kanjiSkeletonVariant(page.id)} />
         )}
         <KanjiDataCredit className="mt-10" />
       </div>

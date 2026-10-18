@@ -13,7 +13,9 @@
  *    reset guide requires any timeout to be at least 15s.
  *  - 403 EMAIL_NOT_VERIFIED: notifies the app so it can show the verify screen.
  *  - Every failure becomes an ApiError; branch on `errorCode`.
- *  - No cookies are sent: auth uses the Authorization header and JSON body only.
+ *  - Requests include credentials so the browser can send the HttpOnly refresh
+ *    cookie to the API. Protected application calls still use the short-lived
+ *    access token in Authorization; the refresh cookie is never readable here.
  */
 
 import { API_BASE } from '@/lib/config'
@@ -73,6 +75,7 @@ async function request<T>(path: string, options?: RequestInit, isRetry = false):
   try {
     res = await fetch(`${API_BASE}${path}`, {
       ...options,
+      credentials: 'include',
       headers: {
         ...DEFAULT_HEADERS,
         ...(token ? { Authorization: `Bearer ${token}` } : {}),

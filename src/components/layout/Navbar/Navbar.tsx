@@ -8,7 +8,7 @@ import { NavDropdown } from './NavDropdown'
 import { Button } from '@/components/ui/Button'
 import { FoxLogo, FoxLogoHandle } from './FoxLogo'
 import { Icon } from '@/components/ui/Icon'
-import { useUI, type BackgroundAnimation } from '@/context/UIContext'
+import { useUI } from '@/context/UIContext'
 import { authModalPrefetchHandlers } from '@/components/sections/AuthModal'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useLearnSummary } from '@/hooks/useLearnSummary'
@@ -34,7 +34,7 @@ export function Navbar() {
   const { user, logout } = useAuth()
   const dueNow = useLearnSummary().summary?.due_now ?? 0
   const streak = useProgressOverview().data?.streak.current ?? 0
-  const { darkMode, toggleDarkMode, backgroundAnimation, setBackgroundAnimation } = useUI()
+  const { darkMode, toggleDarkMode } = useUI()
 
   const isDesktop       = useMediaQuery('(min-width: 768px)')
   const foxLogoRef      = useRef<FoxLogoHandle>(null)
@@ -275,27 +275,15 @@ export function Navbar() {
                     <Icon name="insights" className="text-base" />
                     Progress
                   </Link>
-
-                  {/* Background animation picker */}
-                  <div className="px-4 py-2.5 border-t border-b border-outline-variant/30 my-1">
-                    <p className="text-2xs font-bold text-on-surface-variant uppercase tracking-widest mb-2 font-label">Background</p>
-                    <div className="flex gap-1.5">
-                      {([ ['petals', 'local_florist', 'Petals'], ['fish', 'set_meal', 'Fish'], ['none', 'close', 'None'] ] as [BackgroundAnimation, string, string][]).map(([val, iconName, label]) => (
-                        <button
-                          key={val}
-                          onClick={() => setBackgroundAnimation(val)}
-                          className="flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-lg text-2xs font-bold font-label transition-all"
-                          style={backgroundAnimation === val
-                            ? { background: 'rgb(var(--surface-container-high))', color: 'rgb(var(--on-surface))' }
-                            : { color: 'rgb(var(--on-surface-variant))' }
-                          }
-                        >
-                          <Icon name={iconName} className="text-sm" />
-                          <span>{label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={toggleDarkMode}
+                    aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                    className="flex w-full items-center gap-2 rounded-lg px-4 py-2 text-left text-sm text-on-surface-variant transition-colors hover:bg-surface-container"
+                  >
+                    <Icon name={darkMode ? 'light_mode' : 'dark_mode'} className="text-base" />
+                    {darkMode ? 'Light theme' : 'Dark theme'}
+                  </button>
 
                   <button
                     onClick={() => { logout(); setAvatarMenuOpen(false) }}
@@ -417,6 +405,15 @@ export function Navbar() {
                     >
                       <Icon name="insights" className="text-base" /> Progress
                     </Link>
+                    <button
+                      type="button"
+                      onClick={toggleDarkMode}
+                      aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-3 text-left text-sm text-on-surface-variant transition-colors hover:bg-surface-container"
+                    >
+                      <Icon name={darkMode ? 'light_mode' : 'dark_mode'} className="text-base" />
+                      {darkMode ? 'Light theme' : 'Dark theme'}
+                    </button>
                     <Link
                       to={reviewPath()}
                       onClick={closeMobile}
