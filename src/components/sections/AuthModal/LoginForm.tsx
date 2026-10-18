@@ -1,11 +1,12 @@
 import { useState, type FormEvent } from 'react'
 import { useAuth, type AuthUser } from '@/context/AuthContext'
-import { authService } from '@/api/services/authService'
+import { authService, type LoginChallenge } from '@/api/services/authService'
 import { resolveErrorMessage } from '@/api/errors'
 import { cn } from '@/lib/cn'
 import { Button } from '@/components/ui/Button'
 import { AuthField, PasswordToggle } from './AuthField'
 import type { LoginValues } from './authFormValues'
+import { LoginCodeStep } from './LoginCodeStep'
 
 interface LoginFormProps {
   /** Called with the logged-in user. Unverified users are routed by the caller. */
@@ -26,6 +27,13 @@ export function LoginForm({ onSuccess, onForgotPassword, values, onChange }: Log
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading]           = useState(false)
   const [error, setError]               = useState('')
+  const [challenge, setChallenge]       = useState<LoginChallenge | null>(null)
+
+  const signIn = async () => {
+    const result = await authService.login(email, password)
+    if (result.kind === 'code') setChallenge(result.challenge)
+    else onSuccess(result.user)
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -33,14 +41,24 @@ export function LoginForm({ onSuccess, onForgotPassword, values, onChange }: Log
     clearNotice()
     setLoading(true)
     try {
-      const user = await authService.login(email, password)
-      onSuccess(user)
+      await signIn()
     } catch (err) {
       // INVALID_CREDENTIALS is deliberately generic: never hint whether the email exists.
       setError(resolveErrorMessage(err))
     } finally {
       setLoading(false)
     }
+  }
+
+  if (challenge) {
+    return (
+      <LoginCodeStep
+        challenge={challenge}
+        onSuccess={onSuccess}
+        onResend={signIn}
+        onBack={() => setChallenge(null)}
+      />
+    )
   }
 
   return (

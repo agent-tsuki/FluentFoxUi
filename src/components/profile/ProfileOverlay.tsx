@@ -6,6 +6,9 @@ import { CloseButton } from '@/components/ui/CloseButton'
 import { useAuth } from '@/context/AuthContext'
 import { useUI } from '@/context/UIContext'
 import { asset } from '@/lib/assets'
+import { AVATAR_PRESETS, DEFAULT_AVATAR_PATH, type AvatarPreset } from '@/lib/profile/avatarPresets'
+import { profileService } from '@/api/services/profileService'
+import { resolveErrorMessage } from '@/api/errors'
 
 interface ProfileOverlayProps {
   isOpen: boolean
@@ -17,6 +20,7 @@ export function ProfileOverlay({ isOpen, onClose }: ProfileOverlayProps) {
   const { overlayProfile, triggerRect, setOverlayProfile } = useUI()
   const [mounted, setMounted] = useState(false)
   const [showPicker, setShowPicker] = useState(false)
+  const [pickError, setPickError] = useState('')
 
   useEffect(() => {
     if (isOpen) {
@@ -34,23 +38,19 @@ export function ProfileOverlay({ isOpen, onClose }: ProfileOverlayProps) {
 
   if (!mounted && !isOpen) return null
 
-  const menAvatars = [
-    '/avatars/men/emperor.png',
-    '/avatars/men/samurai.png',
-    '/avatars/men/noble.png',
-    '/avatars/men/warrior.png',
-    '/avatars/men/citizen.png',
-  ]
+  const avatars = AVATAR_PRESETS
 
-  const womenAvatars = [
-    '/avatars/women/casual_1.png',
-    '/avatars/women/casual_2.png',
-    '/avatars/women/geisha_1.png',
-    '/avatars/women/geisha_2.png',
-    '/avatars/women/japanese.png',
-  ]
-
-  const avatars = overlayProfile?.gender === 'female' ? womenAvatars : menAvatars
+  const pickAvatar = async (preset: AvatarPreset) => {
+    setPickError('')
+    try {
+      const saved = await profileService.updateProfile({ avatarPreset: preset.id })
+      updateProfileImage(saved.avatar.url)
+      if (overlayProfile) setOverlayProfile({ ...overlayProfile, profileImage: saved.avatar.url })
+      setShowPicker(false)
+    } catch (err) {
+      setPickError(resolveErrorMessage(err))
+    }
+  }
 
   const menuItems = [
     { label: 'Profile', icon: 'person', href: '/profile', angle: -160 },
@@ -62,7 +62,7 @@ export function ProfileOverlay({ isOpen, onClose }: ProfileOverlayProps) {
   const getAvatarPath = () => {
     if (overlayProfile?.profileImage) return overlayProfile.profileImage
     if (overlayProfile?.gender === 'female') return '/avatars/women/geisha_1.png'
-    return '/avatars/men/warrior.png'
+    return DEFAULT_AVATAR_PATH
   }
 
   // Calculate dimensions and positions
@@ -121,6 +121,12 @@ export function ProfileOverlay({ isOpen, onClose }: ProfileOverlayProps) {
         </button>
       )}
 
+      {showPicker && pickError && (
+        <p role="alert" className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[10010] rounded-lg bg-error px-4 py-2 text-sm font-semibold text-on-error">
+          {pickError}
+        </p>
+      )}
+
       {/* Profile Container */}
       <div className="relative w-full h-full pointer-events-none">
         {/* Enlarged Image (Transitional) */}
@@ -131,6 +137,7 @@ export function ProfileOverlay({ isOpen, onClose }: ProfileOverlayProps) {
           <img
             src={asset(getAvatarPath())}
             alt="Profile"
+            referrerPolicy="no-referrer"
             className="w-full h-full object-cover"
           />
         </div>
@@ -194,21 +201,15 @@ export function ProfileOverlay({ isOpen, onClose }: ProfileOverlayProps) {
 
               return (
                 <button
-                  key={avatar}
-                  onClick={() => {
-                    updateProfileImage(avatar)
-                    if (overlayProfile) {
-                      setOverlayProfile({ ...overlayProfile, profileImage: avatar })
-                    }
-                    setShowPicker(false)
-                  }}
+                  key={avatar.id}
+                  onClick={() => void pickAvatar(avatar)}
                   className="absolute left-1/2 top-1/2 -ml-10 -mt-10 w-20 h-20 rounded-full border-4 border-white/20 hover:border-white transition-all shadow-elevation-2 overflow-hidden group pointer-events-auto hover:scale-125 z-[10020]"
                   style={{
                     transform: `translate(${x}px, ${y}px)`,
                     transitionDelay: `${index * 40}ms`
                   }}
                 >
-                  <img src={asset(avatar)} alt="Avatar option" className="w-full h-full object-cover" />
+                  <img src={asset(avatar.path)} alt="Avatar option" className="w-full h-full object-cover" />
                 </button>
               )
             })

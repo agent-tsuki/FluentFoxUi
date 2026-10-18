@@ -25,6 +25,7 @@ import {
 } from 'react'
 import { hasStoredSession, refreshSession, subscribeSession } from '@/api/session'
 import { authService, toAuthUser } from '@/api/services/authService'
+import { profileService } from '@/api/services/profileService'
 import { ApiError, resolveErrorMessage } from '@/api/errors'
 
 // ── AuthUser shape ────────────────────────────────────────────────────────────
@@ -148,6 +149,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     })
   }, [])
+
+  // ── Profile details ───────────────────────────────────────────────────────
+  // The token carries no name or avatar, so load them once per signed-in user.
+  // /profile needs a verified email; unverified users keep the default avatar.
+  const profileLoadedFor = useRef<string | null>(null)
+  useEffect(() => {
+    if (!user?.emailVerified || profileLoadedFor.current === user.userId) return
+    profileLoadedFor.current = user.userId
+    profileService.getProfile()
+      .then(profile => setUserState(prev => (prev && prev.userId === profile.id
+        ? { ...prev, firstName: profile.firstName, lastName: profile.lastName, profileImage: profile.avatar.url }
+        : prev)))
+      .catch(() => { profileLoadedFor.current = null })
+  }, [user?.userId, user?.emailVerified])
 
   // ── Restore on mount ──────────────────────────────────────────────────────
   useEffect(() => {

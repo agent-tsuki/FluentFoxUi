@@ -85,6 +85,23 @@ const ERROR_MESSAGES: Record<string, string> = {
   OAUTH_X_IDENTITY_ALREADY_LINKED:'That X account is already connected to another FoxSensei account.',
   OAUTH_X_FAILED:                 'X sign-in could not be completed. Please try again.',
 
+  // ── Sign-in code (VPN logins) ─────────────────────────────────────────────
+  LOGIN_CODE_INVALID:           'That code is wrong or has expired. Check the email or send a new code.',
+  LOGIN_CODE_COOLDOWN:          'We just sent a code. Please wait a minute before asking for another.',
+  LOGIN_CODE_DAILY_LIMIT:       "You've asked for too many sign-in codes today. Try again tomorrow or turn off your VPN.",
+  LOGIN_CODE_EMAIL_SEND_FAILED: "We couldn't send your sign-in code. Please try again.",
+
+  // ── Profile ───────────────────────────────────────────────────────────────
+  PROFILE_NOT_FOUND:             "We couldn't find your profile. Please sign in again.",
+  TIME_ZONE_INVALID:             'Choose a time zone from the list.',
+  AVATAR_PRESET_INVALID:         'That avatar is no longer available. Pick another one.',
+  AVATAR_TYPE_INVALID:           'Please choose a JPEG or PNG image.',
+  AVATAR_IMAGE_INVALID:          'That image is damaged or too small. Use one at least 128 × 128 pixels.',
+  AVATAR_UPLOAD_UNAVAILABLE:     'Photo upload is unavailable right now. You can pick one of our avatars instead.',
+  SESSION_NOT_FOUND:             'That device is already signed out.',
+  CANNOT_REVOKE_CURRENT_SESSION: 'Use Log out to sign out of this device.',
+  LOCATION_INVALID:              "Your browser sent a location we couldn't use.",
+
   // ── Network (client-side) ─────────────────────────────────────────────────
   NETWORK_ERROR:              "Can't reach the server. Check your connection and try again.",
 }

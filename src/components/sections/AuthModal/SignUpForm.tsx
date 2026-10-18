@@ -95,8 +95,10 @@ export function SignUpForm({ onSuccess, onRegisteredOnly, onGoToLogin, values, o
 
       // Older backends: log straight in so the user lands on "Verify your email" (resend / change email need a session).
       try {
-        const user = await authService.login(email, password)
-        onSuccess(user)
+        const result = await authService.login(email, password)
+        // A VPN code step here would be a dead end; signing in from the login tab handles it.
+        if (result.kind === 'session') onSuccess(result.user)
+        else onRegisteredOnly(email)
       } catch {
         onRegisteredOnly(email)
       }

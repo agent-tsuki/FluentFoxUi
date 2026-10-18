@@ -162,29 +162,73 @@ export interface QuizResultData {
 
 // ─── Profile ──────────────────────────────────────────────────────────────────
 
-export interface UserProfile {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  location: string
-  bio: string
-  nativeLanguage: string
-  targetLevel: JlptLevel
-  joinedDate: string
-  isPro: boolean
-  gender?: 'male' | 'female'
-  profileImage?: string
+export type AvatarKind = 'upload' | 'preset' | 'oauth' | 'default'
+
+export interface ProfileAvatar {
+  kind:     AvatarKind
+  presetId: string | null
+  /** A preset is a public path (pass it through asset()); upload/oauth URLs are absolute. */
+  url:      string
 }
 
-export interface ProfileUpdatePayload {
-  firstName: string
-  lastName: string
-  email: string
-  location: string
-  bio: string
+export interface SessionLocation {
+  countryCode: string | null
+  region:      string | null
+  city:        string | null
+  latitude:    number | null
+  longitude:   number | null
+  /** 'gps' is the browser's position; 'ip' is approximate. */
+  source:      'ip' | 'gps' | null
+  accuracyM:   number | null
+}
+
+export interface DeviceSession {
+  id:         string
+  browser:    string
+  os:         string
+  deviceType: 'desktop' | 'mobile' | 'tablet' | 'unknown'
+  /** Masked address such as 203.0.113.x; empty when unknown. */
+  ipApprox:   string
+  location:   SessionLocation
+  /** True when the login came through a VPN, so an IP location may be wrong. */
+  isVpn:      boolean | null
+  isCurrent:  boolean
+  createdAt:  string
+  lastUsedAt: string
+}
+
+export interface UserProfile {
+  id:             string
+  username:       string
+  email:          string
+  firstName:      string
+  lastName:       string
+  bio:            string
   nativeLanguage: string
-  targetLevel: JlptLevel
+  countryCode:    string
+  city:           string
+  targetLevel:    JlptLevel | null
+  timeZone:       string
+  dailyReminder:  boolean
+  reminderTime:   string
+  avatar:         ProfileAvatar
+  /** ISO timestamps. */
+  joinedAt:       string
+  lastLoginAt:    string | null
+  lastLogin:      DeviceSession | null
+}
+
+/** Only the fields present are changed; '' clears an optional field. */
+export interface ProfileUpdatePayload {
+  firstName?:      string
+  lastName?:       string
+  bio?:            string
+  nativeLanguage?: string
+  countryCode?:    string
+  city?:           string
+  targetLevel?:    JlptLevel | ''
+  timeZone?:       string
+  avatarPreset?:   string
 }
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────

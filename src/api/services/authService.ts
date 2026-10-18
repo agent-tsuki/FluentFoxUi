@@ -13,6 +13,7 @@ import { API_BASE } from '@/lib/config'
 import type {
   ApiUser,
   AuthApiResponse,
+  AuthTokenData,
   ChangeEmailRequest,
 	GoogleConnectionApiResponse,
 	GoogleLinkStartApiResponse,
@@ -23,6 +24,7 @@ import type {
   RegisterRequest,
 	XConnectionApiResponse,
 	XLinkStartApiResponse,
+  VerifyLoginCodeRequest,
 } from '@/types/api'
 import type { AuthUser } from '@/context/AuthContext'
 
@@ -58,6 +60,28 @@ function browserLanguageCode(): string {
  */
 function safeOAuthReturnPath(path: string): string {
   return path.startsWith('/') && !path.startsWith('//') ? path : '/dashboard'
+}
+
+/** A login that must be finished with the 6-digit code emailed to the user. */
+export interface LoginChallenge {
+  challengeId: string
+  /** Masked address the code went to, e.g. s****@gmail.com. */
+  emailHint:   string
+  /** Epoch ms after which the code no longer works. */
+  expiresAt:   number
+  email:       string
+}
+
+export type LoginResult =
+  | { kind: 'session'; user: AuthUser }
+  | { kind: 'code'; challenge: LoginChallenge }
+
+function beginSession(data: AuthTokenData, email: string): AuthUser {
+  if (!data.user.is_active) {
+    throw new ApiError(403, 'ACCOUNT_INACTIVE', 'Account is not active', '')
+  }
+  startSession(data.access_token)
+  return toAuthUser(data.user, email)
 }
 
 /** Result of a successful registration. `user` is null when the backend did not start a session. */
@@ -182,17 +206,34 @@ export const authService = {
   /**
    * POST /auth/login. Unverified users CAN log in; the caller routes them to
    * the verify screen. An inactive account is refused here (guide §7).
+   * A login from a VPN gets no session yet: the result asks for the code the
+   * API just emailed (see verifyLoginCode).
    */
-  async login(email: string, password: string): Promise<AuthUser> {
+  async login(email: string, password: string): Promise<LoginResult> {
     const normalized = normalizeEmail(email)
     const payload: LoginRequest = { email: normalized, password }
     const res = await apiClient.post<AuthApiResponse>('/auth/login', payload)
 
-    if (!res.data.user.is_active) {
-      throw new ApiError(403, 'ACCOUNT_INACTIVE', 'Account is not active', '')
+    const challenge = res.data.login_challenge
+    if (challenge) {
+      return {
+        kind: 'code',
+        challenge: {
+          challengeId: challenge.challenge_id,
+          emailHint:   challenge.email_hint,
+          expiresAt:   Date.now() + challenge.expires_in_seconds * 1000,
+          email:       normalized,
+        },
+      }
     }
-    startSession(res.data.access_token)
-    return toAuthUser(res.data.user, normalized)
+    return { kind: 'session', user: beginSession(res.data, normalized) }
+  },
+
+  /** POST /auth/login/verify-code: finishes a login that asked for an emailed code. */
+  async verifyLoginCode(challenge: LoginChallenge, code: string): Promise<AuthUser> {
+    const payload: VerifyLoginCodeRequest = { challenge_id: challenge.challengeId, code: code.trim() }
+    const res = await apiClient.post<AuthApiResponse>('/auth/login/verify-code', payload)
+    return beginSession(res.data, challenge.email)
   },
 
   /**

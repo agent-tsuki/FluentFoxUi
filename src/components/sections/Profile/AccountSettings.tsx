@@ -7,6 +7,7 @@ import { useModal } from '@/context/ModalContext'
 import { authService } from '@/api/services/authService'
 import { resolveErrorMessage } from '@/api/errors'
 import { SettingToggle as Toggle } from './SettingToggle'
+import { DevicesSection } from './DevicesSection'
 
 const BG_OPTIONS: { value: BackgroundAnimation; icon: string; label: string; desc: string }[] = [
   { value: 'petals', icon: 'local_florist', label: 'Sakura Petals', desc: 'Falling cherry blossom petals' },
@@ -333,6 +334,8 @@ export function AccountSettings() {
           )}
         </div>
       </div>
+
+      <DevicesSection />
 
       {/* Danger zone */}
       <div className="bg-surface-container-low rounded-xl overflow-hidden border border-error/20">

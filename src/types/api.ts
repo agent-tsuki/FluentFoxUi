@@ -53,6 +53,84 @@ export interface ApiUser {
 export interface AuthTokenData {
   access_token: string
   user: ApiUser
+  /** Present instead of a session when the login needs an emailed code (VPN detected). */
+  login_challenge?: ApiLoginChallenge
+}
+
+export interface ApiLoginChallenge {
+  challenge_id:       string
+  reason:             'vpn'
+  email_hint:         string
+  expires_in_seconds: number
+}
+
+export interface VerifyLoginCodeRequest {
+  challenge_id: string
+  code:         string
+}
+
+// ── Profile ───────────────────────────────────────────────────────────────────
+
+export interface ApiAvatar {
+  kind:       'upload' | 'preset' | 'oauth' | 'default'
+  preset_id?: string
+  url:        string
+}
+
+export interface ApiSessionLocation {
+  country_code: string | null
+  region:       string | null
+  city:         string | null
+  latitude:     number | null
+  longitude:    number | null
+  source:       'ip' | 'gps' | null
+  accuracy_m:   number | null
+}
+
+export interface ApiSession {
+  id:           string
+  browser:      string
+  os:           string
+  device_type:  'desktop' | 'mobile' | 'tablet' | 'unknown'
+  ip_approx:    string
+  location:     ApiSessionLocation
+  is_vpn:       boolean | null
+  is_current:   boolean
+  created_at:   string
+  last_used_at: string
+}
+
+export interface ApiProfile {
+  user_id:         string
+  username:        string
+  email:           string
+  email_verified:  boolean
+  first_name:      string
+  last_name:       string | null
+  bio:             string | null
+  native_language: string
+  country_code:    string | null
+  city:            string | null
+  target_level:    'N5' | 'N4' | 'N3' | 'N2' | 'N1' | null
+  time_zone:       string | null
+  daily_reminder:  boolean
+  reminder_time:   string | null
+  avatar:          ApiAvatar
+  joined_at:       string
+  last_login_at:   string | null
+  last_login:      ApiSession | null
+}
+
+export interface ApiProfileUpdate {
+  first_name?:      string
+  last_name?:       string
+  bio?:             string
+  native_language?: string
+  country_code?:    string
+  city?:            string
+  target_level?:    string
+  time_zone?:       string
+  avatar_preset?:   string
 }
 
 /** One-use response returned after the backend completes Google OAuth. */

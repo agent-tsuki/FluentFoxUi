@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { profileService } from '@/api/services/profileService'
 import type { UserProfile } from '@/types'
 import { ProfileHero, PersonalInfoForm, AccountSettings, LearningSettings } from '@/components/sections/Profile'
+import { AvatarPicker } from '@/components/sections/Profile/AvatarPicker'
 import { Icon } from '@/components/ui/Icon'
 import { LoadingState, SkeletonBlock } from '@/components/ui/LoadingState'
 import { ErrorState } from '@/components/ui/ErrorState'
@@ -18,6 +19,7 @@ export function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [status, setStatus] = useState<Status>('loading')
   const [activeTab, setActiveTab] = useState<Tab>(tabFromUrl)
+  const [pickingAvatar, setPickingAvatar] = useState(false)
 
   const fetchProfile = useCallback(() => {
     setStatus('loading')
@@ -74,7 +76,16 @@ export function ProfilePage() {
 
   return (
     <main className="pt-nav pb-20 px-4 md:px-8 max-w-5xl mx-auto space-y-12">
-      <ProfileHero profile={profile} />
+      <div className="space-y-4">
+        <ProfileHero profile={profile} onChangeAvatar={() => setPickingAvatar(open => !open)} />
+        {pickingAvatar && (
+          <AvatarPicker
+            avatar={profile.avatar}
+            onChange={avatar => setProfile({ ...profile, avatar })}
+            onClose={() => setPickingAvatar(false)}
+          />
+        )}
+      </div>
 
       <div className="space-y-8">
         {/* Tabs */}
@@ -104,7 +115,7 @@ export function ProfilePage() {
           {activeTab === 'info' ? (
             <PersonalInfoForm
               profile={profile}
-              onSaved={(updated) => setProfile({ ...profile, ...updated })}
+              onSaved={setProfile}
             />
           ) : activeTab === 'learning' ? (
             <LearningSettings />

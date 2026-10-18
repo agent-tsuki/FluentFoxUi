@@ -18,6 +18,7 @@ import { DEFAULT_KANJI_LEVEL, KANJI_LAST_LEVEL_KEY, KANJI_LEVELS, isKanjiLevelAv
 // The landing page stays eager: it is the first paint for most visitors.
 import { HomePage } from '@/pages/HomePage'
 import { KANJI_TRACK, reviewPath } from '@/lib/learn/paths'
+import { LoginLocationPrompt } from '@/components/profile/LoginLocationPrompt'
 
 // ─── Lazy routes ──────────────────────────────────────────────────────────────
 // Each page is its own chunk, fetched on first navigation.
@@ -193,6 +194,7 @@ function Shell() {
         <Footer />
         <LazyAuthModal />
         <SignedInProfileOverlay />
+        <LoginLocationPrompt />
       </div>
     </div>
   )

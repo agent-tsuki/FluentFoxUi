@@ -27,8 +27,9 @@ function apiOrigin(apiUrl: string | undefined): string | null {
  * - Styles: 'unsafe-inline' is needed for runtime style attributes
  *   (framer-motion, lottie). It does not allow script execution.
  * - Workers: blob: for canvas-confetti's off-main-thread renderer.
- * - Frames: only YouTube's privacy-enhanced player, loaded on click by
- *   VideoEmbed (its thumbnails come from i.ytimg.com via img-src https:).
+ * - Frames: YouTube's privacy-enhanced player, loaded on click by
+ *   VideoEmbed (its thumbnails come from i.ytimg.com via img-src https:),
+ *   and Google Maps Embed for login locations.
  */
 function contentSecurityPolicy(apiUrl: string | undefined, cdnUrl: string | undefined): Plugin {
   const api = apiOrigin(apiUrl)
@@ -42,7 +43,8 @@ function contentSecurityPolicy(apiUrl: string | undefined, cdnUrl: string | unde
     "img-src 'self' data: blob: https:",
     `connect-src 'self' https://cloudflareinsights.com${api ? ` ${api}` : ''}${cdn ? ` ${cdn}` : ''}`,
     "worker-src 'self' blob:",
-    'frame-src https://www.youtube-nocookie.com',
+    // Google Maps Embed shows login locations in Account Settings.
+    'frame-src https://www.youtube-nocookie.com https://www.google.com',
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
