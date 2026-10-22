@@ -102,6 +102,15 @@ const ERROR_MESSAGES: Record<string, string> = {
   CANNOT_REVOKE_CURRENT_SESSION: 'Use Log out to sign out of this device.',
   LOCATION_INVALID:              "Your browser sent a location we couldn't use.",
 
+  // ── Admin / staff invites ─────────────────────────────────────────────────
+  FORBIDDEN:                     "You don't have permission to do that.",
+  INVITE_NOT_FOUND:              "This invite link isn't valid. Ask for a new one.",
+  INVITE_EXPIRED:                'This invite has expired. Ask for a new one.',
+  INVITE_USED:                   'This invite has already been used.',
+  INVITE_REVOKED:                'This invite was cancelled. Ask for a new one.',
+  INVITE_EMAIL_MISMATCH:         'This invite was sent to a different email address.',
+  YOUTUBE_SYNC_UNAVAILABLE:      'YouTube sync is not configured on the server yet.',
+
   // ── Network (client-side) ─────────────────────────────────────────────────
   NETWORK_ERROR:              "Can't reach the server. Check your connection and try again.",
 }

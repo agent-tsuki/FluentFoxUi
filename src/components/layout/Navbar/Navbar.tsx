@@ -14,8 +14,9 @@ import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useLearnSummary } from '@/hooks/useLearnSummary'
 import { useProgressOverview } from '@/hooks/useProgress'
 import { DueBadge } from '@/components/learnSession/DueBadge'
-import { PROGRESS_PATH, reviewPath } from '@/lib/learn/paths'
+import { reviewPath } from '@/lib/learn/paths'
 import { asset } from '@/lib/assets'
+import { AdminMenuLink } from '@/components/admin/AdminMenuLink'
 
 // Loaded on first open: the month view and its calendar request stay out of the first paint.
 const StreakMonthPopup = lazy(() => import('./StreakMonthPopup').then((m) => ({ default: m.StreakMonthPopup })))
@@ -267,13 +268,10 @@ export function Navbar() {
                     <Icon name="dashboard" className="text-base" />
                     Dashboard
                   </Link>
-                  <Link
-                    to={PROGRESS_PATH}
+                  <AdminMenuLink
                     onClick={() => setAvatarMenuOpen(false)}
                     className="flex items-center gap-2 px-4 py-2 hover:bg-surface-container rounded-lg text-on-surface-variant text-sm transition-colors"
-                  >
-                    Progress
-                  </Link>
+                  />
                   <button
                     type="button"
                     onClick={toggleDarkMode}
@@ -397,13 +395,10 @@ export function Navbar() {
                     >
                       <Icon name="dashboard" className="text-base" /> Dashboard
                     </Link>
-                    <Link
-                      to={PROGRESS_PATH}
+                    <AdminMenuLink
                       onClick={closeMobile}
                       className="flex items-center gap-2 px-3 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container text-sm transition-colors"
-                    >
-                      Progress
-                    </Link>
+                    />
                     <button
                       type="button"
                       onClick={toggleDarkMode}

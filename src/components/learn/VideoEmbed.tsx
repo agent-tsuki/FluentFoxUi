@@ -10,6 +10,11 @@ export interface VideoEmbedProps {
   credit?: string
   /** Called once when the learner starts the video. */
   onPlay?: () => void
+  /**
+   * Mount straight into the playing iframe (no thumbnail step). Only for a
+   * player the learner already started, e.g. picking the next playlist video.
+   */
+  autoPlay?: boolean
 }
 
 /** YouTube ids are exactly 11 URL-safe base64 characters. */
@@ -25,8 +30,8 @@ const IFRAME_ALLOW = 'accelerometer; autoplay; clipboard-write; encrypted-media;
  * click swaps in a privacy-enhanced (youtube-nocookie.com) iframe that
  * autoplays. The production CSP allows that origin in `frame-src` (vite.config.ts).
  */
-export function VideoEmbed({ youtubeId, title, credit, onPlay }: VideoEmbedProps) {
-  const [playing, setPlaying] = useState(false)
+export function VideoEmbed({ youtubeId, title, credit, onPlay, autoPlay = false }: VideoEmbedProps) {
+  const [playing, setPlaying] = useState(autoPlay)
 
   const play = useCallback(() => {
     if (playing) return

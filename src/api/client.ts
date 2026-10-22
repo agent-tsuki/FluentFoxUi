@@ -49,7 +49,8 @@ const PUBLIC_AUTH_PATHS = [
 ]
 // Public content (kana charts, kanji levels) is the same for everyone: guests
 // browse it, and an expired token must never turn a chart load into a refresh.
-const PUBLIC_PATH_PREFIXES = ['/content/']
+// The course catalogue (`/classes`, `/classes/{slug}`) is public in the same way.
+const PUBLIC_PATH_PREFIXES = ['/content/', '/classes']
 const REFRESHABLE_CODES = new Set(['TOKEN_EXPIRED', 'TOKEN_INVALID', 'UNAUTHORIZED'])
 
 function isPublicAuthPath(path: string): boolean {
@@ -134,4 +135,6 @@ export const apiClient = {
   delete: <T>(path: string)                 => request<T>(path, { method: 'DELETE' }),
   /** Sends raw bytes (e.g. an image) instead of JSON. */
   putBlob: <T>(path: string, body: Blob)    => request<T>(path, { method: 'PUT', body, headers: { 'Content-Type': body.type } }),
+  /** Same as putBlob, for endpoints that take the raw bytes on POST. */
+  postBlob: <T>(path: string, body: Blob)   => request<T>(path, { method: 'POST', body, headers: { 'Content-Type': body.type } }),
 }

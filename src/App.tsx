@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react'
-import { createBrowserRouter, Navigate, RouterProvider, Outlet, useSearchParams, type RouteObject } from 'react-router-dom'
+import { createBrowserRouter, Navigate, RouterProvider, Outlet, useLocation, useSearchParams, type RouteObject } from 'react-router-dom'
 import { PathUserSync } from '@/components/auth/PathUserSync'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
@@ -56,7 +56,6 @@ const QuizPage          = lazy(() => import('@/pages/QuizPage').then(m => ({ def
 const ProfilePage       = lazy(() => import('@/pages/ProfilePage').then(m => ({ default: m.ProfilePage })))
 const GrammarPage       = lazy(() => import('@/pages/GrammarPage').then(m => ({ default: m.GrammarPage })))
 const DashboardPage     = lazy(() => import('@/pages/DashboardPage').then(m => ({ default: m.DashboardPage })))
-const ProgressPage      = lazy(() => import('@/pages/ProgressPage').then(m => ({ default: m.ProgressPage })))
 const AboutPage         = lazy(() => import('@/pages/AboutPage').then(m => ({ default: m.AboutPage })))
 const TermsPage         = lazy(() => import('@/pages/TermsPage').then(m => ({ default: m.TermsPage })))
 const PrivacyPage       = lazy(() => import('@/pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })))
@@ -68,6 +67,16 @@ const VerifyEmailPage   = lazy(() => import('@/pages/VerifyEmailPage').then(m =>
 const VerifyPendingPage = lazy(() => import('@/pages/VerifyPendingPage').then(m => ({ default: m.VerifyPendingPage })))
 const ResetPasswordPage = lazy(() => import('@/pages/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })))
 const OAuthCallbackPage = lazy(() => import('@/pages/OAuthCallbackPage').then(m => ({ default: m.OAuthCallbackPage })))
+const InvitePage        = lazy(() => import('@/pages/InvitePage').then(m => ({ default: m.InvitePage })))
+// Admin area (teachers and staff): its own chunks, never loaded for learners.
+const AdminLayout          = lazy(() => import('@/pages/admin/AdminLayout').then(m => ({ default: m.AdminLayout })))
+const AdminIndexRedirect   = lazy(() => import('@/pages/admin/AdminLayout').then(m => ({ default: m.AdminIndexRedirect })))
+const MyChannelsPage       = lazy(() => import('@/pages/admin/MyChannelsPage').then(m => ({ default: m.MyChannelsPage })))
+const ChannelEditorPage    = lazy(() => import('@/pages/admin/ChannelEditorPage').then(m => ({ default: m.ChannelEditorPage })))
+const CoursesManagerPage   = lazy(() => import('@/pages/admin/CoursesManagerPage').then(m => ({ default: m.CoursesManagerPage })))
+const CourseEditorPage     = lazy(() => import('@/pages/admin/CourseEditorPage').then(m => ({ default: m.CourseEditorPage })))
+const TeachersPage         = lazy(() => import('@/pages/admin/TeachersPage').then(m => ({ default: m.TeachersPage })))
+const PermissionsPage      = lazy(() => import('@/pages/admin/PermissionsPage').then(m => ({ default: m.PermissionsPage })))
 
 // lottie-web + the koi JSON load only when this background is actually shown.
 const KoiBackground = lazy(() => import('@/components/ui/KoiBackground').then(m => ({ default: m.KoiBackground })))
@@ -92,6 +101,12 @@ function RouteSuspense({ children }: { children: ReactNode }) {
  */
 function CoursePageSuspense({ children }: { children: ReactNode }) {
   return <Suspense fallback={<LoadingState label="Loading page…" />}>{children}</Suspense>
+}
+
+/** Keeps previously shared Progress URLs working while Dashboard is canonical. */
+function ProgressRedirect() {
+  const { search, hash } = useLocation()
+  return <Navigate to={{ pathname: '/dashboard', search, hash }} replace />
 }
 
 // ─── Ambient effects ──────────────────────────────────────────────────────────
@@ -331,6 +346,8 @@ const router = createBrowserRouter([
       { path: 'terms',           element: <TermsPage /> },
       { path: 'privacy',         element: <PrivacyPage /> },
       { path: '500',             element: <ServerErrorPage /> },
+      // Teacher invite link: public preview; accepting needs a signed-in, matching email.
+      { path: 'invite/:token',   element: <InvitePage /> },
 
       // ── Protected routes ─────────────────────────────────────────────────
       {
@@ -338,9 +355,9 @@ const router = createBrowserRouter([
         element: <RequireAuth><DashboardPage /></RequireAuth>,
       },
       {
-        // Login + verified email: the progress API needs both.
+        // Dashboard now contains the former Progress view; retain old links.
         path: 'progress',
-        element: <RequireAuth guestPrompt><ProgressPage /></RequireAuth>,
+        element: <RequireAuth guestPrompt><ProgressRedirect /></RequireAuth>,
       },
       {
         path: 'profile',
@@ -351,6 +368,21 @@ const router = createBrowserRouter([
         // Logged in but email not verified yet (auth guide §5)
         path: 'verify-email',
         element: <RequireAuth allowUnverified><VerifyPendingPage /></RequireAuth>,
+      },
+
+      {
+        // Admin area: signed in + at least one permission (else a 403 screen, inside AdminLayout).
+        path: 'admin',
+        element: <RequireAuth><AdminLayout /></RequireAuth>,
+        children: [
+          { index: true,                     element: <AdminIndexRedirect /> },
+          { path: 'my-channels',             element: <MyChannelsPage /> },
+          { path: 'classes/channels/:id',    element: <ChannelEditorPage /> },
+          { path: 'classes/courses',         element: <CoursesManagerPage /> },
+          { path: 'classes/courses/:id',     element: <CourseEditorPage /> },
+          { path: 'teachers',                element: <TeachersPage /> },
+          { path: 'permissions',             element: <PermissionsPage /> },
+        ],
       },
 
       { path: '*', element: <NotFoundPage /> },

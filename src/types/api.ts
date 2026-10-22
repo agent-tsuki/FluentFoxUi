@@ -206,3 +206,97 @@ export interface ChangeEmailRequest {
   new_email:        string
   current_password: string
 }
+
+// ── Classes (public: GET /classes, GET /classes/{slug}) ───────────────────────
+
+export type ApiClassPlatform = 'youtube' | 'udemy' | 'website'
+export type ApiJlptLevel     = 'N5' | 'N4' | 'N3' | 'N2' | 'N1'
+
+export interface ApiClassChannelSummary {
+  slug:             string
+  name:             string
+  avatar_url:       string | null
+  accent_color:     string | null
+  subscriber_count: number | null
+}
+
+export interface ApiClassCourseCard {
+  slug:               string
+  title:              string
+  summary:            string
+  level:              ApiJlptLevel
+  platform:           ApiClassPlatform
+  is_free:            boolean
+  is_featured:        boolean
+  thumbnail_url:      string | null
+  video_count:        number
+  total_duration_sec: number
+  tags:               string[] | null
+  channel:            ApiClassChannelSummary
+}
+
+export interface ApiClassLevel {
+  level:  ApiJlptLevel
+  count:  number
+  locked: boolean
+}
+
+export interface ApiClassesList {
+  items: ApiClassCourseCard[] | null
+  meta: {
+    levels: ApiClassLevel[] | null
+    stats:  { course_count: number; channel_count: number }
+  }
+}
+
+export interface ApiClassVideo {
+  youtube_video_id: string
+  title:            string
+  thumbnail_url:    string | null
+  duration_sec:     number
+  position:         number
+}
+
+export interface ApiClassChannelProfile {
+  slug:               string
+  name:               string
+  platform:           ApiClassPlatform
+  url:                string
+  handle:             string | null
+  youtube_channel_id: string | null
+  avatar_url:         string | null
+  banner_url:         string | null
+  description:        string | null
+  intro_video_id:     string | null
+  subscriber_count:   number | null
+  video_count:        number | null
+  accent_color:       string | null
+  teaching_style:     string | null
+  best_for:           string[] | null
+  not_for:            string[] | null
+  pros:               string[] | null
+  cons:               string[] | null
+  verdict:            string | null
+}
+
+export interface ApiClassCourseDetail {
+  slug:               string
+  title:              string
+  summary:            string
+  level:              ApiJlptLevel
+  platform:           ApiClassPlatform
+  url:                string
+  playlist_id:        string | null
+  is_free:            boolean
+  price_note:         string | null
+  thumbnail_url:      string | null
+  tags:               string[] | null
+  what_you_learn:     string[] | null
+  curriculum:         { title: string; topics: string[] | null }[] | null
+  total_duration_sec: number
+  last_synced_at:     string | null
+  videos:             ApiClassVideo[] | null
+  channel:            ApiClassChannelProfile
+  more_from_channel:  ApiClassCourseCard[] | null
+  similar:            ApiClassCourseCard[] | null
+}

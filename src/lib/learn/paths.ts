@@ -27,6 +27,3 @@ export function lessonPath(track: LearningTrack): string {
 export function reviewPath(track?: LearningTrack): string {
   return track ? `${REVIEW_PATH}?track=${track}` : REVIEW_PATH
 }
-
-/** Mastery, forecast, calendar, weak items and mix-ups. */
-export const PROGRESS_PATH = '/progress'

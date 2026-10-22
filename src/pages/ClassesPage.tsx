@@ -1,368 +1,167 @@
-import { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-import { classTeachers } from '@/api/mock/classes'
-import type { JLPTLevel, Platform, ClassTeacher } from '@/api/mock/classes'
+import { useCallback, useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Icon } from '@/components/ui/Icon'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { ErrorState } from '@/components/ui/ErrorState'
+import { SkeletonBlock } from '@/components/ui/LoadingState'
+import { ClassesFilterBar } from '@/components/classes/ClassesFilterBar'
+import { CourseGrid, CourseGridSkeleton } from '@/components/classes/CourseGrid'
+import { useClasses } from '@/hooks/useClasses'
+import { resolveErrorMessage } from '@/api/errors'
+import { CLASS_PLATFORMS } from '@/lib/classes/platformMeta'
+import type { JlptLevel } from '@/types'
+import type { ClassesFilters, ClassesMeta, ClassPlatform } from '@/types/classes'
 
-const MotionLink = motion(Link)
+// Kept for existing importers; the source of truth is lib/classes/platformMeta.
+export { PLATFORM_META, type PlatformMeta } from '@/lib/classes/platformMeta'
 
-const LEVELS: JLPTLevel[] = ['N5', 'N4', 'N3', 'N2', 'N1']
-const LOCKED_LEVELS = new Set<JLPTLevel>(['N4', 'N3', 'N2', 'N1'])
+const LEVELS: JlptLevel[] = ['N5', 'N4', 'N3', 'N2', 'N1']
+const DEFAULT_LEVEL: JlptLevel = 'N5'
 
-/**
- * PLATFORM_META — shared per-platform display metadata (label, icon, and design-token color
- * classes) for YouTube/Udemy/Website course badges. Owned here and re-used by ClassDetailPage
- * so the two pages never drift into separate color maps.
- */
-export interface PlatformMeta {
-  label: string
-  icon: string
-  /** Text/icon color, e.g. `text-error`. */
-  colorClass: string
-  /** Solid background, for buttons and accent bars, e.g. `bg-error`. */
-  solidClass: string
-  /** Low-opacity tint, for badges, e.g. `bg-error/10`. */
-  tintClass: string
-  /** Very low-opacity "from" tint for hero gradients, e.g. `from-error/5`. */
-  heroFromClass: string
-  /** Card header background wash (kept as a themed Tailwind pair, light/dark tuned). */
-  bg: string
-}
-
-export const PLATFORM_META: Record<Platform, PlatformMeta> = {
-  youtube: {
-    label: 'YouTube', icon: 'smart_display',
-    colorClass: 'text-error', solidClass: 'bg-error', tintClass: 'bg-error/10', heroFromClass: 'from-error/5',
-    bg: 'bg-red-50 dark:bg-red-950/30',
-  },
-  udemy: {
-    label: 'Udemy', icon: 'school',
-    colorClass: 'text-tertiary', solidClass: 'bg-tertiary', tintClass: 'bg-tertiary/10', heroFromClass: 'from-tertiary/5',
-    bg: 'bg-purple-50 dark:bg-purple-950/30',
-  },
-  website: {
-    label: 'Website', icon: 'language',
-    colorClass: 'text-info', solidClass: 'bg-info', tintClass: 'bg-info/10', heroFromClass: 'from-info/5',
-    bg: 'bg-blue-50 dark:bg-blue-950/30',
-  },
-}
-
-function StarRating({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md' }) {
-  const full = Math.floor(rating)
-  const half = rating % 1 >= 0.5
-  const sizeClass = size === 'md' ? 'text-lg' : 'text-sm'
-  return (
-    <span className={`flex items-center gap-0.5 ${sizeClass}`} aria-label={`Rating: ${rating} out of 5`}>
-      {Array.from({ length: 5 }, (_, i) => (
-        <span
-          key={i}
-          className={
-            i < full
-              ? 'text-amber-400'
-              : i === full && half
-              ? 'text-amber-300'
-              : 'text-outline-variant'
-          }
-          style={{ fontSize: size === 'md' ? 18 : 14 }}
-        >
-          ★
-        </span>
-      ))}
-    </span>
-  )
-}
-
-function PlatformBadge({ platform }: { platform: Platform }) {
-  const meta = PLATFORM_META[platform]
-  return (
-    <span
-      className={`inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wide ${meta.colorClass} ${meta.tintClass}`}
-    >
-      <Icon name={meta.icon} className="text-xs" />
-      {meta.label}
-    </span>
-  )
-}
-
-function TeacherCard({ teacher, index }: { teacher: ClassTeacher; index: number }) {
-  const [hovered, setHovered] = useState(false)
-  const meta = PLATFORM_META[teacher.platform]
-
-  return (
-    <MotionLink
-      to={`/classes/${teacher.id}`}
-      initial={{ opacity: 0, y: 28 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 16, scale: 0.97 }}
-      transition={{ duration: 0.32, delay: index * 0.06 }}
-      whileHover={{ y: -8, scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      layout
-      onHoverStart={() => setHovered(true)}
-      onHoverEnd={() => setHovered(false)}
-      className={`bg-surface-container-lowest border border-outline-variant/30 rounded-2xl overflow-hidden flex flex-col transition-shadow duration-300 ${hovered ? 'shadow-elevation-3' : 'shadow-elevation-1'}`}
-    >
-      {/* Platform color accent bar — slides in on hover */}
-      <motion.div
-        className={`h-[3px] origin-left ${meta.solidClass}`}
-        animate={{ scaleX: hovered ? 1 : 0 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
-      />
-
-      {/* Card Header */}
-      <div className={`${meta.bg} px-4 pt-4 pb-3 flex items-start gap-3`}>
-        {/* Avatar — bounces on hover */}
-        <motion.div
-          animate={hovered ? { scale: 1.14, rotate: -5 } : { scale: 1, rotate: 0 }}
-          transition={{ type: 'spring', stiffness: 320, damping: 18 }}
-          className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-headline font-extrabold text-sm flex-shrink-0 shadow-md"
-          style={{ backgroundColor: teacher.avatarColor }}
-          aria-hidden="true"
-        >
-          {teacher.avatarInitials}
-        </motion.div>
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-1">
-            <div className="min-w-0">
-              <PlatformBadge platform={teacher.platform} />
-              <h3 className="font-headline font-bold text-on-surface text-sm mt-1 leading-tight truncate">
-                {teacher.name}
-              </h3>
-            </div>
-            {teacher.free ? (
-              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex-shrink-0 uppercase tracking-wide">
-                Free
-              </span>
-            ) : (
-              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 flex-shrink-0 uppercase tracking-wide">
-                Paid
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-1.5 mt-1">
-            <StarRating rating={teacher.rating} />
-            <span className="text-xs text-on-surface-variant font-semibold">{teacher.rating}</span>
-            <span className="text-xs text-on-surface-variant/50">({teacher.reviewCount.toLocaleString()})</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Course title */}
-      <div className="px-4 pt-3">
-        <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant/50 mb-0.5">Course</p>
-        <p className="text-xs font-semibold text-on-surface leading-snug line-clamp-2">
-          {teacher.courseTitle}
-        </p>
-      </div>
-
-      {/* Bio */}
-      <p className="px-4 pt-2 text-xs text-on-surface-variant leading-relaxed line-clamp-2 flex-1">
-        {teacher.bio}
-      </p>
-
-      {/* Highlights */}
-      <div className="px-4 pt-2.5 flex flex-wrap gap-1">
-        {teacher.highlights.map((h) => (
-          <span
-            key={h}
-            className="text-xs px-2 py-0.5 rounded-full bg-surface-container font-semibold text-on-surface-variant border border-outline-variant/20"
-          >
-            {h}
-          </span>
-        ))}
-      </div>
-
-      {/* Footer */}
-      <div className="px-4 py-3 mt-2.5 flex items-center justify-between border-t border-outline-variant/20">
-        <div className="flex items-center gap-1 text-xs text-on-surface-variant">
-          <Icon name="group" className="text-sm" />
-          <span>{teacher.studentCount}</span>
-        </div>
-        <div className="inline-flex items-center gap-1 text-xs font-bold text-primary">
-          View Course
-          <motion.span
-            animate={hovered ? { x: [0, 4, 0] } : { x: 0 }}
-            transition={{ duration: 0.5, repeat: hovered ? Infinity : 0, ease: 'easeInOut' }}
-            className="material-symbols-outlined"
-            style={{ fontSize: 14 }}
-          >
-            arrow_forward
-          </motion.span>
-        </div>
-      </div>
-    </MotionLink>
-  )
-}
-
-function LockedLevelCard({ level }: { level: JLPTLevel }) {
-  return (
-    <div className="col-span-full flex flex-col items-center justify-center py-24 gap-4 text-center">
-      <div className="w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center shadow-inner">
-        <Icon name="lock" className="text-4xl text-on-surface-variant/40" />
-      </div>
-      <span className="text-xs uppercase tracking-widest font-bold bg-surface-container-high text-on-surface-variant px-4 py-1.5 rounded-full">
-        {level} Courses
-      </span>
-      <h3 className="text-2xl font-headline font-bold text-on-surface tracking-tighter">Coming Soon</h3>
-      <p className="text-on-surface-variant text-sm max-w-xs leading-relaxed">
-        We're curating the best {level} resources. Start with N5 and we'll notify you when {level} courses go live.
-      </p>
-    </div>
-  )
+/** Filters live in the URL (?level=N4&platform=youtube&free=1) so Back from a course keeps them. */
+function readFilters(params: URLSearchParams): Required<Pick<ClassesFilters, 'level'>> & { platform: ClassPlatform | null; freeOnly: boolean } {
+  const level = params.get('level')
+  const platform = params.get('platform')
+  return {
+    level: LEVELS.includes(level as JlptLevel) ? (level as JlptLevel) : DEFAULT_LEVEL,
+    platform: CLASS_PLATFORMS.includes(platform as ClassPlatform) ? (platform as ClassPlatform) : null,
+    freeOnly: params.get('free') === '1',
+  }
 }
 
 export function ClassesPage() {
-  const [activeLevel, setActiveLevel] = useState<JLPTLevel>('N5')
-  const [activePlatform, setActivePlatform] = useState<Platform | 'all'>('all')
+  const [params, setParams] = useSearchParams()
+  const { level, platform, freeOnly } = readFilters(params)
+  const filters = useMemo<ClassesFilters>(
+    () => ({ level, platform: platform ?? undefined, freeOnly }),
+    [level, platform, freeOnly],
+  )
+  const { data, isLoading, error, refetch, meta } = useClasses(filters)
 
-  const filtered = useMemo(() => {
-    if (LOCKED_LEVELS.has(activeLevel)) return []
-    return classTeachers.filter(
-      (t) =>
-        t.level === activeLevel &&
-        (activePlatform === 'all' || t.platform === activePlatform)
-    )
-  }, [activeLevel, activePlatform])
+  const update = useCallback(
+    (next: { level?: JlptLevel; platform?: ClassPlatform | null; freeOnly?: boolean }) => {
+      setParams(
+        prev => {
+          const out = new URLSearchParams(prev)
+          const set = (key: string, value: string | null) => (value ? out.set(key, value) : out.delete(key))
+          if (next.level !== undefined) set('level', next.level === DEFAULT_LEVEL ? null : next.level)
+          if (next.platform !== undefined) set('platform', next.platform)
+          if (next.freeOnly !== undefined) set('free', next.freeOnly ? '1' : null)
+          return out
+        },
+        { replace: true },
+      )
+    },
+    [setParams],
+  )
+  const clearFilters = useCallback(() => update({ platform: null, freeOnly: false }), [update])
 
-  const platforms: Array<Platform | 'all'> = ['all', 'youtube', 'udemy', 'website']
+  const levelInfo = meta?.levels.find(l => l.level === level)
 
   return (
-    <main className="pt-24 pb-20 min-h-dvh">
-      {/* Hero */}
-      <section className="max-w-7xl mx-auto px-6 pt-10 pb-8 text-center space-y-4">
-        <span className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-bold px-4 py-2 rounded-full bg-primary/10 text-primary">
-          <Icon name="school" className="text-base" />
-          Curated Free Resources
-        </span>
-        <h1 className="text-4xl md:text-6xl font-headline font-extrabold tracking-tighter text-on-surface">
-          Learn Japanese{' '}
-          <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 dark:from-orange-400 dark:via-amber-300 dark:to-orange-300 bg-clip-text text-transparent">
-            for Free
-          </span>
-        </h1>
-        <p className="text-base md:text-lg text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
-          Hand-picked teachers and courses from across the internet — YouTube channels, structured Udemy
-          courses, and dedicated platforms — all reviewed by real learners.
-        </p>
-        {/* Stats row */}
-        <div className="flex flex-wrap items-center justify-center gap-6 pt-4 text-sm text-on-surface-variant">
-          {[
-            { icon: 'play_circle', label: '6 Curated Teachers' },
-            { icon: 'star', label: 'All 4.5+ Rated' },
-            { icon: 'verified', label: 'JLPT Aligned' },
-          ].map((s) => (
-            <div key={s.label} className="flex items-center gap-1.5 font-semibold">
-              <Icon name={s.icon} className="text-base text-primary" />
-              {s.label}
-            </div>
-          ))}
-        </div>
-      </section>
+    <main className="min-h-dvh pb-20 pt-24">
+      <ClassesHero meta={meta} />
 
-      {/* Filters */}
-      <div className="sticky top-nav z-30 bg-surface/80 backdrop-blur-lg border-b border-outline-variant/20 shadow-elevation-1">
-        <div className="max-w-7xl mx-auto px-6 py-3 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-          {/* Level tabs */}
-          <div className="flex items-center gap-1 bg-surface-container rounded-xl p-1">
-            {LEVELS.map((level) => (
-              <button
-                key={level}
-                onClick={() => { setActiveLevel(level); setActivePlatform('all') }}
-                className={`relative px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 ${
-                  activeLevel === level
-                    ? 'bg-primary text-on-primary shadow-elevation-1'
-                    : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'
-                }`}
-              >
-                {level}
-                {LOCKED_LEVELS.has(level) && (
-                  <Icon name="lock" className="ml-1 opacity-60 text-xs" />
-                )}
-              </button>
-            ))}
-          </div>
+      {meta ? (
+        <ClassesFilterBar
+          levels={meta.levels}
+          level={level}
+          platform={platform}
+          freeOnly={freeOnly}
+          onLevelChange={l => update({ level: l })}
+          onPlatformChange={p => update({ platform: p })}
+          onFreeOnlyChange={f => update({ freeOnly: f })}
+        />
+      ) : (
+        !error && <div aria-hidden="true" className="mx-auto max-w-7xl px-6 py-3 md:px-10"><SkeletonBlock className="h-12 w-72 rounded-xl" /></div>
+      )}
 
-          {/* Platform filter */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {platforms.map((p) => {
-              const isAll = p === 'all'
-              const meta = isAll ? null : PLATFORM_META[p]
-              return (
-                <button
-                  key={p}
-                  onClick={() => setActivePlatform(p)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all duration-200 ${
-                    activePlatform === p
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-outline-variant/40 text-on-surface-variant hover:border-outline-variant hover:text-on-surface bg-transparent'
-                  }`}
-                >
-                  {meta ? (
-                    <Icon name={meta.icon} className={`text-xs ${activePlatform === p ? '' : meta.colorClass}`} />
-                  ) : (
-                    <Icon name="filter_list" className="text-xs" />
-                  )}
-                  {isAll ? 'All Platforms' : meta!.label}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Grid */}
-      <section className="max-w-7xl mx-auto px-6 pt-8">
-        {LOCKED_LEVELS.has(activeLevel) ? (
-          <div className="grid grid-cols-1">
-            <LockedLevelCard level={activeLevel} />
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-            <Icon name="search_off" className="text-5xl text-on-surface-variant/30" />
-            <p className="text-on-surface-variant font-semibold">No courses found for this filter.</p>
-            <button
-              onClick={() => setActivePlatform('all')}
-              className="text-sm text-primary font-bold hover:underline"
-            >
-              Clear filter
-            </button>
-          </div>
+      <section aria-label={`JLPT ${level} courses`} className="mx-auto max-w-7xl px-6 pt-8 md:px-10">
+        {error ? (
+          <ErrorState title="Couldn't load the courses" message={resolveErrorMessage(error)} onRetry={refetch} />
+        ) : levelInfo?.locked ? (
+          <EmptyState
+            icon="lock"
+            title={`${level} courses are coming soon`}
+            description={`We're still curating the best ${level} resources. Start with N5 in the meantime.`}
+            actionLabel="Browse N5 courses"
+            onAction={() => update({ level: 'N5' })}
+          />
+        ) : isLoading || !data ? (
+          <CourseGridSkeleton />
+        ) : data.items.length === 0 ? (
+          <EmptyState
+            icon="search_off"
+            title="No courses match these filters"
+            description="Try another platform, or include paid courses."
+            actionLabel="Clear filters"
+            onAction={clearFilters}
+          />
         ) : (
-          <AnimatePresence mode="popLayout">
-            <motion.div
-              key={`${activeLevel}-${activePlatform}`}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
-            >
-              {filtered.map((teacher, i) => (
-                <TeacherCard key={teacher.id} teacher={teacher} index={i} />
-              ))}
-            </motion.div>
-          </AnimatePresence>
+          <CourseGrid courses={data.items} />
         )}
       </section>
 
-      {/* Bottom CTA */}
-      <section className="max-w-7xl mx-auto px-6 mt-20">
-        <div className="bg-primary/5 border border-primary/10 rounded-2xl px-8 py-10 text-center space-y-4">
-          <Icon name="tips_and_updates" className="text-4xl text-primary" />
-          <h2 className="text-2xl font-headline font-bold text-on-surface tracking-tighter">
-            Know a great free resource we missed?
-          </h2>
-          <p className="text-on-surface-variant text-sm max-w-md mx-auto leading-relaxed">
-            We review and add new teachers regularly. Our goal is to have the most complete curated list
-            of free Japanese learning resources on the internet.
-          </p>
-          <a
-            href="mailto:hello@foxsensei.app"
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-on-primary rounded-lg font-bold text-sm shadow-md shadow-primary/20 dark:shadow-primary/10 hover:opacity-90 transition-opacity"
-          >
-            <Icon name="mail" className="text-base" />
-            Suggest a Resource
-          </a>
-        </div>
-      </section>
+      <SuggestResource />
     </main>
+  )
+}
+
+function ClassesHero({ meta }: { meta: ClassesMeta | undefined }) {
+  const stats = meta?.stats
+  return (
+    <section className="mx-auto max-w-7xl space-y-4 px-6 pb-8 pt-10 text-center md:px-10">
+      <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-primary">
+        <Icon name="school" className="text-base" />
+        Curated classes
+      </span>
+      <h1 className="font-headline text-display-lg font-extrabold tracking-tight text-on-surface">
+        Learn Japanese from <span className="text-primary">great teachers</span>
+      </h1>
+      <p className="mx-auto max-w-2xl text-base leading-relaxed text-on-surface-variant md:text-lg">
+        Hand-picked YouTube playlists, courses and platforms, sorted by JLPT level — with an honest look at each teacher.
+      </p>
+      <div className="flex min-h-6 flex-wrap items-center justify-center gap-6 pt-2 text-sm font-semibold text-on-surface-variant">
+        {stats ? (
+          <>
+            <span className="inline-flex items-center gap-1.5">
+              <Icon name="play_circle" className="text-base text-primary" />
+              {stats.courseCount} {stats.courseCount === 1 ? 'course' : 'courses'}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Icon name="group" className="text-base text-primary" />
+              {stats.channelCount} {stats.channelCount === 1 ? 'teacher' : 'teachers & channels'}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Icon name="verified" className="text-base text-primary" />
+              Sorted by JLPT level
+            </span>
+          </>
+        ) : (
+          <SkeletonBlock className="h-5 w-80 rounded-xl" />
+        )}
+      </div>
+    </section>
+  )
+}
+
+function SuggestResource() {
+  return (
+    <section className="mx-auto mt-20 max-w-7xl px-6 md:px-10">
+      <div className="space-y-4 rounded-2xl border border-primary/20 bg-primary/5 px-8 py-10 text-center">
+        <Icon name="tips_and_updates" className="text-4xl text-primary" />
+        <h2 className="font-headline text-2xl font-bold tracking-tight text-on-surface">Know a great resource we missed?</h2>
+        <p className="mx-auto max-w-md text-sm leading-relaxed text-on-surface-variant">
+          We review and add new teachers regularly. Tell us about a channel or course that helped you.
+        </p>
+        <a
+          href="mailto:hello@foxsensei.app"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-on-primary shadow-elevation-1 transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+        >
+          <Icon name="mail" className="text-base" />
+          Suggest a resource
+        </a>
+      </div>
+    </section>
   )
 }
