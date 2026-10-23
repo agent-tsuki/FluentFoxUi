@@ -1,5 +1,6 @@
 import { Icon } from '@/components/ui/Icon'
 import { cn } from '@/lib/cn'
+import { isRepeatedText } from '@/lib/classes/format'
 import type { ClassChannelProfile } from '@/types/classes'
 
 type Tone = 'good' | 'bad'
@@ -27,11 +28,22 @@ function PointList({ title, items, tone }: { title: string; items: string[]; ton
   )
 }
 
-/** ChannelAssessment — teaching style, who it suits, pros/cons and our verdict. Empty parts are hidden. */
-export function ChannelAssessment({ channel }: { channel: ClassChannelProfile }) {
+interface ChannelAssessmentProps {
+  channel: ClassChannelProfile
+  /** The course summary shown in the hero; teaching style is hidden when it only repeats it. */
+  courseSummary?: string
+}
+
+/**
+ * ChannelAssessment — teaching style, who it suits, pros/cons and our verdict.
+ * Empty parts are hidden, and so is a teaching style that repeats the course
+ * summary or the channel description.
+ */
+export function ChannelAssessment({ channel, courseSummary }: ChannelAssessmentProps) {
+  const showStyle = !isRepeatedText(channel.teachingStyle, courseSummary, channel.description)
   return (
     <div className="space-y-6 border-t border-outline-variant/40 pt-6">
-      {channel.teachingStyle && (
+      {showStyle && (
         <div className="space-y-2">
           <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">
             <Icon name="history_edu" className="text-base" />
@@ -49,7 +61,7 @@ export function ChannelAssessment({ channel }: { channel: ClassChannelProfile })
       </div>
 
       {channel.verdict && (
-        <figure className="rounded-xl border-l-4 border-[color:var(--channel-accent)] bg-surface-container-low px-5 py-4">
+        <figure className="rounded-xl border-l-4 border-primary bg-surface-container-low px-5 py-4">
           <figcaption className="text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">Our verdict</figcaption>
           <blockquote className="mt-1 font-headline text-base font-semibold text-on-surface">{channel.verdict}</blockquote>
         </figure>

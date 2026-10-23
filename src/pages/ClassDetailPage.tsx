@@ -12,6 +12,7 @@ import { SectionTitle } from '@/components/classes/detail/SectionTitle'
 import { isClassNotFound, useClassDetail } from '@/hooks/useClassDetail'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { resolveErrorMessage } from '@/api/errors'
+import { hasPlayablePlaylist } from '@/lib/classes/youtube'
 import type { ClassCourseCard, ClassCourseDetail } from '@/types/classes'
 
 /** Course page. The route param is still named `teacherId` (App.tsx); it holds the course slug. */
@@ -20,7 +21,7 @@ export function ClassDetailPage() {
   const navigate = useNavigate()
   const { data, isLoading, error, refetch } = useClassDetail(slug)
 
-  if (isLoading) return <main className="min-h-dvh pb-20 pt-20"><ClassDetailSkeleton /></main>
+  if (isLoading) return <main className="min-h-dvh pb-16 pt-nav"><ClassDetailSkeleton /></main>
 
   if (error || !data) {
     const notFound = isClassNotFound(error)
@@ -50,8 +51,7 @@ function CourseView({ course }: { course: ClassCourseDetail }) {
   const playlistRef = useRef<HTMLElement>(null)
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [started, setStarted] = useState(false)
-  const hasPlaylist = course.platform === 'youtube'
-  const canPlayHere = hasPlaylist && course.videos.length > 0
+  const hasPlaylist = hasPlayablePlaylist(course)
 
   useEffect(() => {
     document.title = `${course.title} · FoxSensei`
@@ -63,24 +63,29 @@ function CourseView({ course }: { course: ClassCourseDetail }) {
     playlistRef.current?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' })
   }, [reducedMotion])
 
+  // Order (CLASSES_UI_SPEC §2): Hero → Meet the channel → Playlist → What you'll learn → Curriculum → rails.
   return (
-    <main className="min-h-dvh pb-20 pt-20">
-      <CourseHero course={course} onStartWatching={canPlayHere ? startWatching : undefined} />
+    <main className="min-h-dvh pb-16 pt-nav">
+      <CourseHero course={course} onStartWatching={hasPlaylist ? startWatching : undefined} />
 
-      <div className="mx-auto max-w-5xl space-y-14 px-6 pt-12 md:px-10">
+      <div className="mx-auto max-w-5xl space-y-10 px-6 pt-8 md:px-10">
+        <ChannelIntroduction channel={course.channel} courseSummary={course.summary} />
         {hasPlaylist && (
           <PlaylistSection
             ref={playlistRef}
+            title={course.title}
             videos={course.videos}
+            playlistId={course.playlistId}
+            thumbnailUrl={course.thumbnailUrl}
+            channelName={course.channel.name}
+            channelUrl={course.channel.url}
             selectedIndex={selectedIndex}
             started={started}
-            courseUrl={course.url}
             onSelect={setSelectedIndex}
             onPlay={markStarted}
           />
         )}
         <WhatYouLearn items={course.whatYouLearn} />
-        <ChannelIntroduction channel={course.channel} />
         <Curriculum sections={course.curriculum} />
         <CourseRail id="more-title" icon="grid_view" title={`More from ${course.channel.name}`} courses={course.moreFromChannel} />
         <CourseRail id="similar-title" icon="explore" title="Similar courses" courses={course.similar} />
@@ -94,7 +99,7 @@ function CourseRail({ id, icon, title, courses }: { id: string; icon: string; ti
   return (
     <section aria-labelledby={id}>
       <SectionTitle id={id} icon={icon}>{title}</SectionTitle>
-      <CourseGrid courses={courses} />
+      <CourseGrid courses={courses} maxCols={4} />
     </section>
   )
 }

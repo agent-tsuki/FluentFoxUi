@@ -95,6 +95,26 @@ describe('mapping', () => {
   })
 })
 
+describe('YouTube media mapping', () => {
+  it('maps the channel banner, playlist id and thumbnail', () => {
+    const out = toCourseDetail({
+      ...detail,
+      thumbnail_url: 'https://i.ytimg.com/vi/pSvH9vH60Ig/hqdefault.jpg',
+      channel: { ...detail.channel, banner_url: 'https://yt3.googleusercontent.com/banner=w2120' },
+    })
+    expect(out.playlistId).toBe('PL1')
+    expect(out.thumbnailUrl).toBe('https://i.ytimg.com/vi/pSvH9vH60Ig/hqdefault.jpg')
+    expect(out.channel.bannerUrl).toBe('https://yt3.googleusercontent.com/banner=w2120')
+  })
+
+  it('treats empty or missing media fields as absent', () => {
+    const out = toCourseDetail({ ...detail, playlist_id: '', thumbnail_url: null, channel: { ...detail.channel, banner_url: null } })
+    expect(out.playlistId).toBeNull()
+    expect(out.thumbnailUrl).toBeNull()
+    expect(out.channel.bannerUrl).toBeNull()
+  })
+})
+
 describe('classesQuery', () => {
   it('builds a stable query string', () => {
     expect(classesQuery()).toBe('')
@@ -124,6 +144,25 @@ describe('classesService', () => {
     api.get.mockImplementation(() => Promise.reject(new ApiError(404, 'CLASS_NOT_FOUND', 'not found', '')))
     const err = await classesService.getClassDetail('misa-n5-complete').catch((e: unknown) => e)
     expect(isClassNotFound(err)).toBe(true)
+  })
+
+  it('serves the same banners, playlists and thumbnails offline as the API', async () => {
+    api.get.mockImplementation(() => Promise.reject(new ApiError(0, 'NETWORK_ERROR', 'Network request failed', '')))
+    const out = await classesService.getClassDetail('cure-dolly-structural-grammar')
+    expect(out.playlistId).toBe('PLg9uYxuZf8x_A-vcqqyOFZu06WlhnypWj')
+    expect(out.url).toBe('https://www.youtube.com/playlist?list=PLg9uYxuZf8x_A-vcqqyOFZu06WlhnypWj')
+    expect(out.thumbnailUrl).toBe('https://i.ytimg.com/vi/pSvH9vH60Ig/hqdefault.jpg')
+    expect(out.channel.bannerUrl).toMatch(/^https:\/\/yt3\.googleusercontent\.com\/N1yd7VVW1cLL.+=w2120-/)
+    expect(out.videos).toEqual([])
+
+    const list = await classesService.listClasses({ level: 'N5' })
+    const youtube = list.items.filter(c => c.platform === 'youtube')
+    expect(youtube.length).toBe(4)
+    expect(youtube.every(c => c.thumbnailUrl?.startsWith('https://i.ytimg.com/vi/'))).toBe(true)
+    expect(list.items.find(c => c.slug === 'japanesepod101-n5-path')?.thumbnailUrl).toBe(
+      'https://cdn.innovativelanguage.com/sns/thumbnail/site/thumb_fb_japanese.png',
+    )
+    expect(list.items.some(c => c.platform === 'udemy')).toBe(false)
   })
 
   it('serves seed detail offline and 404s an unknown slug', async () => {

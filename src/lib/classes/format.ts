@@ -62,3 +62,14 @@ export function initials(name: string): string {
   const letters = words.slice(0, 2).map(w => Array.from(w)[0] ?? '')
   return letters.join('').toUpperCase() || '?'
 }
+
+/** Trimmed, lower-cased, single-spaced text, for "is this the same sentence?" checks. */
+export function normalizeText(value: string | null | undefined): string {
+  return (value ?? '').trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
+/** True when `text` is empty or repeats one of `others` (ignoring case and spacing). */
+export function isRepeatedText(text: string | null | undefined, ...others: (string | null | undefined)[]): boolean {
+  const norm = normalizeText(text)
+  return norm === '' || others.some(o => normalizeText(o) === norm)
+}

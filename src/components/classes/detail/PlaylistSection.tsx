@@ -3,45 +3,66 @@ import { VideoEmbed } from '@/components/learn/VideoEmbed'
 import { Icon } from '@/components/ui/Icon'
 import { cn } from '@/lib/cn'
 import { formatVideoDuration } from '@/lib/classes/format'
+import { isPlaylistId } from '@/lib/classes/youtube'
 import type { ClassVideo } from '@/types/classes'
-import { LINK_BUTTON } from '../linkStyles'
-import { YouTubeLogo } from '../YouTubeLogo'
 import { SectionTitle } from './SectionTitle'
 
 interface PlaylistSectionProps {
+  /** Course title, the player's accessible name in playlist-only mode. */
+  title: string
   videos: ClassVideo[]
+  /** Used when there is no video list: one click-to-load player for the whole playlist. */
+  playlistId: string | null
+  /** Poster for the playlist-only player. */
+  thumbnailUrl: string | null
+  channelName: string
+  channelUrl: string
   selectedIndex: number
   /** The learner already pressed play once: later picks start straight away. */
   started: boolean
-  courseUrl: string
   onSelect: (index: number) => void
   onPlay: () => void
 }
 
 /**
  * PlaylistSection — a click-to-load YouTube player (youtube-nocookie, no
- * iframe until the learner presses play) beside the ordered video list.
+ * iframe until the learner presses play). With a video list it sits beside the
+ * ordered list; with only a playlist id it is a single videoseries player.
+ * The page renders it only when one of the two exists (see `hasPlayablePlaylist`).
  */
 export const PlaylistSection = forwardRef<HTMLElement, PlaylistSectionProps>(function PlaylistSection(
-  { videos, selectedIndex, started, courseUrl, onSelect, onPlay },
+  { title, videos, playlistId, thumbnailUrl, channelName, channelUrl, selectedIndex, started, onSelect, onPlay },
   ref,
 ) {
   const current = videos[selectedIndex] ?? videos[0]
+  if (!current && !isPlaylistId(playlistId)) return null
+
+  const hostedOn = (
+    <p className="text-xs text-on-surface-variant">
+      Videos hosted on YouTube ·{' '}
+      <a href={channelUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-on-surface underline-offset-2 hover:underline">
+        {channelName}
+        <span className="sr-only">(opens in a new tab)</span>
+      </a>
+    </p>
+  )
 
   return (
     <section ref={ref} id="playlist" aria-labelledby="playlist-title" className="scroll-mt-28">
       <SectionTitle id="playlist-title" icon="format_list_numbered">Playlist</SectionTitle>
 
       {!current ? (
-        <div className="flex flex-col items-start gap-4 rounded-2xl border border-outline-variant/40 bg-surface-container-low p-6">
-          <p className="text-sm leading-relaxed text-on-surface-variant">
-            The video list appears here once this playlist has been synced from YouTube. You can already watch it there.
-          </p>
-          <a href={courseUrl} target="_blank" rel="noopener noreferrer" className={LINK_BUTTON.outline}>
-            <YouTubeLogo />
-            Watch on YouTube
-            <span className="sr-only">(opens in a new tab)</span>
-          </a>
+        <div className="max-w-3xl space-y-2">
+          {/* key: `started` (hero poster / Start watching) remounts straight into the playing iframe. */}
+          <VideoEmbed
+            key={started ? 'on' : 'off'}
+            playlistId={playlistId ?? undefined}
+            posterUrl={thumbnailUrl}
+            title={title}
+            autoPlay={started}
+            onPlay={onPlay}
+          />
+          {hostedOn}
         </div>
       ) : (
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
@@ -52,6 +73,7 @@ export const PlaylistSection = forwardRef<HTMLElement, PlaylistSectionProps>(fun
               <span className="text-on-surface-variant">{current.position}. </span>
               {current.title}
             </p>
+            {hostedOn}
           </div>
 
           <ol aria-label="Videos" className="max-h-[28rem] space-y-1 overflow-y-auto rounded-2xl border border-outline-variant/40 bg-surface-container-low p-2">

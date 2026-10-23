@@ -3,12 +3,22 @@ import { cn } from '@/lib/cn'
 import type { ClassCourseCard } from '@/types/classes'
 import { CourseCard } from './CourseCard'
 
-const GRID = 'grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3'
+type MaxCols = 4 | 5
+
+const GRID = 'grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+const GRID_COLS: Record<MaxCols, string> = { 4: GRID, 5: `${GRID} xl:grid-cols-5` }
+
+interface CourseGridProps {
+  courses: ClassCourseCard[]
+  /** 5 on the full-width list page; 4 in the narrower detail-page rails. Default 5. */
+  maxCols?: MaxCols
+  className?: string
+}
 
 /** CourseGrid — the responsive card grid used on /classes and in the detail page rails. */
-export function CourseGrid({ courses, className }: { courses: ClassCourseCard[]; className?: string }) {
+export function CourseGrid({ courses, maxCols = 5, className }: CourseGridProps) {
   return (
-    <ul className={cn(GRID, className)}>
+    <ul className={cn(GRID_COLS[maxCols], className)}>
       {courses.map(course => (
         <li key={course.slug}>
           <CourseCard course={course} />
@@ -19,21 +29,20 @@ export function CourseGrid({ courses, className }: { courses: ClassCourseCard[];
 }
 
 /** CourseGridSkeleton — mirrors CourseCard's layout while the list loads. */
-export function CourseGridSkeleton({ count = 6 }: { count?: number }) {
+export function CourseGridSkeleton({ count = 8, maxCols = 5 }: { count?: number; maxCols?: MaxCols }) {
   return (
     <LoadingState label="Loading courses…">
-      <div className={GRID}>
+      <div className={GRID_COLS[maxCols]}>
         {Array.from({ length: count }, (_, i) => (
-          <div key={i} className="overflow-hidden rounded-2xl border border-outline-variant/40 bg-surface-container-lowest">
+          <div key={i} className="overflow-hidden rounded-xl border border-outline-variant/40 bg-surface-container-lowest">
             <SkeletonBlock className="aspect-video w-full rounded-none" />
-            <div className="space-y-3 p-4">
-              <SkeletonBlock className="h-5 w-1/2 rounded-full" />
-              <SkeletonBlock className="h-5 w-11/12 rounded-xl" />
+            <div className="space-y-2 p-3">
+              <SkeletonBlock className="h-4 w-11/12 rounded-xl" />
               <div className="flex items-center gap-2">
                 <SkeletonBlock className="size-6 rounded-full" />
-                <SkeletonBlock className="h-4 w-1/3 rounded-xl" />
+                <SkeletonBlock className="h-3 w-1/2 rounded-xl" />
               </div>
-              <SkeletonBlock className="h-4 w-full rounded-xl" />
+              <SkeletonBlock className="h-3 w-1/3 rounded-xl" />
             </div>
           </div>
         ))}

@@ -2,9 +2,9 @@
  * Bundled seed data for the Classes pages, in the exact API (snake_case) shape.
  *
  * Served by `classesService` only when the API cannot be reached; it mirrors
- * migration 000017_classes_seed (real channel URLs, avatars and intro videos,
- * verified 2026-10-22). Videos, banners and thumbnails are filled by YouTube
- * sync on the server, so they are empty here. There are no ratings or reviews.
+ * the seed migrations (real channel URLs, avatars, banners, intro videos,
+ * playlist ids and thumbnails). Playlist videos are filled by a server-side
+ * YouTube API sync, so they are empty here. There are no ratings or reviews.
  */
 import type {
   ApiClassChannelProfile,
@@ -24,6 +24,7 @@ type SeedCourse = Omit<ApiClassCourseDetail, 'channel' | 'more_from_channel' | '
 }
 
 const YT_AVATAR_SUFFIX = '=s240-c-k-c0x00ffffff-no-rj'
+const YT_BANNER_SUFFIX = '=w2120-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj'
 
 const channels: SeedChannel[] = [
   {
@@ -34,7 +35,7 @@ const channels: SeedChannel[] = [
     handle: '@JapaneseAmmowithMisa',
     youtube_channel_id: 'UCBSyd8tXJoEJKIXfrwkPdbA',
     avatar_url: `https://yt3.googleusercontent.com/xOk8YBLsc0lES-K1tM0TxOQf_iwgsgtek9rJrxgLei69lxbEk1WKpxtICsQTxDQE3nPzF50zyQ${YT_AVATAR_SUFFIX}`,
-    banner_url: null,
+    banner_url: `https://yt3.googleusercontent.com/MfnWcqAw9go8z47AKbPJsOwt1aJotJMCpUzh0EOfw0N9tNbJE3ckJLLGkpVp1vDMk6cyglE3${YT_BANNER_SUFFIX}`,
     description:
       'Misa is a native Japanese teacher who explains real, conversational Japanese for beginners. Her lessons are known for their relaxed pace, clear explanations, and everyday sentences rather than textbook-only phrases.',
     intro_video_id: 'WYYaf711IEM',
@@ -67,7 +68,7 @@ const channels: SeedChannel[] = [
     handle: '@organicjapanesewithcuredol49',
     youtube_channel_id: 'UCkdmU8hGK4Fg3LghTVtKltQ',
     avatar_url: `https://yt3.googleusercontent.com/ytc/AIdro_nw8mg4x0-3A56gFtGKYZ6QNfQPwTqqmDFuIhpdmOQU8cQ${YT_AVATAR_SUFFIX}`,
-    banner_url: null,
+    banner_url: `https://yt3.googleusercontent.com/N1yd7VVW1cLLJTJMo-QBtEZAKdb-h9kAngHDmCcPPFCRWMjBmfdqtLtMl6-whZMSKDGFJ8FszQ${YT_BANNER_SUFFIX}`,
     description:
       'The "Organic Japanese" series teaches Japanese through its own internal logic rather than forcing it onto English grammar. Unconventional in presentation, it is widely regarded as one of the most rigorous approaches to Japanese grammar online.',
     intro_video_id: 'TkS5APqAFHA',
@@ -100,7 +101,7 @@ const channels: SeedChannel[] = [
     handle: '@ToKiniAndy',
     youtube_channel_id: 'UCsHzgQRjPzOz_w4HSrNLIVw',
     avatar_url: `https://yt3.googleusercontent.com/Odm1BnpElzpeAsSWhLXe58XTa_5Fk5h5QtQYwGW4UpjEKqknncffawSNwPIESYhcxYVp6HXLKQ${YT_AVATAR_SUFFIX}`,
-    banner_url: null,
+    banner_url: `https://yt3.googleusercontent.com/s4SVUQ_Hpyzyj_aNowD2HE4IBvV2rFWFveFMNWXlWQbBaW3aYZXXpCXVyi-HmCPCJZQvzJlHWQ${YT_BANNER_SUFFIX}`,
     description:
       'Andy follows the popular Genki textbook series chapter by chapter, making the channel an ideal companion for university students and self-learners using Genki.',
     intro_video_id: null,
@@ -132,7 +133,7 @@ const channels: SeedChannel[] = [
     handle: '@nihongonomori2013',
     youtube_channel_id: 'UCVx6RFaEAg46xfAsD2zz16w',
     avatar_url: `https://yt3.googleusercontent.com/_t0OeOIzQtIRDzEMxlzOTdOSAJhln6BnC3UPFbAadIpXvjmEUWegaJfqB5e75laWE6afeabd${YT_AVATAR_SUFFIX}`,
-    banner_url: null,
+    banner_url: `https://yt3.googleusercontent.com/5MxpA_nxsQybgEkogiORf4huCNqg0DCRGQLTH20OpdJx6VuF2-WyKJ6Ewmnq0u359SwgeEhvnT0${YT_BANNER_SUFFIX}`,
     description:
       'A channel run by native Japanese teachers built for JLPT preparation. Every lesson maps directly to an exam objective — a grammar point, vocabulary group or kanji reading.',
     intro_video_id: '1SGCu28948U',
@@ -187,37 +188,6 @@ const channels: SeedChannel[] = [
     ],
     verdict: 'Best for building listening skills on the go.',
   },
-  {
-    slug: 'udemy-miku',
-    name: 'Miku Sensei (Udemy)',
-    platform: 'udemy',
-    url: 'https://www.udemy.com/course/japanese-for-beginners-n5/',
-    handle: null,
-    youtube_channel_id: null,
-    avatar_url: null,
-    banner_url: null,
-    description:
-      'A self-paced Udemy course covering complete N5 preparation with structured modules, quizzes and downloadable resources. Unlike YouTube channels it has a clear beginning and end.',
-    intro_video_id: null,
-    subscriber_count: null,
-    video_count: null,
-    accent_color: '#A435F0',
-    teaching_style: 'Structured video modules with a quiz after each section and a full mock test at the end.',
-    best_for: ['Learners who prefer a one-time purchase', 'Learners who want clear milestones'],
-    not_for: ['Learners who want everything free', 'Anyone who needs live help'],
-    pros: [
-      'Full structured course with clear start and end',
-      'Includes a JLPT mock test',
-      'Downloadable notes for every section',
-      'One-time cost — no subscription',
-    ],
-    cons: [
-      'Not free (though cheap during sales)',
-      'Less natural/conversational Japanese focus',
-      'Cannot ask questions in real time',
-    ],
-    verdict: 'A tidy paid option if you want one complete course with an end point.',
-  },
 ]
 
 const courses: SeedCourse[] = [
@@ -228,11 +198,11 @@ const courses: SeedCourse[] = [
     summary: 'Native Japanese teacher with a warm, story-driven teaching style. Perfect for absolute beginners.',
     level: 'N5',
     platform: 'youtube',
-    url: 'https://www.youtube.com/@JapaneseAmmowithMisa',
-    playlist_id: null,
+    url: 'https://www.youtube.com/playlist?list=PLd5-Wp_4tLqaDGh1kvlS_N0X3O_bTaKar',
+    playlist_id: 'PLd5-Wp_4tLqaDGh1kvlS_N0X3O_bTaKar',
     is_free: true,
     price_note: 'Completely free on YouTube',
-    thumbnail_url: null,
+    thumbnail_url: 'https://i.ytimg.com/vi/GU1UTcbFwIc/hqdefault.jpg',
     tags: ['Grammar', 'Vocab', 'Speaking', 'Listening'],
     what_you_learn: [
       'Hiragana & Katakana from scratch',
@@ -264,11 +234,11 @@ const courses: SeedCourse[] = [
     summary: 'Unconventional structural approach to Japanese grammar. Teaches the language as it actually works, not the Western textbook version.',
     level: 'N5',
     platform: 'youtube',
-    url: 'https://www.youtube.com/@organicjapanesewithcuredol49',
-    playlist_id: null,
+    url: 'https://www.youtube.com/playlist?list=PLg9uYxuZf8x_A-vcqqyOFZu06WlhnypWj',
+    playlist_id: 'PLg9uYxuZf8x_A-vcqqyOFZu06WlhnypWj',
     is_free: true,
     price_note: 'Completely free on YouTube',
-    thumbnail_url: null,
+    thumbnail_url: 'https://i.ytimg.com/vi/pSvH9vH60Ig/hqdefault.jpg',
     tags: ['Grammar', 'Structure', 'Particles'],
     what_you_learn: [
       'The true function of は and が',
@@ -298,11 +268,11 @@ const courses: SeedCourse[] = [
     summary: 'Textbook-aligned JLPT prep with Genki I & II. Best for learners who want structured, exam-focused progress.',
     level: 'N5',
     platform: 'youtube',
-    url: 'https://www.youtube.com/@ToKiniAndy',
-    playlist_id: null,
+    url: 'https://www.youtube.com/playlist?list=PLA_RcUI8km1NKAoxPzDoIoflnd6bNC7Qm',
+    playlist_id: 'PLA_RcUI8km1NKAoxPzDoIoflnd6bNC7Qm',
     is_free: true,
     price_note: 'Free on YouTube (Genki textbook sold separately)',
-    thumbnail_url: null,
+    thumbnail_url: 'https://i.ytimg.com/vi/GaQBL4XHuSo/hqdefault.jpg',
     tags: ['Grammar', 'JLPT Prep', 'Genki', 'Structured'],
     what_you_learn: [
       'All Genki I grammar patterns (N5 range)',
@@ -329,11 +299,11 @@ const courses: SeedCourse[] = [
     summary: 'JLPT-specific preparation by native Japanese teachers. Laser-focused on passing the exam.',
     level: 'N5',
     platform: 'youtube',
-    url: 'https://www.youtube.com/@nihongonomori2013',
-    playlist_id: null,
+    url: 'https://www.youtube.com/playlist?list=PLINFE8v4DOhtoQSCYikWP_iRyauCeS7mT',
+    playlist_id: 'PLINFE8v4DOhtoQSCYikWP_iRyauCeS7mT',
     is_free: true,
     price_note: 'Completely free on YouTube',
-    thumbnail_url: null,
+    thumbnail_url: 'https://i.ytimg.com/vi/kpR9lZKWWp0/hqdefault.jpg',
     tags: ['JLPT', 'Grammar', 'Kanji', 'Vocabulary'],
     what_you_learn: [
       'All N5 grammar points in exam-focused order',
@@ -363,7 +333,7 @@ const courses: SeedCourse[] = [
     playlist_id: null,
     is_free: false,
     price_note: 'Free tier available. Premium is a paid subscription.',
-    thumbnail_url: null,
+    thumbnail_url: 'https://cdn.innovativelanguage.com/sns/thumbnail/site/thumb_fb_japanese.png',
     tags: ['Listening', 'Vocab', 'Grammar', 'Structured Path'],
     what_you_learn: [
       'Survival Japanese for travel and daily life',
@@ -380,36 +350,6 @@ const courses: SeedCourse[] = [
     last_synced_at: null,
     is_featured: false,
     sort_order: 5,
-  },
-  {
-    slug: 'udemy-miku-complete-n5',
-    channel_slug: 'udemy-miku',
-    title: 'Complete Japanese N5 — Beginner to JLPT Ready',
-    summary: 'Structured video course on Udemy. Great for learners who prefer a one-time purchase.',
-    level: 'N5',
-    platform: 'udemy',
-    url: 'https://www.udemy.com/course/japanese-for-beginners-n5/',
-    playlist_id: null,
-    is_free: false,
-    price_note: 'Paid course on Udemy; sales are frequent.',
-    thumbnail_url: null,
-    tags: ['Grammar', 'Vocab', 'JLPT', 'Structured'],
-    what_you_learn: [
-      'Complete N5 grammar syllabus',
-      'N5 vocabulary with audio pronunciation',
-      'N5 kanji with stroke order and readings',
-      'JLPT N5 mock test with answer explanations',
-      'Section quizzes to test retention',
-    ],
-    curriculum: [
-      { title: 'Section 1 — Writing Systems', topics: ['Hiragana 46 characters', 'Katakana 46 characters', 'Dakuten and combination characters'] },
-      { title: 'Section 2 — Beginner Grammar', topics: ['Nouns, pronouns, particles', 'Adjective types', 'Verb groups and basic conjugations'] },
-      { title: 'Section 3 — JLPT Mock Test', topics: ['Full N5 practice test', 'Answer walkthrough', 'Common mistake analysis'] },
-    ],
-    total_duration_sec: 0,
-    last_synced_at: null,
-    is_featured: false,
-    sort_order: 6,
   },
 ]
 

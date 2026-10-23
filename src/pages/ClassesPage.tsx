@@ -6,7 +6,9 @@ import { ErrorState } from '@/components/ui/ErrorState'
 import { SkeletonBlock } from '@/components/ui/LoadingState'
 import { ClassesFilterBar } from '@/components/classes/ClassesFilterBar'
 import { CourseGrid, CourseGridSkeleton } from '@/components/classes/CourseGrid'
+import { LINK_BUTTON } from '@/components/classes/linkStyles'
 import { useClasses } from '@/hooks/useClasses'
+import { cn } from '@/lib/cn'
 import { resolveErrorMessage } from '@/api/errors'
 import { CLASS_PLATFORMS } from '@/lib/classes/platformMeta'
 import type { JlptLevel } from '@/types'
@@ -17,6 +19,8 @@ export { PLATFORM_META, type PlatformMeta } from '@/lib/classes/platformMeta'
 
 const LEVELS: JlptLevel[] = ['N5', 'N4', 'N3', 'N2', 'N1']
 const DEFAULT_LEVEL: JlptLevel = 'N5'
+// A 5-column grid only pays off with a long list; fewer courses leave a lone card on the last row.
+const FIVE_COLUMN_MIN_COURSES = 10
 
 /** Filters live in the URL (?level=N4&platform=youtube&free=1) so Back from a course keeps them. */
 function readFilters(params: URLSearchParams): Required<Pick<ClassesFilters, 'level'>> & { platform: ClassPlatform | null; freeOnly: boolean } {
@@ -59,7 +63,7 @@ export function ClassesPage() {
   const levelInfo = meta?.levels.find(l => l.level === level)
 
   return (
-    <main className="min-h-dvh pb-20 pt-24">
+    <main className="min-h-dvh pb-16 pt-nav">
       <ClassesHero meta={meta} />
 
       {meta ? (
@@ -73,10 +77,16 @@ export function ClassesPage() {
           onFreeOnlyChange={f => update({ freeOnly: f })}
         />
       ) : (
-        !error && <div aria-hidden="true" className="mx-auto max-w-7xl px-6 py-3 md:px-10"><SkeletonBlock className="h-12 w-72 rounded-xl" /></div>
+        !error && (
+          <div aria-hidden="true" className="mx-auto max-w-7xl px-6 md:px-10">
+            <div className="flex h-12 items-center border-y border-outline-variant/40">
+              <SkeletonBlock className="h-8 w-60 rounded-xl" />
+            </div>
+          </div>
+        )
       )}
 
-      <section aria-label={`JLPT ${level} courses`} className="mx-auto max-w-7xl px-6 pt-8 md:px-10">
+      <section aria-label={`JLPT ${level} courses`} className="mx-auto max-w-7xl px-6 pt-6 md:px-10">
         {error ? (
           <ErrorState title="Couldn't load the courses" message={resolveErrorMessage(error)} onRetry={refetch} />
         ) : levelInfo?.locked ? (
@@ -88,7 +98,7 @@ export function ClassesPage() {
             onAction={() => update({ level: 'N5' })}
           />
         ) : isLoading || !data ? (
-          <CourseGridSkeleton />
+          <CourseGridSkeleton maxCols={4} />
         ) : data.items.length === 0 ? (
           <EmptyState
             icon="search_off"
@@ -98,7 +108,7 @@ export function ClassesPage() {
             onAction={clearFilters}
           />
         ) : (
-          <CourseGrid courses={data.items} />
+          <CourseGrid courses={data.items} maxCols={data.items.length >= FIVE_COLUMN_MIN_COURSES ? 5 : 4} />
         )}
       </section>
 
@@ -110,35 +120,20 @@ export function ClassesPage() {
 function ClassesHero({ meta }: { meta: ClassesMeta | undefined }) {
   const stats = meta?.stats
   return (
-    <section className="mx-auto max-w-7xl space-y-4 px-6 pb-8 pt-10 text-center md:px-10">
-      <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-primary">
-        <Icon name="school" className="text-base" />
-        Curated classes
-      </span>
-      <h1 className="font-headline text-display-lg font-extrabold tracking-tight text-on-surface">
-        Learn Japanese from <span className="text-primary">great teachers</span>
-      </h1>
-      <p className="mx-auto max-w-2xl text-base leading-relaxed text-on-surface-variant md:text-lg">
-        Hand-picked YouTube playlists, courses and platforms, sorted by JLPT level — with an honest look at each teacher.
-      </p>
-      <div className="flex min-h-6 flex-wrap items-center justify-center gap-6 pt-2 text-sm font-semibold text-on-surface-variant">
+    <section className="mx-auto max-w-7xl space-y-1.5 px-6 pb-5 pt-8 md:px-10">
+      <h1 className="font-headline text-2xl font-extrabold tracking-tight text-on-surface md:text-3xl">Learn Japanese from great teachers</h1>
+      {/* A div, not a <p>: the stats skeleton is a block element. */}
+      <div className="text-sm text-on-surface-variant">
+        Hand-picked YouTube playlists and courses, sorted by JLPT level
         {stats ? (
           <>
-            <span className="inline-flex items-center gap-1.5">
-              <Icon name="play_circle" className="text-base text-primary" />
-              {stats.courseCount} {stats.courseCount === 1 ? 'course' : 'courses'}
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Icon name="group" className="text-base text-primary" />
-              {stats.channelCount} {stats.channelCount === 1 ? 'teacher' : 'teachers & channels'}
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Icon name="verified" className="text-base text-primary" />
-              Sorted by JLPT level
-            </span>
+            {' · '}
+            {stats.courseCount} {stats.courseCount === 1 ? 'course' : 'courses'}
+            {' · '}
+            {stats.channelCount} {stats.channelCount === 1 ? 'teacher' : 'teachers'}
           </>
         ) : (
-          <SkeletonBlock className="h-5 w-80 rounded-xl" />
+          <SkeletonBlock className="ml-2 inline-block h-3 w-32 rounded-xl align-middle" />
         )}
       </div>
     </section>
@@ -147,17 +142,12 @@ function ClassesHero({ meta }: { meta: ClassesMeta | undefined }) {
 
 function SuggestResource() {
   return (
-    <section className="mx-auto mt-20 max-w-7xl px-6 md:px-10">
-      <div className="space-y-4 rounded-2xl border border-primary/20 bg-primary/5 px-8 py-10 text-center">
-        <Icon name="tips_and_updates" className="text-4xl text-primary" />
-        <h2 className="font-headline text-2xl font-bold tracking-tight text-on-surface">Know a great resource we missed?</h2>
-        <p className="mx-auto max-w-md text-sm leading-relaxed text-on-surface-variant">
-          We review and add new teachers regularly. Tell us about a channel or course that helped you.
+    <section aria-label="Suggest a resource" className="mx-auto mt-12 max-w-7xl px-6 md:px-10">
+      <div className="flex flex-col items-start gap-4 rounded-xl border border-outline-variant/40 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-on-surface-variant">
+          <span className="font-semibold text-on-surface">Know a resource we missed?</span> Tell us about a channel or course that helped you.
         </p>
-        <a
-          href="mailto:hello@foxsensei.app"
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-on-primary shadow-elevation-1 transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-        >
+        <a href="mailto:hello@foxsensei.app" className={cn(LINK_BUTTON.outline, 'shrink-0')}>
           <Icon name="mail" className="text-base" />
           Suggest a resource
         </a>

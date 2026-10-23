@@ -6,6 +6,8 @@ import {
   formatVideoCount,
   formatVideoDuration,
   initials,
+  isRepeatedText,
+  normalizeText,
   safeAccentColor,
 } from '@/lib/classes/format'
 
@@ -72,5 +74,20 @@ describe('initials', () => {
     expect(initials('Miku Sensei (Udemy)')).toBe('MS')
     expect(initials('JapanesePod101')).toBe('J')
     expect(initials('   ')).toBe('?')
+  })
+})
+
+describe('repeated text', () => {
+  it('normalises case and whitespace', () => {
+    expect(normalizeText('  Warm,\n  story-driven   TEACHING ')).toBe('warm, story-driven teaching')
+    expect(normalizeText(null)).toBe('')
+  })
+
+  it('flags empty text or text that repeats another field', () => {
+    expect(isRepeatedText('Warm and clear.', 'warm  and clear.', 'Other')).toBe(true)
+    expect(isRepeatedText('Warm and clear.', 'Summary', 'warm and CLEAR.')).toBe(true)
+    expect(isRepeatedText('Warm and clear.', 'Summary', 'Description')).toBe(false)
+    expect(isRepeatedText('   ', 'x')).toBe(true)
+    expect(isRepeatedText('Style', null, undefined)).toBe(false)
   })
 })
