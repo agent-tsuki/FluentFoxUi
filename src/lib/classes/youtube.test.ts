@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { courseExternalUrl, hasPlayablePlaylist, isPlaylistId, playlistEmbedUrl, playlistPageUrl } from '@/lib/classes/youtube'
+import { courseExternalUrl, isPlaylistId, playlistEmbedUrl, playlistPageUrl, sampleVideoId } from '@/lib/classes/youtube'
 
 const ID = 'PLg9uYxuZf8x_A-vcqqyOFZu06WlhnypWj'
 
@@ -14,8 +14,8 @@ describe('playlist ids', () => {
     expect(isPlaylistId(undefined)).toBe(false)
   })
 
-  it('builds the nocookie videoseries embed', () => {
-    expect(playlistEmbedUrl(ID)).toBe(`https://www.youtube-nocookie.com/embed/videoseries?list=${ID}&autoplay=1&rel=0`)
+  it('builds the videoseries embed', () => {
+    expect(playlistEmbedUrl(ID)).toBe(`https://www.youtube.com/embed/videoseries?list=${ID}&autoplay=1&rel=0`)
     expect(playlistEmbedUrl('bad id!')).toBeNull()
   })
 
@@ -33,15 +33,22 @@ describe('courseExternalUrl', () => {
   })
 })
 
-describe('hasPlayablePlaylist', () => {
-  it.each([
-    ['youtube', 1, null, true],
-    ['youtube', 0, ID, true],
-    ['youtube', 0, null, false],
-    ['youtube', 0, 'bad', false],
-    ['udemy', 0, ID, false],
-    ['website', 3, null, false],
-  ] as const)('%s, %s videos, playlist %s → %s', (platform, count, playlistId, expected) => {
-    expect(hasPlayablePlaylist({ platform, videos: Array.from({ length: count }), playlistId })).toBe(expected)
+
+describe('sampleVideoId', () => {
+  const video = (youtubeVideoId: string) => ({ youtubeVideoId })
+
+  it('plays the video the cover comes from', () => {
+    expect(sampleVideoId({ thumbnailUrl: 'https://i.ytimg.com/vi/qXoqOvJ9pBE/hqdefault.jpg', videos: [video('1XhJo_c-uvA')] })).toBe('qXoqOvJ9pBE')
+  })
+
+  it('falls back to the first video when the cover is not a YouTube thumbnail', () => {
+    expect(sampleVideoId({ thumbnailUrl: 'https://cdn.example.com/cover.png', videos: [video('1XhJo_c-uvA')] })).toBe('1XhJo_c-uvA')
+    expect(sampleVideoId({ thumbnailUrl: null, videos: [video('1XhJo_c-uvA')] })).toBe('1XhJo_c-uvA')
+  })
+
+  it('returns null when there is nothing safe to play', () => {
+    expect(sampleVideoId({ thumbnailUrl: null, videos: [] })).toBeNull()
+    expect(sampleVideoId({ thumbnailUrl: null, videos: [video('bad id')] })).toBeNull()
+    expect(sampleVideoId({ thumbnailUrl: 'https://i.ytimg.com/vi/short/hqdefault.jpg', videos: [] })).toBeNull()
   })
 })

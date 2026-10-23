@@ -157,13 +157,26 @@ describe('classesService', () => {
 
     const list = await classesService.listClasses({ level: 'N5' })
     const youtube = list.items.filter(c => c.platform === 'youtube')
-    expect(youtube.length).toBe(5)
+    expect(youtube.length).toBe(6)
     expect(youtube.some(c => c.slug === 'onomappu-japanese-onomatopoeia')).toBe(true)
     expect(youtube.every(c => c.thumbnailUrl?.startsWith('https://i.ytimg.com/vi/'))).toBe(true)
     expect(list.items.find(c => c.slug === 'japanesepod101-n5-path')?.thumbnailUrl).toBe(
       'https://cdn.innovativelanguage.com/sns/thumbnail/site/thumb_fb_japanese.png',
     )
     expect(list.items.some(c => c.platform === 'udemy')).toBe(false)
+  })
+
+  it('serves the seeded Onomappu playlist videos offline', async () => {
+    api.get.mockImplementation(() => Promise.reject(new ApiError(0, 'NETWORK_ERROR', 'Network request failed', '')))
+    const out = await classesService.getClassDetail('onomappu-natural-japanese')
+    expect(out.playlistId).toBe('PLNc4a4bdNUdtxwNxBIn6M58BoqQuAqlzr')
+    expect(out.url).toBe('https://www.youtube.com/playlist?list=PLNc4a4bdNUdtxwNxBIn6M58BoqQuAqlzr')
+    expect(out.videos).toHaveLength(30)
+    expect(out.videos.map(v => v.position)).toEqual(Array.from({ length: 30 }, (_, i) => i + 1))
+    expect(out.videos[0].thumbnailUrl).toBe(`https://i.ytimg.com/vi/${out.videos[0].youtubeVideoId}/hqdefault.jpg`)
+
+    const list = await classesService.listClasses({ level: 'N5', platform: 'youtube' })
+    expect(list.items.find(c => c.slug === 'onomappu-japanese-onomatopoeia')?.videoCount).toBe(51)
   })
 
   it('serves seed detail offline and 404s an unknown slug', async () => {

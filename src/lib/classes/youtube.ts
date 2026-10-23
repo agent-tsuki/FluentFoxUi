@@ -1,10 +1,13 @@
 /**
  * YouTube URL helpers for the Classes pages. Pure functions, unit-tested.
  *
- * Embeds always use youtube-nocookie.com: the CSP `frame-src` (vite.config.ts)
- * allows only that origin, so www.youtube.com/embed would be blocked.
+ * Embeds use www.youtube.com, not youtube-nocookie.com: YouTube answers a
+ * nocookie play with "Sign in to confirm you're not a bot" for many viewers
+ * (seen in production, 2026-10-23). The player still loads only on click.
+ * The CSP `frame-src` (vite.config.ts) must allow this origin.
  */
-import type { ClassPlatform } from '@/types/classes'
+
+export const YOUTUBE_EMBED_ORIGIN = 'https://www.youtube.com'
 
 /** Playlist ids are URL-safe base64 ("PL…", "UU…", "OL…"); length varies by type. */
 const PLAYLIST_ID = /^[A-Za-z0-9_-]{10,64}$/
@@ -16,7 +19,7 @@ export function isPlaylistId(id: string | null | undefined): id is string {
 
 /** Click-to-load player URL for a whole playlist, or null for an invalid id. */
 export function playlistEmbedUrl(id: string | null | undefined): string | null {
-  return isPlaylistId(id) ? `https://www.youtube-nocookie.com/embed/videoseries?list=${id}&autoplay=1&rel=0` : null
+  return isPlaylistId(id) ? `${YOUTUBE_EMBED_ORIGIN}/embed/videoseries?list=${id}&autoplay=1&rel=0` : null
 }
 
 /** The playlist page on YouTube, or null for an invalid id. */
@@ -29,7 +32,18 @@ export function courseExternalUrl(course: { url: string; playlistId: string | nu
   return playlistPageUrl(course.playlistId) ?? course.url
 }
 
-/** A course has something to play on the page: synced videos, or at least a playlist id. */
-export function hasPlayablePlaylist(course: { platform: ClassPlatform; videos: readonly unknown[]; playlistId: string | null }): boolean {
-  return course.platform === 'youtube' && (course.videos.length > 0 || isPlaylistId(course.playlistId))
+
+const VIDEO_ID = /^[A-Za-z0-9_-]{11}$/
+const THUMBNAIL_VIDEO_ID = /^https:\/\/i\.ytimg\.com\/vi\/([A-Za-z0-9_-]{11})\//
+
+/**
+ * The one video the course page plays as a sample: the video the cover image
+ * comes from (covers are i.ytimg.com/vi/<id>/… thumbnails), else the first
+ * playlist video. Null when neither is known (the page then plays the playlist).
+ */
+export function sampleVideoId(course: { thumbnailUrl: string | null; videos: readonly { youtubeVideoId: string }[] }): string | null {
+  const fromCover = course.thumbnailUrl?.match(THUMBNAIL_VIDEO_ID)?.[1]
+  if (fromCover) return fromCover
+  const first = course.videos[0]?.youtubeVideoId
+  return first && VIDEO_ID.test(first) ? first : null
 }

@@ -8,18 +8,18 @@ import { courseExternalUrl } from '@/lib/classes/youtube'
 import type { ClassCourseDetail } from '@/types/classes'
 import { LINK_BUTTON } from '../linkStyles'
 
-/** What the hero's media and "Start watching" do on this course. */
+/** What the hero's media and main button do on this course. */
 export type HeroPlayback =
-  /** Play the whole playlist right here, in the hero. */
+  /** Play right here, in the hero: the sample video, else the whole playlist. */
   | 'inline'
-  /** Jump to the lessons list below, which has its own player. */
-  | 'lessons'
   /** Nothing to play on FoxSensei: link out to the platform. */
   | 'external'
 
 interface CourseHeroProps {
   course: ClassCourseDetail
   playback: HeroPlayback
+  /** One video to play as a taste of the course; the full course is on YouTube. */
+  sampleVideoId: string | null
   /** The learner pressed play: in `inline` mode the poster becomes the player. */
   playing: boolean
   onStartWatching: () => void
@@ -32,7 +32,7 @@ const NEW_TAB = <span className="sr-only">(opens in a new tab)</span>
  * on the left; a large course poster on the right (above the title on phones)
  * that plays the course.
  */
-export function CourseHero({ course, playback, playing, onStartWatching }: CourseHeroProps) {
+export function CourseHero({ course, playback, sampleVideoId, playing, onStartWatching }: CourseHeroProps) {
   const meta = PLATFORM_META[course.platform]
   const externalUrl = courseExternalUrl(course)
   const crumbs = [`JLPT ${course.level}`, levelStage(course.level), `${course.isFree ? 'Free' : 'Paid'} on ${meta.label}`].filter(Boolean)
@@ -86,7 +86,7 @@ export function CourseHero({ course, playback, playing, onStartWatching }: Cours
             {canPlay ? (
               <button type="button" onClick={onStartWatching} className={cn(LINK_BUTTON.primary, 'w-full px-6 text-base sm:w-auto')}>
                 <Icon name="play_circle" filled className="text-xl" />
-                Start watching
+                {sampleVideoId ? 'Watch a sample' : 'Start watching'}
               </button>
             ) : (
               <a href={externalUrl} target="_blank" rel="noopener noreferrer" className={cn(LINK_BUTTON.primary, 'w-full px-6 text-base sm:w-auto')}>
@@ -101,7 +101,7 @@ export function CourseHero({ course, playback, playing, onStartWatching }: Cours
               rel="noopener noreferrer"
               className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-on-surface underline decoration-outline underline-offset-4 transition-colors hover:decoration-on-surface"
             >
-              Watch on {meta.label}
+              {sampleVideoId ? `Full course on ${meta.label}` : `Watch on ${meta.label}`}
               <Icon name="north_east" className="text-base" />
               {NEW_TAB}
             </a>
@@ -115,7 +115,7 @@ export function CourseHero({ course, playback, playing, onStartWatching }: Cours
           )}
         </div>
 
-        <HeroMedia course={course} playback={playback} playing={playing} externalUrl={externalUrl} onPlay={onStartWatching} />
+        <HeroMedia course={course} playback={playback} sampleVideoId={sampleVideoId} playing={playing} externalUrl={externalUrl} onPlay={onStartWatching} />
       </div>
     </header>
   )
@@ -124,24 +124,29 @@ export function CourseHero({ course, playback, playing, onStartWatching }: Cours
 interface HeroMediaProps {
   course: ClassCourseDetail
   playback: HeroPlayback
+  sampleVideoId: string | null
   playing: boolean
   externalUrl: string
   onPlay: () => void
 }
 
-/** The poster: plays here, jumps to the lessons, or links out. Above the title on phones. */
-function HeroMedia({ course, playback, playing, externalUrl, onPlay }: HeroMediaProps) {
+/** The poster: plays the sample (or playlist) here, or links out. Above the title on phones. */
+function HeroMedia({ course, playback, sampleVideoId, playing, externalUrl, onPlay }: HeroMediaProps) {
   const order = 'order-first lg:order-none'
-  if (playback === 'inline' && playing && course.playlistId) {
+  if (playback === 'inline' && playing) {
     return (
       <div className={order}>
-        <VideoEmbed playlistId={course.playlistId} posterUrl={course.thumbnailUrl} title={course.title} autoPlay />
+        {sampleVideoId ? (
+          <VideoEmbed youtubeId={sampleVideoId} posterUrl={course.thumbnailUrl} title={`${course.title}: sample lesson`} autoPlay />
+        ) : (
+          <VideoEmbed playlistId={course.playlistId ?? undefined} posterUrl={course.thumbnailUrl} title={course.title} autoPlay />
+        )}
       </div>
     )
   }
   if (!course.thumbnailUrl && playback === 'external') return null
 
-  const caption = playback === 'external' ? `Open on ${PLATFORM_META[course.platform].label}` : 'Play the course'
+  const caption = playback === 'external' ? `Open on ${PLATFORM_META[course.platform].label}` : sampleVideoId ? 'Sample lesson' : 'Play the course'
   const box = cn(
     order,
     'group relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-2xl bg-surface-container-high shadow-elevation-2',

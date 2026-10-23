@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
 import { IS_DEV } from '@/lib/config'
 import { cn } from '@/lib/cn'
-import { playlistEmbedUrl } from '@/lib/classes/youtube'
+import { YOUTUBE_EMBED_ORIGIN, playlistEmbedUrl } from '@/lib/classes/youtube'
 
 export interface VideoEmbedProps {
   /** The video to play. Optional only when `playlistId` is given. */
@@ -37,8 +37,9 @@ const IFRAME_ALLOW = 'accelerometer; autoplay; clipboard-write; encrypted-media;
  *
  * Until the learner presses play it is just a lazy thumbnail and a button:
  * no YouTube scripts, cookies or third-party requests beyond the image. The
- * click swaps in a privacy-enhanced (youtube-nocookie.com) iframe that
- * autoplays. The production CSP allows that origin in `frame-src` (vite.config.ts).
+ * click swaps in a YouTube iframe that autoplays (www.youtube.com; see
+ * lib/classes/youtube.ts for why not youtube-nocookie.com). The production
+ * CSP allows that origin in `frame-src` (vite.config.ts).
  */
 export function VideoEmbed({ youtubeId, playlistId, posterUrl, title, credit, onPlay, autoPlay = false }: VideoEmbedProps) {
   const [playing, setPlaying] = useState(autoPlay)
@@ -52,7 +53,7 @@ export function VideoEmbed({ youtubeId, playlistId, posterUrl, title, credit, on
   // The ids end up in URLs; refuse anything that isn't a real video / playlist id.
   const videoId = youtubeId && YOUTUBE_ID.test(youtubeId) ? youtubeId : null
   const listSrc = playlistId !== undefined ? playlistEmbedUrl(playlistId) : null
-  const src = listSrc ?? (videoId ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1` : null)
+  const src = listSrc ?? (videoId ? `${YOUTUBE_EMBED_ORIGIN}/embed/${videoId}?autoplay=1&rel=0&modestbranding=1` : null)
   if (!src) {
     if (IS_DEV) console.warn(`VideoEmbed: invalid YouTube ${playlistId !== undefined ? `playlist id "${playlistId}"` : `id "${youtubeId ?? ''}"`}`)
     return null

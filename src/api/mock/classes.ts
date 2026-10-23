@@ -3,17 +3,20 @@
  *
  * Served by `classesService` only when the API cannot be reached; it mirrors
  * the seed migrations (real channel URLs, avatars, banners, intro videos,
- * playlist ids and thumbnails). Playlist videos are filled by a server-side
- * YouTube API sync, so they are empty here. There are no ratings or reviews.
+ * playlist ids and thumbnails). Playlist videos are normally filled by a
+ * server-side YouTube API sync; a course may carry a seeded list (see
+ * `onomappuVideos.ts`), otherwise they are empty here. There are no ratings or reviews.
  */
 import type {
   ApiClassChannelProfile,
   ApiClassCourseCard,
   ApiClassCourseDetail,
   ApiClassesList,
+  ApiClassVideo,
   ApiJlptLevel,
 } from '@/types/api'
 import type { ClassesFilters } from '@/types/classes'
+import { ONOMAPPU_NATURAL_JAPANESE_VIDEOS, ONOMAPPU_ONOMATOPOEIA_VIDEOS } from '@/api/mock/onomappuVideos'
 
 type SeedChannel = ApiClassChannelProfile
 
@@ -21,6 +24,7 @@ type SeedCourse = Omit<ApiClassCourseDetail, 'channel' | 'more_from_channel' | '
   channel_slug: string
   is_featured:  boolean
   sort_order:   number
+  videos?:      ApiClassVideo[]
 }
 
 const YT_AVATAR_SUFFIX = '=s240-c-k-c0x00ffffff-no-rj'
@@ -167,27 +171,36 @@ const channels: SeedChannel[] = [
     avatar_url: `https://yt3.googleusercontent.com/ud91_Fq3diILbmp6tJF2Y0KUUmbaE9pTq7kINsj6TXZDhaf0Pj8hgvBNIu2cfFlgFNWj_Bv1Zg${YT_AVATAR_SUFFIX}`,
     banner_url: `https://yt3.googleusercontent.com/s4FFj4czgg44wjJrI9w6pE6bWMdrCUTWyXYoLNNGhcMVGmaNYFzA8EpFOyKxL5i8S1SexH6X${YT_BANNER_SUFFIX}`,
     description:
-      'Hitoki is a native Japanese speaker who introduces the onomatopoeia used in everyday Japanese life, with visuals, sounds and short real-life stories. Most videos have Japanese, English and Chinese subtitles.',
+      'Onomappu is a YouTube channel by Hitoki, a native Japanese speaker and former medical student in Japan, that teaches Japanese onomatopoeia and natural everyday usage. Most videos are short single-topic lessons explained in easy Japanese with subtitles, often built around personal stories, food and culture.',
     intro_video_id: null,
     subscriber_count: 436000,
     video_count: 149,
     accent_color: '#00897B',
     teaching_style:
-      'Short, funny real-life stories told in slow, clear Japanese, each built around one onomatopoeia and how people actually use it. Subtitles in Japanese, English and Chinese.',
-    best_for: ['Learners who know kana and basic grammar', 'Anime and manga fans', 'Learners who want listening practice with subtitles'],
-    not_for: ['Absolute beginners who need English explanations', 'Learners preparing for a JLPT exam'],
+      'Short videos (about 4 to 13 minutes) that each focus on one word or usage point. Hitoki explains mostly in easy, natural Japanese with subtitles, using stories and real situations instead of drills.',
+    best_for: [
+      'Late N5 to N3 learners who want to sound more natural',
+      'Anime and manga fans who keep meeting words like ドキドキ and キラキラ',
+      'Textbook learners who want to hear how natives really use common words',
+    ],
+    not_for: [
+      'Absolute beginners: best once you know kana and basic grammar',
+      'Learners looking for structured JLPT drills or exam practice',
+      'Anyone who needs formal or business Japanese',
+    ],
     pros: [
-      'Teaches onomatopoeia, which textbooks barely cover',
-      'Native speaker who talks slowly and clearly',
-      'Subtitles in Japanese, English and Chinese',
-      'Entertaining stories about real life in Japan',
+      'About 40 focused onomatopoeia videos, which is rare on YouTube',
+      'Clear lessons on words learners often misuse: やばい, じゃん, 大丈夫, は/が, よ/ね, あげる/くれる/もらう',
+      'Short, self-contained videos that are easy to fit into a daily routine',
+      'Explanations in natural Japanese double as listening practice',
     ],
     cons: [
-      'Mostly spoken in Japanese, hard for complete beginners',
-      'Not a structured grammar course',
-      'Some videos are culture vlogs rather than lessons',
+      'Playlists mix lessons with vlogs, reactions and promotion, so some videos are worth skipping',
+      'Explanations are mostly in Japanese, so beginners will lean heavily on the subtitles',
+      'No exercises, quizzes or review built into the playlists',
+      'A few videos cover mature or flirty topics',
     ],
-    verdict: 'The most fun way to learn the sound words Japanese people use every day.',
+    verdict: 'A friendly native-speaker supplement for onomatopoeia and casual nuance, not a core course.',
   },
   {
     slug: 'japanesepod101',
@@ -387,34 +400,133 @@ const courses: SeedCourse[] = [
     slug: 'onomappu-japanese-onomatopoeia',
     channel_slug: 'onomappu',
     title: 'Onomappu — Everyday Japanese Onomatopoeia',
-    summary: 'Learn the sound words (ドキドキ, ゴロゴロ, ギリギリ…) that Japanese people use every day, through short stories in easy Japanese with subtitles.',
+    summary: 'Short native-speaker lessons on everyday onomatopoeia like ドキドキ, イライラ and サクサク, told through stories. Best once you know kana and basic grammar.',
     level: 'N5',
     platform: 'youtube',
     url: 'https://www.youtube.com/playlist?list=PLNc4a4bdNUduYoRLzSZ-IxNENdWT3Fvy_',
     playlist_id: 'PLNc4a4bdNUduYoRLzSZ-IxNENdWT3Fvy_',
     is_free: true,
     price_note: 'Completely free on YouTube',
-    thumbnail_url: 'https://i.ytimg.com/vi/1XhJo_c-uvA/hqdefault.jpg',
-    tags: ['Vocabulary', 'Listening', 'Onomatopoeia', 'Culture'],
+    thumbnail_url: 'https://i.ytimg.com/vi/qXoqOvJ9pBE/hqdefault.jpg',
+    tags: ['Onomatopoeia', 'Vocabulary', 'Listening', 'Culture'],
     what_you_learn: [
-      'The onomatopoeia every Japanese person uses',
-      'Words for feelings: ドキドキ, もやもや, ワクワク',
-      'Words for food and textures: サクサク, カリカリ, プチプチ',
-      'Everyday situations: ギリギリ, ぴったり, ぎゅうぎゅう',
-      'Listening practice with natural, slow Japanese',
-      'Culture and daily life in Japan',
+      'Use common feeling words like ドキドキ, イライラ and もやもや',
+      'Describe food textures with サクサク, カリカリ, プチプチ and ねばねば',
+      'Tell look-alike pairs apart, such as どんどん and だんだん',
+      'Understand figurative meanings, like カリカリ for an irritable person',
+      'Recognise onomatopoeia you hear in anime and manga',
+      'Follow short explanations given in easy, natural Japanese',
     ],
     curriculum: [
-      { title: 'Start here: words everyone uses', topics: ['Weird onomatopoeia you actually use', 'Onomatopoeia every Japanese person has used', '3 onomatopoeia that help you understand anime', 'What ドキドキ really means'] },
-      { title: 'Feelings and moods', topics: ['もやもや: life full of unclear feelings', 'イチャイチャ', 'キレキレ vs キレた', 'ボロボロ: worn out', 'ワクワク, as Anya says it in Spy x Family'] },
-      { title: 'Food and textures', topics: ['プチプチ textures', 'Natto onomatopoeia', 'サクサク: working like you eat cookies', 'カリカリ: crispy snacks', 'ヌルヌル: slippery'] },
-      { title: 'Everyday life in Japan', topics: ['ギリギリ: only just made it', 'ぎゅうぎゅう: packed trains', 'ぴったり: arriving right on time', 'ノリノリ: surviving a Japanese party', 'Convenience store phrases'] },
-      { title: 'Culture and stories', topics: ['Learning Japanese at a cat café', 'Snack bars for older people', 'Dating in the Heian period: こっそり', 'A Japanese superstition about lightning', 'Breaking school trip rules'] },
+      { title: 'Getting started', topics: [
+        'Everyday onomatopoeia natives use',
+        'わくわく, パリパリ and つるつる',
+        'ゴロゴロ: lazing around at home',
+        'ギリギリ: just barely',
+        'どんどん vs だんだん',
+      ] },
+      { title: 'Feelings and moods', topics: [
+        'ドキドキ beyond romance',
+        'もやもや: a vague, unsettled feeling',
+        'イライラ: feeling irritated',
+        'ビクビク and ブルブル: fear and shivering',
+        'ノリノリ: in high spirits at a party',
+        'ボロボロ: worn out',
+      ] },
+      { title: 'Food and texture', topics: [
+        'プチプチ: popping textures',
+        'ねばねば: sticky natto',
+        'サクサク: crunchy, and working smoothly',
+        'カリカリ: crispy, or irritable',
+      ] },
+      { title: 'One word, many uses', topics: [
+        'キラキラ: sparkling things and people',
+        'バラバラ: scattered or split up',
+        'ガラガラ: empty, gargling, hoarse',
+        'キレた vs キレキレ',
+        'ぐるぐる: feeling dizzy',
+      ] },
+      { title: 'People and situations', topics: [
+        'じろじろ: staring',
+        'ぎゅうぎゅう: a packed train',
+        'ベタベタ: clingy',
+        'ガリガリ: very skinny',
+        'こっそり: doing something secretly',
+        'ぴったり and time etiquette',
+      ] },
+      { title: 'Anime, culture and stories', topics: [
+        'Onomatopoeia that help with anime',
+        "Anya's わくわく in Spy x Family",
+        'モテモテ and モテ期',
+        'ドロドロ: messy relationships',
+        'じゃんけん and its sounds',
+        'Convenience store phrases',
+      ] },
     ],
-    total_duration_sec: 0,
+    total_duration_sec: 24339,
+    videos: ONOMAPPU_ONOMATOPOEIA_VIDEOS,
     last_synced_at: null,
     is_featured: false,
     sort_order: 7,
+  },
+  {
+    slug: 'onomappu-natural-japanese',
+    channel_slug: 'onomappu',
+    title: 'Onomappu — Natural Japanese: Particles, Nuance and Casual Speech',
+    summary: 'A native speaker explains は/が, よ/ね, あげる/くれる/もらう, 大丈夫, じゃん and やばい so you sound natural. Best once you know kana and basic grammar.',
+    level: 'N5',
+    platform: 'youtube',
+    url: 'https://www.youtube.com/playlist?list=PLNc4a4bdNUdtxwNxBIn6M58BoqQuAqlzr',
+    playlist_id: 'PLNc4a4bdNUdtxwNxBIn6M58BoqQuAqlzr',
+    is_free: true,
+    price_note: 'Completely free on YouTube',
+    thumbnail_url: 'https://i.ytimg.com/vi/DYQ5YXb-ARU/hqdefault.jpg',
+    tags: ['Grammar', 'Particles', 'Nuance', 'Casual speech'],
+    what_you_learn: [
+      'Choose between は and が, and ある and いる',
+      'Use よ and ね to sound natural, not pushy',
+      'Use あげる, くれる and もらう from the right point of view',
+      'Hear the different meanings of 大丈夫, including a polite no',
+      'Order, apologise and say no politely in real situations',
+      'Use casual じゃん and やばい the way natives do',
+    ],
+    curriculum: [
+      { title: 'Core grammar nuance', topics: [
+        'ある vs いる',
+        'い-adjectives vs な-adjectives',
+        'あげる, くれる and もらう',
+        'は vs が',
+        'The particle よ',
+        'The particle ね',
+      ] },
+      { title: 'Everyday situations', topics: [
+        'Restaurant phrases',
+        'すみません, ごめん and apologising',
+        'The many meanings of 大丈夫',
+        'Saying no without いいえ',
+      ] },
+      { title: 'Praise and compliments', topics: ['Replying when told 上手', 'Complimenting men and women', 'How かわいい is used'] },
+      { title: 'Casual speech and slang', topics: [
+        'Four uses of じゃん',
+        'やばい, good and bad',
+        "Top 5 young people's slang words",
+        'Can you use anime phrases in real life?',
+        'おじさん構文 texting style',
+        'レロレロ from JoJo',
+      ] },
+      { title: 'Culture and extra words (optional)', topics: [
+        'Katakana English (和製英語)',
+        '告白: love-confession culture',
+        'The thunder god and your おへそ',
+        'Superstitions that surprise foreigners',
+        'ぴちぴち and beauty standards',
+      ] },
+    ],
+    total_duration_sec: 16650,
+    videos: ONOMAPPU_NATURAL_JAPANESE_VIDEOS,
+    last_synced_at: null,
+    is_featured: false,
+    sort_order: 8,
   },
 ]
 
@@ -438,7 +550,7 @@ function toCard(course: SeedCourse): ApiClassCourseCard {
     is_free: course.is_free,
     is_featured: course.is_featured,
     thumbnail_url: course.thumbnail_url,
-    video_count: 0,
+    video_count: course.videos?.length ?? 0,
     total_duration_sec: course.total_duration_sec,
     tags: course.tags,
     channel: {
@@ -480,11 +592,11 @@ export function mockClassesList(filters: ClassesFilters): ApiClassesList {
 export function mockClassDetail(slug: string): ApiClassCourseDetail | null {
   const course = courses.find(c => c.slug === slug)
   if (!course) return null
-  const { channel_slug, is_featured: _featured, sort_order: _order, ...fields } = course
+  const { channel_slug, is_featured: _featured, sort_order: _order, videos, ...fields } = course
   const others = ordered(courses).filter(c => c.slug !== slug)
   return {
     ...fields,
-    videos: [],
+    videos: videos ?? [],
     channel: channelOf(course),
     more_from_channel: others.filter(c => c.channel_slug === channel_slug).slice(0, RAIL_SIZE).map(toCard),
     similar: others.filter(c => c.channel_slug !== channel_slug && c.level === course.level).slice(0, RAIL_SIZE).map(toCard),
