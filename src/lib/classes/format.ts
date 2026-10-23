@@ -73,3 +73,11 @@ export function isRepeatedText(text: string | null | undefined, ...others: (stri
   const norm = normalizeText(text)
   return norm === '' || others.some(o => normalizeText(o) === norm)
 }
+
+/** Learner stage for a JLPT level: N5/N4 "Beginner", N3 "Intermediate", N2/N1 "Advanced". */
+export function levelStage(level: string): string {
+  if (level === 'N5' || level === 'N4') return 'Beginner'
+  if (level === 'N3') return 'Intermediate'
+  if (level === 'N2' || level === 'N1') return 'Advanced'
+  return ''
+}

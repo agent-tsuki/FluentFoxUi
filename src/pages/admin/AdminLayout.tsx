@@ -18,7 +18,7 @@ interface AdminNavItem {
 const NAV: AdminNavItem[] = [
   {
     to: '/admin/my-channels',
-    label: 'My channels',
+    label: 'YouTube Channels',
     icon: 'smart_display',
     visible: p => p.canAny('classes.channel.edit') || p.canAny('classes.channel.media') || p.canAny('classes.publish') || p.canAny('classes.sync'),
   },

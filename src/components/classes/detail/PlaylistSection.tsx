@@ -48,8 +48,8 @@ export const PlaylistSection = forwardRef<HTMLElement, PlaylistSectionProps>(fun
   )
 
   return (
-    <section ref={ref} id="playlist" aria-labelledby="playlist-title" className="scroll-mt-28">
-      <SectionTitle id="playlist-title" icon="format_list_numbered">Playlist</SectionTitle>
+    <section ref={ref} id="lessons" aria-labelledby="playlist-title" className="scroll-mt-40">
+      <SectionTitle id="playlist-title">Lessons</SectionTitle>
 
       {!current ? (
         <div className="max-w-3xl space-y-2">

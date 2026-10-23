@@ -42,8 +42,8 @@ export function ChannelIntroduction({ channel, courseSummary }: ChannelIntroduct
   ].filter(Boolean)
 
   return (
-    <section aria-labelledby="channel-title">
-      <SectionTitle id="channel-title" icon="person">{isYouTube ? 'Meet the channel' : 'About the provider'}</SectionTitle>
+    <section id="teacher" aria-labelledby="channel-title" className="scroll-mt-40">
+      <SectionTitle id="channel-title">{isYouTube ? 'About the teacher' : 'About the provider'}</SectionTitle>
 
       <div className="overflow-hidden rounded-2xl border border-outline-variant/40 bg-surface-container-lowest">
         {hasStrip && (

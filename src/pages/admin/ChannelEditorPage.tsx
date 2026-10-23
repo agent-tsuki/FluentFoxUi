@@ -72,7 +72,7 @@ export function ChannelEditorPage() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title={name} description={channel.handle ?? channel.url} back={{ to: '/admin/my-channels', label: 'My channels' }} />
+      <AdminPageHeader title={name} description={channel.handle ?? channel.url} back={{ to: '/admin/my-channels', label: 'YouTube Channels' }} />
       <div aria-live="polite" className="space-y-2">
         <StatusMessage tone="error" message={action.error} />
         <StatusMessage tone="success" message={action.notice} />

@@ -17,6 +17,7 @@ import type {
   ChannelOverrideField,
   ChannelTextUpdate,
   CourseInput,
+  NewChannelInput,
   CourseVisibilityInput,
   GrantRecord,
   MyPermissions,
@@ -121,6 +122,15 @@ export const adminService = {
 
   async getChannel(id: string): Promise<AdminChannel> {
     const res = await apiClient.get<ApiResponse<ApiAdminChannel>>(`${CHANNELS}/${enc(id)}`)
+    return toAdminChannel(res.data)
+  },
+
+  /** Creates a hidden channel; the editor then syncs it from YouTube and publishes it. */
+  async createChannel(input: NewChannelInput): Promise<AdminChannel> {
+    const body: Record<string, unknown> = { slug: input.slug, platform: 'youtube', url: input.url, name: input.name }
+    if (input.handle) body.handle = input.handle
+    if (input.youtubeChannelId) body.youtube_channel_id = input.youtubeChannelId
+    const res = await apiClient.post<ApiResponse<ApiAdminChannel>>(CHANNELS, body)
     return toAdminChannel(res.data)
   },
 

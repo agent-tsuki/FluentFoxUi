@@ -1,155 +1,183 @@
 import { Link } from 'react-router-dom'
-import { PlayOverlay } from '@/components/learn/VideoEmbed'
+import { PlayOverlay, VideoEmbed } from '@/components/learn/VideoEmbed'
 import { Icon } from '@/components/ui/Icon'
 import { cn } from '@/lib/cn'
-import { formatTotalDuration, formatUpdatedDate, formatVideoCount } from '@/lib/classes/format'
+import { formatTotalDuration, formatVideoCount, levelStage } from '@/lib/classes/format'
 import { PLATFORM_META } from '@/lib/classes/platformMeta'
 import { courseExternalUrl } from '@/lib/classes/youtube'
 import type { ClassCourseDetail } from '@/types/classes'
-import { LevelBadge, PlatformBadge, PriceBadge, TagList } from '../CourseBadges'
 import { LINK_BUTTON } from '../linkStyles'
-import { YouTubeLogo } from '../YouTubeLogo'
+
+/** What the hero's media and "Start watching" do on this course. */
+export type HeroPlayback =
+  /** Play the whole playlist right here, in the hero. */
+  | 'inline'
+  /** Jump to the lessons list below, which has its own player. */
+  | 'lessons'
+  /** Nothing to play on FoxSensei: link out to the platform. */
+  | 'external'
 
 interface CourseHeroProps {
   course: ClassCourseDetail
-  /** Present when there is something to play on this page (videos or a playlist id). */
-  onStartWatching?: () => void
+  playback: HeroPlayback
+  /** The learner pressed play: in `inline` mode the poster becomes the player. */
+  playing: boolean
+  onStartWatching: () => void
 }
 
 const NEW_TAB = <span className="sr-only">(opens in a new tab)</span>
-const CTA_WIDTH = 'w-full sm:w-auto'
 
 /**
- * CourseHero — title, channel, facts and the primary actions of a course page,
- * with the course thumbnail on the right (above the title on phones) when there
- * is one. The thumbnail starts the player here, or opens the course on YouTube.
+ * CourseHero — level/price crumbs, title, byline, summary and the two actions
+ * on the left; a large course poster on the right (above the title on phones)
+ * that plays the course.
  */
-export function CourseHero({ course, onStartWatching }: CourseHeroProps) {
+export function CourseHero({ course, playback, playing, onStartWatching }: CourseHeroProps) {
   const meta = PLATFORM_META[course.platform]
-  const isYouTube = course.platform === 'youtube'
   const externalUrl = courseExternalUrl(course)
+  const crumbs = [`JLPT ${course.level}`, levelStage(course.level), `${course.isFree ? 'Free' : 'Paid'} on ${meta.label}`].filter(Boolean)
   const facts = [
-    course.videos.length > 0 && { icon: 'play_circle', label: formatVideoCount(course.videos.length) },
-    course.totalDurationSec > 0 && { icon: 'schedule', label: formatTotalDuration(course.totalDurationSec) },
-    course.lastSyncedAt && formatUpdatedDate(course.lastSyncedAt) && { icon: 'calendar_today', label: `Updated ${formatUpdatedDate(course.lastSyncedAt)}` },
-  ].filter((f): f is { icon: string; label: string } => Boolean(f))
+    course.videos.length > 0 ? formatVideoCount(course.videos.length) : '',
+    formatTotalDuration(course.totalDurationSec),
+  ].filter(Boolean)
+  const canPlay = playback !== 'external'
 
   return (
-    <header className="border-b border-outline-variant/40 bg-surface">
-      <div className="mx-auto max-w-5xl px-6 pb-8 pt-6 md:px-10">
-        <Link
-          to="/classes"
-          className="-ml-1 mb-1 inline-flex min-h-11 items-center gap-1.5 px-1 text-sm font-semibold text-on-surface-variant transition-colors hover:text-on-surface"
-        >
-          <Icon name="arrow_back" className="text-base" />
-          All classes
-        </Link>
+    <header className="mx-auto max-w-6xl px-4 pb-8 pt-6 sm:px-6 md:px-10">
+      <Link
+        to="/classes"
+        className="-ml-1 mb-3 inline-flex min-h-11 items-center gap-2 px-1 text-sm font-semibold text-on-surface-variant transition-colors hover:text-on-surface"
+      >
+        <Icon name="arrow_back" className="text-lg" />
+        All classes
+      </Link>
 
-        <div className={cn('grid gap-8', course.thumbnailUrl && 'lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-center')}>
-          <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <PlatformBadge platform={course.platform} />
-              <LevelBadge level={course.level} />
-              <PriceBadge isFree={course.isFree} />
-            </div>
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-center lg:gap-12">
+        <div className="space-y-4">
+          <p className="flex flex-wrap items-center gap-x-2 text-sm text-on-surface-variant">
+            {crumbs.map((crumb, i) => (
+              <span key={crumb} className="inline-flex items-center gap-2">
+                {i > 0 && <span aria-hidden="true" className="text-outline">/</span>}
+                {crumb}
+              </span>
+            ))}
+          </p>
 
-            <h1 className="max-w-3xl font-headline text-2xl font-extrabold tracking-tight text-on-surface md:text-3xl">{course.title}</h1>
-
-            {/* Plain byline: the full channel card ("Meet the channel") follows right below the hero. */}
-            <p className="text-sm text-on-surface-variant">
+          <div className="space-y-2">
+            <h1 className="font-headline text-3xl font-extrabold leading-tight tracking-tight text-on-surface md:text-4xl">{course.title}</h1>
+            <p className="text-base text-on-surface-variant md:text-lg">
               by{' '}
-              <a href="#channel-title" className="font-semibold text-on-surface underline-offset-4 hover:underline">
+              <a href="#teacher" className="font-medium text-on-surface underline-offset-4 hover:underline">
                 {course.channel.name}
               </a>
             </p>
-
-            {course.summary && <p className="max-w-2xl text-sm leading-relaxed text-on-surface-variant md:text-base">{course.summary}</p>}
-
-            {facts.length > 0 && (
-              <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-on-surface-variant">
-                {facts.map(f => (
-                  <li key={f.label} className="inline-flex items-center gap-1.5">
-                    <Icon name={f.icon} className="text-base" />
-                    {f.label}
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            {(!course.isFree || !isYouTube) && course.priceNote && (
-              <p className="inline-flex items-center gap-2 text-sm font-semibold text-on-surface">
-                <Icon name="payments" className="text-base text-on-surface-variant" />
-                {course.priceNote}
-              </p>
-            )}
-
-            <TagList tags={course.tags} max={4} />
-
-            <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
-              {onStartWatching && (
-                <button type="button" onClick={onStartWatching} className={cn(LINK_BUTTON.primary, CTA_WIDTH)}>
-                  <Icon name="play_circle" filled className="text-lg" />
-                  Start watching
-                </button>
-              )}
-              <a
-                href={externalUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(onStartWatching ? LINK_BUTTON.outline : LINK_BUTTON.primary, CTA_WIDTH)}
-              >
-                {isYouTube ? <YouTubeLogo /> : <Icon name={meta.icon} className="text-lg" />}
-                Open on {meta.label}
-                {NEW_TAB}
-              </a>
-            </div>
           </div>
 
-          {course.thumbnailUrl && (
-            <HeroMedia
-              thumbnailUrl={course.thumbnailUrl}
-              title={course.title}
-              platformLabel={meta.label}
-              externalUrl={externalUrl}
-              onPlay={onStartWatching}
-            />
+          {course.summary && <p className="max-w-xl text-base leading-relaxed text-on-surface-variant">{course.summary}</p>}
+
+          {!course.isFree && course.priceNote && (
+            <p className="inline-flex items-center gap-2 text-sm font-semibold text-on-surface">
+              <Icon name="payments" className="text-base text-on-surface-variant" />
+              {course.priceNote}
+            </p>
+          )}
+
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-1">
+            {canPlay ? (
+              <button type="button" onClick={onStartWatching} className={cn(LINK_BUTTON.primary, 'w-full px-6 text-base sm:w-auto')}>
+                <Icon name="play_circle" filled className="text-xl" />
+                Start watching
+              </button>
+            ) : (
+              <a href={externalUrl} target="_blank" rel="noopener noreferrer" className={cn(LINK_BUTTON.primary, 'w-full px-6 text-base sm:w-auto')}>
+                <Icon name={meta.icon} className="text-xl" />
+                Go to course
+                {NEW_TAB}
+              </a>
+            )}
+            <a
+              href={externalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-on-surface underline decoration-outline underline-offset-4 transition-colors hover:decoration-on-surface"
+            >
+              Watch on {meta.label}
+              <Icon name="north_east" className="text-base" />
+              {NEW_TAB}
+            </a>
+          </div>
+
+          {(facts.length > 0 || course.tags.length > 0) && (
+            <p className="flex flex-wrap gap-x-6 gap-y-1 pt-1 text-sm text-on-surface-variant">
+              {facts.map(f => <span key={f} className="font-semibold text-on-surface">{f}</span>)}
+              {course.tags.slice(0, 5).map(tag => <span key={tag}>{tag}</span>)}
+            </p>
           )}
         </div>
+
+        <HeroMedia course={course} playback={playback} playing={playing} externalUrl={externalUrl} onPlay={onStartWatching} />
       </div>
     </header>
   )
 }
 
 interface HeroMediaProps {
-  thumbnailUrl: string
-  title: string
-  platformLabel: string
+  course: ClassCourseDetail
+  playback: HeroPlayback
+  playing: boolean
   externalUrl: string
-  onPlay?: () => void
+  onPlay: () => void
 }
 
-/** The poster card: plays here when the course is playable, otherwise links out. Above the title on phones. */
-function HeroMedia({ thumbnailUrl, title, platformLabel, externalUrl, onPlay }: HeroMediaProps) {
+/** The poster: plays here, jumps to the lessons, or links out. Above the title on phones. */
+function HeroMedia({ course, playback, playing, externalUrl, onPlay }: HeroMediaProps) {
+  const order = 'order-first lg:order-none'
+  if (playback === 'inline' && playing && course.playlistId) {
+    return (
+      <div className={order}>
+        <VideoEmbed playlistId={course.playlistId} posterUrl={course.thumbnailUrl} title={course.title} autoPlay />
+      </div>
+    )
+  }
+  if (!course.thumbnailUrl && playback === 'external') return null
+
+  const caption = playback === 'external' ? `Open on ${PLATFORM_META[course.platform].label}` : 'Play the course'
   const box = cn(
-    'group relative order-first flex aspect-video w-full items-center justify-center overflow-hidden rounded-2xl bg-surface-container-high lg:order-none',
+    order,
+    'group relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-2xl bg-surface-container-high shadow-elevation-2',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
   )
-  const image = (
-    <img src={thumbnailUrl} alt="" width={480} height={360} loading="eager" referrerPolicy="no-referrer" className="absolute inset-0 size-full object-cover" />
+  const content = (
+    <>
+      {course.thumbnailUrl && (
+        <img
+          src={course.thumbnailUrl}
+          alt=""
+          width={640}
+          height={360}
+          loading="eager"
+          referrerPolicy="no-referrer"
+          className="absolute inset-0 size-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-[1.02]"
+        />
+      )}
+      <PlayOverlay />
+      {/* surface-inverse is dark in both themes, so the caption reads the same in light and dark. */}
+      <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-surface-inverse/80 to-transparent px-4 pb-3 pt-10 text-left text-sm font-semibold text-on-surface-inverse">
+        {caption}
+      </span>
+    </>
   )
 
-  if (onPlay) {
+  if (playback === 'external') {
     return (
-      <button type="button" aria-label="Play playlist" onClick={onPlay} className={box}>
-        {image}
-        <PlayOverlay />
-      </button>
+      <a href={externalUrl} target="_blank" rel="noopener noreferrer" aria-label={`${caption}: ${course.title} (opens in a new tab)`} className={box}>
+        {content}
+      </a>
     )
   }
   return (
-    <a href={externalUrl} target="_blank" rel="noopener noreferrer" aria-label={`Watch ${title} on ${platformLabel} (opens in a new tab)`} className={box}>
-      {image}
-      <PlayOverlay />
-    </a>
+    <button type="button" aria-label={`Play ${course.title}`} onClick={onPlay} className={box}>
+      {content}
+    </button>
   )
 }

@@ -157,7 +157,8 @@ describe('classesService', () => {
 
     const list = await classesService.listClasses({ level: 'N5' })
     const youtube = list.items.filter(c => c.platform === 'youtube')
-    expect(youtube.length).toBe(4)
+    expect(youtube.length).toBe(5)
+    expect(youtube.some(c => c.slug === 'onomappu-japanese-onomatopoeia')).toBe(true)
     expect(youtube.every(c => c.thumbnailUrl?.startsWith('https://i.ytimg.com/vi/'))).toBe(true)
     expect(list.items.find(c => c.slug === 'japanesepod101-n5-path')?.thumbnailUrl).toBe(
       'https://cdn.innovativelanguage.com/sns/thumbnail/site/thumb_fb_japanese.png',

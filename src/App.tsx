@@ -72,6 +72,7 @@ const InvitePage        = lazy(() => import('@/pages/InvitePage').then(m => ({ d
 const AdminLayout          = lazy(() => import('@/pages/admin/AdminLayout').then(m => ({ default: m.AdminLayout })))
 const AdminIndexRedirect   = lazy(() => import('@/pages/admin/AdminLayout').then(m => ({ default: m.AdminIndexRedirect })))
 const MyChannelsPage       = lazy(() => import('@/pages/admin/MyChannelsPage').then(m => ({ default: m.MyChannelsPage })))
+const NewChannelPage       = lazy(() => import('@/pages/admin/NewChannelPage').then(m => ({ default: m.NewChannelPage })))
 const ChannelEditorPage    = lazy(() => import('@/pages/admin/ChannelEditorPage').then(m => ({ default: m.ChannelEditorPage })))
 const CoursesManagerPage   = lazy(() => import('@/pages/admin/CoursesManagerPage').then(m => ({ default: m.CoursesManagerPage })))
 const CourseEditorPage     = lazy(() => import('@/pages/admin/CourseEditorPage').then(m => ({ default: m.CourseEditorPage })))
@@ -377,6 +378,7 @@ const router = createBrowserRouter([
         children: [
           { index: true,                     element: <AdminIndexRedirect /> },
           { path: 'my-channels',             element: <MyChannelsPage /> },
+          { path: 'classes/channels/new',    element: <NewChannelPage /> },
           { path: 'classes/channels/:id',    element: <ChannelEditorPage /> },
           { path: 'classes/courses',         element: <CoursesManagerPage /> },
           { path: 'classes/courses/:id',     element: <CourseEditorPage /> },

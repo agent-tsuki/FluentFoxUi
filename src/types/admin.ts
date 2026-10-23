@@ -122,6 +122,15 @@ export interface AdminChannel {
 }
 
 /** Editable text fields of a channel; only the keys present are sent. */
+/** POST /admin/classes/channels — a new YouTube channel (it starts hidden). */
+export interface NewChannelInput {
+  name:              string
+  slug:              string
+  url:               string
+  handle:            string | null
+  youtubeChannelId:  string | null
+}
+
 export interface ChannelTextUpdate {
   name?:          string
   description?:   string
