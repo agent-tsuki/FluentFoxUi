@@ -6,6 +6,30 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Concept home page palette (CSS-variable-backed; see --home-* in src/index.css)
+        home: {
+          'canvas': 'rgb(var(--home-canvas) / <alpha-value>)',
+          'hero': 'rgb(var(--home-hero) / <alpha-value>)',
+          'ink': 'rgb(var(--home-ink) / <alpha-value>)',
+          'muted': 'rgb(var(--home-muted) / <alpha-value>)',
+          'subtle': 'rgb(var(--home-subtle) / <alpha-value>)',
+          'line': 'rgb(var(--home-line) / <alpha-value>)',
+          'line-strong': 'rgb(var(--home-line-strong) / <alpha-value>)',
+          'accent': 'rgb(var(--home-accent) / <alpha-value>)',
+          'accent-hover': 'rgb(var(--home-accent-hover) / <alpha-value>)',
+          'on-accent': 'rgb(var(--home-on-accent) / <alpha-value>)',
+          'tile': 'rgb(var(--home-tile) / <alpha-value>)',
+          'sage': 'rgb(var(--home-sage) / <alpha-value>)',
+          'mint': 'rgb(var(--home-mint) / <alpha-value>)',
+          'peach': 'rgb(var(--home-peach) / <alpha-value>)',
+          'sand': 'rgb(var(--home-sand) / <alpha-value>)',
+          'panel': 'rgb(var(--home-panel) / <alpha-value>)',
+          'leaf': 'rgb(var(--home-leaf) / <alpha-value>)',
+        },
+        // Grammar diagram tones (scoped by a .diagram-tone-* class; see src/index.css)
+        tone: 'rgb(var(--tone) / <alpha-value>)',
+        'tone-soft': 'rgb(var(--tone-soft) / <alpha-value>)',
+        'tone-ink': 'rgb(var(--tone-ink) / <alpha-value>)',
         // Fox brand palette
         'fox-dark': '#D86B35',
         fox: '#EA6B44',

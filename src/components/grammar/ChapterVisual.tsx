@@ -22,12 +22,14 @@ interface VisualSpec {
   }
 }
 
+const toneChip = 'border-tone/35 bg-tone-soft text-tone-ink'
+
 const tones: Record<Tone, { chip: string; dot: string }> = {
-  amber: { chip: 'border-[#e3a54c]/35 bg-[#fff7df] text-[#765116]', dot: 'bg-[#e3a54c]' },
-  blue: { chip: 'border-[#6ca3c8]/35 bg-[#eef7fc] text-[#245e82]', dot: 'bg-[#6ca3c8]' },
-  coral: { chip: 'border-[#c65b39]/35 bg-[#fff0eb] text-[#9a3f25]', dot: 'bg-[#c65b39]' },
-  moss: { chip: 'border-[#6e9c70]/35 bg-[#eff7ee] text-[#365f3b]', dot: 'bg-[#6e9c70]' },
-  plum: { chip: 'border-[#9b6a9e]/35 bg-[#faf0fa] text-[#70416f]', dot: 'bg-[#9b6a9e]' },
+  amber: { chip: `diagram-tone-amber ${toneChip}`, dot: 'bg-tone' },
+  blue: { chip: `diagram-tone-blue ${toneChip}`, dot: 'bg-tone' },
+  coral: { chip: `diagram-tone-coral ${toneChip}`, dot: 'bg-tone' },
+  moss: { chip: `diagram-tone-moss ${toneChip}`, dot: 'bg-tone' },
+  plum: { chip: `diagram-tone-plum ${toneChip}`, dot: 'bg-tone' },
 }
 
 // Grammar patterns use code-native diagrams for precise, selectable Japanese.
@@ -292,7 +294,7 @@ function SequenceDiagram({ items }: { items: VisualItem[] }) {
         <div key={`${item.label}-${index}`} className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
           <DiagramItem item={item} />
           {index < items.length - 1 && (
-            <span aria-hidden="true" className="hidden shrink-0 text-lg text-[#c65b39] sm:block">→</span>
+            <span aria-hidden="true" className="hidden shrink-0 text-lg text-home-accent sm:block">→</span>
           )}
         </div>
       ))}
@@ -322,7 +324,7 @@ function ComparisonDiagram({ items }: { items: VisualItem[] }) {
   return (
     <div className="grid items-stretch gap-3 sm:grid-cols-[1fr_auto_1fr]">
       <DiagramItem item={items[0]} />
-      <div aria-hidden="true" className="hidden items-center justify-center text-xl font-bold text-[#c65b39] sm:flex">↔</div>
+      <div aria-hidden="true" className="hidden items-center justify-center text-xl font-bold text-home-accent sm:flex">↔</div>
       <DiagramItem item={items[1]} />
     </div>
   )
@@ -332,9 +334,9 @@ function ExchangeDiagram({ items }: { items: VisualItem[] }) {
   return (
     <div className="grid items-center gap-3 sm:grid-cols-[1fr_auto_1fr_auto_1fr]">
       <DiagramItem item={items[0]} />
-      <span aria-hidden="true" className="hidden text-xl font-bold text-[#c65b39] sm:block">→</span>
+      <span aria-hidden="true" className="hidden text-xl font-bold text-home-accent sm:block">→</span>
       <DiagramItem item={items[1]} />
-      <span aria-hidden="true" className="hidden text-xl font-bold text-[#c65b39] sm:block">→</span>
+      <span aria-hidden="true" className="hidden text-xl font-bold text-home-accent sm:block">→</span>
       <DiagramItem item={items[2]} />
     </div>
   )
@@ -385,25 +387,25 @@ export function ChapterVisual({ chapterId }: { chapterId: number }) {
     : <SequenceDiagram items={spec.items} />
 
   return (
-    <figure className="mb-10 overflow-hidden rounded-2xl border border-[#d9d8cd] bg-[#fbfaf4] p-5 shadow-[0_10px_28px_rgba(37,62,53,.07)] sm:p-6">
-      <figcaption className="mb-5 flex flex-col gap-1 border-b border-[#dedfd5] pb-4 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+    <figure className="mb-10 overflow-hidden rounded-2xl border border-home-line-strong bg-home-tile p-5 shadow-elevation-1 sm:p-6">
+      <figcaption className="mb-5 flex flex-col gap-1 border-b border-home-line pb-4 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
         <div>
-          <p className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[#c65b39]">{spec.eyebrow}</p>
-          <h2 className="mt-1 font-headline text-xl font-bold text-[#253e35]">{spec.title}</h2>
+          <p className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-home-accent">{spec.eyebrow}</p>
+          <h2 className="mt-1 font-headline text-xl font-bold text-home-ink">{spec.title}</h2>
         </div>
-        <p className="max-w-md text-sm leading-6 text-[#59675f]">{spec.caption}</p>
+        <p className="max-w-md text-sm leading-6 text-home-muted">{spec.caption}</p>
       </figcaption>
       {spec.scene && (
-        <div className="mb-5 overflow-hidden rounded-xl border border-[#d9d8cd] bg-white sm:grid sm:grid-cols-[minmax(0,1.4fr)_minmax(13rem,0.6fr)]">
+        <div className="mb-5 overflow-hidden rounded-xl border border-home-line-strong bg-home-tile sm:grid sm:grid-cols-[minmax(0,1.4fr)_minmax(13rem,0.6fr)]">
           <img
             src={asset(spec.scene.src)}
             alt={spec.scene.alt}
             className="aspect-[3/2] h-full w-full object-cover"
             loading="lazy"
           />
-          <div className="flex flex-col justify-center bg-[#f2f1e8] px-5 py-5 sm:px-6">
-            <p className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[#c65b39]">See it in context</p>
-            <p className="mt-2 text-sm font-medium leading-6 text-[#3f5146]">{spec.scene.caption}</p>
+          <div className="flex flex-col justify-center bg-home-sage px-5 py-5 sm:px-6">
+            <p className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-home-accent">See it in context</p>
+            <p className="mt-2 text-sm font-medium leading-6 text-home-ink">{spec.scene.caption}</p>
           </div>
         </div>
       )}

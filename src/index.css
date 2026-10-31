@@ -43,6 +43,26 @@
   --shadow-elevation-1: 0 4px 20px rgba(25, 28, 29, 0.04), 0 2px 8px rgba(25, 28, 29, 0.02);
   --shadow-elevation-2: 0 12px 32px rgba(25, 28, 29, 0.06), 0 4px 12px rgba(25, 28, 29, 0.03);
   --shadow-elevation-3: 0 24px 48px rgba(25, 28, 29, 0.1), 0 8px 24px rgba(25, 28, 29, 0.05);
+
+  /* Concept home (sage + paper palette) */
+  --home-canvas:      247 246 240; /* #f7f6f0 */
+  --home-hero:        203 220 201; /* #cbdcc9 */
+  --home-wash:        248 247 237;
+  --home-ink:         37 62 53;    /* #253e35 */
+  --home-muted:       83 102 90;   /* #53665a */
+  --home-subtle:      116 124 114; /* #747c72 */
+  --home-line:        223 227 216; /* #dfe3d8 */
+  --home-line-strong: 215 216 202; /* #d7d8ca */
+  --home-accent:      198 91 57;   /* #c65b39 */
+  --home-accent-hover:173 72 42;   /* #ad482a */
+  --home-on-accent:   255 255 255;
+  --home-tile:        255 253 247; /* #fffdf7 */
+  --home-sage:        237 238 223; /* #edeedf */
+  --home-mint:        230 239 236; /* #e6efec */
+  --home-peach:       240 231 223; /* #f0e7df */
+  --home-sand:        238 232 220; /* #eee8dc */
+  --home-panel:       232 237 223; /* #e8eddf */
+  --home-leaf:        72 112 90;   /* #48705a */
 }
 
 html.dark {
@@ -80,6 +100,26 @@ html.dark {
   --shadow-elevation-1: 0 4px 20px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
   --shadow-elevation-2: 0 12px 32px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
   --shadow-elevation-3: 0 24px 48px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.45);
+
+  /* Concept home — moonlit forest */
+  --home-canvas:      20 26 24;
+  --home-hero:        22 34 40;
+  --home-wash:        14 20 22;
+  --home-ink:         232 236 226;
+  --home-muted:       184 196 184;
+  --home-subtle:      150 162 152;
+  --home-line:        44 56 51;
+  --home-line-strong: 64 78 72;
+  --home-accent:      226 124 90;
+  --home-accent-hover:238 146 114;
+  --home-on-accent:   26 19 16;
+  --home-tile:        30 38 35;
+  --home-sage:        29 37 33;
+  --home-mint:        26 37 36;
+  --home-peach:       39 32 29;
+  --home-sand:        38 46 42;
+  --home-panel:       28 37 33;
+  --home-leaf:        134 184 152;
 }
 
 /* Google Fonts are loaded via index.html */
@@ -260,23 +300,23 @@ canvas {
   width: 0.375rem;
   height: 0.375rem;
   border-radius: 9999px;
-  background: #c65b39;
+  background: rgb(var(--home-accent));
   content: '';
 }
 
 .concept-text-link {
   display: inline-block;
-  border-bottom: 1px solid #9ca69a;
+  border-bottom: 1px solid rgb(var(--home-subtle) / 0.6);
   padding-bottom: 0.25rem;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #253e35;
+  color: rgb(var(--home-ink));
   transition: color 160ms ease, border-color 160ms ease;
 }
 
 .concept-text-link:hover {
-  border-color: #c65b39;
-  color: #c65b39;
+  border-color: rgb(var(--home-accent));
+  color: rgb(var(--home-accent));
 }
 
 .concept-chapter {
@@ -285,7 +325,7 @@ canvas {
   grid-template-columns: minmax(0, 1fr) minmax(17rem, 1fr);
   align-items: center;
   gap: 2.5rem;
-  border-bottom: 1px solid #dfe3d8;
+  border-bottom: 1px solid rgb(var(--home-line));
   padding: 2.5rem 0;
 }
 
@@ -294,17 +334,17 @@ canvas {
   font-size: 0.5625rem;
   font-weight: 700;
   letter-spacing: 0.16em;
-  color: #c65b39;
+  color: rgb(var(--home-accent));
 }
 
 .concept-mini-label {
-  color: #6d7e6b;
+  color: rgb(var(--home-subtle));
 }
 
 .concept-mini {
   min-height: 13.75rem;
   overflow: hidden;
-  border: 1px solid #dde3d3;
+  border: 1px solid rgb(var(--home-line));
   border-radius: 1rem;
   padding: 1.5rem;
   text-align: center;
@@ -318,6 +358,13 @@ canvas {
   width: 100%;
   height: 100%;
   pointer-events: none;
+}
+
+/* Readability wash over the hero photo: paper-toned in light, night-toned in dark. */
+.concept-hero-wash {
+  background:
+    linear-gradient(90deg, rgb(var(--home-wash) / 0.94) 0%, rgb(var(--home-wash) / 0.72) 30%, rgb(var(--home-wash) / 0.08) 68%),
+    linear-gradient(0deg, rgb(27 68 61 / 0.32), transparent 35%);
 }
 
 @keyframes concept-drift {
@@ -341,6 +388,23 @@ canvas {
     display: none;
   }
 }
+
+/* ─── Grammar diagram tones ──────────────────────────────────────────────
+   Each .diagram-tone-* sets --tone (accent/dot), --tone-soft (chip fill) and
+   --tone-ink (chip text); consumed via the `tone`, `tone-soft`, `tone-ink` tokens.
+   ─────────────────────────────────────────────────────────────────────── */
+
+.diagram-tone-amber { --tone: 227 165 76;  --tone-soft: 255 247 223; --tone-ink: 118 81 22; }
+.diagram-tone-blue  { --tone: 108 163 200; --tone-soft: 238 247 252; --tone-ink: 36 94 130; }
+.diagram-tone-coral { --tone: 198 91 57;   --tone-soft: 255 240 235; --tone-ink: 154 63 37; }
+.diagram-tone-moss  { --tone: 110 156 112; --tone-soft: 239 247 238; --tone-ink: 54 95 59; }
+.diagram-tone-plum  { --tone: 155 106 158; --tone-soft: 250 240 250; --tone-ink: 112 65 111; }
+
+html.dark .diagram-tone-amber { --tone: 227 165 76;  --tone-soft: 52 41 24; --tone-ink: 242 205 140; }
+html.dark .diagram-tone-blue  { --tone: 120 176 212; --tone-soft: 25 40 52; --tone-ink: 167 207 233; }
+html.dark .diagram-tone-coral { --tone: 226 124 90;  --tone-soft: 54 32 26; --tone-ink: 242 168 142; }
+html.dark .diagram-tone-moss  { --tone: 128 176 130; --tone-soft: 30 44 32; --tone-ink: 170 212 171; }
+html.dark .diagram-tone-plum  { --tone: 184 136 187; --tone-soft: 46 32 47; --tone-ink: 222 182 224; }
 
 /* ─── Card flip ───────────────────────────────────────────────────────────── */
 
