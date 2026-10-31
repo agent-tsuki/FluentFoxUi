@@ -1,11 +1,11 @@
-import { lazy, Suspense, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useSyncExternalStore, type ReactNode } from 'react'
 import { createBrowserRouter, Navigate, RouterProvider, Outlet, useLocation, useSearchParams, type RouteObject } from 'react-router-dom'
 import { PathUserSync } from '@/components/auth/PathUserSync'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { LazyAuthModal } from '@/components/sections/AuthModal'
 import { ModalProvider, useModal } from '@/context/ModalContext'
-import { AuthProvider, useAuth } from '@/context/AuthContext'
+import { AuthProvider } from '@/context/AuthContext'
 import { UIProvider, useUI } from '@/context/UIContext'
 import { MouseFollower } from '@/components/ui/MouseFollower'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
@@ -85,7 +85,6 @@ const KoiBackground = lazy(() => import('@/components/ui/KoiBackground').then(m 
 const PetalBackground = lazy(() => import('@/components/ui/PetalBackground').then(m => ({ default: m.PetalBackground })))
 // framer-motion arrives with this overlay (via CloseButton); keeping it lazy keeps
 // framer-motion off the first page load.
-const ProfileOverlay = lazy(() => import('@/components/profile/ProfileOverlay').then(m => ({ default: m.ProfileOverlay })))
 
 /** Suspense boundary for a lazy route: the shared skeleton while its chunk loads. */
 function RouteSuspense({ children }: { children: ReactNode }) {
@@ -168,29 +167,6 @@ function ModalFromUrl() {
   return null
 }
 
-// Only a signed-in avatar opens the overlay, so guests never download it. Once
-// loaded it stays mounted: it starts closed (so the open animation plays) and
-// logging out from inside it must not unmount it mid-close.
-function SignedInProfileOverlay() {
-  const { user } = useAuth()
-  const { isProfileOverlayOpen, setIsProfileOverlayOpen } = useUI()
-  const [loaded, setLoaded] = useState(false)
-
-  useEffect(() => {
-    if (user) setLoaded(true)
-  }, [user])
-
-  if (!loaded) return null
-  return (
-    <Suspense fallback={null}>
-      <ProfileOverlay
-        isOpen={isProfileOverlayOpen}
-        onClose={() => setIsProfileOverlayOpen(false)}
-      />
-    </Suspense>
-  )
-}
-
 // ─── Layout shell (shared Navbar + Footer + modals) ───────────────────────────
 function Shell() {
   return (
@@ -209,7 +185,6 @@ function Shell() {
         </div>
         <Footer />
         <LazyAuthModal />
-        <SignedInProfileOverlay />
         <LoginLocationPrompt />
       </div>
     </div>

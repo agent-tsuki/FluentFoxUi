@@ -12,13 +12,6 @@ interface UIContextType {
   // Background animation
   backgroundAnimation: BackgroundAnimation
   setBackgroundAnimation: (v: BackgroundAnimation) => void
-  // Profile overlay
-  isProfileOverlayOpen: boolean
-  setIsProfileOverlayOpen: (open: boolean) => void
-  overlayProfile: { gender?: 'male' | 'female'; profileImage?: string; firstName?: string } | null
-  setOverlayProfile: (profile: { gender?: 'male' | 'female'; profileImage?: string; firstName?: string } | null) => void
-  triggerRect: DOMRect | null
-  setTriggerRect: (rect: DOMRect | null) => void
 }
 
 function safeLocalStorage<T>(key: string, fallback: T): T {
@@ -52,10 +45,6 @@ export function UIProvider({ children }: { children: ReactNode }) {
     safeLocalStorage<BackgroundAnimation>(BACKGROUND_ANIMATION_KEY, 'none')
   )
 
-  const [isProfileOverlayOpen, setIsProfileOverlayOpen] = useState(false)
-  const [overlayProfile, setOverlayProfile] = useState<{ gender?: 'male' | 'female'; profileImage?: string; firstName?: string } | null>(null)
-  const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null)
-
   useEffect(() => {
     try { localStorage.setItem(MOUSE_FOLLOWER_KEY, JSON.stringify(mouseFollowerEnabled)) } catch { /* storage unavailable */ }
   }, [mouseFollowerEnabled])
@@ -87,12 +76,6 @@ export function UIProvider({ children }: { children: ReactNode }) {
       toggleDarkMode,
       backgroundAnimation,
       setBackgroundAnimation,
-      isProfileOverlayOpen,
-      setIsProfileOverlayOpen,
-      overlayProfile,
-      setOverlayProfile,
-      triggerRect,
-      setTriggerRect,
     }}>
       {children}
     </UIContext.Provider>

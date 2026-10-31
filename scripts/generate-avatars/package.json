@@ -1,0 +1,14 @@
+{
+  "name": "foxsensei-generate-avatars",
+  "private": true,
+  "type": "module",
+  "description": "Generate the 10 built-in avatars with Gemini and upload them to Cloudflare R2.",
+  "scripts": {
+    "generate": "node generate-avatars.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.654.0",
+    "@google/genai": "2.31.0",
+    "sharp": "0.33.5"
+  }
+}

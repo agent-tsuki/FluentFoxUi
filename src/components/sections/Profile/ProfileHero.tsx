@@ -1,7 +1,6 @@
 import type { UserProfile } from '@/types'
 import { Icon } from '@/components/ui/Icon'
 import { Eyebrow } from '@/components/ui/SectionHeader'
-import { useUI } from '@/context/UIContext'
 import { asset } from '@/lib/assets'
 import { placeLabel } from '@/lib/profile/countries'
 import { monthYear, timeAgo } from '@/lib/profile/formatTime'
@@ -13,7 +12,6 @@ interface ProfileHeroProps {
 }
 
 export function ProfileHero({ profile, onChangeAvatar }: ProfileHeroProps) {
-  const { setIsProfileOverlayOpen, setOverlayProfile, setTriggerRect } = useUI()
   const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ')
   const location = placeLabel(profile.city, profile.countryCode)
   const lastLogin = profile.lastLogin
@@ -23,13 +21,9 @@ export function ProfileHero({ profile, onChangeAvatar }: ProfileHeroProps) {
       <div className="flex flex-col items-center gap-3 shrink-0">
         <button
           type="button"
-          aria-label="Open profile menu"
+          aria-label="Change profile picture"
           className="relative cursor-pointer group/hero-avatar"
-          onClick={(e) => {
-            setOverlayProfile({ firstName: profile.firstName, profileImage: profile.avatar.url })
-            setTriggerRect(e.currentTarget.getBoundingClientRect())
-            setIsProfileOverlayOpen(true)
-          }}
+          onClick={onChangeAvatar}
         >
           <div className="w-28 h-28 rounded-full border-4 border-primary/10 group-hover/hero-avatar:border-primary transition-all shadow-elevation-2 overflow-hidden bg-surface-container-highest">
             <img
