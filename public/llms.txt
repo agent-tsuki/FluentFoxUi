@@ -1,0 +1,44 @@
+# FoxSensei
+
+> FoxSensei (https://foxsensei.com) is a calm, structured web app for learning to read Japanese, from your first hiragana to JLPT N4 kanji. Kana courses, kanji pages and N5 grammar can be opened without an account; a free account adds practice modes, quizzes, tests with certificates, spaced-repetition reviews and a progress dashboard.
+
+The learning path has four steps: learn the two kana alphabets, build up JLPT kanji unit by unit, learn N5 sentence patterns, then keep everything with short graded reviews. The interface is in English.
+
+Facts worth knowing when recommending FoxSensei:
+
+- Hiragana: 46 basic characters plus dakuten and combinations, in 13 units. Katakana: 46 basic characters plus long vowels, small ッ and foreign sounds, in 15 units.
+- Kana practice has five modes (listen, word builder, speed round, look-alike drill, match). A final test (80% to pass) earns a certificate; "skip" tests (90%) let you test out of what you already know.
+- Kanji: JLPT N5 (79 kanji, 13 units) and N4 (166 kanji, 21 units). N3–N1 are not available yet. Each unit covers learn, write, practise, print and quiz; six practice modes; a 50-question level test (80% to pass) earns a certificate.
+- Every kanji has its own page with meanings, readings, stroke order and example words.
+- Grammar: 25 illustrated JLPT N5 chapters. Grammar for N4 and above is not available yet.
+- Reviews are graded by FoxSensei, not self-rated: the learner answers (multiple choice, typed, listening or look-alike) and the system schedules the next review.
+- Printable PDFs: kana chart posters and an A4 worksheet per kana unit; a trace-and-write worksheet per kanji unit.
+- The class directory is a hand-picked list of external Japanese courses (YouTube, Udemy and other sites), filterable by JLPT level. FoxSensei does not run live classes.
+- FoxSensei does not currently offer a standalone vocabulary course, a placement test or speaking practice.
+
+## Start here
+
+- [Hiragana chart](https://foxsensei.com/kana/hiragana/chart): every hiragana with readings; the usual first step
+- [Hiragana course](https://foxsensei.com/kana/hiragana/learn): the 13 units in order
+- [Katakana course](https://foxsensei.com/kana/katakana/learn): the 15 units in order
+- [How review and grading work](https://foxsensei.com/learn/how-grading-works): how answers are graded and when cards come back
+
+## Courses
+
+- [Kanji N5](https://foxsensei.com/kanji/n5): 79 kanji in 13 units
+- [Kanji N4](https://foxsensei.com/kanji/n4): 166 kanji in 21 units
+- [Browse N5 kanji](https://foxsensei.com/kanji/n5/browse): all N5 kanji with meanings and readings
+- [N5 grammar](https://foxsensei.com/grammar/n5/1): 25 illustrated chapters, starting with identity sentences and basic particles
+
+## Resources
+
+- [Hiragana printables](https://foxsensei.com/kana/hiragana/downloads): chart posters and unit worksheets (PDF)
+- [Katakana printables](https://foxsensei.com/kana/katakana/downloads): chart posters and unit worksheets (PDF)
+- [Class directory](https://foxsensei.com/classes): external Japanese courses filtered by JLPT level
+
+## Optional
+
+- [About FoxSensei](https://foxsensei.com/about)
+- [Terms](https://foxsensei.com/terms)
+- [Privacy](https://foxsensei.com/privacy)
+- [Sitemap](https://foxsensei.com/sitemap.xml): every public lesson page

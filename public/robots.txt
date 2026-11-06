@@ -1,0 +1,46 @@
+# FoxSensei: https://foxsensei.com
+# Public lessons (kana, kanji, N5 grammar, class directory) are open to all
+# crawlers, including AI assistants and search engines. Account pages,
+# sign-in flows and per-learner practice/tests are not useful to index.
+#
+# To block AI training crawlers only, add a group per bot above this one, e.g.
+#   User-agent: GPTBot
+#   Disallow: /
+# (A bot with its own group ignores the rules below, so repeat them there if needed.)
+
+User-agent: *
+Allow: /
+
+# Accounts and personal progress
+Disallow: /dashboard
+Disallow: /progress
+Disallow: /profile
+Disallow: /settings/
+Disallow: /admin
+Disallow: /review
+Disallow: /learn/lesson/
+Disallow: /quiz
+
+# Sign-in and email flows
+Disallow: /auth/
+Disallow: /verify
+Disallow: /verify-email
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /invite/
+
+# Sign-in-only practice, quizzes and tests inside the courses
+Disallow: /kana/*/practice/
+Disallow: /kana/*/quiz/
+Disallow: /kana/*/test$
+Disallow: /kana/*/skip/
+Disallow: /kanji/*/practice/
+Disallow: /kanji/*/quiz/
+Disallow: /kanji/*/test$
+Disallow: /kanji/*/skip/
+Disallow: /kanji/*/reviews
+
+# Error page
+Disallow: /500
+
+Sitemap: https://foxsensei.com/sitemap.xml

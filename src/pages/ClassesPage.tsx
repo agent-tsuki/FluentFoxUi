@@ -108,7 +108,7 @@ export function ClassesPage() {
             onAction={clearFilters}
           />
         ) : (
-          <CourseGrid courses={data.items} maxCols={data.items.length >= FIVE_COLUMN_MIN_COURSES ? 5 : 4} />
+          <CourseGrid courses={data.items} maxCols={data.items.length >= FIVE_COLUMN_MIN_COURSES ? 5 : 4} priorityCount={2} />
         )}
       </section>
 

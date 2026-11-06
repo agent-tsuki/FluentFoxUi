@@ -13,15 +13,17 @@ interface CourseGridProps {
   /** 5 on the full-width list page; 4 in the narrower detail-page rails. Default 5. */
   maxCols?: MaxCols
   className?: string
+  /** How many leading cards are above the fold and should load their thumbnails first. Default 0. */
+  priorityCount?: number
 }
 
 /** CourseGrid — the responsive card grid used on /classes and in the detail page rails. */
-export function CourseGrid({ courses, maxCols = 5, className }: CourseGridProps) {
+export function CourseGrid({ courses, maxCols = 5, className, priorityCount = 0 }: CourseGridProps) {
   return (
     <ul className={cn(GRID_COLS[maxCols], className)}>
-      {courses.map(course => (
+      {courses.map((course, index) => (
         <li key={course.slug}>
-          <CourseCard course={course} />
+          <CourseCard course={course} priority={index < priorityCount} />
         </li>
       ))}
     </ul>

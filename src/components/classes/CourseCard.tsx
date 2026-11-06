@@ -5,16 +5,19 @@ import { cn } from '@/lib/cn'
 import { formatTotalDuration, formatVideoCount } from '@/lib/classes/format'
 import { PLATFORM_META } from '@/lib/classes/platformMeta'
 import type { ClassCourseCard } from '@/types/classes'
+import { HIGH_FETCH_PRIORITY } from '@/lib/fetchPriority'
 import { ChannelAvatar } from './ChannelAvatar'
 import { YouTubeLogo } from './YouTubeLogo'
 
 interface CourseCardProps {
   course: ClassCourseCard
+  /** First cards on screen: load the thumbnail eagerly at high priority. */
+  priority?: boolean
   className?: string
 }
 
 /** CourseCard — one compact course tile in the /classes grid and the detail page rails. */
-export const CourseCard = memo(function CourseCard({ course, className }: CourseCardProps) {
+export const CourseCard = memo(function CourseCard({ course, className, priority = false }: CourseCardProps) {
   const meta = PLATFORM_META[course.platform]
   const duration = formatTotalDuration(course.totalDurationSec)
   const length = [course.videoCount > 0 ? formatVideoCount(course.videoCount) : '', duration].filter(Boolean).join(' · ')
@@ -29,7 +32,7 @@ export const CourseCard = memo(function CourseCard({ course, className }: Course
         className,
       )}
     >
-      <CardMedia course={course} length={length} />
+      <CardMedia course={course} length={length} priority={priority} />
 
       <div className="space-y-2 p-3">
         <h3 className="line-clamp-2 font-headline text-sm font-bold leading-snug text-on-surface">{course.title}</h3>
@@ -57,7 +60,7 @@ export const CourseCard = memo(function CourseCard({ course, className }: Course
 })
 
 /** Always 16:9 so card rows line up, with or without a thumbnail. */
-function CardMedia({ course, length }: { course: ClassCourseCard; length: string }) {
+function CardMedia({ course, length, priority }: { course: ClassCourseCard; length: string; priority: boolean }) {
   return (
     <div className="relative aspect-video w-full overflow-hidden bg-surface-container-high">
       {course.thumbnailUrl ? (
@@ -66,7 +69,8 @@ function CardMedia({ course, length }: { course: ClassCourseCard; length: string
           alt=""
           width={480}
           height={270}
-          loading="lazy"
+          loading={priority ? 'eager' : 'lazy'}
+          {...(priority ? HIGH_FETCH_PRIORITY : {})}
           referrerPolicy="no-referrer"
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 motion-safe:group-hover:scale-[1.03]"
         />

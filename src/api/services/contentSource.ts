@@ -4,8 +4,9 @@
  * - Every response carries `strokes_base_url` (R2). The latest one is kept
  *   here so stroke loaders know where to fetch from; without it they use the
  *   files bundled with the app.
- * - Until the backend serves a path (or when it is unreachable), callers get
- *   the bundled data, which stays in the repo as the seed source.
+ * - First visits render the bundled data straight away (it stays in the repo
+ *   as the seed source); the API copy is fetched in the background once the
+ *   page has settled and used from the next visit on. See loadContent.
  * - Valid public responses are also kept in localStorage for seven days, so a
  *   return visit can render course content immediately. No account, progress,
  *   answer, or authentication data is stored here.
@@ -15,6 +16,7 @@
 import { apiClient } from '@/api/client'
 import type { ApiResponse } from '@/types/api'
 import type { StrokesLocation } from '@/types/content'
+import { whenPageSettles } from '@/lib/afterPageSettles'
 
 let strokesBaseUrl: string | null = null
 
@@ -121,10 +123,19 @@ async function fetchContent<T extends object>(path: string): Promise<{ data: T; 
 const contentCache = new Map<string, Promise<unknown>>()
 
 /**
- * The API payload for `path`, or the bundled data when the API call fails for
- * any reason (backend not deployed yet, level not served yet, offline,
- * unexpected shape). Content is public and identical in both, so the learner
- * never sees the difference. `isValid` rejects an API payload the UI cannot use.
+ * Course content for `path`, without ever waiting on the network for the first
+ * screen (stale-while-revalidate):
+ *
+ * 1. A fresh copy saved by an earlier visit (localStorage, 7 days) is used as is.
+ * 2. Otherwise the learner sees content immediately: an expired saved copy if
+ *    there is one, else the data bundled with the app. Content is public and
+ *    identical in both, so the learner never sees the difference.
+ * 3. The API copy is then fetched in the background, once the page has settled
+ *    (so it never competes with the first paint on slow networks or a cold
+ *    backend), and saved for the next visit.
+ *
+ * If the bundled data itself fails to load (e.g. a chunk error), the API is
+ * asked directly. `isValid` rejects a payload the UI cannot use.
  */
 export function loadContent<T extends object>(
   path: string,
@@ -135,35 +146,43 @@ export function loadContent<T extends object>(
   if (hit) return hit
 
   const local = readLocalContent(path)
-  if (local && Date.now() - local.cachedAt < LOCAL_CACHE_MAX_AGE_MS && isValid(local.data as T)) {
+  const localIsValid = local !== null && isValid(local.data as T)
+  if (local && !localIsValid) removeLocalContent(path)
+
+  if (local && localIsValid && Date.now() - local.cachedAt < LOCAL_CACHE_MAX_AGE_MS) {
     rememberStrokesBaseUrl(local.strokesBaseUrl)
     const cached = Promise.resolve(local.data as T)
     contentCache.set(path, cached)
     return cached
   }
-  if (local && !isValid(local.data as T)) removeLocalContent(path)
 
-  const load = fetchContent<T>(path)
-    .then(({ data, strokesBaseUrl: sourceStrokesBaseUrl }) => {
+  const fromApi = () =>
+    fetchContent<T>(path).then(({ data, strokesBaseUrl: sourceStrokesBaseUrl }) => {
       if (!isValid(data)) throw new Error(`Unexpected content shape for ${path}`)
       rememberStrokesBaseUrl(sourceStrokesBaseUrl)
       writeLocalContent(path, data, sourceStrokesBaseUrl)
       return data
     })
-    .catch(() => {
-      // An expired cache is still a better offline experience than a blank
-      // course. It is revalidated as soon as the next uncached visit succeeds.
-      if (local && isValid(local.data as T)) {
-        rememberStrokesBaseUrl(local.strokesBaseUrl)
-        return local.data as T
-      }
-      return bundled().then((data) => {
-        if (isValid(data)) writeLocalContent(path, data, null)
+  // A failed refresh is harmless: the learner already has content, and the
+  // next visit tries again.
+  const refreshLater = () => whenPageSettles(() => void fromApi().catch(() => {}))
+
+  let load: Promise<T>
+  if (local && localIsValid) {
+    rememberStrokesBaseUrl(local.strokesBaseUrl)
+    load = Promise.resolve(local.data as T)
+    refreshLater()
+  } else {
+    load = bundled()
+      .then((data) => {
+        if (!isValid(data)) throw new Error(`Unexpected bundled content for ${path}`)
+        refreshLater()
         return data
       })
-    })
+      .catch(() => fromApi())
+  }
   contentCache.set(path, load)
-  // Only when the bundled data failed too (e.g. a chunk load error): allow a retry.
+  // Only when every source failed: allow a retry.
   load.catch(() => contentCache.delete(path))
   return load
 }

@@ -1,4 +1,13 @@
 import { asset } from '@/lib/assets'
+import { HIGH_FETCH_PRIORITY } from '@/lib/fetchPriority'
+import { BOARD_SIZES, boardPhonePath, n5BoardPath } from '@/lib/content/grammar/boards'
+
+/** Board path for a chapter listed below; every one of them has a board. */
+function board(chapter: number): string {
+  const path = n5BoardPath(chapter)
+  if (!path) throw new Error(`N5 chapter ${chapter} has no board`)
+  return path
+}
 
 type VisualKind = 'comparison' | 'direction' | 'exchange' | 'range' | 'sequence' | 'space'
 type Tone = 'amber' | 'blue' | 'coral' | 'moss' | 'plum'
@@ -52,7 +61,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'sequence', eyebrow: 'Sentence builder', title: 'A polite identity sentence',
     caption: 'Japanese marks the topic, then closes the idea politely.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_one.webp',
+      src: board(1),
       alt: 'Sentence builder board: わたし (topic) → は (topic marker) → 学生 (identity) → です (polite close), with Fox Sensei pointing at は.',
       romaji: 'Watashi wa gakusei desu.',
       meaning: 'I am a student.',
@@ -68,7 +77,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'range', eyebrow: 'Distance map', title: 'Choose by distance',
     caption: 'The object changes name based on whose zone it is in.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_two.webp',
+      src: board(2),
       alt: 'Distance map board: これ (near me), それ (near you), あれ (far from both), with a dotted line showing growing distance and Fox Sensei pointing at これ.',
       romaji: 'kore · sore · are',
       meaning: 'this one · that one (by you) · that one over there',
@@ -88,7 +97,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'range', eyebrow: 'Location map', title: 'Point to a place',
     caption: 'The same distance pattern works for locations and polite directions.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_three.webp',
+      src: board(3),
       romaji: 'koko · soko · asoko',
       meaning: 'here · there (by you) · over there',
     },
@@ -102,7 +111,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'sequence', eyebrow: 'Time line', title: 'Put the time before the action',
     caption: 'Use に for an exact time, then finish with the action.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_four.webp',
+      src: board(4),
       romaji: 'Shichi-ji ni okimasu. Hachi-ji ni ikimasu.',
       meaning: 'I wake up at seven. I leave at eight.',
     },
@@ -117,7 +126,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'sequence', eyebrow: 'Travel route', title: 'Destination · transport · companion',
     caption: 'A journey sentence can show where, how, and with whom you go.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_five.webp',
+      src: board(5),
       romaji: 'Ie kara densha de gakkō e (ikimasu).',
       meaning: 'I go from home to school by train.',
     },
@@ -131,7 +140,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'sequence', eyebrow: 'Object link', title: 'An action needs an object',
     caption: 'を links the thing you act on to the verb.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_six.webp',
+      src: board(6),
       romaji: 'Watashi wa ringo o tabemasu.',
       meaning: 'I eat an apple.',
     },
@@ -145,7 +154,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'exchange', eyebrow: 'Giving direction', title: 'Follow the gift',
     caption: 'The arrow tells you who gives and who receives.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_seven.webp',
+      src: board(7),
       romaji: 'Watashi wa tomodachi ni purezento o agemasu.',
       meaning: 'I give my friend a present.',
     },
@@ -164,7 +173,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'comparison', eyebrow: 'Adjective families', title: 'Two ways to describe',
     caption: 'I-adjectives end in い; na-adjectives need な before a noun.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_eight.webp',
+      src: board(8),
       romaji: 'takai · shizuka (na)',
       meaning: 'expensive / tall · quiet',
     },
@@ -177,7 +186,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'sequence', eyebrow: 'Reason chain', title: 'A feeling leads to a reason',
     caption: 'Use から to connect the reason with the result.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_nine.webp',
+      src: board(9),
       romaji: 'Nihongo ga suki desu kara…',
       meaning: 'Because I like Japanese…',
     },
@@ -191,7 +200,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'space', eyebrow: 'Room map', title: 'Describe where something is',
     caption: 'Position words show the relationship between two things.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_ten.webp',
+      src: board(10),
       romaji: 'tsukue · ue · shita · tonari',
       meaning: 'desk · on top · under · next to',
     },
@@ -206,7 +215,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'range', eyebrow: 'Counter guide', title: 'The counter matches the thing',
     caption: 'Japanese counts objects by category, not with one universal ending.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_eleven.webp',
+      src: board(11),
       romaji: 'hitotsu · futari · sanbon',
       meaning: 'one thing · two people · three long things',
     },
@@ -220,7 +229,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'comparison', eyebrow: 'Comparison scale', title: 'Choose the side you prefer',
     caption: 'A のほうが B より adjective says A is more adjective than B.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_twelve.webp',
+      src: board(12),
       romaji: 'Ringo no hō ga budō yori suki desu.',
       meaning: 'I like apples more than grapes.',
     },
@@ -233,7 +242,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'sequence', eyebrow: 'Purpose route', title: 'Go somewhere to do something',
     caption: 'The movement has a destination and a purpose.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_thirteen.webp',
+      src: board(13),
       romaji: 'Depāto e kutsu o kai ni ikimasu.',
       meaning: 'I go to the department store to buy shoes.',
     },
@@ -252,7 +261,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'sequence', eyebrow: 'Verb transformation', title: 'Turn a verb into て-form',
     caption: 'The て-form opens the door to requests and ongoing actions.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_fourteen.webp',
+      src: board(14),
       romaji: 'yomimasu → yonde kudasai',
       meaning: 'read → please read',
     },
@@ -266,7 +275,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'comparison', eyebrow: 'Rule signal', title: 'Permission or prohibition?',
     caption: 'The same て-form changes meaning with the ending that follows it.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_fifteen.webp',
+      src: board(15),
       romaji: 'mite mo ii · mite wa ikenai',
       meaning: 'you may look · you must not look',
     },
@@ -279,7 +288,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'sequence', eyebrow: 'Verb transformation', title: 'Build a negative verb',
     caption: 'The ない-form is the base for “do not” and “must”.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_sixteen.webp',
+      src: board(16),
       romaji: 'taberu → tabenai → tabenaide kudasai',
       meaning: 'eat → not eat → please don’t eat',
     },
@@ -293,7 +302,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'sequence', eyebrow: 'Ability shift', title: 'From doing to being able to do',
     caption: 'Potential form changes the action into an ability.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_seventeen.webp',
+      src: board(17),
       romaji: 'yomu → yomeru · dekimasu',
       meaning: 'read → can read · be able to',
     },
@@ -307,7 +316,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'sequence', eyebrow: 'Experience line', title: 'Connect a past event to now',
     caption: 'A past action plus ことが あります expresses life experience.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_eighteen.webp',
+      src: board(18),
       romaji: 'Nihon e itta koto ga arimasu.',
       meaning: 'I have been to Japan.',
     },
@@ -326,7 +335,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'sequence', eyebrow: 'Noun lens', title: 'Put the description before the noun',
     caption: 'Japanese places the whole describing sentence before what it describes.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_twenty.webp',
+      src: board(20),
       romaji: 'Kinō katta hon o yomimasu.',
       meaning: 'I read the book I bought yesterday.',
     },
@@ -340,7 +349,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'sequence', eyebrow: 'Natural result', title: 'One event triggers another',
     caption: 'Use と for a reliable consequence or automatic result.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_twenty_one.webp',
+      src: board(21),
       romaji: 'Botan o osu to doa ga aku.',
       meaning: 'When you press the button, the door opens.',
     },
@@ -354,7 +363,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'sequence', eyebrow: 'Conditional path', title: 'If this happens, then…',
     caption: 'たら sets the condition before the result or advice.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_twenty_two.webp',
+      src: board(22),
       romaji: 'Ame ga futtara kasa o mochimasu.',
       meaning: 'If it rains, I take an umbrella.',
     },
@@ -373,7 +382,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'direction', eyebrow: 'Direction lens', title: 'Change the viewpoint, change the verb',
     caption: 'Giving and receiving verbs follow the direction of the benefit.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_twenty_three.webp',
+      src: board(23),
       romaji: 'agemasu · moraimasu',
       meaning: 'I give · I receive',
     },
@@ -386,7 +395,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'sequence', eyebrow: 'Potential form', title: 'See ability as a new verb',
     caption: 'Potential form can describe ability, what is visible, or what is audible.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_twenty_four.webp',
+      src: board(24),
       romaji: 'yomu → yomeru · shika nai',
       meaning: 'read → can read · only',
     },
@@ -400,7 +409,7 @@ const visuals: Record<number, VisualSpec> = {
     kind: 'comparison', eyebrow: 'Timing lens', title: 'Before or after the action?',
     caption: 'Plain form before とき looks ahead; past form looks back after completion.',
     illustration: {
-      src: '/images/grammar/n5/boards/n5_ch_twenty_five.webp',
+      src: board(25),
       romaji: 'taberu toki · tabeta toki',
       meaning: 'before eating · after eating',
     },
@@ -517,10 +526,14 @@ export function ChapterVisual({ chapterId }: { chapterId: number }) {
         {/* The art has ~10% empty transparent space under the board; the aspect crop trims it. */}
         <img
           src={asset(illustration.src)}
+          srcSet={`${asset(boardPhonePath(illustration.src))} 768w, ${asset(illustration.src)} 1280w`}
+          sizes={BOARD_SIZES}
           alt={alt}
           width={1536}
           height={920}
-          loading="lazy"
+          // The board is the first thing a chapter shows, so it loads first.
+          loading="eager"
+          {...HIGH_FETCH_PRIORITY}
           decoding="async"
           className="mx-auto aspect-[1536/920] w-full max-w-[33rem] select-none object-cover object-top"
         />

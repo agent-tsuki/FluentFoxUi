@@ -27,8 +27,17 @@ import { isApiFailedResponse } from '@/types/api'
 export { ApiError } from './errors'
 
 const DEFAULT_HEADERS: Record<string, string> = {
-  'Content-Type': 'application/json',
-  'Accept':       'application/json, application/problem+json',
+  'Accept': 'application/json, application/problem+json',
+}
+
+// Writes keep the JSON Content-Type they always sent. Reads have no body, and a
+// GET with Content-Type is not a CORS "simple request": the browser would send
+// an extra OPTIONS preflight (a full round trip) before every public content fetch.
+const JSON_BODY_HEADERS: Record<string, string> = { 'Content-Type': 'application/json' }
+
+function isReadOnly(method: string | undefined): boolean {
+  const m = (method ?? 'GET').toUpperCase()
+  return m === 'GET' || m === 'HEAD'
 }
 
 const PUBLIC_AUTH_PATHS = [
@@ -80,6 +89,7 @@ async function request<T>(path: string, options?: RequestInit, isRetry = false):
       credentials: 'include',
       headers: {
         ...DEFAULT_HEADERS,
+        ...(isReadOnly(options?.method) ? {} : JSON_BODY_HEADERS),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options?.headers,
       },

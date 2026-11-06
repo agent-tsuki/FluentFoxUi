@@ -65,16 +65,34 @@ describe('public content cache', () => {
     expect(bundled).not.toHaveBeenCalled()
   })
 
-  it('persists a valid API course response for the next visit', async () => {
+  it('renders bundled content on a first visit and saves the API copy for the next one', async () => {
     api.get.mockResolvedValue({ data: { title: 'Hiragana', strokes_base_url: 'https://cdn.example.test/' } })
     const { getStrokesBaseUrl, loadContent } = await import('./contentSource')
 
-    await expect(loadContent(path, async () => ({ title: 'Bundled' }), isContent)).resolves.toEqual({ title: 'Hiragana' })
+    await expect(loadContent(path, async () => ({ title: 'Bundled' }), isContent)).resolves.toEqual({ title: 'Bundled' })
+    await vi.waitFor(() => expect(storage.getItem(CACHE_KEY)).not.toBeNull())
+    expect(api.get).toHaveBeenCalledWith(path)
     expect(getStrokesBaseUrl()).toBe('https://cdn.example.test')
     expect(JSON.parse(storage.getItem(CACHE_KEY) ?? '{}')).toMatchObject({
       data: { title: 'Hiragana' },
       strokesBaseUrl: 'https://cdn.example.test',
     })
+  })
+
+  it('asks the API directly when the bundled data cannot load', async () => {
+    api.get.mockResolvedValue({ data: { title: 'Hiragana', strokes_base_url: null } })
+    const { loadContent } = await import('./contentSource')
+
+    await expect(loadContent(path, async () => { throw new Error('chunk error') }, isContent)).resolves.toEqual({ title: 'Hiragana' })
+  })
+
+  it('keeps showing content when the background refresh fails', async () => {
+    api.get.mockRejectedValue(new Error('cold backend'))
+    const { loadContent } = await import('./contentSource')
+
+    await expect(loadContent(path, async () => ({ title: 'Bundled' }), isContent)).resolves.toEqual({ title: 'Bundled' })
+    await vi.waitFor(() => expect(api.get).toHaveBeenCalled())
+    expect(storage.getItem(CACHE_KEY)).toBeNull()
   })
 
   it('uses an expired valid course payload when the network and bundled load both cannot provide newer content', async () => {

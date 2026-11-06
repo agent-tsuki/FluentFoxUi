@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
+import { KANA_PAGE_LOADERS } from '@/pages/coursePageLoaders'
 import { Navigate, Outlet, useLocation, useSearchParams } from 'react-router-dom'
 import { useKanaScript } from '@/context/KanaScriptContext'
 import { useKanaSections } from '@/hooks/useKanaSections'
@@ -39,6 +40,11 @@ export function KanaCourseLayout() {
   const headingRef = useRef<HTMLHeadingElement>(null)
 
   const { sections, isLoading, error, refetch } = useKanaSections()
+
+  // Start the page's code download now, alongside the course data, not after it.
+  useEffect(() => {
+    void KANA_PAGE_LOADERS[page.id]()
+  }, [page.id])
   const legacyTabKey = script.storageKeys.legacyTab
 
   const context = useMemo<KanaCourseContext | null>(() => {

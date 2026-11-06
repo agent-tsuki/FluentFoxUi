@@ -38,8 +38,9 @@ function contentSecurityPolicy(apiUrl: string | undefined, cdnUrl: string | unde
   const policy = [
     "default-src 'self'",
     "script-src 'self' https://static.cloudflareinsights.com",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "font-src 'self' data: https://fonts.gstatic.com",
+    "style-src 'self' 'unsafe-inline'",
+    // Fonts are self-hosted (src/styles/fonts.css).
+    "font-src 'self' data:",
     "img-src 'self' data: blob: https:",
     `connect-src 'self' https://cloudflareinsights.com${api ? ` ${api}` : ''}${cdn ? ` ${cdn}` : ''}`,
     "worker-src 'self' blob:",
@@ -87,6 +88,40 @@ function cdnPreconnect(cdnUrl: string | undefined): Plugin {
     name: 'foxsensei-cdn-preconnect',
     transformIndexHtml: () =>
       cdn ? [{ tag: 'link', attrs: { rel: 'preconnect', href: cdn }, injectTo: 'head' }] : [],
+  }
+}
+
+/**
+ * Inlines the app stylesheet into index.html. On slow mobile networks the
+ * separate CSS request costs a full round trip before anything can paint;
+ * inline, the first screen renders as soon as the HTML arrives. The app is a
+ * single HTML page (client-side routing), so the CSS is still fetched only once
+ * per visit, and index.html revalidates cheaply. The CSP allows inline styles.
+ */
+function inlineCss(): Plugin {
+  return {
+    name: 'foxsensei-inline-css',
+    apply: 'build',
+    enforce: 'post',
+    transformIndexHtml: {
+      order: 'post',
+      handler(html, ctx) {
+        let out = html
+        for (const asset of Object.values(ctx.bundle ?? {})) {
+          if (asset.type !== 'asset' || !asset.fileName.endsWith('.css')) continue
+          const tag = new RegExp(`<link rel="stylesheet"[^>]*href="/${asset.fileName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"[^>]*>`)
+          if (!tag.test(out)) continue
+          // The disabled link is never fetched or applied; it only tells Vite's
+          // lazy-route preloader the stylesheet is already on the page, so lazy
+          // chunks don't download it a second time.
+          out = out.replace(
+            tag,
+            () => `<style>${String(asset.source)}</style><link rel="stylesheet" href="/${asset.fileName}" disabled>`,
+          )
+        }
+        return out
+      },
+    },
   }
 }
 
@@ -193,6 +228,7 @@ export default defineConfig(({ mode }) => {
       contentSecurityPolicy(env.VITE_API_URL, env.VITE_CDN_URL),
       apiPreconnect(env.VITE_API_URL),
       cdnPreconnect(env.VITE_CDN_URL),
+      inlineCss(),
       grammarChapters(fileURLToPath(new URL('./src/assets/grammar', import.meta.url))),
       serviceWorker(env.VITE_CDN_URL),
     ],

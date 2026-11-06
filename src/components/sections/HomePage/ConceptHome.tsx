@@ -1,66 +1,23 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useStartLearning } from '@/hooks/useStartLearning'
 import { useUI } from '@/context/UIContext'
 import { Icon } from '@/components/ui/Icon'
 import { FallingPetals } from './FallingPetals'
 import { asset } from '@/lib/assets'
-
-const chapters = [
-  { id: 'hiragana', number: '01', label: 'Hiragana', path: '/kana/hiragana' },
-  { id: 'katakana', number: '02', label: 'Katakana', path: '/kana/katakana' },
-  { id: 'kanji', number: '03', label: 'Kanji', path: '/kanji' },
-  { id: 'vocabulary', number: '04', label: 'Vocabulary', path: '/classes' },
-  { id: 'grammar', number: '05', label: 'Grammar', path: '/grammar/n5' },
-] as const
-
-const kanaReadings = [
-  'あ · a · like the vowel in “father”',
-  'い · i · like “ee” in “see”',
-  'う · u · a short sound with relaxed lips',
-  'え · e · like “e” in “bed”',
-  'お · o · a pure o sound',
-]
-
-const vocabulary = [
-  { emoji: '💧', value: '水 · みず · mizu · water', label: 'water' },
-  { emoji: '🍵', value: 'お茶 · おちゃ · ocha · tea', label: 'tea' },
-  { emoji: '🍚', value: 'ご飯 · ごはん · gohan · cooked rice / meal', label: 'rice' },
-] as const
+import { HIGH_FETCH_PRIORITY } from '@/lib/fetchPriority'
+import { HowItWorks } from './HowItWorks'
 
 /**
- * A concept-led home page that directs learners into the real course routes.
- * The four small discovery panels offer local, optional interactions only;
- * learner progress continues to be owned by the established course features.
+ * A concept-led home page: the hero, then "How FoxSensei works", which explains
+ * the real course path with small local demos (they never touch learner progress).
  */
 export function ConceptHome() {
   const { startLearning, prefetch } = useStartLearning()
   const { darkMode } = useUI()
-  const [kanaReading, setKanaReading] = useState('Tap a character to discover its sound.')
-  const [coffeeRevealed, setCoffeeRevealed] = useState(false)
-  const [forestStep, setForestStep] = useState(0)
-  const [word, setWord] = useState('Tap an object to discover the word.')
-  const [sentence, setSentence] = useState<string[]>([])
-
-  const forest = [
-    { character: '木', reading: '木 · ki · tree' },
-    { character: '林', reading: '林 · hayashi · grove' },
-    { character: '森', reading: '森 · mori · forest' },
-  ]
-  const sentenceComplete = sentence.length === 2
-  const sentenceCorrect = sentence.join('') === '私は学生です'
-
-  function addSentencePart(part: string) {
-    setSentence((current) => (current.includes(part) ? current : [...current, part]))
-  }
 
   return (
     <main className="concept-home overflow-x-clip bg-home-canvas text-home-ink">
       <section id="top" className="relative isolate h-[100svh] min-h-[42rem] overflow-hidden bg-home-hero">
-        <div
-          className="absolute inset-0 scale-[1.03] bg-cover bg-[center_54%] motion-safe:animate-[concept-drift_25s_ease-in-out_infinite_alternate]"
-          style={{ backgroundImage: `url('${asset(darkMode ? '/images/home/changes.webp' : '/images/home/journey.webp')}')` }}
-        />
+        <HeroImage scene={darkMode ? 'changes' : 'journey'} />
         <div className="concept-hero-wash absolute inset-0" />
         <FallingPetals />
 
@@ -89,7 +46,7 @@ export function ConceptHome() {
                 </span>
               </button>
               <a className="concept-text-link" href="#journey">
-                Explore the journey <Icon name="south" className="ml-1 align-text-bottom text-base" />
+                See how it works <Icon name="south" className="ml-1 align-text-bottom text-base" />
               </a>
             </div>
             <p className="mt-10 flex items-center gap-3 text-xs tracking-wide text-home-subtle">
@@ -102,208 +59,33 @@ export function ConceptHome() {
       </section>
 
 
-      <section id="journey" className="scroll-mt-nav mx-auto max-w-[1240px] px-6 py-16 sm:px-10 lg:py-20">
-        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-          <div>
-            <p className="concept-eyebrow">Follow your curiosity</p>
-            <h2 className="concept-display mt-3 text-[clamp(2.4rem,4vw,3.4rem)] leading-[1.03] tracking-[-.035em]">
-              Five doors.
-              <br />
-              A world of possibilities.
-            </h2>
-          </div>
-          <p className="max-w-sm text-sm leading-7 text-home-subtle">
-            Take a small step into each part of Japanese. Tap, discover, and try something new along the way.
-          </p>
-        </div>
-
-        <div className="mt-10 grid gap-9 lg:grid-cols-[11.25rem_minmax(0,1fr)] lg:gap-10">
-          <nav className="sticky top-nav z-20 -mx-6 flex overflow-x-auto border-y border-home-line bg-home-canvas/95 px-6 py-2 backdrop-blur lg:top-24 lg:mx-0 lg:block lg:self-start lg:border-0 lg:bg-transparent lg:p-0" aria-label="Learning chapters">
-            <p className="mb-4 hidden text-[0.6rem] font-semibold tracking-[.16em] text-home-subtle lg:block">YOUR JOURNEY / FOX SENSEI</p>
-            <div className="flex min-w-max lg:block">
-              {chapters.map((chapter) => (
-                <a
-                  key={chapter.id}
-                  href={`#chapter-${chapter.id}`}
-                  className="block border-b-2 border-transparent px-3 py-2.5 text-xs text-home-subtle transition hover:border-home-accent hover:bg-home-sand hover:text-home-accent lg:border-b-0 lg:border-l-2"
-                >
-                  {chapter.number} &nbsp; {chapter.label}
-                </a>
-              ))}
-            </div>
-          </nav>
-
-          <div>
-            <article id="chapter-hiragana" className="concept-chapter scroll-mt-36">
-              <div>
-                <p className="concept-chapter-number">01 / THE FIRST SOUNDS</p>
-                <h3 className="concept-display mt-3 text-[clamp(2rem,3.2vw,2.8rem)] leading-[1.05] tracking-[-.035em]">It begins with あ.</h3>
-                <p className="mt-4 max-w-sm text-sm leading-7 text-home-subtle">Meet hiragana. A few simple shapes open the door to reading your first Japanese words.</p>
-                <Link className="concept-text-link mt-4" to="/kana/hiragana">Meet your first characters <Icon name="arrow_forward" className="ml-1 align-text-bottom text-base" /></Link>
-              </div>
-              <div className="concept-mini bg-home-sage">
-                <p className="concept-mini-label">SMALL CHARACTERS. A BIG BEGINNING.</p>
-                <div className="mt-6 flex justify-center gap-2 sm:gap-3">
-                  {['あ', 'い', 'う', 'え', 'お'].map((kana, index) => (
-                    <button
-                      key={kana}
-                      type="button"
-                      onClick={() => setKanaReading(kanaReadings[index])}
-                      className="min-h-14 min-w-0 max-w-[4.5rem] flex-1 rounded-lg border border-home-line-strong bg-home-tile px-2 py-2 font-jp text-2xl text-home-ink transition hover:-translate-y-0.5 hover:border-home-accent focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-home-accent sm:text-3xl"
-                      aria-label={`Reveal the reading of ${kana}`}
-                    >
-                      {kana}
-                    </button>
-                  ))}
-                </div>
-                <p className="mt-5 min-h-6 text-xs text-home-muted" aria-live="polite">{kanaReading}</p>
-              </div>
-            </article>
-
-            <article id="chapter-katakana" className="concept-chapter scroll-mt-36">
-              <div>
-                <p className="concept-chapter-number">02 / THE FAMILIAR, REIMAGINED</p>
-                <h3 className="concept-display mt-3 text-[clamp(2rem,3.2vw,2.8rem)] leading-[1.05] tracking-[-.035em]">You know more<br />than you think.</h3>
-                <p className="mt-4 max-w-sm text-sm leading-7 text-home-subtle">Coffee. Camera. Familiar words take on new shapes in katakana. Decode a little of everyday Japan.</p>
-                <Link className="concept-text-link mt-4" to="/kana/katakana">Explore katakana <Icon name="arrow_forward" className="ml-1 align-text-bottom text-base" /></Link>
-              </div>
-              <div className="concept-mini bg-home-mint">
-                <p className="concept-mini-label">A SMALL STOP AT THE CAFÉ</p>
-                <p className="mt-3 text-5xl" aria-hidden="true">☕</p>
-                <button
-                  type="button"
-                  onClick={() => setCoffeeRevealed((value) => !value)}
-                  className="mt-3 rounded-md border border-home-line-strong bg-home-tile px-4 py-2 text-sm text-home-ink transition hover:border-home-accent focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-home-accent"
-                  aria-pressed={coffeeRevealed}
-                >
-                  コーヒー <Icon name="refresh" className="ml-1 align-text-bottom text-base" />
-                </button>
-                <p className="mt-4 min-h-5 text-xs text-home-muted" aria-live="polite">
-                  {coffeeRevealed ? 'kōhī · coffee — ー makes the vowel longer' : 'Tap to turn the word over.'}
-                </p>
-              </div>
-            </article>
-
-            <article id="chapter-kanji" className="concept-chapter scroll-mt-36">
-              <div>
-                <p className="concept-chapter-number">03 / A PICTURE OF MEANING</p>
-                <h3 className="concept-display mt-3 text-[clamp(2rem,3.2vw,2.8rem)] leading-[1.05] tracking-[-.035em]">One tree.<br />A thousand connections.</h3>
-                <p className="mt-4 max-w-sm text-sm leading-7 text-home-subtle">Explore meaning through kanji, then discover how characters become the words you use.</p>
-                <Link className="concept-text-link mt-4" to="/kanji">Discover kanji <Icon name="arrow_forward" className="ml-1 align-text-bottom text-base" /></Link>
-              </div>
-              <div className="concept-mini bg-home-sage">
-                <p className="concept-mini-label">WATCH THE MEANING GROW</p>
-                <p className="mt-5 font-jp text-5xl tracking-[.3em] text-home-leaf">{forest[forestStep].character}</p>
-                <button
-                  type="button"
-                  onClick={() => setForestStep((value) => (value + 1) % forest.length)}
-                  className="mt-4 rounded-md border border-home-line-strong bg-home-tile px-4 py-2 text-sm text-home-ink transition hover:border-home-accent focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-home-accent"
-                >
-                  Grow a forest <Icon name="add" className="ml-1 align-text-bottom text-base" />
-                </button>
-                <p className="mt-4 min-h-5 text-xs text-home-muted" aria-live="polite">{forest[forestStep].reading}</p>
-              </div>
-            </article>
-
-            <article id="chapter-vocabulary" className="concept-chapter scroll-mt-36">
-              <div>
-                <p className="concept-chapter-number">04 / WORDS THAT LIVE IN YOUR DAY</p>
-                <h3 className="concept-display mt-3 text-[clamp(2rem,3.2vw,2.8rem)] leading-[1.05] tracking-[-.035em]">Make the everyday<br />a little more Japanese.</h3>
-                <p className="mt-4 max-w-sm text-sm leading-7 text-home-subtle">A cup of tea. A glass of water. Learn useful words in the moments where they belong.</p>
-                <Link className="concept-text-link mt-4" to="/classes">Find your everyday words <Icon name="arrow_forward" className="ml-1 align-text-bottom text-base" /></Link>
-              </div>
-              <div className="concept-mini bg-home-peach">
-                <p className="concept-mini-label">WHAT WOULD YOU LIKE?</p>
-                <div className="mt-6 flex justify-center gap-3">
-                  {vocabulary.map((item) => (
-                    <button
-                      key={item.label}
-                      type="button"
-                      onClick={() => setWord(item.value)}
-                      className="flex min-h-16 min-w-0 max-w-[5.5rem] flex-1 items-center justify-center rounded-lg border border-home-line-strong bg-home-tile px-2 text-2xl transition hover:-translate-y-0.5 hover:border-home-accent focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-home-accent"
-                      aria-label={`Discover the Japanese word for ${item.label}`}
-                    >
-                      {item.emoji}
-                    </button>
-                  ))}
-                </div>
-                <p className="mt-5 min-h-5 text-xs text-home-muted" aria-live="polite">{word}</p>
-              </div>
-            </article>
-
-            <article id="chapter-grammar" className="concept-chapter scroll-mt-36">
-              <div>
-                <p className="concept-chapter-number">05 / YOUR FIRST CONNECTIONS</p>
-                <h3 className="concept-display mt-3 text-[clamp(2rem,3.2vw,2.8rem)] leading-[1.05] tracking-[-.035em]">From little words<br />to your own ideas.</h3>
-                <p className="mt-4 max-w-sm text-sm leading-7 text-home-subtle">Bring the pieces together. Learn how sentence patterns help you express something of your own.</p>
-                <Link className="concept-text-link mt-4" to="/grammar/n5">Build your first sentence <Icon name="arrow_forward" className="ml-1 align-text-bottom text-base" /></Link>
-              </div>
-              <div className="concept-mini bg-home-mint">
-                <p className="concept-mini-label">ARRANGE: I AM A STUDENT.</p>
-                <div className="mt-6 flex flex-wrap justify-center gap-2">
-                  {['学生です', '私は'].map((part) => (
-                    <button
-                      key={part}
-                      type="button"
-                      disabled={sentence.includes(part)}
-                      onClick={() => addSentencePart(part)}
-                      className="rounded-md border border-home-line-strong bg-home-tile px-3 py-2 font-jp text-base text-home-ink transition enabled:hover:border-home-accent disabled:cursor-default disabled:opacity-50 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-home-accent"
-                    >
-                      {part}
-                    </button>
-                  ))}
-                </div>
-                <p className="mt-5 min-h-5 text-xs text-home-muted" aria-live="polite">
-                  {!sentenceComplete && (sentence.length ? `${sentence[0]} …` : 'Tap the two parts in the right order.')}
-                  {sentenceComplete && (sentenceCorrect ? '私は学生です。 · I am a student. Nicely done!' : 'Try 私は first, then 学生です. は marks the topic.')}
-                </p>
-                <button type="button" onClick={() => setSentence([])} className="mt-3 text-xs text-home-muted underline underline-offset-4 hover:text-home-accent">Start again</button>
-              </div>
-            </article>
-          </div>
-        </div>
-
-        <div className="mt-14 flex flex-col gap-6 rounded-xl bg-home-panel p-7 sm:p-10 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="concept-eyebrow">Your journey is your own</p>
-            <h2 className="concept-display mt-3 text-[clamp(2rem,3vw,2.65rem)] leading-tight tracking-[-.03em]">Let’s find your starting point.</h2>
-            <p className="mt-3 text-sm leading-7 text-home-muted">New to Japanese or finding your way back? Start at the pace that feels right.</p>
-          </div>
-          <button
-            type="button"
-            onClick={startLearning}
-            {...prefetch}
-            className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-md bg-home-ink px-5 py-3 text-sm font-bold text-home-canvas transition hover:-translate-y-0.5 hover:bg-home-ink/90 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-home-ink"
-          >
-            Find my path <Icon name="arrow_forward" className="ml-1 text-base" />
-          </button>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-[1240px] px-6 pb-16 sm:px-10 lg:pb-20">
-        <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
-          <div>
-            <p className="concept-eyebrow">A little better, every day</p>
-            <h2 className="concept-display mt-3 text-[clamp(2.35rem,4vw,3.25rem)] leading-[1.05] tracking-[-.035em]">Learning that keeps moving.</h2>
-          </div>
-          <p className="max-w-sm text-sm leading-7 text-home-subtle">A clear next step, useful feedback, and space to try again.</p>
-        </div>
-        <div className="mt-9 grid gap-4 md:grid-cols-3">
-          <BenefitCard symbol="道" title="A path that fits you." body="Start with a clear next step, then explore at your own pace." />
-          <BenefitCard symbol="習" title="Mistakes become practice." body="Understand what went wrong and revisit it in focused review." />
-          <BenefitCard symbol="進" title="See your small steps." body="Your dashboard reflects the learning you actually do, one answer at a time." />
-        </div>
-      </section>
+      <HowItWorks />
     </main>
   )
 }
 
-function BenefitCard({ symbol, title, body }: { symbol: string; title: string; body: string }) {
+
+/**
+ * The hero photo, sized to the screen: portrait screens get a centre crop
+ * (they would only show that slice of the wide photo anyway), wider screens
+ * pick 960 / 1280 / full width. It is the first thing a visitor sees, so it
+ * loads eagerly at high priority.
+ */
+function HeroImage({ scene }: { scene: 'journey' | 'changes' }) {
+  const src = (variant: string) => asset(`/images/home/${scene}${variant}.webp`)
   return (
-    <article className="rounded-xl border border-home-line bg-home-tile p-7">
-      <p className="concept-display text-4xl text-home-accent" lang="ja">{symbol}</p>
-      <h3 className="concept-display mt-4 text-2xl tracking-[-.02em]">{title}</h3>
-      <p className="mt-3 text-sm leading-7 text-home-subtle">{body}</p>
-    </article>
+    <picture>
+      <source media="(max-aspect-ratio: 1/1)" srcSet={src('-portrait')} type="image/webp" />
+      <source srcSet={`${src('-960')} 960w, ${src('-1280')} 1280w, ${src('')} 1672w`} sizes="100vw" type="image/webp" />
+      <img
+        src={src('-1280')}
+        alt=""
+        width={1672}
+        height={941}
+        {...HIGH_FETCH_PRIORITY}
+        decoding="async"
+        className="absolute inset-0 size-full scale-[1.03] object-cover object-[center_54%] motion-safe:animate-[concept-drift_25s_ease-in-out_infinite_alternate]"
+      />
+    </picture>
   )
 }

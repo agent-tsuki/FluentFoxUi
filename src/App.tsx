@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate, RouterProvider, Outlet, useLocation, use
 import { PathUserSync } from '@/components/auth/PathUserSync'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
+import { KANA_PAGE_LOADERS, KANJI_PAGE_LOADERS } from '@/pages/coursePageLoaders'
 import { LazyAuthModal } from '@/components/sections/AuthModal'
 import { ModalProvider, useModal } from '@/context/ModalContext'
 import { AuthProvider } from '@/context/AuthContext'
@@ -25,10 +26,10 @@ import { LoginLocationPrompt } from '@/components/profile/LoginLocationPrompt'
 // The kana course engine (hiragana, katakana): one set of pages for every script.
 const KanaScriptRoute   = lazy(() => import('@/pages/KanaScriptRoute').then(m => ({ default: m.KanaScriptRoute })))
 const KanaCourseLayout  = lazy(() => import('@/pages/KanaCourseLayout').then(m => ({ default: m.KanaCourseLayout })))
-const KanaCoursePage    = lazy(() => import('@/pages/KanaCoursePage').then(m => ({ default: m.KanaCoursePage })))
-const KanaChartPage     = lazy(() => import('@/pages/KanaChartPage').then(m => ({ default: m.KanaChartPage })))
-const KanaTestsPage     = lazy(() => import('@/pages/KanaTestsPage').then(m => ({ default: m.KanaTestsPage })))
-const KanaDownloadsPage = lazy(() => import('@/pages/KanaDownloadsPage').then(m => ({ default: m.KanaDownloadsPage })))
+const KanaCoursePage    = lazy(KANA_PAGE_LOADERS.course)
+const KanaChartPage     = lazy(KANA_PAGE_LOADERS.chart)
+const KanaTestsPage     = lazy(KANA_PAGE_LOADERS.tests)
+const KanaDownloadsPage = lazy(KANA_PAGE_LOADERS.downloads)
 const KanaPracticePage  = lazy(() => import('@/pages/KanaPracticePage').then(m => ({ default: m.KanaPracticePage })))
 const KanaUnitPage      = lazy(() => import('@/pages/KanaUnitPage').then(m => ({ default: m.KanaUnitPage })))
 const KanaUnitQuizPage  = lazy(() => import('@/pages/KanaUnitQuizPage').then(m => ({ default: m.KanaUnitQuizPage })))
@@ -37,11 +38,11 @@ const KanaSkipTestPage  = lazy(() => import('@/pages/KanaSkipTestPage').then(m =
 // The kanji course: one set of pages for every JLPT level with data.
 const KanjiLevelRoute        = lazy(() => import('@/pages/KanjiLevelRoute').then(m => ({ default: m.KanjiLevelRoute })))
 const KanjiCourseLayout      = lazy(() => import('@/pages/KanjiCourseLayout').then(m => ({ default: m.KanjiCourseLayout })))
-const KanjiCoursePage        = lazy(() => import('@/pages/KanjiCoursePage').then(m => ({ default: m.KanjiCoursePage })))
-const KanjiReviewsPage       = lazy(() => import('@/pages/KanjiReviewsPage').then(m => ({ default: m.KanjiReviewsPage })))
-const KanjiBrowsePage        = lazy(() => import('@/pages/KanjiBrowsePage').then(m => ({ default: m.KanjiBrowsePage })))
-const KanjiTestsPage         = lazy(() => import('@/pages/KanjiTestsPage').then(m => ({ default: m.KanjiTestsPage })))
-const KanjiDownloadsPage     = lazy(() => import('@/pages/KanjiDownloadsPage').then(m => ({ default: m.KanjiDownloadsPage })))
+const KanjiCoursePage        = lazy(KANJI_PAGE_LOADERS.course)
+const KanjiReviewsPage       = lazy(KANJI_PAGE_LOADERS.reviews)
+const KanjiBrowsePage        = lazy(KANJI_PAGE_LOADERS.browse)
+const KanjiTestsPage         = lazy(KANJI_PAGE_LOADERS.tests)
+const KanjiDownloadsPage     = lazy(KANJI_PAGE_LOADERS.downloads)
 const KanjiUnitPage          = lazy(() => import('@/pages/KanjiUnitPage').then(m => ({ default: m.KanjiUnitPage })))
 const KanjiUnitQuizPage      = lazy(() => import('@/pages/KanjiUnitQuizPage').then(m => ({ default: m.KanjiUnitQuizPage })))
 const KanjiPracticePage      = lazy(() => import('@/pages/KanjiPracticePage').then(m => ({ default: m.KanjiPracticePage })))
@@ -175,7 +176,9 @@ function Shell() {
 
       <div className="relative z-10 flex flex-col min-h-dvh">
         <Navbar />
-        <div className="flex-1">
+        {/* At least one screen tall, so the footer starts below the fold and never
+            jumps when a lazy page or its data arrives (layout shift). */}
+        <div className="flex-1 min-h-svh">
           <ErrorBoundary>
             <ModalFromUrl />
             <RouteSuspense>

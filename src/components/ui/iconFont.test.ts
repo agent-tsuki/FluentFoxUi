@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import indexHtml from '../../../index.html?raw'
+import fontSources from '../../../scripts/fonts/sources.json'
 
-// index.html loads only the Material Symbols listed in `icon_names` to keep the
-// font small. Any other name renders as its raw text ("insights"), so every
-// icon the source uses must be on that list.
+// The self-hosted icon font (npm run fonts) holds only the Material Symbols
+// listed in `icon_names` in scripts/fonts/sources.json, to keep it small. Any
+// other name renders as its raw text ("insights"), so every icon the source
+// uses must be on that list.
 
 // Generated content holds no icons and is large, so it is left out.
 const SOURCES = import.meta.glob<string>(
@@ -21,7 +22,8 @@ const ICON_ELEMENT_BEFORE = /<Icon\b[^>]*$/
 const LOOKBEHIND_CHARS = 200
 
 function loadedIcons(): Set<string> {
-  const list = indexHtml.match(/icon_names=([a-z0-9_,]+)/)?.[1] ?? ''
+  const iconsUrl = fontSources.find((source) => source.name === 'icons')?.url ?? ''
+  const list = iconsUrl.match(/icon_names=([a-z0-9_,]+)/)?.[1] ?? ''
   return new Set(list.split(','))
 }
 
@@ -56,6 +58,6 @@ describe('Material Symbols subset', () => {
         if (!loaded.has(name)) missing.add(`${name} (${file})`)
       }
     }
-    expect([...missing].sort(), 'add these to icon_names in index.html').toEqual([])
+    expect([...missing].sort(), 'add these to icon_names in scripts/fonts/sources.json, then run npm run fonts').toEqual([])
   })
 })

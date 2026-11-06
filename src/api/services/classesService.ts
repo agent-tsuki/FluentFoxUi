@@ -171,21 +171,33 @@ export function peekClassDetail(slug: string): ClassCourseDetail | undefined {
   return detailCache.get(slug)
 }
 
+// A request already on its way (e.g. started early by the route preloader) is
+// shared rather than sent twice.
+const listInFlight = new Map<string, Promise<ClassesList>>()
+
+async function fetchClassesList(filters: ClassesFilters, query: string): Promise<ClassesList> {
+  let raw: ApiClassesList
+  try {
+    raw = (await apiClient.get<ApiResponse<ApiClassesList>>(`/classes${query}`)).data
+  } catch (err) {
+    if (!isUnreachable(err)) throw err
+    const mock = await import('@/api/mock/classes')
+    // Not cached: the next visit should try the API again.
+    return toClassesList(mock.mockClassesList(filters))
+  }
+  const list = toClassesList(raw)
+  listCache.set(query, list)
+  return list
+}
+
 export const classesService = {
-  async listClasses(filters: ClassesFilters = {}): Promise<ClassesList> {
+  listClasses(filters: ClassesFilters = {}): Promise<ClassesList> {
     const query = classesQuery(filters)
-    let raw: ApiClassesList
-    try {
-      raw = (await apiClient.get<ApiResponse<ApiClassesList>>(`/classes${query}`)).data
-    } catch (err) {
-      if (!isUnreachable(err)) throw err
-      const mock = await import('@/api/mock/classes')
-      // Not cached: the next visit should try the API again.
-      return toClassesList(mock.mockClassesList(filters))
-    }
-    const list = toClassesList(raw)
-    listCache.set(query, list)
-    return list
+    const pending = listInFlight.get(query)
+    if (pending) return pending
+    const request = fetchClassesList(filters, query).finally(() => listInFlight.delete(query))
+    listInFlight.set(query, request)
+    return request
   },
 
   async getClassDetail(slug: string): Promise<ClassCourseDetail> {

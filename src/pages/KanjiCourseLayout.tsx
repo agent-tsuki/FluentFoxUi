@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
+import { KANJI_PAGE_LOADERS } from '@/pages/coursePageLoaders'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useKanjiLevel } from '@/context/KanjiLevelContext'
 import { useKanjiLevelIndex } from '@/hooks/useKanji'
@@ -38,6 +39,11 @@ export function KanjiCourseLayout() {
     [level, index],
   )
   const page = kanjiPageFor(pages, pathname)
+
+  // Start the page's code download now, alongside the course data, not after it.
+  useEffect(() => {
+    void KANJI_PAGE_LOADERS[page.id]()
+  }, [page.id])
   const dueCount = useLearnSummary(KANJI_TRACK).summary?.due_now ?? 0
 
   useEffect(() => {
