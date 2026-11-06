@@ -1,52 +1,58 @@
 #!/usr/bin/env node
 /**
- * Generates the 10 built-in avatars (5 men, 5 women) with Gemini, then uploads
- * them to Cloudflare R2 and points the app at the new files. All prompts live
- * in this file; you never write one.
+ * Generates the 10 built-in avatars (5 men, 5 women) with Gemini as
+ * anime character portraits, each with its own personality. All prompts live in this file.
  *
- * Ids and file names stay the same as before (men-warrior → /avatars/men/warrior.png …),
- * so users who already chose an avatar keep it and the API needs no change.
+ * Ids and public paths stay the same (men-warrior → /avatars/men/warrior.png …),
+ * because the API returns those paths, so users keep the avatar they chose.
+ * Where the files live in R2 (avatars/presets/{male,female}/) is decided by
+ * scripts/upload-assets, which uploads them like every other image.
  *
  * Setup (once):
  *   cd scripts/generate-avatars && npm install && cd ../..
  *
- * 1. Generate + upload (run from FluentFoxUi/):
- *   GEMINI_API_KEY=... R2_ACCOUNT_ID=... R2_ACCESS_KEY=... R2_SECRET_KEY=... R2_BUCKET_NAME=... \
- *   node scripts/generate-avatars/generate-avatars.mjs
+ * 1. Generate (run from FluentFoxUi/, keys in the git-ignored .env.local):
+ *   node --env-file=.env.local scripts/generate-avatars/generate-avatars.mjs
+ *   → public/avatars/{men,women}/*.png (512px) and scripts/generate-avatars/out/preview.png
  *
- *   - Writes the new PNGs to public/avatars/{men,women}/ and a preview sheet to
- *     scripts/generate-avatars/out/preview.png. Look at it before you deploy.
- *   - Uploads each avatar as WebP under a new hashed name (avatars/men/warrior.<hash>.webp)
- *     and updates src/lib/assetManifest.json. Commit that file and deploy the frontend.
- *   - Old files stay in R2 so the site that is live right now keeps working.
+ * 2. Upload what you approved, then commit src/lib/assetManifest.json and deploy:
+ *   node --env-file=.env.local scripts/upload-assets/upload-assets.mjs
+ *   Then delete public/avatars/ again: images live only on the CDN, not in the repo.
  *
- * 2. After the new frontend is live, delete the old avatar files from R2:
- *   R2_ACCOUNT_ID=... R2_ACCESS_KEY=... R2_SECRET_KEY=... R2_BUCKET_NAME=... \
- *   node scripts/generate-avatars/generate-avatars.mjs --delete-old
- *
- *   Deletes every object under avatars/men/ and avatars/women/ that the manifest
- *   no longer uses. User uploads (avatars/users/) are never touched.
+ * 3. Once that frontend is live, remove the old files from R2:
+ *   node --env-file=.env.local scripts/upload-assets/upload-assets.mjs --prune
  *
  * Options:
- *   --only men-warrior,women-casual-1   regenerate just these (the rest are used as-is)
- *   --no-upload                         generate locally only, to review first
- *   --skip-generate                     upload the PNGs already in public/avatars/
- *   --dry-run                           show what would be uploaded or deleted; change nothing remote
+ *   --only men-warrior,women-casual-1   regenerate just these (the first avatar is the style reference)
+ *   --preview                           only rebuild the preview sheet
  *   GEMINI_IMAGE_MODEL=...              override the model (default gemini-3-pro-image)
  */
-import { createHash } from 'node:crypto'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import sharp from 'sharp'
 import { GoogleGenAI } from '@google/genai'
-import { DeleteObjectsCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(SCRIPT_DIR, '../..')
 const PUBLIC_DIR = path.join(ROOT, 'public')
-const MANIFEST_PATH = path.join(ROOT, 'src/lib/assetManifest.json')
 const OUT_DIR = path.join(SCRIPT_DIR, 'out')
+
+// Images are not kept in the repo; when a file isn't in public/, use its CDN copy.
+const CDN_URL = 'https://cdn.foxsensei.com'
+async function readPublicOrCdn(publicPath) {
+  try {
+    return await readFile(path.join(ROOT, 'public', publicPath))
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err
+  }
+  const manifest = JSON.parse(await readFile(path.join(ROOT, 'src/lib/assetManifest.json'), 'utf8'))
+  const key = manifest[publicPath]
+  if (!key) throw new Error(`${publicPath} is neither in public/ nor in the asset manifest`)
+  const res = await fetch(`${CDN_URL}/${key}`)
+  if (!res.ok) throw new Error(`could not download ${key} (${res.status})`)
+  return Buffer.from(await res.arrayBuffer())
+}
 
 // Gemini 3 Pro Image ("Nano Banana Pro"): Google's highest-quality image model.
 const DEFAULT_MODEL = 'gemini-3-pro-image'
@@ -54,83 +60,75 @@ const GENERATE_SIZE = '1K'
 const ATTEMPTS = 3
 const RETRY_DELAY_MS = 4000
 
-// Same sizes as scripts/upload-assets: 512px source, 256px WebP served (2x the largest avatar on screen).
+// 512px source; scripts/upload-assets serves it as a 256px WebP (2x the largest avatar on screen).
 const SOURCE_PX = 512
-const SERVED_PX = 256
-const WEBP_QUALITY = 82
-const HASH_LENGTH = 10
-const IMMUTABLE_CACHE = 'public, max-age=31536000, immutable'
-const PRESET_PREFIXES = ['avatars/men/', 'avatars/women/']
-const REQUIRED_R2_ENV = ['R2_ACCOUNT_ID', 'R2_ACCESS_KEY', 'R2_SECRET_KEY', 'R2_BUCKET_NAME']
 
 const STYLE = [
-  'A profile avatar for FoxSensei, a friendly app for learning Japanese.',
-  'Style: modern flat vector illustration with clean, confident outlines, soft cel shading and a small, harmonious palette.',
-  'Composition: one person, head and shoulders, centred, facing the viewer with a warm, friendly expression.',
-  'Leave even space around the head so the whole face and hair fit inside a circular crop.',
-  'Background: a single flat pastel colour, no scenery, no pattern.',
-  'Absolutely no text, letters, logos, watermarks, borders or frames.',
-  'Tasteful and respectful depiction of Japanese culture; adult character, fully clothed, suitable for all ages.',
+  'A profile avatar for FoxSensei, a premium app for learning Japanese.',
+  'Style: polished modern anime character art, like key visual art from a high-budget anime series or a gacha game character card:',
+  'crisp clean lineart, rich cel shading with soft gradients, glossy detailed hair with highlights, expressive detailed eyes,',
+  'dramatic cinematic lighting with a strong coloured rim light. Attractive, stylish and charismatic character design.',
+  'The personality must read instantly from the expression, pose, hair and outfit: confident, full of attitude.',
+  'Composition: one character, head and shoulders, centred, the face in the middle of the image, a slight head tilt or angle allowed.',
+  'Leave an even margin around the head and hair so everything fits inside a circular crop; shoulders reach the bottom edge.',
+  'Background: one flat colour filling the whole square edge to edge, optionally with a few soft bokeh sparkles. No scenery, no circle, no frame.',
+  'Absolutely no text, letters, logos or watermarks.',
+  'Adult character aged 20 to 30, fully clothed with a modest neckline, stylish, tasteful and suitable for all ages; not sexualised.',
 ].join(' ')
 
 // Ids and paths must match AVATAR_PRESETS in src/lib/profile/avatarPresets.ts and the API.
 const AVATARS = [
-  { id: 'men-warrior', path: 'avatars/men/warrior.png', background: 'soft peach',
-    person: 'a cheerful young martial artist with short black hair, a red hachimaki headband and a white keikogi' },
-  { id: 'men-samurai', path: 'avatars/men/samurai.png', background: 'pale sage green',
-    person: 'a calm samurai in his thirties with a neat topknot (chonmage), dark lacquered shoulder armour over an indigo kimono' },
-  { id: 'men-noble', path: 'avatars/men/noble.png', background: 'light lavender',
-    person: 'a Heian-period court noble with a tall black eboshi hat and layered silk robes in muted green and gold' },
-  { id: 'men-emperor', path: 'avatars/men/emperor.png', background: 'warm cream',
-    person: 'a dignified older man in formal Heian-era imperial court dress with a black kanmuri crown and deep orange robes' },
-  { id: 'men-citizen', path: 'avatars/men/citizen.png', background: 'light sky blue',
-    person: 'a friendly modern young man from Tokyo with tousled dark hair, round glasses and a casual navy hoodie' },
-  { id: 'women-geisha-1', path: 'avatars/women/geisha_1.png', background: 'blush pink',
-    person: 'a graceful geisha with a traditional black nihongami hairstyle, simple gold kanzashi hairpins, subtle classic makeup and a deep red kimono' },
-  { id: 'women-geisha-2', path: 'avatars/women/geisha_2.png', background: 'pale mint',
-    person: 'a young maiko with flower kanzashi hair ornaments, a soft smile and a pastel pink kimono with a floral pattern' },
-  { id: 'women-japanese', path: 'avatars/women/japanese.png', background: 'light butter yellow',
-    person: 'a smiling young woman in a blue summer yukata with a white flower pattern, hair in a loose bun, holding a small uchiwa fan near her shoulder' },
-  { id: 'women-casual-1', path: 'avatars/women/casual_1.png', background: 'soft coral',
-    person: 'a cheerful modern university student with a short black bob haircut and a cream knit cardigan' },
-  { id: 'women-casual-2', path: 'avatars/women/casual_2.png', background: 'light periwinkle',
-    person: 'a relaxed modern young woman with long dark brown hair, headphones around her neck and a light denim jacket' },
+  { id: 'men-warrior', path: 'avatars/men/warrior.png', background: 'deep charcoal grey',
+    person: 'the bad boy: a man around 26 with a sharp undercut, a small silver earring and a cocky half-smirk, a black leather rider jacket over a plain black tee, one eyebrow slightly raised' },
+  { id: 'men-samurai', path: 'avatars/men/samurai.png', background: 'muted deep teal',
+    person: 'the ronin: a lean, intense man around 30 with long black hair tied back loosely, a faint scar through one eyebrow and a calm, piercing gaze, wearing a dark indigo kimono with a black haori' },
+  { id: 'men-noble', path: 'avatars/men/noble.png', background: 'warm sand beige',
+    person: 'the heartthrob: a strikingly handsome man around 27 with a strong jawline, swept-back glossy black hair and a confident, charming smile, a crisp white shirt with the top button open under a charcoal haori jacket' },
+  { id: 'men-emperor', path: 'avatars/men/emperor.png', background: 'cool slate blue',
+    person: 'the executive: a cool, composed Tokyo businessman around 30 with slicked-back hair, thin silver rectangular glasses, a calm cool gaze and a faint smile, a tailored navy three-piece suit, white shirt and a dark burgundy tie; clearly a different face from the reference' },
+  { id: 'men-citizen', path: 'avatars/men/citizen.png', background: 'soft sky blue',
+    person: 'the sweetheart: a cute, boyish man around 23 with fluffy messy hair, round tortoiseshell glasses and a shy, warm smile with slightly pink cheeks, an oversized cream cable-knit sweater' },
+  { id: 'women-geisha-1', path: 'avatars/women/geisha_1.png', background: 'deep wine red',
+    person: 'the elegant one: a beautiful, poised woman around 28 with an elegant traditional updo and gold kanzashi pins, refined red lips and a knowing smile, a luxurious black silk kimono with red and gold crane embroidery' },
+  { id: 'women-geisha-2', path: 'avatars/women/geisha_2.png', background: 'soft lilac',
+    person: 'the idol: a glamorous, radiant woman around 23 with long glossy hair in soft waves, sparkling eyes and a playful wink, a chic pastel stage outfit with a ribbon detail, J-pop star style' },
+  { id: 'women-japanese', path: 'avatars/women/japanese.png', background: 'warm marigold',
+    person: 'the festival girl: a lovely woman around 24 with her hair in a loose bun and a small flower clip, a bright joyful laugh, a navy summer yukata with white morning-glory pattern, holding an uchiwa fan at her shoulder' },
+  { id: 'women-casual-1', path: 'avatars/women/casual_1.png', background: 'cool stone grey',
+    person: 'the CEO: a confident, attractive businesswoman around 32 with a sleek black bob, subtle gold earrings and a self-assured smile, a tailored ivory blazer over a black top' },
+  { id: 'women-casual-2', path: 'avatars/women/casual_2.png', background: 'dusty rose',
+    person: 'the rebel: a cool, edgy woman around 25 with long black hair with red streaks, bold winged eyeliner and a sly confident smirk, an oversized black bomber jacket over a hoodie, Harajuku street style' },
 ]
 
 function parseArgs(argv) {
-  const value = (flag) => {
-    const i = argv.indexOf(flag)
-    return i === -1 ? null : (argv[i + 1] ?? '')
-  }
-  const only = value('--only')
+  const i = argv.indexOf('--only')
+  const only = i === -1 ? '' : (argv[i + 1] ?? '')
   return {
     only: only ? new Set(only.split(',').map((s) => s.trim()).filter(Boolean)) : null,
-    upload: !argv.includes('--no-upload'),
-    generate: !argv.includes('--skip-generate'),
-    deleteOld: argv.includes('--delete-old'),
-    dryRun: argv.includes('--dry-run'),
+    previewOnly: argv.includes('--preview'),
   }
 }
 
-function promptFor(avatar, hasReference) {
-  const match = hasReference
-    ? ' Match the art style, line weight, shading and proportions of the reference image exactly, but draw a different person.'
-    : ''
+function promptFor(avatar, isFirst) {
+  const match = isFirst
+    ? ''
+    : ' The attached image is the first avatar of this set: match its anime art style, lineart, shading, lighting, head size and framing exactly, but draw a completely different person with a different personality.'
   return `${STYLE}${match} The person: ${avatar.person}. Background colour: ${avatar.background}.`
 }
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 async function generateImage(ai, model, prompt, reference) {
+  // Reference first, so the model anchors on it before reading the instructions.
   const input = reference
-    ? [{ type: 'text', text: prompt }, { type: 'image', mime_type: 'image/png', data: reference.toString('base64') }]
+    ? [{ type: 'image', mime_type: 'image/png', data: reference.toString('base64') }, { type: 'text', text: prompt }]
     : prompt
   for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
     try {
       const interaction = await ai.interactions.create({
         model,
         input,
-        response_format: { type: 'image', mime_type: 'image/png', aspect_ratio: '1:1', image_size: GENERATE_SIZE },
+        response_format: { type: 'image', mime_type: 'image/jpeg', aspect_ratio: '1:1', image_size: GENERATE_SIZE },
       })
       const data = interaction.output_image?.data
       if (data) return Buffer.from(data, 'base64')
@@ -147,7 +145,8 @@ async function generateImage(ai, model, prompt, reference) {
   throw new Error('unreachable')
 }
 
-const NON_RETRYABLE = new Set([400, 401, 403, 404])
+// 402: the prepaid balance ran out; retrying can't help.
+const NON_RETRYABLE = new Set([400, 401, 402, 403, 404])
 
 // The SDK's own message hides Google's explanation; it is in the response body.
 function apiMessage(err) {
@@ -175,25 +174,27 @@ async function generateAll(options) {
   const ai = new GoogleGenAI({ apiKey })
   console.log(`Generating with ${model}`)
 
-  // The first avatar generated (or the existing men-warrior file when it isn't
-  // being regenerated) is the style reference, so all ten look like one set.
+  // The first avatar sets the look; it is then the reference for the other nine,
+  // so all ten read as one set. With --only and without it, its existing file is used.
   const targets = AVATARS.filter((a) => !options.only || options.only.has(a.id))
   if (targets.length === 0) throw new Error(`--only matched no avatar ids; valid ids: ${AVATARS.map((a) => a.id).join(', ')}`)
-  let reference = options.only && !options.only.has(AVATARS[0].id) ? await readFile(path.join(PUBLIC_DIR, AVATARS[0].path)) : null
+  let setReference = targets[0] === AVATARS[0] ? null : await readPublicOrCdn(`/${AVATARS[0].path}`)
 
   for (const avatar of targets) {
     process.stdout.write(`  ${avatar.id} … `)
-    const raw = await generateImage(ai, model, promptFor(avatar, reference !== null), reference)
+    const raw = await generateImage(ai, model, promptFor(avatar, setReference === null), setReference)
     const png = await toSourcePng(raw)
-    await writeFile(path.join(PUBLIC_DIR, avatar.path), png)
-    reference ??= png
+    const file = path.join(PUBLIC_DIR, avatar.path)
+    await mkdir(path.dirname(file), { recursive: true })
+    await writeFile(file, png)
+    setReference ??= png
     console.log('done')
   }
 }
 
 async function writePreview() {
   const tile = 256
-  const tiles = await Promise.all(AVATARS.map((a) => sharp(path.join(PUBLIC_DIR, a.path)).resize(tile, tile).toBuffer()))
+  const tiles = await Promise.all(AVATARS.map(async (a) => sharp(await readPublicOrCdn(`/${a.path}`)).resize(tile, tile).toBuffer()))
   await mkdir(OUT_DIR, { recursive: true })
   const file = path.join(OUT_DIR, 'preview.png')
   await sharp({ create: { width: tile * 5, height: tile * 2, channels: 3, background: '#ffffff' } })
@@ -203,85 +204,11 @@ async function writePreview() {
   console.log(`Preview: ${path.relative(ROOT, file)} (men on top, women below)`)
 }
 
-function createClient() {
-  const missing = REQUIRED_R2_ENV.filter((name) => !process.env[name])
-  if (missing.length > 0) throw new Error(`Missing environment variables: ${missing.join(', ')}`)
-  return new S3Client({
-    region: 'auto',
-    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-    credentials: { accessKeyId: process.env.R2_ACCESS_KEY, secretAccessKey: process.env.R2_SECRET_KEY },
-  })
-}
-
-async function readManifest() {
-  return JSON.parse(await readFile(MANIFEST_PATH, 'utf8'))
-}
-
-async function uploadAll(options) {
-  const client = options.dryRun ? null : createClient()
-  const bucket = process.env.R2_BUCKET_NAME
-  const manifest = await readManifest()
-
-  for (const avatar of AVATARS) {
-    const source = await readFile(path.join(PUBLIC_DIR, avatar.path))
-    const body = await sharp(source).resize(SERVED_PX, SERVED_PX).webp({ quality: WEBP_QUALITY, effort: 6 }).toBuffer()
-    const hash = createHash('sha256').update(body).digest('hex').slice(0, HASH_LENGTH)
-    const key = `${avatar.path.slice(0, -path.extname(avatar.path).length)}.${hash}.webp`
-    const publicPath = `/${avatar.path}`
-    if (manifest[publicPath] === key) {
-      console.log(`  ${avatar.id}: unchanged`)
-      continue
-    }
-    if (!options.dryRun) {
-      await client.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: body, ContentType: 'image/webp', CacheControl: IMMUTABLE_CACHE }))
-    }
-    console.log(`  ${avatar.id}: ${options.dryRun ? 'would upload' : 'uploaded'} ${key} (${(body.length / 1024).toFixed(1)} KB)`)
-    manifest[publicPath] = key
-  }
-
-  if (options.dryRun) return
-  const sorted = Object.fromEntries(Object.entries(manifest).sort(([a], [b]) => a.localeCompare(b)))
-  await writeFile(MANIFEST_PATH, `${JSON.stringify(sorted, null, 2)}\n`)
-  console.log(`Updated ${path.relative(ROOT, MANIFEST_PATH)}. Commit it and deploy the frontend, then run with --delete-old.`)
-}
-
-async function listKeys(client, bucket, prefix) {
-  const keys = []
-  let token
-  do {
-    const page = await client.send(new ListObjectsV2Command({ Bucket: bucket, Prefix: prefix, ContinuationToken: token }))
-    keys.push(...(page.Contents ?? []).map((o) => o.Key))
-    token = page.IsTruncated ? page.NextContinuationToken : undefined
-  } while (token)
-  return keys
-}
-
-async function deleteOld(options) {
-  const client = createClient()
-  const bucket = process.env.R2_BUCKET_NAME
-  const inUse = new Set(Object.values(await readManifest()))
-  const stale = []
-  for (const prefix of PRESET_PREFIXES) {
-    stale.push(...(await listKeys(client, bucket, prefix)).filter((key) => !inUse.has(key)))
-  }
-  if (stale.length === 0) {
-    console.log('No old avatar files in R2.')
-    return
-  }
-  for (const key of stale) console.log(`  ${options.dryRun ? 'would delete' : 'delete'} ${key}`)
-  if (options.dryRun) return
-  // DeleteObjects takes up to 1000 keys; ten avatars never come close.
-  const result = await client.send(new DeleteObjectsCommand({ Bucket: bucket, Delete: { Objects: stale.map((Key) => ({ Key })) } }))
-  if (result.Errors?.length) throw new Error(`delete failed: ${result.Errors.map((e) => `${e.Key} ${e.Message}`).join('; ')}`)
-  console.log(`Deleted ${stale.length} old avatar file(s).`)
-}
-
 async function main() {
   const options = parseArgs(process.argv.slice(2))
-  if (options.deleteOld) return deleteOld(options)
-  if (options.generate) await generateAll(options)
+  if (!options.previewOnly) await generateAll(options)
   await writePreview()
-  if (options.upload) await uploadAll(options)
+  console.log('Review the preview, then upload: node --env-file=.env.local scripts/upload-assets/upload-assets.mjs')
 }
 
 main().catch((err) => {

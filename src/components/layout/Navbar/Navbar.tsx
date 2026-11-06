@@ -123,8 +123,9 @@ export function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 w-full z-50 h-nav bg-surface-container-lowest/80 backdrop-blur-xl shadow-elevation-1 border-b border-outline-variant/40">
-        <div className="h-full flex justify-between items-center px-4 md:px-8 max-w-7xl mx-auto">
+      <nav className="fixed inset-x-0 top-0 z-50 h-nav px-3 py-2 md:px-6 md:py-3">
+        {/* Floating glass bar — lets the page (e.g. the home hero) show through softly. */}
+        <div className="h-full flex justify-between items-center gap-4 px-4 md:px-6 max-w-7xl mx-auto rounded-2xl border border-outline-variant/60 bg-surface-container-lowest/70 backdrop-blur-xl shadow-elevation-1">
           {/* Logo */}
           <Link
             to="/"
@@ -133,14 +134,14 @@ export function Navbar() {
             onMouseEnter={() => foxLogoRef.current?.play()}
             onMouseLeave={() => foxLogoRef.current?.reverse()}
           >
-            <FoxLogo ref={foxLogoRef} size={isDesktop ? 50 : 34} />
-            <span className="text-2xl md:text-4xl font-bold tracking-tighter font-headline bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 dark:from-orange-400 dark:via-amber-300 dark:to-orange-300 bg-clip-text text-transparent">
+            <FoxLogo ref={foxLogoRef} size={isDesktop ? 42 : 32} />
+            <span className="text-2xl md:text-3xl font-bold tracking-tighter font-headline bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 dark:from-primary dark:via-orange-300 dark:to-orange-200 bg-clip-text text-transparent">
               FoxSensei
             </span>
           </Link>
 
           {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center gap-10 tracking-wide text-sm font-semibold">
+          <div className="hidden md:flex items-center gap-8 lg:gap-10 tracking-wide text-sm font-semibold">
             {navItems.map((item) =>
               item.dropdown ? (
                 <NavDropdown key={item.label} label={item.label} items={item.dropdown} />
@@ -185,14 +186,15 @@ export function Navbar() {
                       setStreakOpen(true)
                     }
                   }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
+                  className="flex items-center gap-1.5 min-h-10 px-3.5 rounded-full border border-primary/25 bg-primary/10 hover:bg-primary/20 transition-colors"
                 >
                   <Icon
                     name="local_fire_department"
-                    className="text-base text-primary animate-streak-flame"
+                    className="text-base text-warning animate-streak-flame"
                   />
                   <span className="text-sm font-bold text-primary font-label leading-none">
                     {streak}
+                    <span className="hidden lg:inline font-semibold"> day streak</span>
                   </span>
                 </Link>
                 {streakOpen && (
@@ -207,7 +209,7 @@ export function Navbar() {
             <button
               onClick={toggleDarkMode}
               aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-              className="min-w-11 min-h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-200 active:scale-90 overflow-hidden group/toggle"
+              className="min-w-11 min-h-11 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors duration-200 active:scale-90 group/toggle"
             >
               <div
                 className="transition-transform duration-500 ease-out"
@@ -292,24 +294,18 @@ export function Navbar() {
                 </div>
               </div>
             ) : (
-              <div className="hidden md:flex items-center gap-6">
+              <>
+                {/* Divider between the theme toggle and the sign-in button. */}
+                <span aria-hidden="true" className="hidden md:block h-6 w-px bg-outline-variant/60" />
                 <Button
-                  variant="ghost"
-                  className="text-sm px-0 py-0 rounded-none shadow-none"
+                  variant="inverse"
+                  className="hidden md:inline-flex items-center min-h-10 !rounded-full !px-5 !py-1.5 text-sm"
                   onClick={() => openModal('login')}
                   {...authModalPrefetchHandlers}
                 >
-                  Login
+                  Sign in / up
                 </Button>
-                <Button
-                  variant="primary"
-                  className="px-6 py-2.5 text-sm"
-                  onClick={() => openModal('signup')}
-                  {...authModalPrefetchHandlers}
-                >
-                  Sign Up
-                </Button>
-              </div>
+              </>
             )}
 
             {/* Mobile hamburger */}
@@ -360,7 +356,7 @@ export function Navbar() {
                   <div className="space-y-1">
                     {/* Mobile streak badge */}
                     <div className="flex items-center gap-2 px-3 py-2 mb-1">
-                      <Icon name="local_fire_department" className="text-base text-primary animate-streak-flame" />
+                      <Icon name="local_fire_department" className="text-base text-warning animate-streak-flame" />
                       <span className="text-sm font-bold text-primary font-label">
                         {streak}-day streak
                       </span>
@@ -424,24 +420,14 @@ export function Navbar() {
                     </button>
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-3">
-                    <Button
-                      variant="ghost"
-                      className="w-full text-sm"
-                      onClick={() => { openModal('login'); closeMobile() }}
-                  {...authModalPrefetchHandlers}
-                    >
-                      Login
-                    </Button>
-                    <Button
-                      variant="primary"
-                      className="w-full text-sm py-3"
-                      onClick={() => { openModal('signup'); closeMobile() }}
-                  {...authModalPrefetchHandlers}
-                    >
-                      Sign Up
-                    </Button>
-                  </div>
+                  <Button
+                    variant="inverse"
+                    className="w-full min-h-11 !rounded-full text-sm"
+                    onClick={() => { openModal('login'); closeMobile() }}
+                    {...authModalPrefetchHandlers}
+                  >
+                    Sign in / up
+                  </Button>
                 )}
               </div>
             </div>

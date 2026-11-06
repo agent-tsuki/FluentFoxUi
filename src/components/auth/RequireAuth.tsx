@@ -6,6 +6,8 @@
  *   - Not authenticated after restore: opens the login modal immediately and
  *     remembers the intended task. Protected learning routes stay visible
  *     behind the popup, so there is no extra sign-in screen or second click.
+ *     Closing that popup without signing in goes back to the previous page
+ *     (or home when the protected page was opened directly).
  *   - Authenticated but email unverified: redirects to /verify-email
  *     (auth guide §5), unless `allowUnverified` is set (the verify screen itself).
  *     With `allowUnverified`, a verified user is sent on to /dashboard.
@@ -47,10 +49,27 @@ interface RequireAuthProps {
 
 export function RequireAuth({ children, allowUnverified = false, guestPrompt = false }: RequireAuthProps) {
   const { user, isLoading } = useAuth()
-  const { openModal }       = useModal()
+  const { openModal, isOpen } = useModal()
   const navigate            = useNavigate()
-  const { pathname, search, hash } = useLocation()
+  const { pathname, search, hash, key } = useLocation()
   const hasOpenedForGuest = useRef(false)
+  const guestModalShown   = useRef(false)
+
+  // The guest dismissed the sign-in popup this page opened: leave the page.
+  // A successful sign-in sets the user in the same update that closes the
+  // popup, so it never lands here.
+  useEffect(() => {
+    if (!guestPrompt || !hasOpenedForGuest.current) return
+    if (isOpen) {
+      guestModalShown.current = true
+      return
+    }
+    if (!guestModalShown.current || user) return
+    guestModalShown.current = false
+    // 'default' is the first entry of this tab: there is no in-app page to go back to.
+    if (key === 'default') navigate('/', { replace: true })
+    else navigate(-1)
+  }, [isOpen, user, guestPrompt, key, navigate])
 
   useEffect(() => {
     // Only redirect after the session restore attempt finishes

@@ -56,7 +56,7 @@ export function ConceptHome() {
 
   return (
     <main className="concept-home overflow-x-clip bg-home-canvas text-home-ink">
-      <section id="top" className="relative isolate h-[calc(100svh-5rem)] min-h-[37rem] overflow-hidden bg-home-hero">
+      <section id="top" className="relative isolate h-[100svh] min-h-[42rem] overflow-hidden bg-home-hero">
         <div
           className="absolute inset-0 scale-[1.03] bg-cover bg-[center_54%] motion-safe:animate-[concept-drift_25s_ease-in-out_infinite_alternate]"
           style={{ backgroundImage: `url('${asset(darkMode ? '/images/home/changes.webp' : '/images/home/journey.webp')}')` }}
@@ -64,25 +64,24 @@ export function ConceptHome() {
         <div className="concept-hero-wash absolute inset-0" />
         <FallingPetals />
 
-        <div className="relative z-10 mx-auto flex h-full max-w-[1440px] items-center px-6 py-14 sm:px-10 lg:px-[6%]">
-          <div className="max-w-[43rem] pb-7 pt-4">
-            <p className="concept-eyebrow">A little curiosity goes a long way</p>
-            <h1 className="concept-display mt-5 text-balance text-[clamp(3.25rem,5.25vw,5.4rem)] leading-[.96] tracking-[-.055em] text-home-ink">
-              A little Japanese.
-              <br />
-              A whole
-              <br />
-              <em className="not-italic text-home-accent">new world.</em>
+        <div className="relative z-10 mx-auto flex h-full max-w-[1440px] items-center px-6 pb-14 pt-nav sm:px-10 lg:px-[6%]">
+          <div className="max-w-[46rem] pb-10 pt-6">
+            <p className="concept-eyebrow w-fit rounded-full border border-home-line-strong bg-home-tile/40 px-4 py-2 backdrop-blur-sm">A little curiosity goes a long way</p>
+            <h1 className="concept-display mt-8 text-[clamp(2.75rem,5vw,5rem)] leading-[1.06] tracking-[-.03em] text-home-ink">
+              <span className="block">A little Japanese.</span>
+              <span className="block">
+                A whole <em className="not-italic text-home-accent">new world.</em>
+              </span>
             </h1>
-            <p className="mt-5 max-w-[24rem] text-[0.9rem] leading-6 text-home-muted sm:text-[0.94rem] sm:leading-7">
+            <p className="mt-8 max-w-[31rem] text-base leading-7 text-home-muted sm:text-lg sm:leading-8">
               From your first あ to the stories you’ve always wanted to understand. Your Japanese journey starts with one small discovery.
             </p>
-            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
               <button
                 type="button"
                 onClick={startLearning}
                 {...prefetch}
-                className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-home-accent px-5 py-3 text-sm font-bold text-home-on-accent transition duration-200 hover:-translate-y-0.5 hover:bg-home-accent-hover focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-home-accent"
+                className="group inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full bg-home-accent py-3 pl-6 pr-4 text-sm font-bold shadow-elevation-2 text-home-on-accent transition duration-200 hover:-translate-y-0.5 hover:bg-home-accent-hover focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-home-accent"
               >
                 Find my starting point
                 <span className="grid size-5 place-items-center rounded-full border border-home-on-accent/35 bg-home-on-accent/10 transition-transform duration-200 group-hover:-translate-y-px" aria-hidden="true">
@@ -93,25 +92,15 @@ export function ConceptHome() {
                 Explore the journey <Icon name="south" className="ml-1 align-text-bottom text-base" />
               </a>
             </div>
-            <p className="mt-4 text-xs text-home-muted">At your pace. On your own path.</p>
+            <p className="mt-10 flex items-center gap-3 text-xs tracking-wide text-home-subtle">
+              <span className="h-px w-8 bg-home-line-strong" aria-hidden="true" />
+              At your pace. On your own path.
+            </p>
           </div>
         </div>
 
-        <div className="absolute bottom-5 left-[6%] right-[6%] z-10 flex items-center justify-between gap-4 text-[0.6rem] font-semibold tracking-[0.14em] text-white">
-          <span className="rounded-full border border-white/30 bg-black/25 px-4 py-3 backdrop-blur-sm" lang="ja">
-            日本への旅 <span lang="en">/ YOUR JOURNEY TO JAPANESE</span>
-          </span>
-          <span className="hidden items-center gap-1 sm:flex">SCROLL TO DISCOVER <Icon name="south" className="text-sm" /></span>
-        </div>
       </section>
 
-      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-b border-home-line px-6 py-5 text-xs sm:px-10 lg:px-[6%]">
-        <p className="font-semibold">A guide for every stage of your journey.</p>
-        <p className="hidden items-center gap-1.5 text-home-subtle md:flex">
-          Discover <Icon name="arrow_forward" className="text-sm" /> Practise <Icon name="arrow_forward" className="text-sm" /> Understand <Icon name="arrow_forward" className="text-sm" /> Grow
-        </p>
-        <Link className="concept-text-link" to="/dashboard">Your learning space <Icon name="arrow_forward" className="ml-1 align-text-bottom text-base" /></Link>
-      </div>
 
       <section id="journey" className="scroll-mt-nav mx-auto max-w-[1240px] px-6 py-16 sm:px-10 lg:py-20">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">

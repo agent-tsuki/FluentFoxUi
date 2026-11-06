@@ -28,19 +28,19 @@ const LABEL_TOP_SPACE = 'pt-0'
  * Pulls the label further up, into the white curve itself.
  * More negative = higher. Try: '' (none), '-mt-1', '-mt-2', '-mt-3'.
  */
-const LABEL_LIFT = '-mt-3'
+const LABEL_LIFT = '-mt-6'
 
 /** Space between the label and the buttons. Try: 'mb-2', 'mb-3', 'mb-4'. */
-const LABEL_BOTTOM_SPACE = 'mb-3'
+const LABEL_BOTTOM_SPACE = 'mb-4'
 
 /** Height of the curved top edge. Taller = rounder curve. Try: 'h-4', 'h-6', 'h-8'. */
-const ARC_HEIGHT = 'h-6'
+const ARC_HEIGHT = 'h-12'
 
 /** Google / X button size here. 'sm' = compact, 'md' = original. */
 const BUTTON_SIZE: SocialButtonSize = 'sm'
 
 /** Space under the buttons (bottom of the panel). Try: 'pb-6', 'pb-8' (original). */
-const SHEET_BOTTOM_SPACE = 'pb-6'
+const SHEET_BOTTOM_SPACE = 'pb-12'
 // ──────────────────────────────────────────────────────────────────────────────
 
 /**

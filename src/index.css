@@ -66,61 +66,88 @@
 }
 
 html.dark {
-  /* Surface scale — Charcoal Ember (warm lifted dark, matches fox orange brand) */
-  --surface:                   35 31 28;
-  --background:                28 23 20;
-  --surface-dim:               28 23 20;
-  --surface-bright:            72 67 63;
-  --surface-container-lowest:  28 23 20;
-  --surface-container-low:     42 37 34;
-  --surface-container:         51 46 43;
-  --surface-container-high:    61 56 53;
-  --surface-container-highest: 72 67 63;
+  /* Surface scale — Yoru (night indigo): matches the moonlit hero illustration */
+  --surface:                   15 21 40;  /* #0F1528 */
+  --background:                11 16 32;  /* #0B1020 */
+  --surface-dim:               8 12 24;   /* #080C18 */
+  --surface-bright:            46 57 88;  /* #2E3958 */
+  --surface-container-lowest:  11 16 32;  /* #0B1020 */
+  --surface-container-low:     19 26 48;  /* #131A30 */
+  --surface-container:         24 32 56;  /* #182038 */
+  --surface-container-high:    30 39 66;  /* #1E2742 */
+  --surface-container-highest: 38 48 78;  /* #26304E */
 
-  /* Text */
-  --on-surface:         237 229 225;
-  --on-surface-variant: 196 168 159;
+  /* Text — moonlight */
+  --on-surface:         236 234 242; /* #ECEAF2 */
+  --on-surface-variant: 169 176 199; /* #A9B0C7 */
 
   /* Outline */
-  --outline:         107 85 80;
-  --outline-variant: 67 49 48;
+  --outline:         74 85 120; /* #4A5578 */
+  --outline-variant: 37 46 74;  /* #252E4A */
 
-  /* Primary — fox orange, dimmed for charcoal (reuses the fox-dark brand tone) */
-  --primary: 216 99 53; /* #D86B35 */
+  /* Primary — lantern coral */
+  --primary: 240 138 93; /* #F08A5D */
 
-  /* Secondary — lifted for AA text on charcoal (was #C45A2A, 3.5:1 on surface-container-low) */
-  --secondary: 219 129 88; /* #DB8158 */
+  /* Secondary — sakura */
+  --secondary: 233 166 198; /* #E9A6C6 */
 
-  /* Semantic status — brighter shades for contrast on charcoal */
-  --success: 74 222 128;  /* green-400 */
-  --warning: 251 191 36;  /* amber-400 */
-  --info:    56 189 248;   /* sky-400 */
+  /* Semantic status — soft, night-tuned */
+  --success: 95 211 160;  /* #5FD3A0 */
+  --warning: 242 196 109; /* #F2C46D */
+  --info:    124 196 240; /* #7CC4F0 */
 
-  /* Elevation shadows (pure black / heavier for charcoal background) */
-  --shadow-elevation-1: 0 4px 20px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
-  --shadow-elevation-2: 0 12px 32px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
-  --shadow-elevation-3: 0 24px 48px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.45);
+  /* Elevation shadows — deep navy-black */
+  --shadow-elevation-1: 0 4px 20px rgba(3, 6, 16, 0.35), 0 2px 8px rgba(3, 6, 16, 0.25);
+  --shadow-elevation-2: 0 12px 32px rgba(3, 6, 16, 0.45), 0 4px 12px rgba(3, 6, 16, 0.3);
+  --shadow-elevation-3: 0 24px 48px rgba(3, 6, 16, 0.55), 0 8px 24px rgba(3, 6, 16, 0.45);
 
-  /* Concept home — moonlit forest */
-  --home-canvas:      20 26 24;
-  --home-hero:        22 34 40;
-  --home-wash:        14 20 22;
-  --home-ink:         232 236 226;
-  --home-muted:       184 196 184;
-  --home-subtle:      150 162 152;
-  --home-line:        44 56 51;
-  --home-line-strong: 64 78 72;
-  --home-accent:      226 124 90;
-  --home-accent-hover:238 146 114;
-  --home-on-accent:   26 19 16;
-  --home-tile:        30 38 35;
-  --home-sage:        29 37 33;
-  --home-mint:        26 37 36;
-  --home-peach:       39 32 29;
-  --home-sand:        38 46 42;
-  --home-panel:       28 37 33;
-  --home-leaf:        134 184 152;
+  /* Concept home — Yoru night */
+  --home-canvas:      11 16 32;    /* #0B1020 */
+  --home-hero:        15 21 40;    /* #0F1528 */
+  --home-wash:        8 12 24;     /* #080C18 */
+  --home-ink:         236 234 242; /* #ECEAF2 */
+  --home-muted:       169 176 199; /* #A9B0C7 */
+  --home-subtle:      130 139 166; /* #828BA6 */
+  --home-line:        37 46 74;    /* #252E4A */
+  --home-line-strong: 52 63 96;    /* #343F60 */
+  --home-accent:      240 138 93;  /* #F08A5D */
+  --home-accent-hover:246 160 122; /* #F6A07A */
+  --home-on-accent:   26 15 10;    /* #1A0F0A */
+  --home-tile:        19 26 48;    /* #131A30 */
+  --home-sage:        22 32 58;    /* #16203A */
+  --home-mint:        19 36 51;    /* #132433 */
+  --home-peach:       42 30 42;    /* #2A1E2A — sakura tint */
+  --home-sand:        31 34 54;    /* #1F2236 */
+  --home-panel:       21 29 51;    /* #151D33 */
+  --home-leaf:        134 200 170; /* #86C8AA */
 }
+
+/* ─── Scrollbars ─────────────────────────────────────────────────────────────
+   color-scheme makes native controls (scrollbars, inputs) follow the theme;
+   the thumb/track below use tokens so they blend with the surfaces.
+   ─────────────────────────────────────────────────────────────────────────── */
+html { color-scheme: light; }
+html.dark { color-scheme: dark; }
+
+* {
+  scrollbar-color: rgb(var(--outline) / 0.55) transparent;
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--outline) / 0.55);
+  border: 2px solid transparent;
+  border-radius: 9999px;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background-color: rgb(var(--outline) / 0.85); }
+::-webkit-scrollbar-corner { background: transparent; }
+
+/* Thin variant for side panels and drawers. */
+.custom-scrollbar { scrollbar-width: thin; }
+.custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { border-width: 1px; }
 
 /* Google Fonts are loaded via index.html */
 
@@ -363,8 +390,12 @@ canvas {
 /* Readability wash over the hero photo: paper-toned in light, night-toned in dark. */
 .concept-hero-wash {
   background:
-    linear-gradient(90deg, rgb(var(--home-wash) / 0.94) 0%, rgb(var(--home-wash) / 0.72) 30%, rgb(var(--home-wash) / 0.08) 68%),
-    linear-gradient(0deg, rgb(27 68 61 / 0.32), transparent 35%);
+    /* Bottom: dissolve the photo into the page canvas so the next section continues seamlessly. */
+    linear-gradient(0deg, rgb(var(--home-canvas)) 0%, rgb(var(--home-canvas) / 0.85) 8%, rgb(var(--home-canvas) / 0.4) 20%, transparent 38%),
+    /* Top: soft shade behind the floating glass navbar. */
+    linear-gradient(180deg, rgb(var(--home-wash) / 0.55) 0%, transparent 18%),
+    /* Left: readability for the headline column. */
+    linear-gradient(90deg, rgb(var(--home-wash) / 0.9) 0%, rgb(var(--home-wash) / 0.65) 30%, rgb(var(--home-wash) / 0.05) 68%);
 }
 
 @keyframes concept-drift {

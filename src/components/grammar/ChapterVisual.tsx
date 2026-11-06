@@ -20,6 +20,18 @@ interface VisualSpec {
     alt: string
     caption: string
   }
+  /**
+   * Illustrated board (transparent WebP) that replaces the coded diagram box.
+   * `src` is a public/ path; asset() maps it to the hashed CDN copy. Without `alt`, the alt text is built from `items`, so it always
+   * spells out every Japanese word on the board.
+   */
+  illustration?: {
+    src: string
+    alt?: string
+    /** The full example sentence the board teaches; the Japanese is built from `items`. */
+    romaji: string
+    meaning: string
+  }
 }
 
 const toneChip = 'border-tone/35 bg-tone-soft text-tone-ink'
@@ -39,6 +51,12 @@ const visuals: Record<number, VisualSpec> = {
   1: {
     kind: 'sequence', eyebrow: 'Sentence builder', title: 'A polite identity sentence',
     caption: 'Japanese marks the topic, then closes the idea politely.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_one.webp',
+      alt: 'Sentence builder board: わたし (topic) → は (topic marker) → 学生 (identity) → です (polite close), with Fox Sensei pointing at は.',
+      romaji: 'Watashi wa gakusei desu.',
+      meaning: 'I am a student.',
+    },
     items: [
       { label: 'わたし', note: 'topic', tone: 'moss' },
       { label: 'は', note: 'topic marker', tone: 'coral' },
@@ -49,8 +67,14 @@ const visuals: Record<number, VisualSpec> = {
   2: {
     kind: 'range', eyebrow: 'Distance map', title: 'Choose by distance',
     caption: 'The object changes name based on whose zone it is in.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_two.webp',
+      alt: 'Distance map board: これ (near me), それ (near you), あれ (far from both), with a dotted line showing growing distance and Fox Sensei pointing at これ.',
+      romaji: 'kore · sore · are',
+      meaning: 'this one · that one (by you) · that one over there',
+    },
     scene: {
-      src: '/images/grammar/n5/demonstrative-distance-scene.webp',
+      src: '/images/grammar/n5/scenes/demonstrative-distance-scene.webp',
       alt: 'Two friends at a café with a red notebook near one person, a blue notebook near the other, and a yellow umbrella farther away.',
       caption: 'Picture the red notebook as これ, the blue notebook as それ, and the distant umbrella as あれ.',
     },
@@ -63,6 +87,11 @@ const visuals: Record<number, VisualSpec> = {
   3: {
     kind: 'range', eyebrow: 'Location map', title: 'Point to a place',
     caption: 'The same distance pattern works for locations and polite directions.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_three.webp',
+      romaji: 'koko · soko · asoko',
+      meaning: 'here · there (by you) · over there',
+    },
     items: [
       { label: 'ここ', note: 'here · near me', tone: 'moss' },
       { label: 'そこ', note: 'there · near you', tone: 'blue' },
@@ -72,6 +101,11 @@ const visuals: Record<number, VisualSpec> = {
   4: {
     kind: 'sequence', eyebrow: 'Time line', title: 'Put the time before the action',
     caption: 'Use に for an exact time, then finish with the action.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_four.webp',
+      romaji: 'Shichi-ji ni okimasu. Hachi-ji ni ikimasu.',
+      meaning: 'I wake up at seven. I leave at eight.',
+    },
     items: [
       { label: '7時に', note: 'at seven', tone: 'amber' },
       { label: 'おきます', note: 'wake up', tone: 'moss' },
@@ -82,6 +116,11 @@ const visuals: Record<number, VisualSpec> = {
   5: {
     kind: 'sequence', eyebrow: 'Travel route', title: 'Destination · transport · companion',
     caption: 'A journey sentence can show where, how, and with whom you go.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_five.webp',
+      romaji: 'Ie kara densha de gakkō e (ikimasu).',
+      meaning: 'I go from home to school by train.',
+    },
     items: [
       { label: '家から', note: 'from home', tone: 'moss' },
       { label: '電車で', note: 'by train', tone: 'blue' },
@@ -91,6 +130,11 @@ const visuals: Record<number, VisualSpec> = {
   6: {
     kind: 'sequence', eyebrow: 'Object link', title: 'An action needs an object',
     caption: 'を links the thing you act on to the verb.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_six.webp',
+      romaji: 'Watashi wa ringo o tabemasu.',
+      meaning: 'I eat an apple.',
+    },
     items: [
       { label: 'わたしは', note: 'topic', tone: 'moss' },
       { label: 'りんごを', note: 'object', tone: 'coral' },
@@ -100,8 +144,13 @@ const visuals: Record<number, VisualSpec> = {
   7: {
     kind: 'exchange', eyebrow: 'Giving direction', title: 'Follow the gift',
     caption: 'The arrow tells you who gives and who receives.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_seven.webp',
+      romaji: 'Watashi wa tomodachi ni purezento o agemasu.',
+      meaning: 'I give my friend a present.',
+    },
     scene: {
-      src: '/images/grammar/n5/giving-receiving-scene.webp',
+      src: '/images/grammar/n5/scenes/giving-receiving-scene.webp',
       alt: 'One friend gives a wrapped present to another friend in a park.',
       caption: 'First, follow the gift. Then choose the verb from the giver’s point of view.',
     },
@@ -114,6 +163,11 @@ const visuals: Record<number, VisualSpec> = {
   8: {
     kind: 'comparison', eyebrow: 'Adjective families', title: 'Two ways to describe',
     caption: 'I-adjectives end in い; na-adjectives need な before a noun.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_eight.webp',
+      romaji: 'takai · shizuka (na)',
+      meaning: 'expensive / tall · quiet',
+    },
     items: [
       { label: '高い', note: 'i-adjective', tone: 'coral' },
       { label: '静か（な）', note: 'na-adjective', tone: 'plum' },
@@ -122,6 +176,11 @@ const visuals: Record<number, VisualSpec> = {
   9: {
     kind: 'sequence', eyebrow: 'Reason chain', title: 'A feeling leads to a reason',
     caption: 'Use から to connect the reason with the result.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_nine.webp',
+      romaji: 'Nihongo ga suki desu kara…',
+      meaning: 'Because I like Japanese…',
+    },
     items: [
       { label: '日本語が', note: 'Japanese', tone: 'blue' },
       { label: '好きです', note: 'I like it', tone: 'moss' },
@@ -131,6 +190,11 @@ const visuals: Record<number, VisualSpec> = {
   10: {
     kind: 'space', eyebrow: 'Room map', title: 'Describe where something is',
     caption: 'Position words show the relationship between two things.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_ten.webp',
+      romaji: 'tsukue · ue · shita · tonari',
+      meaning: 'desk · on top · under · next to',
+    },
     items: [
       { label: 'つくえ', note: 'the reference', tone: 'moss' },
       { label: 'うえ', note: 'on top', tone: 'amber' },
@@ -141,6 +205,11 @@ const visuals: Record<number, VisualSpec> = {
   11: {
     kind: 'range', eyebrow: 'Counter guide', title: 'The counter matches the thing',
     caption: 'Japanese counts objects by category, not with one universal ending.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_eleven.webp',
+      romaji: 'hitotsu · futari · sanbon',
+      meaning: 'one thing · two people · three long things',
+    },
     items: [
       { label: '一つ', note: 'general things', tone: 'moss' },
       { label: '二人', note: 'people', tone: 'blue' },
@@ -150,6 +219,11 @@ const visuals: Record<number, VisualSpec> = {
   12: {
     kind: 'comparison', eyebrow: 'Comparison scale', title: 'Choose the side you prefer',
     caption: 'A のほうが B より adjective says A is more adjective than B.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_twelve.webp',
+      romaji: 'Ringo no hō ga budō yori suki desu.',
+      meaning: 'I like apples more than grapes.',
+    },
     items: [
       { label: 'りんご', note: 'A', tone: 'coral' },
       { label: 'ぶどう', note: 'B', tone: 'plum' },
@@ -158,8 +232,13 @@ const visuals: Record<number, VisualSpec> = {
   13: {
     kind: 'sequence', eyebrow: 'Purpose route', title: 'Go somewhere to do something',
     caption: 'The movement has a destination and a purpose.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_thirteen.webp',
+      romaji: 'Depāto e kutsu o kai ni ikimasu.',
+      meaning: 'I go to the department store to buy shoes.',
+    },
     scene: {
-      src: '/images/grammar/n5/travel-purpose-scene.webp',
+      src: '/images/grammar/n5/scenes/travel-purpose-scene.webp',
       alt: 'A person walks from a train platform toward a department store with shoes in the window.',
       caption: 'The train explains how they travel; the shoe shop explains why they go.',
     },
@@ -172,6 +251,11 @@ const visuals: Record<number, VisualSpec> = {
   14: {
     kind: 'sequence', eyebrow: 'Verb transformation', title: 'Turn a verb into て-form',
     caption: 'The て-form opens the door to requests and ongoing actions.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_fourteen.webp',
+      romaji: 'yomimasu → yonde kudasai',
+      meaning: 'read → please read',
+    },
     items: [
       { label: '読みます', note: 'polite verb', tone: 'blue' },
       { label: '読んで', note: 'te-form', tone: 'coral' },
@@ -181,6 +265,11 @@ const visuals: Record<number, VisualSpec> = {
   15: {
     kind: 'comparison', eyebrow: 'Rule signal', title: 'Permission or prohibition?',
     caption: 'The same て-form changes meaning with the ending that follows it.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_fifteen.webp',
+      romaji: 'mite mo ii · mite wa ikenai',
+      meaning: 'you may look · you must not look',
+    },
     items: [
       { label: '見ても いい', note: 'permission', tone: 'moss' },
       { label: '見ては いけない', note: 'not allowed', tone: 'coral' },
@@ -189,6 +278,11 @@ const visuals: Record<number, VisualSpec> = {
   16: {
     kind: 'sequence', eyebrow: 'Verb transformation', title: 'Build a negative verb',
     caption: 'The ない-form is the base for “do not” and “must”.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_sixteen.webp',
+      romaji: 'taberu → tabenai → tabenaide kudasai',
+      meaning: 'eat → not eat → please don’t eat',
+    },
     items: [
       { label: '食べる', note: 'dictionary form', tone: 'blue' },
       { label: '食べない', note: 'nai-form', tone: 'coral' },
@@ -198,6 +292,11 @@ const visuals: Record<number, VisualSpec> = {
   17: {
     kind: 'sequence', eyebrow: 'Ability shift', title: 'From doing to being able to do',
     caption: 'Potential form changes the action into an ability.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_seventeen.webp',
+      romaji: 'yomu → yomeru · dekimasu',
+      meaning: 'read → can read · be able to',
+    },
     items: [
       { label: '読む', note: 'read', tone: 'blue' },
       { label: '読める', note: 'can read', tone: 'moss' },
@@ -207,8 +306,13 @@ const visuals: Record<number, VisualSpec> = {
   18: {
     kind: 'sequence', eyebrow: 'Experience line', title: 'Connect a past event to now',
     caption: 'A past action plus ことが あります expresses life experience.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_eighteen.webp',
+      romaji: 'Nihon e itta koto ga arimasu.',
+      meaning: 'I have been to Japan.',
+    },
     scene: {
-      src: '/images/grammar/n5/experience-scene.webp',
+      src: '/images/grammar/n5/scenes/experience-scene.webp',
       alt: 'A traveller pauses with a camera at a mountain shrine path beneath a torii gate in Japan.',
       caption: 'One memorable visit becomes an experience you can talk about now.',
     },
@@ -221,6 +325,11 @@ const visuals: Record<number, VisualSpec> = {
   20: {
     kind: 'sequence', eyebrow: 'Noun lens', title: 'Put the description before the noun',
     caption: 'Japanese places the whole describing sentence before what it describes.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_twenty.webp',
+      romaji: 'Kinō katta hon o yomimasu.',
+      meaning: 'I read the book I bought yesterday.',
+    },
     items: [
       { label: '昨日 買った', note: 'description', tone: 'blue' },
       { label: '本', note: 'noun', tone: 'amber' },
@@ -230,6 +339,11 @@ const visuals: Record<number, VisualSpec> = {
   21: {
     kind: 'sequence', eyebrow: 'Natural result', title: 'One event triggers another',
     caption: 'Use と for a reliable consequence or automatic result.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_twenty_one.webp',
+      romaji: 'Botan o osu to doa ga aku.',
+      meaning: 'When you press the button, the door opens.',
+    },
     items: [
       { label: 'ボタンを 押す', note: 'trigger', tone: 'coral' },
       { label: 'と', note: 'then', tone: 'amber' },
@@ -239,8 +353,13 @@ const visuals: Record<number, VisualSpec> = {
   22: {
     kind: 'sequence', eyebrow: 'Conditional path', title: 'If this happens, then…',
     caption: 'たら sets the condition before the result or advice.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_twenty_two.webp',
+      romaji: 'Ame ga futtara kasa o mochimasu.',
+      meaning: 'If it rains, I take an umbrella.',
+    },
     scene: {
-      src: '/images/grammar/n5/condition-rain-scene.webp',
+      src: '/images/grammar/n5/scenes/condition-rain-scene.webp',
       alt: 'A person reaches for an umbrella in an entryway while rain falls outside.',
       caption: 'Rain is the condition; taking the umbrella is the response.',
     },
@@ -253,6 +372,11 @@ const visuals: Record<number, VisualSpec> = {
   23: {
     kind: 'direction', eyebrow: 'Direction lens', title: 'Change the viewpoint, change the verb',
     caption: 'Giving and receiving verbs follow the direction of the benefit.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_twenty_three.webp',
+      romaji: 'agemasu · moraimasu',
+      meaning: 'I give · I receive',
+    },
     items: [
       { label: 'わたし → 友だち', note: 'I give · あげます', tone: 'moss' },
       { label: '友だち → わたし', note: 'I receive · もらいます', tone: 'blue' },
@@ -261,6 +385,11 @@ const visuals: Record<number, VisualSpec> = {
   24: {
     kind: 'sequence', eyebrow: 'Potential form', title: 'See ability as a new verb',
     caption: 'Potential form can describe ability, what is visible, or what is audible.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_twenty_four.webp',
+      romaji: 'yomu → yomeru · shika nai',
+      meaning: 'read → can read · only',
+    },
     items: [
       { label: '読む', note: 'action', tone: 'blue' },
       { label: '読める', note: 'potential', tone: 'moss' },
@@ -270,6 +399,11 @@ const visuals: Record<number, VisualSpec> = {
   25: {
     kind: 'comparison', eyebrow: 'Timing lens', title: 'Before or after the action?',
     caption: 'Plain form before とき looks ahead; past form looks back after completion.',
+    illustration: {
+      src: '/images/grammar/n5/boards/n5_ch_twenty_five.webp',
+      romaji: 'taberu toki · tabeta toki',
+      meaning: 'before eating · after eating',
+    },
     items: [
       { label: '食べる とき', note: 'before eating', tone: 'blue' },
       { label: '食べた とき', note: 'after eating', tone: 'coral' },
@@ -373,6 +507,50 @@ function SpaceDiagram({ items }: { items: VisualItem[] }) {
 export function ChapterVisual({ chapterId }: { chapterId: number }) {
   const spec = visuals[chapterId]
   if (!spec) return null
+
+  if (spec.illustration) {
+    const { illustration } = spec
+    const alt = illustration.alt
+      ?? `${spec.eyebrow} board: ${spec.items.map((item) => `${item.label} (${item.note})`).join(', ')}.`
+    return (
+      <figure className="mb-10 grid items-center gap-6 rounded-2xl border border-home-line bg-home-tile/60 px-5 py-4 sm:px-6 sm:py-4 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] md:gap-10">
+        {/* The art has ~10% empty transparent space under the board; the aspect crop trims it. */}
+        <img
+          src={asset(illustration.src)}
+          alt={alt}
+          width={1536}
+          height={920}
+          loading="lazy"
+          decoding="async"
+          className="mx-auto aspect-[1536/920] w-full max-w-[33rem] select-none object-cover object-top"
+        />
+        <figcaption className="min-w-0 md:self-end md:pb-3">
+          <p className="text-2xs font-bold uppercase tracking-[0.16em] text-home-accent">{spec.eyebrow}</p>
+          <h2 className="mt-1.5 font-headline text-xl font-bold leading-snug text-home-ink sm:text-2xl">{spec.title}</h2>
+
+          <div className="mt-5 border-l-2 border-home-accent/60 pl-4">
+            <p
+              lang="ja"
+              className={`flex flex-wrap gap-y-0.5 text-2xl font-bold leading-snug sm:text-[1.75rem] ${
+                spec.kind === 'sequence' ? 'gap-x-1.5' : 'gap-x-5'
+              }`}
+            >
+              {spec.items.map((item, index) => (
+                // tone-ink is the high-contrast shade: lighter on navy, darker on white.
+                <span key={`${item.label}-${index}`} className={`diagram-tone-${item.tone} whitespace-nowrap text-tone-ink`}>
+                  {item.label}
+                </span>
+              ))}
+            </p>
+            <p className="mt-2 text-[0.9375rem] font-medium text-home-ink">{illustration.romaji}</p>
+            <p className="text-[0.9375rem] italic text-home-muted">{illustration.meaning}</p>
+          </div>
+
+          <p className="mt-5 text-sm leading-6 text-home-muted">{spec.caption}</p>
+        </figcaption>
+      </figure>
+    )
+  }
 
   const diagram = spec.kind === 'range'
     ? <RangeDiagram items={spec.items} />

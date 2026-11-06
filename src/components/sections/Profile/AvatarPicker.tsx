@@ -75,7 +75,7 @@ export function AvatarPicker({ avatar, onChange, onClose }: AvatarPickerProps) {
               type="button"
               disabled={busy !== null}
               onClick={() => pickPreset(preset.id)}
-              aria-label={`Use avatar ${preset.id}`}
+              aria-label={`Use avatar: ${preset.label}`}
               aria-pressed={selected}
               className={`relative aspect-square rounded-full overflow-hidden border-4 transition-all disabled:opacity-60 ${
                 selected ? 'border-primary' : 'border-transparent hover:border-primary/40'
