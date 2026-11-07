@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom'
 import type { ProgressOverview } from '@/types/progress'
 import { Icon } from '@/components/ui/Icon'
+import { TextLink } from '@/components/ui/TextLink'
 
 /** Today's answers against the daily goal, the streak and what is due. */
 export function TodayCard({ overview }: { overview: ProgressOverview }) {
@@ -34,10 +34,9 @@ export function TodayCard({ overview }: { overview: ProgressOverview }) {
           <dd className="font-semibold text-on-surface tabular-nums">{today.new_learned}</dd>
         </div>
       </dl>
-      <Link to="/profile?tab=learning" className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-primary hover:underline underline-offset-4">
-        <Icon name="tune" className="text-base" />
+      <TextLink to="/profile?tab=learning" leadingIcon="tune" trailingIcon={null}>
         Change daily goal
-      </Link>
+      </TextLink>
     </div>
   )
 }

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { KanaChar } from '@/types'
 import { useAnswerTimer } from '@/hooks/useAnswerTimer'
 import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
+import { usePreloadSpeech } from '@/hooks/usePreloadSpeech'
 import { choiceAnswer } from '@/lib/learn/practiceSession'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -40,6 +41,7 @@ function ListenTapSession({ kana, all, script, focusIds, onAnswer, onExit, onCom
   const timerRef = useRef<number>()
 
   const round = rounds[index]
+  usePreloadSpeech([round?.target.character, rounds[index + 1]?.target.character])
   const result = picked && round ? (picked.id === round.target.id ? 'correct' : 'wrong') : null
 
   useEffect(() => () => window.clearTimeout(timerRef.current), [])

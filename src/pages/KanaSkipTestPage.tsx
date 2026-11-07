@@ -28,6 +28,7 @@ import {
 } from '@/components/kanaQuiz'
 import { kanaTestQuestions, saveKanaTestAnswer } from '@/components/kanaQuiz/testQuestions'
 import { TestGate } from '@/components/learnSession/TestGate'
+import { unitLearnPath } from '@/components/kanaCourse/unitLinks'
 
 /** /kana/<script>/skip/:scope — test out of a group of units (or the whole script) on the learn API. */
 export function KanaSkipTestPage() {
@@ -158,7 +159,7 @@ function SkipTest({ test, all }: { test: KanaSkipTestDef; all: KanaChar[] }) {
           <>
             {firstMissed && (
               <Button
-                onClick={() => navigate(`${script.basePath}/unit/${firstMissed.id}`)}
+                onClick={() => navigate(unitLearnPath(script.basePath, firstMissed.id))}
                 className="flex min-h-12 items-center justify-center gap-2"
               >
                 {`Start with ${firstMissed.title}`}

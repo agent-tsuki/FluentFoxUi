@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
 import { Button } from '@/components/ui/Button'
-import { useUI, type BackgroundAnimation } from '@/context/UIContext'
+import { useUI, type BackgroundAnimation, type ThemeChoice } from '@/context/UIContext'
 import { useAuth } from '@/context/AuthContext'
 import { useModal } from '@/context/ModalContext'
 import { authService } from '@/api/services/authService'
@@ -15,8 +15,14 @@ const BG_OPTIONS: { value: BackgroundAnimation; icon: string; label: string; des
   { value: 'none',   icon: 'close',         label: 'None',          desc: 'No background animation' },
 ]
 
+const THEME_OPTIONS: { value: ThemeChoice; icon: string; label: string; desc: string }[] = [
+  { value: 'system', icon: 'computer',   label: 'System', desc: 'Match this device' },
+  { value: 'light',  icon: 'light_mode', label: 'Light',  desc: 'Always light' },
+  { value: 'dark',   icon: 'dark_mode',  label: 'Dark',   desc: 'Always dark' },
+]
+
 export function AccountSettings() {
-  const { mouseFollowerEnabled, toggleMouseFollower, backgroundAnimation, setBackgroundAnimation } = useUI()
+  const { mouseFollowerEnabled, toggleMouseFollower, backgroundAnimation, setBackgroundAnimation, themeChoice, setThemeChoice } = useUI()
   const [emailNotifs, setEmailNotifs] = useState(true)
   const [studyReminder, setStudyReminder] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -157,6 +163,37 @@ export function AccountSettings() {
             checked={mouseFollowerEnabled}
             onChange={toggleMouseFollower}
           />
+
+          {/* Theme: the device's setting until the learner picks one; the pick stays in this browser */}
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 bg-surface-container rounded-lg flex items-center justify-center text-on-surface-variant flex-shrink-0 mt-0.5">
+              <Icon name="dark_mode" className="text-xl" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-on-surface font-body">Theme</p>
+              <p className="text-xs text-on-surface-variant font-body mb-3">System follows this device. Your pick is saved in this browser only.</p>
+              <div role="radiogroup" aria-label="Theme" className="flex gap-3">
+                {THEME_OPTIONS.map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={themeChoice === opt.value}
+                    onClick={() => setThemeChoice(opt.value)}
+                    className={`flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl border-[1.5px] transition-all text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                      themeChoice === opt.value
+                        ? 'border-primary bg-primary/[0.08]'
+                        : 'border-outline-variant/40 bg-transparent'
+                    }`}
+                  >
+                    <Icon name={opt.icon} className="text-xl" />
+                    <span className="text-2xs font-bold font-label text-on-surface">{opt.label}</span>
+                    <span className="text-2xs text-on-surface-variant font-body leading-tight">{opt.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
 
           {/* Background animation selector */}
           <div className="flex items-start gap-4">

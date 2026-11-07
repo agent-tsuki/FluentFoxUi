@@ -65,7 +65,7 @@ export function LearningBalance({ balance }: LearningBalanceProps) {
       </div>
 
       <div className="flex justify-center">
-        <svg viewBox="0 0 200 200" className="w-full max-w-xs">
+        <svg viewBox="-70 0 340 200" className="w-full max-w-md">
           {/* Grid rings */}
           {GRID_RINGS.map((frac) => (
             <polygon

@@ -5,6 +5,7 @@ import { Icon } from '@/components/ui/Icon'
 import { PracticeShell } from '@/components/practice/PracticeShell'
 import { useAnswerTimer, type AnswerTimerControls } from '@/hooks/useAnswerTimer'
 import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
+import { usePreloadSpeech } from '@/hooks/usePreloadSpeech'
 import { romajiToHiragana } from '@/lib/content/kanji/romaji'
 import type { KanjiQuizSession } from './useKanjiQuizSession'
 import type { KanjiAnswer, KanjiAnswerMode, KanjiQuestion } from './types'
@@ -22,6 +23,8 @@ interface KanjiQuizRunnerProps {
   /** Each answer as it is given, with the question's timer (to save it to the learn API). */
   onAnswer?: (question: KanjiQuestion, given: string, timer: AnswerTimerControls) => void
   onExit: () => void
+  /** Something is shown over the quiz (e.g. "Leave the quiz?"): its keys are off. */
+  paused?: boolean
 }
 
 const ASK: Record<KanjiQuestion['kind'], string> = {
@@ -37,7 +40,7 @@ const ASK: Record<KanjiQuestion['kind'], string> = {
  * and Next in the lower half. Keys: 1–4 pick, Enter submits / moves on,
  * R replays a listening prompt. Readings can be typed in romaji.
  */
-export function KanjiQuizRunner({ title, session, status, notice, mode, onModeChange, onAnswer, onExit }: KanjiQuizRunnerProps) {
+export function KanjiQuizRunner({ title, session, status, notice, mode, onModeChange, onAnswer, onExit, paused = false }: KanjiQuizRunnerProps) {
   const { speak } = useJapaneseSpeech()
   const { question, answer, index, questions, submit, next } = session
   const headingRef = useRef<HTMLHeadingElement>(null)
@@ -46,6 +49,7 @@ export function KanjiQuizRunner({ title, session, status, notice, mode, onModeCh
   const isLast = index + 1 >= total
   const keyWord = question?.target.vocab.find((v) => v.isKey) ?? question?.target.vocab[0]
   const timer = useAnswerTimer(question?.key ?? '')
+  usePreloadSpeech([question, questions[index + 1]].map((q) => (q?.kind === 'listen' ? keyReading(q) : undefined)))
 
   const answerWith = useCallback(
     (given: string) => {
@@ -78,6 +82,7 @@ export function KanjiQuizRunner({ title, session, status, notice, mode, onModeCh
   )
 
   useEffect(() => {
+    if (paused) return
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.repeat || e.altKey || e.ctrlKey || e.metaKey) return
       if (e.target instanceof HTMLInputElement) return
@@ -88,7 +93,7 @@ export function KanjiQuizRunner({ title, session, status, notice, mode, onModeCh
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [question, answer, answerWith, replay])
+  }, [question, answer, answerWith, replay, paused])
 
   if (!question) return null
   const showToggle = mode !== undefined && onModeChange && (question.kind === 'meaning' || question.kind === 'reading') && !answer
@@ -320,4 +325,9 @@ function TypedAnswer({ question, answer, onInput, onSubmit }: TypedAnswerProps) 
       </p>
     </form>
   )
+}
+
+/** The reading a listening question speaks: its key word's. */
+function keyReading(q: KanjiQuestion): string | undefined {
+  return (q.target.vocab.find((v) => v.isKey) ?? q.target.vocab[0])?.reading
 }

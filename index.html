@@ -2,6 +2,25 @@
 <html class="light" lang="en">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      // Light / dark before the first paint (no flash): the learner's own pick, else the device's
+      // setting. Keep in step with UIContext (THEME_KEY). An old explicit dark pick ('darkMode' = true;
+      // false was saved for every visitor, so it means nothing) becomes the new pick.
+      (function () {
+        var choice = null
+        try {
+          choice = localStorage.getItem('themeChoice')
+          var old = localStorage.getItem('darkMode')
+          if (old !== null) {
+            if (!choice && old === 'true') localStorage.setItem('themeChoice', (choice = 'dark'))
+            localStorage.removeItem('darkMode')
+          }
+        } catch (e) {}
+        var dark = choice === 'dark' || (choice !== 'light' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.classList.toggle('dark', dark)
+        document.documentElement.classList.toggle('light', !dark)
+      })()
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- Primary meta -->

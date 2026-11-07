@@ -67,7 +67,7 @@ export function percent(score: number): string {
 /**
  * Offsets for the sticky chrome above Course content: site nav (80) +
  * SectionNav (48) + a small gap. Used for the rail's `top` and the
- * scroll margin of hash targets (#unit-<id>, #practice).
+ * scroll margin of hash targets (#unit-<id>).
  */
 export const STICKY_RAIL_TOP = 'lg:top-[calc(theme(spacing.nav)+theme(spacing.12)+theme(spacing.6))]'
 export const HASH_SCROLL_MARGIN = 'scroll-mt-[calc(theme(spacing.nav)+theme(spacing.12)+theme(spacing.4))]'

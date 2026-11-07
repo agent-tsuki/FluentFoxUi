@@ -11,21 +11,25 @@ export const UNIT_STATE_LABEL: Record<UnitState, string> = {
   skipped: 'Tested out',
 }
 
-/** State shown on a unit card, from the counts useUnitSteps returns. */
-export function unitState(completed: number, total: number, skipped = false): UnitState {
-  if (completed >= total) return 'done'
+/**
+ * State shown on a unit card, from the counts useUnitSteps returns. A passed
+ * unit quiz finishes the unit whatever steps are left: they are suggestions,
+ * and practice stays open after.
+ */
+export function unitState(completed: number, total: number, skipped = false, quizPassed = false): UnitState {
+  if (completed >= total || quizPassed) return 'done'
   if (skipped) return 'skipped'
   return completed > 0 ? 'in-progress' : 'not-started'
 }
 
 /**
- * Whether a unit is finished: tested out with a skip test, or every step done. Mirrors the rules in useUnitSteps
+ * Whether a unit is finished: its quiz passed, tested out with a skip test, or every step done. Mirrors the rules in useUnitSteps
  * (which is a per-unit hook and can't be called in a loop); the path section
  * needs it for all 13 units to find the next suggested one.
  */
 export function isUnitComplete(unit: KanaUnit, progress: UnitProgress | undefined): boolean {
   const p = progress ?? {}
-  if (p.skippedAt) return true
+  if (p.quizPassedAt || p.skippedAt) return true
   return (
     (!unit.youtubeId || Boolean(p.watchedAt)) &&
     Boolean(p.tracedAt) &&
@@ -77,5 +81,5 @@ export function unitStatusSummary(unit: KanaUnit, progress: UnitProgress | undef
     Boolean(p.quizPassedAt),
   ]
   const completed = done.filter(Boolean).length
-  return { state: unitState(completed, done.length, Boolean(p.skippedAt)), completed, total: done.length }
+  return { state: unitState(completed, done.length, Boolean(p.skippedAt), Boolean(p.quizPassedAt)), completed, total: done.length }
 }

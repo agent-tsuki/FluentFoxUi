@@ -17,7 +17,7 @@ export interface KanjiUnitView {
   completed: number
   total: number
   state: UnitState
-  /** Every step done, or tested out. */
+  /** Quiz passed, every step done, or tested out. */
   complete: boolean
   quizBest?: number
 }
@@ -46,7 +46,8 @@ export function useKanjiCourseUnits(index: KanjiLevelIndex): KanjiCourseUnits {
       const done = kanjiUnitSteps(unit, unitProgress)
       const completed = KANJI_UNIT_STEPS.filter((s) => done[s]).length
       const skipped = Boolean(unitProgress?.skippedAt)
-      const state = unitState(completed, KANJI_UNIT_STEPS.length, skipped)
+      // A passed quiz finishes the unit; the other steps are suggestions and practice stays open.
+      const state = unitState(completed, KANJI_UNIT_STEPS.length, skipped, done.quiz)
       return {
         unit,
         number: i + 1,

@@ -83,6 +83,10 @@ const config: Config = {
         success: 'rgb(var(--success) / <alpha-value>)',
         warning: 'rgb(var(--warning) / <alpha-value>)',
         info:    'rgb(var(--info) / <alpha-value>)',
+        /* ── Chart series (one per learning track) ── */
+        'chart-1': 'rgb(var(--chart-1) / <alpha-value>)',
+        'chart-2': 'rgb(var(--chart-2) / <alpha-value>)',
+        'chart-3': 'rgb(var(--chart-3) / <alpha-value>)',
 
         /* ── Static tokens (same in light and dark) ── */
         'on-tertiary-fixed': '#001e2d',

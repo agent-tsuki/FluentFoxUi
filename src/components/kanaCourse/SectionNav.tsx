@@ -51,7 +51,11 @@ export function CourseSectionNav({ label, items, className }: { label: string; i
         aria-label={label}
         className={cn(
           'sticky top-nav z-30 h-12 border-b bg-surface transition-shadow duration-200',
-          stuck.isStuck ? 'border-transparent shadow-elevation-1' : 'border-outline-variant/60',
+          // Once pinned, fill the strip behind the floating site navbar too, so
+          // page content doesn't show through between the navbar and this bar.
+          stuck.isStuck
+            ? 'border-transparent shadow-elevation-1 before:pointer-events-none before:absolute before:inset-x-0 before:bottom-full before:h-nav before:bg-surface'
+            : 'border-outline-variant/60',
           className,
         )}
       >

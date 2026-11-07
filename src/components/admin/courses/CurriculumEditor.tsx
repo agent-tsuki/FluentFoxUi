@@ -2,6 +2,7 @@ import { Icon } from '@/components/ui/Icon'
 import { TextInput } from '@/components/ui/FormField'
 import { StringListEditor } from '@/components/admin/channel/StringListEditor'
 import type { CurriculumSection } from '@/types/admin'
+import { TextButton } from '@/components/ui/TextLink'
 
 /** Curriculum sections: a title and a list of topics each. */
 export function CurriculumEditor({ sections, onChange }: { sections: CurriculumSection[]; onChange: (s: CurriculumSection[]) => void }) {
@@ -28,13 +29,9 @@ export function CurriculumEditor({ sections, onChange }: { sections: CurriculumS
           <StringListEditor label={`Section ${index + 1} topics`} items={section.topics} placeholder="Add a topic" onChange={topics => update(index, { topics })} />
         </div>
       ))}
-      <button
-        type="button"
-        onClick={() => onChange([...sections, { title: '', topics: [] }])}
-        className="-my-2 inline-flex min-h-11 items-center gap-1 py-2 text-sm font-semibold text-primary hover:underline"
-      >
-        <Icon name="add" className="text-base" /> Add section
-      </button>
+      <TextButton leadingIcon="add" onClick={() => onChange([...sections, { title: '', topics: [] }])} className="-my-2">
+        Add section
+      </TextButton>
     </fieldset>
   )
 }

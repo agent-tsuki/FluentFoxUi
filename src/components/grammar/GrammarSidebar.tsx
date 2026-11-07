@@ -1,5 +1,6 @@
 import type { GrammarChapterSummary } from '@/types/grammar'
 import { Button } from '@/components/ui/Button'
+import { FixedSidebar } from '@/components/layout/FixedSidebar'
 import { useStartLearning } from '@/hooks/useStartLearning'
 import { LevelSwitcher } from '@/components/grammar/LevelSwitcher'
 import { ChapterProgress } from '@/components/grammar/ChapterProgress'
@@ -20,7 +21,7 @@ export function GrammarSidebar({ level, chapters, completedChapters, activeChapt
   const { startLearning } = useStartLearning()
 
   return (
-    <aside className="fixed left-0 top-nav h-[calc(100dvh-theme(spacing.nav))] w-72 bg-surface-container-lowest flex-col border-r border-outline-variant/30 hidden lg:flex">
+    <FixedSidebar>
 
       {/* Level Switcher */}
       <div className="px-4 pt-5 pb-4 border-b border-outline-variant/20 flex-shrink-0">
@@ -54,6 +55,6 @@ export function GrammarSidebar({ level, chapters, completedChapters, activeChapt
           </Button>
         </div>
       )}
-    </aside>
+    </FixedSidebar>
   )
 }

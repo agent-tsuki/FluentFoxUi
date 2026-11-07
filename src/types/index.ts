@@ -9,8 +9,6 @@ export interface NavItem {
   label: string
   href?: string
   dropdown?: DropdownItem[]
-  /** Flat links shown instead of the dropdown in the phone menu. */
-  mobileLinks?: DropdownItem[]
 }
 
 // ─── Flashcard ────────────────────────────────────────────────────────────────

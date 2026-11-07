@@ -7,6 +7,7 @@ import { Icon } from '@/components/ui/Icon'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { PracticeShell } from '@/components/practice/PracticeShell'
 import { useLearnSession } from '@/hooks/useLearnSession'
+import { usePreloadSpeech } from '@/hooks/usePreloadSpeech'
 import type { SessionStart } from '@/types/learn'
 import { LessonCards } from './LessonCards'
 import { SessionQuestion } from './SessionQuestion'
@@ -28,6 +29,10 @@ export function LearnSessionScreen({ title, start, emptyTitle, emptyDescription,
   const session = useLearnSession(start)
   const [cardIndex, setCardIndex] = useState(0)
   const { phase, entries, index, entry } = session
+  // Listening questions speak their prompt: fetch this one's and the next one's ahead.
+  usePreloadSpeech(
+    [entries[index], entries[index + 1]].map((e) => (e?.question.question_type.endsWith('_listen') ? e.question.prompt : undefined)),
+  )
 
   if (phase === 'learn') {
     const total = session.items.length

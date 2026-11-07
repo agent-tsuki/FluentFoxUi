@@ -8,6 +8,8 @@ import type { SocialButtonSize } from './SocialButtonShell'
 interface SocialAuthSheetProps {
   onGoogle: () => void
   onX: () => void
+  /** Sign up: its taller sidebar has room for a taller sheet. */
+  tall?: boolean
 }
 
 const contentVariants = staggerChildren(0.08, 0.25)
@@ -22,7 +24,9 @@ const LABEL_TEXT = 'Continue with'
  * Space between the curved top edge and the label.
  * Smaller = label sits higher. Try: 'pt-0', 'pt-1', 'pt-2', 'pt-4' (original).
  */
-const LABEL_TOP_SPACE = 'pt-0'
+const LABEL_TOP_SPACE = 'pt-3'
+/** LABEL_TOP_SPACE on sign up: with SHEET_BOTTOM_SPACE_TALL it centres the label and buttons in the taller sheet. */
+const LABEL_TOP_SPACE_TALL = 'pt-9'
 
 /**
  * Pulls the label further up, into the white curve itself.
@@ -40,7 +44,9 @@ const ARC_HEIGHT = 'h-12'
 const BUTTON_SIZE: SocialButtonSize = 'sm'
 
 /** Space under the buttons (bottom of the panel). Try: 'pb-6', 'pb-8' (original). */
-const SHEET_BOTTOM_SPACE = 'pb-12'
+const SHEET_BOTTOM_SPACE = 'pb-9'
+/** SHEET_BOTTOM_SPACE on sign up, whose sidebar is taller: the sheet rises higher. */
+const SHEET_BOTTOM_SPACE_TALL = 'pb-14'
 // ──────────────────────────────────────────────────────────────────────────────
 
 /**
@@ -51,7 +57,7 @@ const SHEET_BOTTOM_SPACE = 'pb-12'
  * overflow-hidden), then the label and buttons fade up one after another.
  * Under prefers-reduced-motion everything renders in its final state.
  */
-export function SocialAuthSheet({ onGoogle, onX }: SocialAuthSheetProps) {
+export function SocialAuthSheet({ onGoogle, onX, tall = false }: SocialAuthSheetProps) {
   const reducedMotion = useReducedMotion()
 
   return (
@@ -59,7 +65,8 @@ export function SocialAuthSheet({ onGoogle, onX }: SocialAuthSheetProps) {
       initial={reducedMotion ? false : { y: '110%' }}
       animate={{ y: 0 }}
       transition={{ ...springs.sheet, delay: 0.1 }}
-      className={`relative -mx-10 -mb-10 mt-10 bg-surface-container-lowest px-8 text-on-surface ${LABEL_TOP_SPACE} ${SHEET_BOTTOM_SPACE}`}
+      // Solid in dark too: the theme's see-through glass would let the orange sidebar show under the (solid) arc.
+      className={`relative -mx-10 -mb-10 mt-10 bg-surface-container-lowest px-8 text-on-surface dark:bg-surface-container-lowest dark:backdrop-filter-none ${tall ? `${LABEL_TOP_SPACE_TALL} ${SHEET_BOTTOM_SPACE_TALL}` : `${LABEL_TOP_SPACE} ${SHEET_BOTTOM_SPACE}`}`}
     >
       <ArcEdge fillClassName="fill-surface-container-lowest" className={ARC_HEIGHT} />
 

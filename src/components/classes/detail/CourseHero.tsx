@@ -7,6 +7,7 @@ import { PLATFORM_META } from '@/lib/classes/platformMeta'
 import { courseExternalUrl } from '@/lib/classes/youtube'
 import type { ClassCourseDetail } from '@/types/classes'
 import { LINK_BUTTON } from '../linkStyles'
+import { ExternalTextLink } from '@/components/ui/TextLink'
 
 /** What the hero's media and main button do on this course. */
 export type HeroPlayback =
@@ -95,16 +96,9 @@ export function CourseHero({ course, playback, sampleVideoId, playing, onStartWa
                 {NEW_TAB}
               </a>
             )}
-            <a
-              href={externalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-on-surface underline decoration-outline underline-offset-4 transition-colors hover:decoration-on-surface"
-            >
+            <ExternalTextLink href={externalUrl} tone="neutral" underline="always">
               {sampleVideoId ? `Full course on ${meta.label}` : `Watch on ${meta.label}`}
-              <Icon name="north_east" className="text-base" />
-              {NEW_TAB}
-            </a>
+            </ExternalTextLink>
           </div>
 
           {(facts.length > 0 || course.tags.length > 0) && (

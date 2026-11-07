@@ -38,24 +38,40 @@ export function quizOptionsFor(script: KanaScriptConfig, speech: boolean): Build
  * Katakana's ー and small ッ can't be read on their own, so they never appear
  * as options, and a target that is one of them becomes a loanword question.
  */
-export function buildQuestions(targets: KanaChar[], all: KanaChar[], { speech, words = [], lookAlikes }: BuildOptions): QuizQuestion[] {
-  const usable = targets.filter((t) => isTypeableKana(t) || (isKanaMark(t) && words.length > 0))
-  const quizzable = all.filter(isTypeableKana)
-  const usedWords = new Set<string>()
+export function buildQuestions(targets: KanaChar[], all: KanaChar[], options: BuildOptions): QuizQuestion[] {
+  const usable = targets.filter((t) => isTypeableKana(t) || (isKanaMark(t) && (options.words?.length ?? 0) > 0))
   const kinds = shuffle(usable.map((_, i) => KIND_CYCLE[i % KIND_CYCLE.length] ?? 'read'))
   if (kinds[0] === 'listen') {
     const j = kinds.findIndex((k) => k !== 'listen')
     if (j > 0) [kinds[0], kinds[j]] = [kinds[j] ?? 'read', 'listen']
   }
+  return buildQuestionsAs(
+    usable.map((target, i) => ({ target, kind: kinds[i] ?? 'read' })),
+    all,
+    options,
+  )
+}
 
-  return usable.flatMap((target, i) => {
-    const wanted = kinds[i] ?? 'read'
+/**
+ * One question per ask, each of the kind given (a listening one becomes a
+ * reading one where the browser can't speak). Asks that can't be made into a
+ * question (a mark with no loanword to show it) are left out.
+ */
+export function buildQuestionsAs(
+  asks: readonly { target: KanaChar; kind: QuestionKind }[],
+  all: KanaChar[],
+  { speech, words = [], lookAlikes }: BuildOptions,
+): QuizQuestion[] {
+  const quizzable = all.filter(isTypeableKana)
+  const usedWords = new Set<string>()
+  return asks.flatMap(({ target, kind: wanted }, i) => {
     const kind: QuestionKind = wanted === 'listen' && !speech ? 'read' : wanted
     const key = `${i}-${target.id}`
     if (isKanaMark(target)) {
-      const question = buildMarkQuestion(target, kind, key, all, words, usedWords)
+      const question = words.length > 0 ? buildMarkQuestion(target, kind, key, all, words, usedWords) : null
       return question ? [question] : []
     }
+    if (!isTypeableKana(target)) return []
     const alike = kind === 'listen' ? (SOUND_ALIKE[target.id] ?? []) : []
     const pool = quizzable.filter((k) => k.type === target.type && !alike.includes(k.id))
     return [{ key, kind, target, options: pickOptions(target, pool, 4, lookAlikes) }]

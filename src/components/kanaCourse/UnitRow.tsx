@@ -1,17 +1,21 @@
-import { memo } from 'react'
-import { Link } from 'react-router-dom'
+import { lazy, memo, Suspense } from 'react'
 import { Icon } from '@/components/ui/Icon'
+import { LoadingState, SkeletonBlock } from '@/components/ui/LoadingState'
 import { JaText } from '@/components/learn/JaText'
 import { cn } from '@/lib/cn'
-import { useKanaScript } from '@/context/KanaScriptContext'
 import { HASH_SCROLL_MARGIN, percent, type CourseUnitView } from './courseUnits'
 import { StatusIcon } from './StatusIcon'
+import { useUnitAccordion } from './unitAccordion'
+
+// The steps load with the first opened row, not with the Learn page.
+const UnitPanel = lazy(() => import('./UnitPanel').then((m) => ({ default: m.UnitPanel })))
 
 /**
- * UnitRow — one unit in the Course curriculum list. The whole row is a single
- * link to the unit page and carries `id="unit-<id>"` so the unit page's back
- * link (`#unit-<id>`) can scroll to it. Status is icon + text, never colour
- * alone; the "Up next" unit adds a 2 px primary bar on its left edge.
+ * UnitRow — one unit in the Learn page's curriculum. The row is a button that
+ * opens the unit's steps right under it (one row open at a time, kept in the
+ * URL as `?unit=<id>`), and carries `id="unit-<id>"` for scrolling to it.
+ * Status is icon + text, never colour alone; the "Up next" unit adds a 2 px
+ * primary bar on its left edge.
  */
 interface UnitRowProps {
   view: CourseUnitView
@@ -37,19 +41,24 @@ export function unitStatusText(view: CourseUnitView, isNext: boolean): string {
 
 export const UnitRow = memo(function UnitRow({ view, isNext, highlighted }: UnitRowProps) {
   const { unit, number, preview, status } = view
-  const { basePath } = useKanaScript()
+  const accordion = useUnitAccordion()
+  const open = accordion?.openId === unit.id
+  const panelId = `unit-panel-${unit.id}`
 
   return (
     <li>
-      <Link
+      <button
+        type="button"
         id={`unit-${unit.id}`}
-        to={`${basePath}/unit/${unit.id}`}
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => accordion?.toggle(unit.id)}
         className={cn(
-          'group relative flex min-h-16 items-center gap-3 px-3 py-3 transition-colors duration-700 ease-out motion-reduce:transition-none sm:px-4',
+          'group relative flex min-h-16 w-full items-center gap-3 px-3 py-3 text-left transition-colors duration-700 ease-out motion-reduce:transition-none sm:px-4',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary',
           HASH_SCROLL_MARGIN,
           isNext && 'before:absolute before:inset-y-0 before:left-0 before:w-0.5 before:bg-primary',
-          highlighted ? 'bg-primary/10' : 'hover:bg-surface-container-low',
+          highlighted ? 'bg-primary/10' : open ? 'bg-surface-container-low' : 'hover:bg-surface-container-low',
         )}
       >
         <StatusIcon state={status.state} />
@@ -80,11 +89,29 @@ export const UnitRow = memo(function UnitRow({ view, isNext, highlighted }: Unit
 
         <span aria-hidden className="flex shrink-0">
           <Icon
-            name="chevron_right"
-            className="text-xl text-on-surface-variant transition-transform motion-safe:group-hover:translate-x-0.5"
+            name="expand_more"
+            className={cn('text-xl text-on-surface-variant transition-transform duration-200 motion-reduce:transition-none', open && 'rotate-180')}
           />
         </span>
-      </Link>
+      </button>
+      {open && accordion && (
+        <div id={panelId} role="region" aria-labelledby={`unit-${unit.id}`} className="border-t border-outline-variant/40 bg-surface">
+          <Suspense
+            fallback={
+              <LoadingState label="Loading the unit…" className="space-y-3 p-6">
+                <SkeletonBlock className="h-6 w-40 rounded-xl" />
+                <SkeletonBlock className="h-24 w-full rounded-2xl" />
+              </LoadingState>
+            }
+          >
+            <UnitPanel
+              unit={unit}
+              onStartQuiz={() => accordion.startQuiz(unit.id)}
+              onStartPractice={(mode) => accordion.startPractice(unit.id, mode)}
+            />
+          </Suspense>
+        </div>
+      )}
     </li>
   )
 })

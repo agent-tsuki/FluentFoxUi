@@ -1,42 +1,47 @@
 import { lazy, Suspense, useState, useRef, useEffect } from 'react'
+import { useReviewGate } from '@/hooks/useReviewGate'
 import { Link } from 'react-router-dom'
 import { mockNavItems } from '@/api/mock/navigation'
 import type { NavItem } from '@/types'
 import { useModal } from '@/context/ModalContext'
 import { useAuth } from '@/context/AuthContext'
 import { NavDropdown } from './NavDropdown'
+import { MobileNavSections } from './MobileNavSections'
 import { Button } from '@/components/ui/Button'
 import { FoxLogo, FoxLogoHandle } from './FoxLogo'
 import { Icon } from '@/components/ui/Icon'
+import { StreakFire } from '@/components/ui/StreakFire'
 import { useUI } from '@/context/UIContext'
 import { authModalPrefetchHandlers } from '@/components/sections/AuthModal'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useLearnSummary } from '@/hooks/useLearnSummary'
 import { useProgressOverview } from '@/hooks/useProgress'
+import { useLingeringPopover } from '@/hooks/useLingeringPopover'
 import { DueBadge } from '@/components/learnSession/DueBadge'
 import { reviewPath } from '@/lib/learn/paths'
 import { asset } from '@/lib/assets'
 import { AdminMenuLink } from '@/components/admin/AdminMenuLink'
+import { THEME_BUTTON_INTENT, ThemeToggleIcon } from './ThemeToggleIcon'
 
 // Loaded on first open: the month view and its calendar request stay out of the first paint.
 const StreakMonthPopup = lazy(() => import('./StreakMonthPopup').then((m) => ({ default: m.StreakMonthPopup })))
 
 const navItems: NavItem[] = mockNavItems
-
-// The phone menu shows plain links instead of dropdown sections.
-const mobileNavLinks = navItems.flatMap((item) =>
-  item.mobileLinks ?? item.dropdown ?? [{ label: item.label, href: item.href ?? '/' }],
-)
+/** How long the streak calendar stays after the pointer leaves the flame or the calendar. */
+const STREAK_PREVIEW_LINGER_MS = 2000
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen]         = useState(false)
-  const [streakOpen, setStreakOpen]         = useState(false)
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false)
   const { openModal } = useModal()
   const { user, logout } = useAuth()
   const dueNow = useLearnSummary().summary?.due_now ?? 0
   const streak = useProgressOverview().data?.streak.current ?? 0
   const { darkMode, toggleDarkMode } = useUI()
+  const streakPopover = useLingeringPopover(STREAK_PREVIEW_LINGER_MS)
+  const gateReview = useReviewGate()
+  const streakOpen = streakPopover.open
+  const closeStreak = streakPopover.close
 
   const isDesktop       = useMediaQuery('(min-width: 768px)')
   const foxLogoRef      = useRef<FoxLogoHandle>(null)
@@ -58,11 +63,11 @@ export function Navbar() {
       if (e.key !== 'Escape') return
       setMobileOpen(false)
       setAvatarMenuOpen(false)
-      setStreakOpen(false)
+      closeStreak()
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [mobileOpen, avatarMenuOpen, streakOpen])
+  }, [mobileOpen, avatarMenuOpen, streakOpen, closeStreak])
 
   // Avatar menu: close on outside click (click/tap is the primary toggle now, not hover).
   useEffect(() => {
@@ -76,18 +81,18 @@ export function Navbar() {
     return () => document.removeEventListener('pointerdown', onPointerDown)
   }, [avatarMenuOpen])
 
-  // Streak popup: close on outside click. Hover still opens it for mouse users (unchanged);
-  // click/tap now also opens it so it's reachable on tablets and via keyboard (was hover-only).
+  // Streak popup: close at once on an outside click. Hover, tap and keyboard open it, and it
+  // lingers 2 s after the pointer leaves (useLingeringPopover).
   useEffect(() => {
     if (!streakOpen) return
     const onPointerDown = (e: PointerEvent) => {
       if (streakRef.current && !streakRef.current.contains(e.target as Node)) {
-        setStreakOpen(false)
+        closeStreak()
       }
     }
     document.addEventListener('pointerdown', onPointerDown)
     return () => document.removeEventListener('pointerdown', onPointerDown)
-  }, [streakOpen])
+  }, [streakOpen, closeStreak])
 
   // Mobile drawer: focus trap. On open, focus the first focusable item; while open,
   // Tab/Shift+Tab wraps around at the drawer's boundary instead of escaping into the page behind it.
@@ -155,46 +160,35 @@ export function Navbar() {
                 </Link>
               )
             )}
-          </div>
-
-          {/* Right side: dark mode + auth */}
-          <div className="flex items-center gap-3">
-            {/* Review all — shown when logged in, with the due count */}
+            {/* Review (signed in), next to Classes, with the due count */}
             {user && (
               <Link
                 to={reviewPath()}
-                className="hidden md:flex items-center gap-1.5 min-h-11 px-3 rounded-full text-sm font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+                onClick={gateReview()}
+                className="flex items-center gap-1.5 text-on-surface-variant hover:text-on-surface hover:scale-105 transition-all duration-200"
               >
                 Review
                 <DueBadge count={dueNow} />
               </Link>
             )}
+          </div>
 
-            {/* Streak pill — shown when logged in */}
+          {/* Right side: dark mode + auth */}
+          <div className="flex items-center gap-3">
+            {/* Streak — the animated fire and the day count, shown when logged in */}
             {user && (
-              <div ref={streakRef} className="relative hidden md:block">
+              <div ref={streakRef} className="relative hidden md:block" {...streakPopover.wrapperProps}>
                 <Link
                   to="/dashboard"
-                  onMouseEnter={() => setStreakOpen(true)}
-                  onClick={(e) => {
-                    // First activation (tap or keyboard Enter, with no preceding hover) reveals
-                    // the calendar preview instead of navigating straight away — mirrors the
-                    // hover-preview mouse users already get. Activating again (or a real mouse
-                    // click, which already opened it via onMouseEnter) navigates through as normal.
-                    if (!streakOpen) {
-                      e.preventDefault()
-                      setStreakOpen(true)
-                    }
-                  }}
-                  className="flex items-center gap-1.5 min-h-10 px-3.5 rounded-full border border-primary/25 bg-primary/10 hover:bg-primary/20 transition-colors"
+                  // A first tap or Enter shows the calendar preview; the next one opens the dashboard.
+                  onClick={streakPopover.onTriggerClick}
+                  aria-label={`${streak}-day streak. Show streak calendar`}
+                  className="group/streak flex items-center gap-2 min-h-11 px-2 rounded-full transition-colors hover:bg-surface-container"
                 >
-                  <Icon
-                    name="local_fire_department"
-                    className="text-base text-warning animate-streak-flame"
-                  />
-                  <span className="text-sm font-bold text-primary font-label leading-none">
+                  <StreakFire lit={streak > 0} className="text-[1.375rem] transition-transform duration-200 group-hover/streak:scale-110" />
+                  <span className="text-sm font-bold text-on-surface font-label leading-none tabular-nums">
                     {streak}
-                    <span className="hidden lg:inline font-semibold"> day streak</span>
+                    <span className="hidden lg:inline font-semibold text-on-surface-variant"> day streak</span>
                   </span>
                 </Link>
                 {streakOpen && (
@@ -207,18 +201,13 @@ export function Navbar() {
 
             {/* Dark mode toggle */}
             <button
+              type="button"
               onClick={toggleDarkMode}
+              {...THEME_BUTTON_INTENT}
               aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
               className="min-w-11 min-h-11 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors duration-200 active:scale-90 group/toggle"
             >
-              <div
-                className="transition-transform duration-500 ease-out"
-                style={{
-                  transform: darkMode ? 'rotate(180deg)' : 'rotate(0deg)',
-                }}
-              >
-                <Icon name={darkMode ? 'light_mode' : 'dark_mode'} className="text-xl group-hover/toggle:text-primary transition-colors" />
-              </div>
+              <ThemeToggleIcon dark={darkMode} className="text-xl transition-colors group-hover/toggle:text-primary" />
             </button>
 
             {/* Auth / Profile */}
@@ -277,10 +266,11 @@ export function Navbar() {
                   <button
                     type="button"
                     onClick={toggleDarkMode}
+                    {...THEME_BUTTON_INTENT}
                     aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
                     className="flex w-full items-center gap-2 rounded-lg px-4 py-2 text-left text-sm text-on-surface-variant transition-colors hover:bg-surface-container"
                   >
-                    <Icon name={darkMode ? 'light_mode' : 'dark_mode'} className="text-base" />
+                    <ThemeToggleIcon dark={darkMode} className="text-base" />
                     {darkMode ? 'Light theme' : 'Dark theme'}
                   </button>
 
@@ -340,23 +330,14 @@ export function Navbar() {
             className="relative mt-nav bg-surface-container-lowest border-b border-outline-variant/40 shadow-elevation-2 animate-in slide-in-from-top-2 duration-200"
           >
             <div className="px-6 py-6 space-y-2 max-h-[80vh] overflow-y-auto">
-              {mobileNavLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  onClick={closeMobile}
-                  className="block px-3 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container text-sm font-semibold transition-colors"
-                >
-                  {link.label}
-                </Link>
-              ))}
+              <MobileNavSections items={navItems} onNavigate={closeMobile} />
 
               <div className="border-t border-outline-variant/30 pt-4 mt-4">
                 {user ? (
                   <div className="space-y-1">
                     {/* Mobile streak badge */}
                     <div className="flex items-center gap-2 px-3 py-2 mb-1">
-                      <Icon name="local_fire_department" className="text-base text-warning animate-streak-flame" />
+                      <StreakFire lit={streak > 0} className="text-xl" />
                       <span className="text-sm font-bold text-primary font-label">
                         {streak}-day streak
                       </span>
@@ -398,15 +379,19 @@ export function Navbar() {
                     <button
                       type="button"
                       onClick={toggleDarkMode}
+                      {...THEME_BUTTON_INTENT}
                       aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
                       className="flex w-full items-center gap-2 rounded-lg px-3 py-3 text-left text-sm text-on-surface-variant transition-colors hover:bg-surface-container"
                     >
-                      <Icon name={darkMode ? 'light_mode' : 'dark_mode'} className="text-base" />
+                      <ThemeToggleIcon dark={darkMode} className="text-base" />
                       {darkMode ? 'Light theme' : 'Dark theme'}
                     </button>
                     <Link
                       to={reviewPath()}
-                      onClick={closeMobile}
+                      onClick={(e) => {
+                        closeMobile()
+                        gateReview()(e)
+                      }}
                       className="flex items-center gap-2 px-3 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container text-sm transition-colors"
                     >
                       Review all

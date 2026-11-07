@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { pathToPoints, type GlyphTransform, type Point } from '@/components/kana/strokeGeometry'
 import type { RawStrokeData } from '@/lib/pdf/glyphs'
 import { useKanaScript } from '@/context/KanaScriptContext'
@@ -63,32 +63,50 @@ type StrokeState =
   | { status: 'missing' }
   | { status: 'ready'; glyph: KanaGlyph }
 
+/** Stroke data already loaded this session, per script loader. */
+const loadedData = new WeakMap<() => Promise<RawStrokeData>, RawStrokeData>()
+
 /**
  * Stroke data for one kana (or a compound like きゃ), loaded lazily from the
  * current script's KanjiVG-derived JSON (`script.loadStrokes`, cached per
- * session) so it stays out of the chart's initial bundle.
+ * session) so it stays out of the chart's initial bundle. Once the data is in,
+ * every other kana is ready on its first render (no loading flash when
+ * stepping through the chart).
  */
 export function useKanaStrokes(character: string): StrokeState & { retry: () => void } {
   const { loadStrokes } = useKanaScript()
-  const [state, setState] = useState<StrokeState>({ status: 'loading' })
+  const [data, setData] = useState<RawStrokeData | undefined>(() => loadedData.get(loadStrokes))
+  const [failed, setFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
 
   useEffect(() => {
+    const cached = loadedData.get(loadStrokes)
+    if (cached) {
+      setData(cached)
+      return
+    }
     let cancelled = false
-    setState({ status: 'loading' })
+    setFailed(false)
     loadStrokes()
-      .then((data) => {
-        if (cancelled) return
-        const glyph = buildGlyph(data, character)
-        setState(glyph ? { status: 'ready', glyph } : { status: 'missing' })
+      .then((loaded) => {
+        loadedData.set(loadStrokes, loaded)
+        if (!cancelled) setData(loaded)
       })
       .catch(() => {
-        if (!cancelled) setState({ status: 'error' })
+        if (!cancelled) setFailed(true)
       })
     return () => {
       cancelled = true
     }
-  }, [character, attempt, loadStrokes])
+  }, [attempt, loadStrokes])
+
+  const state = useMemo<StrokeState>(() => {
+    if (data) {
+      const glyph = buildGlyph(data, character)
+      return glyph ? { status: 'ready', glyph } : { status: 'missing' }
+    }
+    return failed ? { status: 'error' } : { status: 'loading' }
+  }, [data, failed, character])
 
   const retry = useCallback(() => setAttempt((a) => a + 1), [])
   return { ...state, retry }

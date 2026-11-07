@@ -38,15 +38,14 @@ export function ConceptHome() {
                 type="button"
                 onClick={startLearning}
                 {...prefetch}
-                className="group inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full bg-home-accent py-3 pl-6 pr-4 text-sm font-bold shadow-elevation-2 text-home-on-accent transition duration-200 hover:-translate-y-0.5 hover:bg-home-accent-hover focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-home-accent"
+                className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-home-accent px-7 py-3 text-sm font-bold shadow-elevation-2 text-home-on-accent transition duration-200 hover:-translate-y-0.5 hover:bg-home-accent-hover focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-home-accent"
               >
                 Find my starting point
-                <span className="grid size-5 place-items-center rounded-full border border-home-on-accent/35 bg-home-on-accent/10 transition-transform duration-200 group-hover:-translate-y-px" aria-hidden="true">
-                  <Icon name="explore" className="text-sm" />
-                </span>
+                <Icon name="arrow_forward" className="text-lg transition-transform duration-200 motion-safe:group-hover:translate-x-0.5" />
               </button>
-              <a className="concept-text-link" href="#journey">
-                See how it works <Icon name="south" className="ml-1 align-text-bottom text-base" />
+              <a className="concept-text-link group" href="#journey">
+                <span className="concept-text-link-text">See how it works</span>
+                <Icon name="south" className="text-base transition-transform duration-200 motion-safe:group-hover:translate-y-0.5" />
               </a>
             </div>
             <p className="mt-10 flex items-center gap-3 text-xs tracking-wide text-home-subtle">

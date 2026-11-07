@@ -3,8 +3,8 @@ import type { AnswerTimerControls } from '@/hooks/useAnswerTimer'
 import type { StudyRecorderControls } from '@/hooks/useStudyRecorder'
 import { kanaQuizAnswer, questionChar } from '@/lib/learn/practiceSession'
 import type { LearnQuestion, SessionStart } from '@/types/learn'
-import { buildQuestions, type BuildOptions } from './buildQuestions'
-import type { QuizQuestion } from './types'
+import { buildQuestions, buildQuestionsAs, type BuildOptions } from './buildQuestions'
+import type { QuestionKind, QuizQuestion } from './types'
 
 export interface KanaTestQuestions {
   questions: QuizQuestion[]
@@ -29,6 +29,31 @@ export function kanaTestQuestions(session: SessionStart, all: KanaChar[], option
     targets.push(kana)
   }
   return { questions: buildQuestions(targets, all, options), cards }
+}
+
+/** The server's multiple-choice question types as quiz kinds. */
+const KIND_OF_TYPE: Partial<Record<LearnQuestion['question_type'], QuestionKind>> = {
+  kana_mcq_romaji: 'read',
+  kana_mcq_kana: 'find',
+}
+
+/**
+ * A kana unit quiz from a learn API session: every question the server asks,
+ * in its order and the way round it says (see the API's kanaQuizPlan: each
+ * kana up to four times, twice kana → romaji and twice romaji → kana). The
+ * server scores every answer, so nothing is merged; repeats share their card.
+ */
+export function kanaUnitQuizQuestions(session: SessionStart, all: KanaChar[], options: BuildOptions): KanaTestQuestions {
+  const byChar = new Map(all.map((k) => [k.character, k]))
+  const cards = new Map<string, LearnQuestion>()
+  const asks: { target: KanaChar; kind: QuestionKind }[] = []
+  for (const q of session.questions) {
+    const kana = byChar.get(questionChar(q))
+    if (!kana) continue
+    cards.set(kana.id, q)
+    asks.push({ target: kana, kind: KIND_OF_TYPE[q.question_type] ?? 'read' })
+  }
+  return { questions: buildQuestionsAs(asks, all, options), cards }
 }
 
 /** Queues one test answer on the question's card. */

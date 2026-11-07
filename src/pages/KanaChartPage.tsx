@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import type { KanaChar, KanaSection } from '@/types'
 import type { KanaMastery } from '@/types/kanaProgress'
 import { useKanaMastery } from '@/hooks/useKanaProgress'
@@ -18,6 +18,8 @@ import { useCourseUnits } from '@/components/kanaCourse/courseUnits'
 import { useKanaCourse } from '@/pages/kanaCourseContext'
 import { useKanaScript } from '@/context/KanaScriptContext'
 import type { KanaChartMarks, KanaMarkPair, KanaScriptConfig } from '@/lib/content/kana/scripts'
+import { TextLink } from '@/components/ui/TextLink'
+import { unitLearnPath } from '@/components/kanaCourse/unitLinks'
 
 // The sheet (audio, stroke tracing, example word) only loads on first tap.
 const KanaDetailSheet = lazy(() =>
@@ -76,7 +78,7 @@ function focusCard(id: string) {
 
 function PairList({ pairs }: { pairs: readonly KanaMarkPair[] }) {
   return (
-    <ul className="mt-2 grid grid-cols-1 gap-x-6 gap-y-1.5 sm:grid-cols-2">
+    <ul className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1.5 sm:grid-cols-2">
       {pairs.map((p) => (
         <li key={p.to} className="flex items-baseline gap-3">
           <span className="whitespace-nowrap font-jp text-2xl font-bold text-on-surface lg:text-3xl" lang="ja">
@@ -87,7 +89,7 @@ function PairList({ pairs }: { pairs: readonly KanaMarkPair[] }) {
             <span className="sr-only"> becomes </span>
             {p.to}
           </span>
-          <span className="text-xs font-semibold tabular-nums text-on-surface-variant">{p.sound}</span>
+          <span className="whitespace-nowrap text-xs font-semibold tabular-nums text-on-surface-variant">{p.sound}</span>
         </li>
       ))}
     </ul>
@@ -130,15 +132,9 @@ function MarksAside({ marks, basePath }: { marks: KanaChartMarks; basePath: stri
           which sound the same.
         </span>
       </p>
-      <Link
-        to={`${basePath}/unit/${marks.unitId}`}
-        className="mt-auto inline-flex min-h-11 items-center gap-0.5 self-start rounded-lg text-sm font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-      >
+      <TextLink to={unitLearnPath(basePath, marks.unitId)} className="mt-auto self-start">
         Learn them in the Dakuten unit
-        <span aria-hidden className="flex">
-          <Icon name="chevron_right" className="text-lg" />
-        </span>
-      </Link>
+      </TextLink>
     </aside>
   )
 }
@@ -146,7 +142,7 @@ function MarksAside({ marks, basePath }: { marks: KanaChartMarks; basePath: stri
 /**
  * Chart page (/kana/<script>/chart): every kana, tap for the detail sheet.
  * Rendered inside KanaCourseLayout (header, nav and kana data via
- * useKanaCourse). `?set=` picks the visible set (Basic by default).
+ * useKanaCourse). `?set=` picks the visible set (All by default).
  */
 export function KanaChartPage() {
   const script = useKanaScript()
@@ -155,9 +151,8 @@ export function KanaChartPage() {
 
   const chartSets = useMemo(() => chartSetsFor(script, sections), [script, sections])
   const rawSet = searchParams.get('set')
-  // A chart is less intimidating when it opens on the first teachable set;
-  // "All" remains one tap away for learners using it as a reference.
-  const defaultSet = chartSets[0]?.set ?? 'all'
+  // Opens on the whole chart (every set); a single set is one tap away.
+  const defaultSet: ChartSet = 'all'
   const isKnownSet = rawSet === 'all' || chartSets.some((c) => c.set === rawSet)
   const set: ChartSet = isKnownSet && rawSet ? rawSet : defaultSet
 
@@ -213,13 +208,15 @@ export function KanaChartPage() {
       setSearchParams(
         (prev) => {
           const params = new URLSearchParams(prev)
-          params.set('set', next)
+          // The default needs no parameter, so /chart stays a clean URL.
+          if (next === defaultSet) params.delete('set')
+          else params.set('set', next)
           return params
         },
         { replace: true },
       )
     },
-    [setSearchParams],
+    [setSearchParams, defaultSet],
   )
 
   const select = useCallback((char: KanaChar) => {

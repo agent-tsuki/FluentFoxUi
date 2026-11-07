@@ -26,7 +26,7 @@ export function FinalTestCard({ className }: FinalTestCardProps) {
     <article
       aria-labelledby="final-test-title"
       className={cn(
-        'flex flex-col gap-4 rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-4 sm:flex-row sm:items-center sm:p-5 dark:border-outline/60 dark:bg-surface-container-low',
+        'flex flex-col gap-4 rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-4 sm:flex-row sm:items-center sm:p-5 lg:flex-col lg:items-stretch dark:border-outline/60 dark:bg-surface-container-low',
         className,
       )}
     >
@@ -49,7 +49,8 @@ export function FinalTestCard({ className }: FinalTestCardProps) {
           </p>
         </div>
       </div>
-      <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end sm:justify-center sm:gap-2">
+      {/* Beside the text on tablets; under it in the narrow ≥ lg rail. */}
+      <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end sm:justify-center sm:gap-2 lg:flex-row lg:items-center lg:justify-between">
         <TestsStatus best={taken ? finalTest?.best : undefined} passed={passed} />
         <ActionLink to={`${script.basePath}/test`} variant={passed ? 'outline' : 'primary'} className="px-4 text-sm">
           {taken ? 'Retake test' : 'Start test'}

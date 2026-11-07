@@ -4,7 +4,8 @@ import { useKanjiLevel } from '@/context/KanjiLevelContext'
 import { useKanjiCourse } from '@/pages/kanjiCourseContext'
 import { downloadKanjiCertificate } from '@/hooks/useKanji'
 import { getKanjiPath } from '@/api/services/kanjiProgressService'
-import { kanjiLevelTestPath, kanjiSkipPath, kanjiUnitQuizPath } from '@/lib/content/kanji/levels'
+import { kanjiUnitQuizPath } from '@/lib/content/kanji/levels'
+import { useKanjiOverlayLink } from '@/components/kanji/kanjiOverlays'
 import { Icon } from '@/components/ui/Icon'
 import { TESTS_LIST, TestsRow } from '@/components/kanaCourse/TestsRow'
 import { TestsSection } from '@/components/kanaCourse/TestsSection'
@@ -19,6 +20,7 @@ import { levelTestMeta } from '@/components/kanji/KanjiCurriculum'
  */
 export function KanjiTestsPage() {
   const level = useKanjiLevel()
+  const overlayLink = useKanjiOverlayLink()
   const { index } = useKanjiCourse()
   const { units, byId, skipTests, levelTest } = useKanjiCourseUnits(index)
   const { hash } = useLocation()
@@ -37,7 +39,7 @@ export function KanjiTestsPage() {
         <ul className={TESTS_LIST}>
           <li>
             <TestsRow
-              to={kanjiSkipPath(level.id, 'all')}
+              to={overlayLink({ skip: 'all' })}
               leading={<Icon name="bolt" className="text-xl" />}
               title={`All of ${level.label}`}
               detail={`${index.rows.length} kanji · ${index.units.length} units`}
@@ -51,7 +53,7 @@ export function KanjiTestsPage() {
             return (
               <li key={group.id}>
                 <TestsRow
-                  to={kanjiSkipPath(level.id, group.id)}
+                  to={overlayLink({ skip: group.id })}
                   leading={<Icon name="checklist" className="text-xl" />}
                   title={group.title}
                   detail={`${kanji} kanji · ${group.unitIds.length} ${group.unitIds.length === 1 ? 'unit' : 'units'}`}
@@ -85,7 +87,7 @@ export function KanjiTestsPage() {
         <ul className={TESTS_LIST}>
           <li>
             <TestsRow
-              to={kanjiLevelTestPath(level.id)}
+              to={overlayLink({ test: 'level' })}
               leading={<Icon name="emoji_events" className="text-xl" />}
               title={`${level.title} level test`}
               detail={`${level.levelTest.questions} questions · ${level.levelTest.minutes} min`}

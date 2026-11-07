@@ -1,4 +1,5 @@
 import { ActionLink } from '@/components/learn/ActionLink'
+import { useReviewGate } from '@/hooks/useReviewGate'
 import { Icon } from '@/components/ui/Icon'
 import { useLearnSummary } from '@/hooks/useLearnSummary'
 import { LEARNING_TRACKS, TRACK_LABEL, lessonPath, reviewPath } from '@/lib/learn/paths'
@@ -10,6 +11,7 @@ import { DueBadge } from './DueBadge'
  */
 export function TodayPanel() {
   const { summary } = useLearnSummary()
+  const gateReview = useReviewGate()
   const due = summary?.due_now ?? 0
   return (
     <section
@@ -27,7 +29,7 @@ export function TodayPanel() {
         </p>
       )}
       <div className="mt-4 flex flex-wrap gap-2">
-        <ActionLink to={reviewPath()}>
+        <ActionLink to={reviewPath()} onClick={gateReview()}>
           <Icon name="replay" className="text-xl" />
           Review all
           <DueBadge count={due} className="bg-on-primary text-primary" />

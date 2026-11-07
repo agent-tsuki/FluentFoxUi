@@ -19,7 +19,11 @@ import { DEFAULT_KANJI_LEVEL, KANJI_LAST_LEVEL_KEY, KANJI_LEVELS, isKanjiLevelAv
 // The landing page stays eager: it is the first paint for most visitors.
 import { HomePage } from '@/pages/HomePage'
 import { KANJI_TRACK, reviewPath } from '@/lib/learn/paths'
+import { UnitRedirect } from '@/components/kanaCourse/UnitRedirect'
+import { KanjiTestRedirect, KanjiUnitRedirect } from '@/components/kanji/KanjiUnitRedirect'
+import { LEGACY_HASH_SECTION } from '@/lib/dashboard/sections'
 import { LoginLocationPrompt } from '@/components/profile/LoginLocationPrompt'
+import { Toaster } from '@/components/ui/Toaster'
 
 // ─── Lazy routes ──────────────────────────────────────────────────────────────
 // Each page is its own chunk, fetched on first navigation.
@@ -31,8 +35,6 @@ const KanaChartPage     = lazy(KANA_PAGE_LOADERS.chart)
 const KanaTestsPage     = lazy(KANA_PAGE_LOADERS.tests)
 const KanaDownloadsPage = lazy(KANA_PAGE_LOADERS.downloads)
 const KanaPracticePage  = lazy(() => import('@/pages/KanaPracticePage').then(m => ({ default: m.KanaPracticePage })))
-const KanaUnitPage      = lazy(() => import('@/pages/KanaUnitPage').then(m => ({ default: m.KanaUnitPage })))
-const KanaUnitQuizPage  = lazy(() => import('@/pages/KanaUnitQuizPage').then(m => ({ default: m.KanaUnitQuizPage })))
 const KanaFinalTestPage = lazy(() => import('@/pages/KanaFinalTestPage').then(m => ({ default: m.KanaFinalTestPage })))
 const KanaSkipTestPage  = lazy(() => import('@/pages/KanaSkipTestPage').then(m => ({ default: m.KanaSkipTestPage })))
 // The kanji course: one set of pages for every JLPT level with data.
@@ -43,11 +45,7 @@ const KanjiReviewsPage       = lazy(KANJI_PAGE_LOADERS.reviews)
 const KanjiBrowsePage        = lazy(KANJI_PAGE_LOADERS.browse)
 const KanjiTestsPage         = lazy(KANJI_PAGE_LOADERS.tests)
 const KanjiDownloadsPage     = lazy(KANJI_PAGE_LOADERS.downloads)
-const KanjiUnitPage          = lazy(() => import('@/pages/KanjiUnitPage').then(m => ({ default: m.KanjiUnitPage })))
-const KanjiUnitQuizPage      = lazy(() => import('@/pages/KanjiUnitQuizPage').then(m => ({ default: m.KanjiUnitQuizPage })))
 const KanjiPracticePage      = lazy(() => import('@/pages/KanjiPracticePage').then(m => ({ default: m.KanjiPracticePage })))
-const KanjiSkipTestPage      = lazy(() => import('@/pages/KanjiTestPages').then(m => ({ default: m.KanjiSkipTestPage })))
-const KanjiLevelTestPage     = lazy(() => import('@/pages/KanjiTestPages').then(m => ({ default: m.KanjiLevelTestPage })))
 const KanjiDetailPage        = lazy(() => import('@/pages/KanjiDetailPage').then(m => ({ default: m.KanjiDetailPage })))
 const KanjiComingSoonPage    = lazy(() => import('@/pages/KanjiComingSoonPage').then(m => ({ default: m.KanjiComingSoonPage })))
 const LearnLessonPage   = lazy(() => import('@/pages/LearnLessonPage').then(m => ({ default: m.LearnLessonPage })))
@@ -56,7 +54,14 @@ const HowGradingWorksPage = lazy(() => import('@/pages/HowGradingWorksPage').the
 const QuizPage          = lazy(() => import('@/pages/QuizPage').then(m => ({ default: m.QuizPage })))
 const ProfilePage       = lazy(() => import('@/pages/ProfilePage').then(m => ({ default: m.ProfilePage })))
 const GrammarPage       = lazy(() => import('@/pages/GrammarPage').then(m => ({ default: m.GrammarPage })))
-const DashboardPage     = lazy(() => import('@/pages/DashboardPage').then(m => ({ default: m.DashboardPage })))
+const DashboardLayout   = lazy(() => import('@/pages/dashboard/DashboardLayout').then(m => ({ default: m.DashboardLayout })))
+const DashOverviewPage  = lazy(() => import('@/pages/dashboard/OverviewPage').then(m => ({ default: m.OverviewPage })))
+const DashActivityPage  = lazy(() => import('@/pages/dashboard/ActivityPage').then(m => ({ default: m.ActivityPage })))
+const DashKanaPage      = lazy(() => import('@/pages/dashboard/KanaPage').then(m => ({ default: m.KanaPage })))
+const DashKanjiPage     = lazy(() => import('@/pages/dashboard/KanjiPage').then(m => ({ default: m.KanjiPage })))
+const DashGrammarPage   = lazy(() => import('@/pages/dashboard/GrammarProgressPage').then(m => ({ default: m.GrammarProgressPage })))
+const DashReviewPage    = lazy(() => import('@/pages/dashboard/ReviewInsightsPage').then(m => ({ default: m.ReviewInsightsPage })))
+const DashWeakSpotsPage = lazy(() => import('@/pages/dashboard/WeakSpotsPage').then(m => ({ default: m.WeakSpotsPage })))
 const AboutPage         = lazy(() => import('@/pages/AboutPage').then(m => ({ default: m.AboutPage })))
 const TermsPage         = lazy(() => import('@/pages/TermsPage').then(m => ({ default: m.TermsPage })))
 const PrivacyPage       = lazy(() => import('@/pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })))
@@ -107,7 +112,8 @@ function CoursePageSuspense({ children }: { children: ReactNode }) {
 /** Keeps previously shared Progress URLs working while Dashboard is canonical. */
 function ProgressRedirect() {
   const { search, hash } = useLocation()
-  return <Navigate to={{ pathname: '/dashboard', search, hash }} replace />
+  const section = LEGACY_HASH_SECTION[hash]
+  return <Navigate to={{ pathname: section ? `/dashboard/${section}` : '/dashboard', search }} replace />
 }
 
 // ─── Ambient effects ──────────────────────────────────────────────────────────
@@ -171,7 +177,7 @@ function ModalFromUrl() {
 // ─── Layout shell (shared Navbar + Footer + modals) ───────────────────────────
 function Shell() {
   return (
-    <div className="bg-surface text-on-surface transition-colors duration-300 ease-in-out font-body selection:bg-primary-fixed selection:text-primary min-h-dvh flex flex-col relative overflow-x-clip">
+    <div className="app-shell bg-surface text-on-surface transition-colors duration-300 ease-in-out font-body selection:bg-primary-fixed selection:text-primary min-h-dvh flex flex-col relative overflow-x-clip">
       <AmbientBackground />
 
       <div className="relative z-10 flex flex-col min-h-dvh">
@@ -189,6 +195,7 @@ function Shell() {
         <Footer />
         <LazyAuthModal />
         <LoginLocationPrompt />
+        <Toaster />
       </div>
     </div>
   )
@@ -224,8 +231,9 @@ function kanaCourseRoutes(script: RegisteredKanaScriptId): RouteObject {
       },
       { path: 'print',          element: <Navigate to={`${base}/downloads`} replace /> },
       { path: 'practice/:mode', element: <RequireAuth guestPrompt><KanaPracticePage /></RequireAuth> },
-      { path: 'unit/:unitId',   element: <KanaUnitPage /> },
-      { path: 'quiz/:unitId',   element: <RequireAuth guestPrompt><KanaUnitQuizPage /></RequireAuth> },
+      // Units open in place on the Learn page now; old links redirect there.
+      { path: 'unit/:unitId',   element: <UnitRedirect basePath={base} /> },
+      { path: 'quiz/:unitId',   element: <UnitRedirect basePath={base} quiz /> },
       { path: 'test',           element: <RequireAuth guestPrompt><KanaFinalTestPage /></RequireAuth> },
       { path: 'skip/:scope',    element: <RequireAuth guestPrompt><KanaSkipTestPage /></RequireAuth> },
     ],
@@ -257,11 +265,11 @@ function kanjiLevelRoutes(level: KanjiLevelMeta): RouteObject {
           { path: 'downloads',   element: <CoursePageSuspense><KanjiDownloadsPage /></CoursePageSuspense> },
         ],
       },
-      { path: 'unit/:unitId',   element: <KanjiUnitPage /> },
-      { path: 'quiz/:unitId',   element: <RequireAuth guestPrompt><KanjiUnitQuizPage /></RequireAuth> },
+      { path: 'unit/:unitId',   element: <KanjiUnitRedirect /> },
+      { path: 'quiz/:unitId',   element: <KanjiUnitRedirect quiz /> },
       { path: 'practice/:mode', element: <RequireAuth guestPrompt><KanjiPracticePage /></RequireAuth> },
-      { path: 'skip/:scope',    element: <RequireAuth guestPrompt><KanjiSkipTestPage /></RequireAuth> },
-      { path: 'test',           element: <RequireAuth guestPrompt><KanjiLevelTestPage /></RequireAuth> },
+      { path: 'skip/:scope',    element: <KanjiTestRedirect /> },
+      { path: 'test',           element: <KanjiTestRedirect levelTest /> },
       { path: '*',              element: <Navigate to={base} replace /> },
     ],
   }
@@ -330,8 +338,19 @@ const router = createBrowserRouter([
 
       // ── Protected routes ─────────────────────────────────────────────────
       {
+        // Dashboard: its own left sidebar (tabs on phones) and one page per section.
         path: 'dashboard',
-        element: <RequireAuth><DashboardPage /></RequireAuth>,
+        element: <RequireAuth><DashboardLayout /></RequireAuth>,
+        children: [
+          { index: true,         element: <DashOverviewPage /> },
+          { path: 'activity',    element: <DashActivityPage /> },
+          { path: 'kana',        element: <DashKanaPage /> },
+          { path: 'kanji',       element: <DashKanjiPage /> },
+          { path: 'grammar',     element: <DashGrammarPage /> },
+          { path: 'review',      element: <DashReviewPage /> },
+          { path: 'weak-spots',  element: <DashWeakSpotsPage /> },
+          { path: '*',           element: <Navigate to="/dashboard" replace /> },
+        ],
       },
       {
         // Dashboard now contains the former Progress view; retain old links.

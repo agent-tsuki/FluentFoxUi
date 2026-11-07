@@ -1,7 +1,20 @@
-import { useEffect, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+import type { KanjiUnit } from '@/types/kanji'
+import type { LearningTrack } from '@/types/learn'
 import { useKanjiLevel } from '@/context/KanjiLevelContext'
-import { useReducedMotion } from '@/hooks/useReducedMotion'
+import { useAuth } from '@/context/AuthContext'
+import { useKanjiLevelData } from '@/hooks/useKanji'
+import { useUnitAccordionParams, type UnitAccordionParams } from '@/hooks/useUnitAccordionParams'
+import { UnitAccordionContext } from '@/components/kanaCourse/unitAccordion'
+import { SessionDialog } from '@/components/kanaCourse/SessionDialog'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { ErrorState } from '@/components/ui/ErrorState'
+import { LoadingState } from '@/components/ui/LoadingState'
+import { KanjiUnitQuiz } from '@/components/kanji/KanjiUnitQuiz'
+import { KanjiPracticeSession } from '@/components/kanji/KanjiPracticeSession'
+import { isKanjiPracticeMode, type KanjiPracticeModeId } from '@/components/kanji/practiceModes'
+import { kanjiTrack } from '@/lib/learn/practiceSession'
 import { useKanjiCourse } from '@/pages/kanjiCourseContext'
 import { Icon } from '@/components/ui/Icon'
 import { STICKY_RAIL_TOP } from '@/components/kanaCourse/courseUnits'
@@ -12,20 +25,22 @@ import { KANJI_PRACTICE_MODES } from '@/components/kanji/practiceModes'
 import { kanjiPracticePath } from '@/lib/content/kanji/levels'
 import { cn } from '@/lib/cn'
 
-const HIGHLIGHT_MS = 2000
-
 /**
  * Course page of a kanji level (/kanji/<level>): Today (reviews, new kanji,
  * next unit, forecast), the themed unit groups and the level test, with a
- * Practice rail at `lg`. Inside KanjiCourseLayout.
+ * Practice rail at `lg`. A unit opens in place under its row (`?unit=<id>`),
+ * its quiz and practice modes as popups on top (`&quiz=1`, `&practice=<mode>`),
+ * like the kana Learn page; the old unit and quiz pages redirect here.
+ * Inside KanjiCourseLayout.
  */
 export function KanjiCoursePage() {
   const { index } = useKanjiCourse()
   const { byId, next, isFresh, levelTest } = useKanjiCourseUnits(index)
-  const highlightId = useUnitHashTarget()
+  const unitIds = useMemo(() => index.units.map((u) => u.id), [index.units])
+  const accordion = useUnitAccordionParams(unitIds, isPracticeMode)
 
   return (
-    <>
+    <UnitAccordionContext.Provider value={accordion}>
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start lg:gap-10">
         <div className="min-w-0 space-y-8 md:space-y-10">
           <KanjiTodayCard next={next} isFresh={isFresh} unitCount={index.units.length} levelTest={levelTest} />
@@ -36,7 +51,6 @@ export function KanjiCoursePage() {
                 group={group}
                 units={group.unitIds.flatMap((id) => byId.get(id) ?? [])}
                 nextId={next?.unit.id}
-                highlightId={highlightId}
               />
             ))}
             <KanjiLevelTestRow result={levelTest} kanjiCount={index.rows.length} />
@@ -45,7 +59,106 @@ export function KanjiCoursePage() {
         <PracticeRail />
       </div>
       <p className="mt-10 text-xs text-on-surface-variant">Progress is saved to your account when you are signed in; print marks stay on this device.</p>
+      <UnitOverlays accordion={accordion} />
+    </UnitAccordionContext.Provider>
+  )
+}
+
+const isPracticeMode = (mode: string | null): mode is KanjiPracticeModeId => isKanjiPracticeMode(mode ?? undefined)
+
+/**
+ * The open unit's quiz or practice popup. Both need a signed-in learner (the
+ * quiz button asks a guest to sign in first); levels the learn API doesn't
+ * serve yet say so instead.
+ */
+function UnitOverlays({ accordion }: { accordion: UnitAccordionParams<KanjiPracticeModeId> }) {
+  const level = useKanjiLevel()
+  const { index } = useKanjiCourse()
+  const { user } = useAuth()
+  const [running, setRunning] = useState(false)
+  const track = kanjiTrack(level.id)
+  const quizUnit = accordion.quizId && user ? index.units.find((u) => u.id === accordion.quizId) : undefined
+  const practice = accordion.practice && user ? accordion.practice : null
+  const practiceUnit = practice ? index.units.find((u) => u.id === practice.unitId) : undefined
+
+  const comingSoon = (
+    <EmptyState
+      icon="schedule"
+      title={`${level.label} quizzes and practice are coming soon`}
+      description="They are saved to your account, and for now that works for N5 kanji."
+      actionLabel="Back to the unit"
+      onAction={accordion.closeOverlay}
+    />
+  )
+
+  return (
+    <>
+      <SessionDialog
+        open={Boolean(quizUnit)}
+        label={quizUnit ? `${quizUnit.title} quiz` : 'Quiz'}
+        onClose={accordion.closeOverlay}
+        dismissable={!running}
+      >
+        {quizUnit &&
+          (track ? (
+            <QuizLoader
+              key={quizUnit.id}
+              unit={quizUnit}
+              next={index.units[index.units.indexOf(quizUnit) + 1]}
+              track={track}
+              onExit={accordion.closeOverlay}
+              onRunningChange={setRunning}
+            />
+          ) : (
+            comingSoon
+          ))}
+      </SessionDialog>
+      <SessionDialog
+        open={practice !== null}
+        label={practiceUnit ? `${practiceUnit.title} practice` : 'Practice'}
+        onClose={accordion.closeOverlay}
+      >
+        {practice &&
+          (track ? (
+            <KanjiPracticeSession
+              key={`${practice.unitId}-${practice.mode}`}
+              mode={practice.mode}
+              track={track}
+              unitId={practice.unitId}
+              onExit={accordion.closeOverlay}
+            />
+          ) : (
+            comingSoon
+          ))}
+      </SessionDialog>
     </>
+  )
+}
+
+interface QuizLoaderProps {
+  unit: KanjiUnit
+  next?: KanjiUnit
+  track: LearningTrack
+  onExit: () => void
+  onRunningChange: (running: boolean) => void
+}
+
+/** Loads every kanji's details (the quiz's answer options) once a quiz opens, then runs it. */
+function QuizLoader({ unit, next, track, onExit, onRunningChange }: QuizLoaderProps) {
+  const level = useKanjiLevel()
+  const { data, error, refetch } = useKanjiLevelData(level.id)
+  if (error) return <ErrorState message="We couldn't load this quiz." onRetry={refetch} />
+  if (!data) return <LoadingState label="Loading quiz…" className="p-6" />
+  return (
+    <KanjiUnitQuiz
+      unit={unit}
+      next={next}
+      track={track}
+      byChar={data.byChar}
+      pool={data.entries}
+      onExit={onExit}
+      onRunningChange={onRunningChange}
+    />
   )
 }
 
@@ -77,27 +190,4 @@ function PracticeRail() {
       </ul>
     </aside>
   )
-}
-
-/** Scrolls to `#unit-<id>` on arrival (the unit page's back link), focuses and briefly tints the row. */
-function useUnitHashTarget(): string | undefined {
-  const { hash } = useLocation()
-  const reducedMotion = useReducedMotion()
-  const [highlightId, setHighlightId] = useState<string>()
-
-  useEffect(() => {
-    const id = decodeURIComponent(hash.slice(1))
-    if (!id.startsWith('unit-')) return
-    const target = document.getElementById(id)
-    if (!target) return
-    target.scrollIntoView({ block: 'center', behavior: reducedMotion ? 'auto' : 'smooth' })
-    target.focus({ preventScroll: true })
-    setHighlightId(id.slice('unit-'.length))
-    const timer = window.setTimeout(() => setHighlightId(undefined), HIGHLIGHT_MS)
-    return () => window.clearTimeout(timer)
-    // Only on arrival / hash change.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hash])
-
-  return highlightId
 }

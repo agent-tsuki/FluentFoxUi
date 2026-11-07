@@ -90,7 +90,7 @@ export function ModalSidebar({ tab, onGoogle, onX }: ModalSidebarProps) {
       </div>
 
       {/* Bottom: social sign-in sheet rising from the panel edge */}
-      <SocialAuthSheet onGoogle={onGoogle} onX={onX} />
+      <SocialAuthSheet onGoogle={onGoogle} onX={onX} tall={tab === 'signup'} />
     </div>
   )
 }

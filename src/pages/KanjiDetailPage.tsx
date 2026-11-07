@@ -23,6 +23,7 @@ import { kanjiGlyph } from '@/components/kanji/kanjiGlyph'
 import { KanjiDataCredit } from '@/components/kanji/KanjiCourseHeader'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { cn } from '@/lib/cn'
+import { TextLink } from '@/components/ui/TextLink'
 
 /**
  * The kanji page (/kanji/日, shareable): stroke order and tracing, meanings,
@@ -142,7 +143,7 @@ function Section({ id, title, children, className }: { id: string; title: string
 }
 
 function EntryView({ entry, indexes }: { entry: KanjiEntry; indexes: KanjiLevelIndex[] }) {
-  const { speak, supported } = useJapaneseSpeech()
+  const { speak, supported, loadingText } = useJapaneseSpeech()
   const level = kanjiLevelMeta(entry.jlpt)
   const track = kanjiTrack(entry.jlpt)
   const { user } = useAuth()
@@ -170,13 +171,9 @@ function EntryView({ entry, indexes }: { entry: KanjiEntry; indexes: KanjiLevelI
           </h1>
           {entry.meanings.length > 1 && <p className="mt-1 text-on-surface-variant">{entry.meanings.slice(1).join(', ')}</p>}
           {unit && (
-            <Link
-              to={kanjiUnitPath(entry.jlpt, unit.id)}
-              className="-ml-2 mt-2 inline-flex min-h-11 items-center gap-1 rounded-xl px-2 text-sm font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            >
+            <TextLink to={kanjiUnitPath(entry.jlpt, unit.id)} leadingIcon="school" className="mt-2">
               {level.title} · Unit {unitNumber}: {unit.title}
-              <Icon name="chevron_right" className="text-lg" />
-            </Link>
+            </TextLink>
           )}
         </header>
 
@@ -204,7 +201,7 @@ function EntryView({ entry, indexes }: { entry: KanjiEntry; indexes: KanjiLevelI
                   </p>
                   <p className="text-sm text-on-surface-variant">{v.meaning}</p>
                 </div>
-                {supported && <SpeakerButton onClick={() => speak(v.reading)} label={`Play ${v.word}`} />}
+                {supported && <SpeakerButton onClick={() => speak(v.reading)} label={`Play ${v.word}`} loading={loadingText === v.reading} />}
               </li>
             ))}
           </ul>

@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { lazy, memo, Suspense } from 'react'
 import { Link } from 'react-router-dom'
 import type { KanjiGroup } from '@/types/kanji'
 import type { FinalTestResult } from '@/api/services/learningPathService'
@@ -8,10 +8,15 @@ import { StatusIcon } from '@/components/kanaCourse/StatusIcon'
 import { ROW_LIST } from '@/components/kanaCourse/CurriculumGroup'
 import { HASH_SCROLL_MARGIN } from '@/components/kanaCourse/courseUnits'
 import { useKanjiLevel } from '@/context/KanjiLevelContext'
-import { kanjiLevelTestPath, kanjiSkipPath, kanjiUnitPath } from '@/lib/content/kanji/levels'
+import { LoadingState, SkeletonBlock } from '@/components/ui/LoadingState'
+import { useUnitAccordion } from '@/components/kanaCourse/unitAccordion'
 import type { KanjiLevelConfig } from '@/lib/content/kanji/courseTypes'
 import { cn } from '@/lib/cn'
 import { percent, type KanjiUnitView } from './kanjiUnits'
+import { useKanjiOverlayLink } from './kanjiOverlays'
+
+// The steps load with the first opened row, not with the course page.
+const KanjiUnitPanel = lazy(() => import('./KanjiUnitPanel').then((m) => ({ default: m.KanjiUnitPanel })))
 
 const QUIET_LINK =
   'inline-flex min-h-11 shrink-0 items-center gap-0.5 rounded-xl px-2 text-sm font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
@@ -25,11 +30,10 @@ interface KanjiCurriculumGroupProps {
   group: KanjiGroup
   units: KanjiUnitView[]
   nextId?: string
-  highlightId?: string
 }
 
-export function KanjiCurriculumGroup({ group, units, nextId, highlightId }: KanjiCurriculumGroupProps) {
-  const level = useKanjiLevel()
+export function KanjiCurriculumGroup({ group, units, nextId }: KanjiCurriculumGroupProps) {
+  const overlayLink = useKanjiOverlayLink()
   const done = units.filter((u) => u.complete).length
   const allTestedOut = units.length > 0 && units.every((u) => u.state === 'skipped')
   const headingId = `group-${group.id}`
@@ -63,7 +67,7 @@ export function KanjiCurriculumGroup({ group, units, nextId, highlightId }: Kanj
             Tested out
           </span>
         ) : (
-          <Link to={kanjiSkipPath(level.id, group.id)} aria-label={`Test out of ${group.title}`} className={cn(QUIET_LINK, '-mr-2')}>
+          <Link to={overlayLink({ skip: group.id })} aria-label={`Test out of ${group.title}`} className={cn(QUIET_LINK, '-mr-2')}>
             Test out
             <Icon name="chevron_right" className="text-lg" />
           </Link>
@@ -72,7 +76,7 @@ export function KanjiCurriculumGroup({ group, units, nextId, highlightId }: Kanj
 
       <ol aria-label={`${group.title} units`} className={ROW_LIST}>
         {units.map((view) => (
-          <KanjiUnitRow key={view.unit.id} view={view} isNext={view.unit.id === nextId} highlighted={view.unit.id === highlightId} />
+          <KanjiUnitRow key={view.unit.id} view={view} isNext={view.unit.id === nextId} />
         ))}
       </ol>
     </section>
@@ -96,25 +100,33 @@ export function kanjiUnitStatusText(view: KanjiUnitView, isNext: boolean): strin
 interface KanjiUnitRowProps {
   view: KanjiUnitView
   isNext: boolean
-  highlighted: boolean
 }
 
-/** One unit row: a single link to the unit page, with its kanji and status (icon + text). */
-const KanjiUnitRow = memo(function KanjiUnitRow({ view, isNext, highlighted }: KanjiUnitRowProps) {
-  const level = useKanjiLevel()
+/**
+ * One unit row: a button that opens the unit's steps right under it (one row
+ * open at a time, kept in the URL as `?unit=<id>`), like the kana Learn page.
+ * Carries `id="unit-<id>"` for scrolling to it; status is icon + text.
+ */
+const KanjiUnitRow = memo(function KanjiUnitRow({ view, isNext }: KanjiUnitRowProps) {
   const { unit, number } = view
+  const accordion = useUnitAccordion()
+  const open = accordion?.openId === unit.id
+  const panelId = `unit-panel-${unit.id}`
 
   return (
     <li>
-      <Link
+      <button
+        type="button"
         id={`unit-${unit.id}`}
-        to={kanjiUnitPath(level.id, unit.id)}
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => accordion?.toggle(unit.id)}
         className={cn(
-          'group relative flex min-h-16 items-center gap-3 px-3 py-3 transition-colors duration-700 ease-out motion-reduce:transition-none sm:px-4',
+          'group relative flex min-h-16 w-full items-center gap-3 px-3 py-3 text-left transition-colors sm:px-4',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary',
           HASH_SCROLL_MARGIN,
           isNext && 'before:absolute before:inset-y-0 before:left-0 before:w-0.5 before:bg-primary',
-          highlighted ? 'bg-primary/10' : 'hover:bg-surface-container-low',
+          open ? 'bg-surface-container-low' : 'hover:bg-surface-container-low',
         )}
       >
         <StatusIcon state={view.state} />
@@ -139,9 +151,31 @@ const KanjiUnitRow = memo(function KanjiUnitRow({ view, isNext, highlighted }: K
           </span>
         </span>
         <span aria-hidden className="flex shrink-0">
-          <Icon name="chevron_right" className="text-xl text-on-surface-variant transition-transform motion-safe:group-hover:translate-x-0.5" />
+          <Icon
+            name="expand_more"
+            className={cn('text-xl text-on-surface-variant transition-transform duration-200 motion-reduce:transition-none', open && 'rotate-180')}
+          />
         </span>
-      </Link>
+      </button>
+      {open && accordion && (
+        <div id={panelId} role="region" aria-labelledby={`unit-${unit.id}`} className="border-t border-outline-variant/40 bg-surface">
+          <Suspense
+            fallback={
+              <LoadingState label="Loading the unit…" className="space-y-3 p-6">
+                <SkeletonBlock className="h-6 w-40 rounded-xl" />
+                <SkeletonBlock className="h-24 w-full rounded-2xl" />
+              </LoadingState>
+            }
+          >
+            <KanjiUnitPanel
+              unit={unit}
+              number={number}
+              onStartQuiz={() => accordion.startQuiz(unit.id)}
+              onStartPractice={(mode) => accordion.startPractice(unit.id, mode)}
+            />
+          </Suspense>
+        </div>
+      )}
     </li>
   )
 })
@@ -155,13 +189,14 @@ export function levelTestMeta(level: KanjiLevelConfig, kanjiCount: number): stri
 /** The last curriculum row: the level test (never locked). */
 export function KanjiLevelTestRow({ result, kanjiCount }: { result?: FinalTestResult; kanjiCount: number }) {
   const level = useKanjiLevel()
+  const overlayLink = useKanjiOverlayLink()
   const passed = Boolean(result?.passedAt)
   const status = passed && result ? `Passed · best ${percent(result.best)}` : result ? `Best ${percent(result.best)}` : 'Best —'
 
   return (
     <div className={ROW_LIST}>
       <Link
-        to={kanjiLevelTestPath(level.id)}
+        to={overlayLink({ test: 'level' })}
         className="group flex min-h-16 items-center gap-3 px-3 py-3 hover:bg-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary sm:px-4"
       >
         <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">

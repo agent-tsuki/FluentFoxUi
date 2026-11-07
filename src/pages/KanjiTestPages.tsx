@@ -1,19 +1,15 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { Navigate, useNavigate, useParams } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { KanjiEntry, KanjiLevelIndex } from '@/types/kanji'
 import { useKanjiLevel } from '@/context/KanjiLevelContext'
-import { useKanjiLevelData } from '@/hooks/useKanji'
 import { getKanjiPath } from '@/api/services/kanjiProgressService'
 import type { AnswerTimerControls } from '@/hooks/useAnswerTimer'
 import { useLearnTest } from '@/hooks/useLearnTest'
-import { finalTestRequest, kanjiTrack, skipTestRequest } from '@/lib/learn/practiceSession'
+import { finalTestRequest, skipTestRequest } from '@/lib/learn/practiceSession'
 import type { LearnQuestion, LearningTrack, SessionStart } from '@/types/learn'
 import { TestGate } from '@/components/learnSession/TestGate'
 import { kanjiTestQuestions, saveKanjiTestAnswer } from '@/components/kanjiQuiz/testQuestions'
-import { KanjiTestsComingSoon } from '@/components/kanji/KanjiTestsComingSoon'
 import { kanjiLevelPagePath, kanjiLevelPath } from '@/lib/content/kanji/levels'
-import { LoadingState } from '@/components/ui/LoadingState'
-import { ErrorState } from '@/components/ui/ErrorState'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { PracticeShell } from '@/components/practice/PracticeShell'
@@ -24,8 +20,12 @@ import { useKanjiQuizSession } from '@/components/kanjiQuiz/useKanjiQuizSession'
 import type { KanjiAnswer, KanjiQuestion } from '@/components/kanjiQuiz/types'
 import { formatPercent } from '@/components/kanaCourse/testsPercent'
 
-function Frame({ children }: { children: ReactNode }) {
-  return <main className="min-h-dvh bg-surface pt-nav">{children}</main>
+/** Reports whether questions are being answered, and false when the test closes. */
+function useRunningFlag(running: boolean, onChange?: (running: boolean) => void) {
+  useEffect(() => {
+    onChange?.(running)
+  }, [running, onChange])
+  useEffect(() => () => onChange?.(false), [onChange])
 }
 
 function Intro({ title, lines, onStart, onExit }: { title: string; lines: string[]; onStart: () => void; onExit: () => void }) {
@@ -54,40 +54,6 @@ function Intro({ title, lines, onStart, onExit }: { title: string; lines: string
 
 // ─── Test out ────────────────────────────────────────────────────────────────
 
-/**
- * /kanji/<level>/skip/:scope — test out of the whole level (`all`) or one
- * group on the learn API (see SkipTest).
- */
-export function KanjiSkipTestPage() {
-  const level = useKanjiLevel()
-  const { scope = 'all' } = useParams<{ scope: string }>()
-  const { data, isLoading, error, refetch } = useKanjiLevelData(level.id)
-  const group = data?.index.groups.find((g) => g.id === scope)
-  const navigate = useNavigate()
-  const track = kanjiTrack(level.id)
-  if (data && scope !== 'all' && !group) return <Navigate to={kanjiLevelPagePath(level.id, 'tests')} replace />
-  if (!track) return <KanjiTestsComingSoon levelLabel={level.label} onBack={() => navigate(kanjiLevelPath(level.id))} />
-
-  return (
-    <Frame>
-      {isLoading && <LoadingState label="Loading test…" className="mx-auto max-w-xl px-4 pt-6" />}
-      {error && <ErrorState message="We couldn't load this test." onRetry={refetch} />}
-      {data && (
-        <SkipTest
-          key={scope}
-          scope={scope}
-          track={track}
-          title={group ? `Test out: ${group.title}` : `Test out of ${level.label}`}
-          index={data.index}
-          unitIds={group ? group.unitIds : data.index.units.map((u) => u.id)}
-          byChar={data.byChar}
-          pool={data.entries}
-        />
-      )}
-    </Frame>
-  )
-}
-
 interface SkipTestProps {
   scope: string
   title: string
@@ -96,19 +62,25 @@ interface SkipTestProps {
   unitIds: string[]
   byChar: ReadonlyMap<string, KanjiEntry>
   pool: KanjiEntry[]
+  /** Leave the test; defaults to the Tests page. */
+  onExit?: () => void
+  /** True while questions are being answered (a popup around it then can't be dismissed). */
+  onRunningChange?: (running: boolean) => void
 }
 
 /**
- * The test-out on the learn API: the server asks the meaning and reading of
+ * The test-out of a whole level (`all`) or one group, as a popup
+ * (KanjiTestOverlays), on the learn API: the server asks the meaning and reading of
  * every kanji in scope and scores the whole scope. Passing schedules them all
  * as known, so every unit in scope is marked tested out; the per-unit
  * breakdown shows where to start otherwise.
  */
-function SkipTest({ scope, title, track, index, unitIds, byChar, pool }: SkipTestProps) {
+export function SkipTest({ scope, title, track, index, unitIds, byChar, pool, onExit, onRunningChange }: SkipTestProps) {
   const level = useKanjiLevel()
   const navigate = useNavigate()
   const [started, setStarted] = useState(false)
-  const back = useCallback(() => navigate(kanjiLevelPagePath(level.id, 'tests')), [navigate, level.id])
+  const toTests = useCallback(() => navigate(kanjiLevelPagePath(level.id, 'tests')), [navigate, level.id])
+  const back = onExit ?? toTests
   const units = useMemo(() => index.units.filter((u) => unitIds.includes(u.id)), [index, unitIds])
 
   const quiz = useKanjiQuizSession(() => [], () => undefined)
@@ -129,6 +101,7 @@ function SkipTest({ scope, title, track, index, unitIds, byChar, pool }: SkipTes
   useEffect(() => {
     if (started && quiz.done) submit(quiz.questions.length)
   }, [started, quiz.done, quiz.questions.length, submit])
+  useRunningFlag(started && !quiz.done, onRunningChange)
 
   const outcome = check.state === 'done' ? check.outcome : undefined
   useEffect(() => {
@@ -196,7 +169,7 @@ function SkipTest({ scope, title, track, index, unitIds, byChar, pool }: SkipTes
         }
         actions={
           <>
-            <Button onClick={() => navigate(kanjiLevelPath(level.id))} className="flex min-h-12 items-center justify-center gap-2">
+            <Button onClick={onExit ?? (() => navigate(kanjiLevelPath(level.id)))} className="flex min-h-12 items-center justify-center gap-2">
               <Icon name="arrow_forward" className="text-xl" /> Back to the course
             </Button>
             <Button variant="outline" onClick={test.retake} className="flex min-h-12 items-center justify-center gap-2">
@@ -212,32 +185,28 @@ function SkipTest({ scope, title, track, index, unitIds, byChar, pool }: SkipTes
 // ─── Level test ──────────────────────────────────────────────────────────────
 
 /**
- * /kanji/<level>/test — the timed level test on the learn API: the meaning
- * and reading of every kanji of the level, some typed. Passing unlocks the
- * level certificate on the Tests page.
+ * The timed level test on the learn API: the meaning and reading of every
+ * kanji of the level, some typed. Passing unlocks the level certificate on
+ * the Tests page. Opens as a popup (KanjiTestOverlays).
  */
-export function KanjiLevelTestPage() {
-  const level = useKanjiLevel()
-  const { data, isLoading, error, refetch } = useKanjiLevelData(level.id)
-  const navigate = useNavigate()
-  const track = kanjiTrack(level.id)
-  if (!track) return <KanjiTestsComingSoon levelLabel={level.label} onBack={() => navigate(kanjiLevelPath(level.id))} />
-  return (
-    <Frame>
-      {isLoading && <LoadingState label="Loading test…" className="mx-auto max-w-xl px-4 pt-6" />}
-      {error && <ErrorState message="We couldn't load the level test." onRetry={refetch} />}
-      {data && <LevelTest track={track} byChar={data.byChar} entries={data.entries} />}
-    </Frame>
-  )
+interface LevelTestProps {
+  track: LearningTrack
+  byChar: ReadonlyMap<string, KanjiEntry>
+  entries: KanjiEntry[]
+  /** Leave the test; defaults to the Tests page. */
+  onExit?: () => void
+  /** True while questions are being answered (a popup around it then can't be dismissed). */
+  onRunningChange?: (running: boolean) => void
 }
 
-function LevelTest({ track, byChar, entries }: { track: LearningTrack; byChar: ReadonlyMap<string, KanjiEntry>; entries: KanjiEntry[] }) {
+export function LevelTest({ track, byChar, entries, onExit, onRunningChange }: LevelTestProps) {
   const level = useKanjiLevel()
   const navigate = useNavigate()
   const { minutes, passMark } = level.levelTest
   const [started, setStarted] = useState(false)
   const title = `${level.title} level test`
-  const back = useCallback(() => navigate(kanjiLevelPagePath(level.id, 'tests')), [navigate, level.id])
+  const toTests = useCallback(() => navigate(kanjiLevelPagePath(level.id, 'tests')), [navigate, level.id])
+  const back = onExit ?? toTests
 
   const [elapsedAtEnd, setElapsedAtEnd] = useState(0)
   const elapsedMs = useRef<() => number>(() => 0)
@@ -264,6 +233,7 @@ function LevelTest({ track, byChar, entries }: { track: LearningTrack; byChar: R
   useEffect(() => {
     if (started && quiz.done) submit(quiz.questions.length)
   }, [started, quiz.done, quiz.questions.length, submit])
+  useRunningFlag(started && !quiz.done, onRunningChange)
 
   const outcome = check.state === 'done' ? check.outcome : undefined
   useEffect(() => {

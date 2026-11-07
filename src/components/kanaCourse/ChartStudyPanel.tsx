@@ -1,7 +1,8 @@
-import { Link } from 'react-router-dom'
 import { Icon } from '@/components/ui/Icon'
 import { ActionLink } from '@/components/learn/ActionLink'
 import type { CourseUnitView } from './courseUnits'
+import { TextLink } from '@/components/ui/TextLink'
+import { unitLearnPath } from '@/components/kanaCourse/unitLinks'
 
 interface ChartStudyPanelProps {
   basePath: string
@@ -26,7 +27,7 @@ export function ChartStudyPanel({
   kanaInView,
 }: ChartStudyPanelProps) {
   const courseFinished = !next
-  const target = courseFinished ? `${basePath}/test` : `${basePath}/unit/${next.unit.id}`
+  const target = courseFinished ? `${basePath}/test` : unitLearnPath(basePath, next.unit.id)
 
   return (
     <aside
@@ -64,17 +65,17 @@ export function ChartStudyPanel({
         <p className="text-xs font-semibold uppercase tracking-[0.12em] text-on-surface-variant">
           {courseFinished ? 'Ready for your milestone' : `Next in Learn · Unit ${next.number}`}
         </p>
-        <p className="mt-1 font-headline text-lg font-bold text-on-surface">
-          {courseFinished ? 'Take the final check' : next.unit.title}
+        {/* Unit name and its kana on one line; the kana gives way first in a narrow card. */}
+        <p className="mt-1 flex min-w-0 items-baseline gap-2.5 font-headline text-lg font-bold text-on-surface">
+          <span className="shrink-0">{courseFinished ? 'Take the final check' : next.unit.title}</span>
+          {!courseFinished && (
+            <span lang="ja" className="truncate font-jp font-normal text-on-surface-variant">
+              {next.preview.text}{next.preview.truncated && '…'}
+            </span>
+          )}
         </p>
-        {!courseFinished && (
-          <p lang="ja" className="mt-0.5 font-jp text-lg text-on-surface-variant">
-            {next.preview.text}{next.preview.truncated && '…'}
-          </p>
-        )}
         <ActionLink to={target} className="mt-4 w-full px-3 text-sm">
           {courseFinished ? 'Open final check' : 'Learn this row'}
-          <Icon name="arrow_forward" className="text-lg" />
         </ActionLink>
       </div>
 
@@ -89,12 +90,9 @@ export function ChartStudyPanel({
         </div>
       </dl>
 
-      <Link
-        to={`${basePath}/downloads`}
-        className="mt-5 inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-      >
-        Print a chart for review <Icon name="chevron_right" className="text-lg" />
-      </Link>
+      <TextLink to={`${basePath}/downloads`} leadingIcon="print" className="mt-5">
+        Print a chart for review
+      </TextLink>
     </aside>
   )
 }

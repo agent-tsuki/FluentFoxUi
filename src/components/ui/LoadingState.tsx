@@ -3,7 +3,7 @@ import { cn } from '@/lib/cn'
 
 /**
  * LoadingState — accessible placeholder for an in-flight async view. Pass `children`
- * composed of <SkeletonBlock>s that mirror the real layout (see DashboardPage's
+ * composed of <SkeletonBlock>s that mirror the real layout (see the dashboard pages'
  * DashboardSkeleton for the reference shape); omit `children` for a generic 3-line
  * skeleton. Always prefer this over a bare spinner, `null`, or "loading..." text.
  */

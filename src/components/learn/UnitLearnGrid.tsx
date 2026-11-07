@@ -63,9 +63,10 @@ export function UnitLearnGrid({ kana, onLearned }: UnitLearnGridProps) {
 
   return (
     <>
-      <div className={cn('grid gap-2 sm:gap-4', fiveAcross ? 'grid-cols-5' : 'grid-cols-3 max-w-md')}>
+      {/* Compact tiles: the grid sits inside a unit's open row on the Learn page. */}
+      <div className={cn('grid max-w-lg gap-2', fiveAcross ? 'grid-cols-5' : 'grid-cols-3 sm:grid-cols-5')}>
         {kana.map((char) => (
-          <CharCard key={char.id} char={char} size="lg" mastery={mastery(char.id)} onSelect={select} />
+          <CharCard key={char.id} char={char} size="sm" mastery={mastery(char.id)} onSelect={select} />
         ))}
       </div>
 

@@ -13,8 +13,12 @@ interface UnitPrintButtonProps {
 
 type Status = 'idle' | 'working' | 'error'
 
-/** Builds the unit's A4 worksheet in the browser. jsPDF only loads on click. */
-export function UnitPrintButton({ unit, kana }: UnitPrintButtonProps) {
+/**
+ * Builds and saves the unit's A4 worksheet PDF in the browser (jsPDF loads on
+ * first use) and ticks the unit's Print step. Shared by the Print page's
+ * button and the Learn page's Download PDF button.
+ */
+export function useUnitWorksheet(unit: KanaUnit, kana: KanaChar[]): { download: () => Promise<boolean>; status: Status } {
   const script = useKanaScript()
   const path = useLearningPathStore()
   const [status, setStatus] = useState<Status>('idle')
@@ -26,10 +30,19 @@ export function UnitPrintButton({ unit, kana }: UnitPrintButtonProps) {
       await generateUnitWorksheet(script, unit, kana)
       path.markPrinted(unit.id)
       setStatus('idle')
+      return true
     } catch {
       setStatus('error')
+      return false
     }
   }, [script, path, unit, kana])
+
+  return { download, status }
+}
+
+/** Builds the unit's A4 worksheet in the browser. jsPDF only loads on click. */
+export function UnitPrintButton({ unit, kana }: UnitPrintButtonProps) {
+  const { download, status } = useUnitWorksheet(unit, kana)
 
   const working = status === 'working'
 
@@ -38,7 +51,7 @@ export function UnitPrintButton({ unit, kana }: UnitPrintButtonProps) {
       <Button
         type="button"
         variant="outline"
-        onClick={download}
+        onClick={() => void download()}
         disabled={working}
         aria-busy={working}
         className="inline-flex min-h-11 items-center gap-2 disabled:cursor-wait disabled:opacity-70"

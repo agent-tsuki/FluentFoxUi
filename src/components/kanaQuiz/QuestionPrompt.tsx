@@ -8,6 +8,8 @@ interface QuestionPromptProps {
   number: number
   total: number
   onReplay: () => void
+  /** The listening question's sound is still loading: the play button shows a spinner. */
+  loading?: boolean
 }
 
 const ASK: Record<QuizQuestion['kind'], string> = {
@@ -22,7 +24,7 @@ const ASK: Record<QuizQuestion['kind'], string> = {
  * readers announce it.
  */
 export const QuestionPrompt = forwardRef<HTMLHeadingElement, QuestionPromptProps>(function QuestionPrompt(
-  { question, number, total, onReplay },
+  { question, number, total, onReplay, loading = false },
   ref,
 ) {
   const { kind, target } = question
@@ -64,10 +66,14 @@ export const QuestionPrompt = forwardRef<HTMLHeadingElement, QuestionPromptProps
           <button
             type="button"
             onClick={onReplay}
-            aria-label="Play the sound"
+            aria-label={loading ? 'Loading the sound' : 'Play the sound'}
+            aria-busy={loading || undefined}
             className="flex h-24 w-24 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform duration-150 hover:bg-primary/15 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface motion-reduce:transition-none sm:h-28 sm:w-28"
           >
-            <Icon name="volume_up" className="text-5xl" />
+            <Icon
+              name={loading ? 'progress_activity' : 'volume_up'}
+              className={cn('text-5xl', loading && 'animate-spin motion-reduce:animate-none')}
+            />
           </button>
           <p className="text-xs text-on-surface-variant">
             Tap to hear it again<span className="hidden sm:inline"> · press R</span>

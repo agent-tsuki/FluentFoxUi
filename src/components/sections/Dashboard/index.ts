@@ -1,5 +1,3 @@
-export * from './DashboardHero'
-export * from './StatsGrid'
 export * from './LearningBalance'
 export * from './MilestoneList'
 export * from './StudyLog'

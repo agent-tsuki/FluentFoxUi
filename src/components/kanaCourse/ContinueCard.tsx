@@ -9,6 +9,7 @@ import { StepProgress } from '@/components/learn/StepProgress'
 import { cn } from '@/lib/cn'
 import { percent, type CourseUnitView } from './courseUnits'
 import { finalTestMeta } from './CurriculumGroup'
+import { unitLearnPath } from '@/components/kanaCourse/unitLinks'
 
 /**
  * ContinueCard — the first block of the Course page: what to do next and one
@@ -79,7 +80,7 @@ function NextUnit({ next, isFresh, className }: { next: CourseUnitView; isFresh:
         <JaText text={next.unit.summary} />
       </p>
       <StepProgress steps={steps} done={done} completed={completed} className="mt-3 max-w-sm" />
-      <ActionLink to={`${script.basePath}/unit/${next.unit.id}`} className={CTA}>
+      <ActionLink to={unitLearnPath(script.basePath, next.unit.id)} className={CTA}>
         <Icon name={isFresh ? 'play_circle' : 'arrow_forward'} className="text-xl" />
         <JaText text={label} />
       </ActionLink>

@@ -1,6 +1,7 @@
-import type { ReactNode } from 'react'
+import { createContext, useContext, type ReactNode } from 'react'
 import { Icon } from '@/components/ui/Icon'
 import { Button } from '@/components/ui/Button'
+import { cn } from '@/lib/cn'
 
 interface PracticeShellProps {
   title: string
@@ -10,16 +11,23 @@ interface PracticeShellProps {
   status?: ReactNode
   onExit: () => void
   children: ReactNode
+  /** Fill the screen below the navbar (a page). Defaults to PracticeShellFill. */
+  fill?: boolean
 }
+
+/** False inside a popup (e.g. the unit quiz dialog), which sizes itself, so every shell inside skips the full-screen height. */
+export const PracticeShellFill = createContext(true)
 
 /**
  * Shared frame for every practice mode: exit, title, progress, then the mode's
  * own content. Interactive content should sit in the lower half of the screen
  * on phones (thumb reach); the shell keeps its header compact for that.
  */
-export function PracticeShell({ title, progress, status, onExit, children }: PracticeShellProps) {
+export function PracticeShell({ title, progress, status, onExit, children, fill }: PracticeShellProps) {
+  const fillDefault = useContext(PracticeShellFill)
+  const fillScreen = fill ?? fillDefault
   return (
-    <div className="mx-auto flex min-h-[calc(100dvh-theme(spacing.nav))] w-full max-w-xl flex-col px-4 pb-6 pt-3 sm:px-6 sm:pt-6">
+    <div className={cn('mx-auto flex w-full max-w-xl flex-col px-4 pb-6 pt-3 sm:px-6 sm:pt-6', fillScreen && 'min-h-[calc(100dvh-theme(spacing.nav))]')}>
       <header className="flex items-center gap-3">
         <button
           type="button"

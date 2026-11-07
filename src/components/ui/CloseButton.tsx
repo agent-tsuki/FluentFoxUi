@@ -7,12 +7,22 @@ import { useReducedMotion } from '@/hooks/useReducedMotion'
  * - `floating` — over mixed or scrolling content on phones: a persistent chip
  *                below `md`, plain from `md` up.
  * - `inverse`  — on a dark backdrop (full-screen overlays).
+ * - `danger`   — dismissing a notice: the X turns red on hover (toasts).
  */
-export type CloseButtonVariant = 'plain' | 'floating' | 'inverse'
+export type CloseButtonVariant = 'plain' | 'floating' | 'inverse' | 'danger'
+
+/** `md` (default): 24px X in a 44px target. `sm`: 16px X in a 32px target, for compact notices. */
+export type CloseButtonSize = 'md' | 'sm'
+
+const sizeClasses: Record<CloseButtonSize, { button: string; circle: string; icon: string }> = {
+  md: { button: 'size-11', circle: 'size-9 md:size-8', icon: 'size-6' },
+  sm: { button: 'size-8', circle: 'size-7', icon: 'size-4' },
+}
 
 interface CloseButtonProps {
   onClick: () => void
   variant?: CloseButtonVariant
+  size?: CloseButtonSize
   className?: string
   'aria-label'?: string
 }
@@ -25,6 +35,7 @@ const toneClasses: Record<CloseButtonVariant, { icon: string; circle: string; ch
     chip:   'bg-surface-container-lowest/90 shadow-elevation-1 backdrop-blur-sm md:hidden',
   },
   inverse:  { icon: 'text-on-surface-inverse-variant group-hover:text-on-surface-inverse', circle: 'bg-on-surface-inverse/15' },
+  danger:   { icon: 'text-on-surface-variant group-hover:text-error', circle: 'bg-error/10' },
 }
 
 // The hover circle grows in from the centre, and the X turns a quarter.
@@ -51,11 +62,13 @@ const spring = { type: 'spring', stiffness: 380, damping: 24 } as const
 export function CloseButton({
   onClick,
   variant = 'plain',
+  size = 'md',
   className,
   'aria-label': ariaLabel = 'Close',
 }: CloseButtonProps) {
   const reducedMotion = useReducedMotion()
   const tone = toneClasses[variant]
+  const sizes = sizeClasses[size]
 
   return (
     <motion.button
@@ -68,7 +81,8 @@ export function CloseButton({
       whileTap={reducedMotion ? undefined : { scale: 0.9 }}
       transition={spring}
       className={cn(
-        'group relative inline-flex size-11 shrink-0 items-center justify-center rounded-full',
+        'group relative inline-flex shrink-0 items-center justify-center rounded-full',
+        sizes.button,
         'outline-none focus-visible:ring-2 focus-visible:ring-primary',
         className,
       )}
@@ -81,7 +95,7 @@ export function CloseButton({
         aria-hidden
         variants={reducedMotion ? { rest: { opacity: 0 }, hover: { opacity: 1 } } : circleVariants}
         transition={spring}
-        className={cn('absolute size-9 rounded-full md:size-8', tone.circle)}
+        className={cn('absolute rounded-full', sizes.circle, tone.circle)}
       />
 
       {/* The X */}
@@ -90,7 +104,7 @@ export function CloseButton({
         viewBox="0 0 24 24"
         variants={reducedMotion ? undefined : iconVariants}
         transition={spring}
-        className={cn('relative size-6 transition-colors', tone.icon)}
+        className={cn('relative transition-colors', sizes.icon, tone.icon)}
         fill="none"
         stroke="currentColor"
         strokeWidth={2}

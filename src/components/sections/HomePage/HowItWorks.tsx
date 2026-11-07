@@ -42,10 +42,10 @@ export function HowItWorks() {
         <p className="mx-auto mt-3 max-w-xl text-base leading-7 text-home-muted">{HOW_IT_WORKS_CLOSING.body}</p>
         <Link
           to={HOW_IT_WORKS_CLOSING.cta.to}
-          className="mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-home-accent px-7 py-3 text-sm font-bold text-home-on-accent shadow-elevation-2 transition duration-200 hover:bg-home-accent-hover motion-safe:hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-home-accent"
+          className="group mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-home-accent px-7 py-3 text-sm font-bold text-home-on-accent shadow-elevation-2 transition duration-200 hover:bg-home-accent-hover motion-safe:hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-home-accent"
         >
           {HOW_IT_WORKS_CLOSING.cta.label}
-          <Icon name="arrow_forward" className="text-base" />
+          <Icon name="arrow_forward" className="text-lg transition-transform duration-200 motion-safe:group-hover:translate-x-0.5" />
         </Link>
       </div>
     </section>

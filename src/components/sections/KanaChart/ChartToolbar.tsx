@@ -1,10 +1,10 @@
 import { useRef, type KeyboardEvent } from 'react'
-import { Link } from 'react-router-dom'
 import type { KanaMastery } from '@/types/kanaProgress'
 import { Icon } from '@/components/ui/Icon'
 import { cn } from '@/lib/cn'
 import { MASTERY_SURFACE, MasteryMarks } from './CharCard'
 import { MASTERY_LABEL, MASTERY_LEVELS } from '@/lib/learn/mastery'
+import { TextLink } from '@/components/ui/TextLink'
 
 /** 'all', or a set's `?set=` value from the script's chart sets (e.g. 'basic', 'yoon'). */
 export type ChartSet = string
@@ -102,7 +102,7 @@ export function MasteryLegend({ counts }: { counts: Record<KanaMastery, number> 
       {MASTERY_LEVELS.map((mastery) => (
         <li key={mastery} className="flex items-center gap-1.5">
           <span aria-hidden className={cn('relative block h-5 w-5 shrink-0 overflow-hidden rounded-md border', MASTERY_SURFACE[mastery])}>
-            <MasteryMarks mastery={mastery} className="right-1 top-1 [&>span]:h-1 [&>span]:w-1" />
+            <MasteryMarks mastery={mastery} className="left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" dotClassName="size-1" />
           </span>
           <span>
             {MASTERY_LABEL[mastery]} <span className="font-semibold tabular-nums text-on-surface">{counts[mastery]}</span>
@@ -123,7 +123,7 @@ interface ChartToolbarProps extends ChartSetSwitcherProps {
 /** The chart's toolbar: set switcher, mastery key, hide-romaji toggle and print link. */
 export function ChartToolbar({ counts, hideRomaji, onToggleRomaji, downloadsTo, ...switcher }: ChartToolbarProps) {
   return (
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
       <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6">
         <ChartSetSwitcher {...switcher} />
         <MasteryLegend counts={counts} />
@@ -146,15 +146,9 @@ export function ChartToolbar({ counts, hideRomaji, onToggleRomaji, downloadsTo, 
           </span>
           Hide romaji
         </button>
-        <Link
-          to={downloadsTo}
-          className="inline-flex min-h-11 items-center gap-0.5 rounded-lg text-sm font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-        >
+        <TextLink to={downloadsTo} leadingIcon="print" trailingIcon={null}>
           Print chart
-          <span aria-hidden className="flex">
-            <Icon name="chevron_right" className="text-lg" />
-          </span>
-        </Link>
+        </TextLink>
       </div>
     </div>
   )

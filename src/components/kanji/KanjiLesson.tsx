@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import type { KanjiEntry } from '@/types/kanji'
 import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
 import { useKanjiStrokes } from '@/hooks/useKanji'
@@ -13,6 +12,7 @@ import { StrokeOrder } from '@/components/kana/StrokeOrder'
 import { kanjiGlyph } from './kanjiGlyph'
 import { keyReadingLabel } from '@/components/kanjiQuiz/buildKanjiQuestions'
 import { cn } from '@/lib/cn'
+import { TextLink } from '@/components/ui/TextLink'
 
 /**
  * KanjiLesson — the Learn step: one kanji at a time (meaning, key reading,
@@ -107,7 +107,7 @@ export function KanjiLesson({ entries, batchSize, onFinish, onLearned }: KanjiLe
 }
 
 function LessonCard({ entry }: { entry: KanjiEntry }) {
-  const { speak, supported } = useJapaneseSpeech()
+  const { speak, supported, loadingText } = useJapaneseSpeech()
   const strokes = useKanjiStrokes(entry.char)
   const key = entry.vocab.find((v) => v.isKey) ?? entry.vocab[0]
   const others = entry.vocab.filter((v) => v !== key).slice(0, 3)
@@ -152,7 +152,7 @@ function LessonCard({ entry }: { entry: KanjiEntry }) {
               </p>
               <p className="text-sm text-on-surface-variant">{key.meaning}</p>
             </div>
-            {supported && <SpeakerButton onClick={() => speak(key.reading)} label={`Play ${key.word}`} />}
+            {supported && <SpeakerButton onClick={() => speak(key.reading)} label={`Play ${key.word}`} loading={loadingText === key.reading} />}
           </div>
         )}
 
@@ -176,13 +176,7 @@ function LessonCard({ entry }: { entry: KanjiEntry }) {
           </ul>
         )}
 
-        <Link
-          to={kanjiCharPath(entry.char, entry.jlpt)}
-          className="-ml-2 inline-flex min-h-11 items-center gap-1 rounded-xl px-2 text-sm font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-        >
-          Everything about {entry.char}
-          <Icon name="chevron_right" className="text-lg" />
-        </Link>
+        <TextLink to={kanjiCharPath(entry.char, entry.jlpt)}>Everything about {entry.char}</TextLink>
       </div>
 
       <div>

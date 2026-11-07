@@ -67,7 +67,8 @@ function isTable(groups: Group[], vowels: string[]): boolean {
   return groups.every((g) => {
     const real = g.chars.filter((c) => !c.isEmpty)
     if (real.length === 1 && !VOWEL_END.test(real[0]?.romaji ?? '')) return true
-    return g.chars.every((c, j) => c.isEmpty || vowelOf(c) === vowels[j])
+    // Compare the final vowel: しゃ (sha) and じゃ (ja) sit in きゃ's "ya" column.
+    return g.chars.every((c, j) => c.isEmpty || c.romaji.slice(-1) === vowels[j]?.slice(-1))
   })
 }
 
@@ -168,7 +169,8 @@ export const ChartGrid = memo(function ChartGrid({ section, title, mastery, show
         {aside && (
           <div
             className={cn(PLACED, 'mt-4 min-w-0 lg:mt-0 lg:self-start')}
-            style={place(groups.length + 2, '1 / -1', `1 / ${rows + 2}`, `${groups.length + 2} / span ${groups.length}`)}
+            // Starts on the first row of cells (row 1 holds the consonant labels), so its top lines up with the kana.
+            style={place(groups.length + 2, '1 / -1', `2 / ${rows + 2}`, `${groups.length + 2} / span ${groups.length}`)}
           >
             {aside}
           </div>

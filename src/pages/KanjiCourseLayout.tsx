@@ -12,6 +12,7 @@ import { COURSE_CONTAINER } from '@/components/kanaCourse/coursePages'
 import { CourseContentSkeleton, type CourseSkeletonVariant } from '@/components/kanaCourse/CourseContentSkeleton'
 import { KanjiCourseHeader, KanjiDataCredit } from '@/components/kanji/KanjiCourseHeader'
 import { kanjiPageFor, kanjiPagesFor } from '@/components/kanji/kanjiPages'
+import { KanjiTestOverlays } from '@/components/kanji/KanjiTestOverlays'
 import { buildKanjiCourseContext } from '@/pages/kanjiCourseContext'
 import { cn } from '@/lib/cn'
 
@@ -91,6 +92,7 @@ export function KanjiCourseLayout() {
         )}
         <KanjiDataCredit className="mt-10" />
       </div>
+      {context && <KanjiTestOverlays />}
     </main>
   )
 }

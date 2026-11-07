@@ -3,15 +3,13 @@ import { Link } from 'react-router-dom'
 import { useKanaScript } from '@/context/KanaScriptContext'
 import { Icon } from '@/components/ui/Icon'
 import { ProgressBar } from '@/components/ui/ProgressBar'
-import { PracticeModeList } from '@/components/sections/KanaChart/PracticeModeList'
 import { cn } from '@/lib/cn'
-import { HASH_SCROLL_MARGIN, STICKY_RAIL_TOP, type CourseUnitView } from './courseUnits'
+import { STICKY_RAIL_TOP, type CourseUnitView } from './courseUnits'
 
 /**
- * CourseRail — the Course page's side column. Rendered once: below `lg` it
- * stacks after the curriculum and shows only the Practice block (the group
- * headers already carry the bars, the SectionNav the links); at `lg` it is a
- * sticky card with progress by group, Practice and quick links.
+ * CourseRail — the Course page's side column, from `lg` only: a sticky card
+ * with progress by group and quick links. Below `lg` the group headers carry
+ * the bars and the SectionNav the links. Practice lives in each unit.
  */
 interface CourseRailProps {
   byId: ReadonlyMap<string, CourseUnitView>
@@ -31,12 +29,12 @@ export function CourseRail({ byId, className }: CourseRailProps) {
     <aside
       aria-label="Course tools"
       className={cn(
-        'lg:sticky lg:self-start lg:rounded-2xl lg:border lg:border-outline-variant/60 lg:bg-surface-container-lowest lg:dark:border-outline/60 lg:dark:bg-surface-container-low',
+        'hidden lg:sticky lg:block lg:self-start lg:rounded-2xl lg:border lg:border-outline-variant/60 lg:bg-surface-container-lowest lg:dark:border-outline/60 lg:dark:bg-surface-container-low',
         STICKY_RAIL_TOP,
         className,
       )}
     >
-      <RailBlock title="Your progress" className="hidden lg:block">
+      <RailBlock title="Your progress">
         <ul className="space-y-3">
           {script.groups.map((group) => {
             const units = group.unitIds.flatMap((id) => byId.get(id) ?? [])
@@ -62,22 +60,7 @@ export function CourseRail({ byId, className }: CourseRailProps) {
         </ul>
       </RailBlock>
 
-      <section
-        id="practice"
-        aria-labelledby="practice-heading"
-        className={cn(HASH_SCROLL_MARGIN, 'lg:border-t lg:border-outline-variant/60 lg:p-4 lg:dark:border-outline/40')}
-      >
-        <h2
-          id="practice-heading"
-          className="font-headline text-xl font-bold text-on-surface md:text-2xl lg:text-base"
-        >
-          Practise what you&apos;ve learned
-        </h2>
-        <p className="mb-3 mt-0.5 text-sm text-on-surface-variant">Short sessions across all {script.label.toLowerCase()}.</p>
-        <PracticeModeList variant="compact" className="sm:grid-cols-3 lg:grid-cols-2" />
-      </section>
-
-      <nav aria-label="More in this course" className="hidden border-t border-outline-variant/60 p-2 dark:border-outline/40 lg:block">
+      <nav aria-label="More in this course" className="border-t border-outline-variant/60 p-2 dark:border-outline/40">
         <ul>
           {QUICK_LINKS.map((link) => (
             <li key={link.to}>

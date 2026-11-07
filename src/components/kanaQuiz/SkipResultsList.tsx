@@ -1,8 +1,9 @@
 import { memo } from 'react'
-import { Link } from 'react-router-dom'
 import { Icon } from '@/components/ui/Icon'
 import { useKanaScript } from '@/context/KanaScriptContext'
 import type { UnitScore } from './skipScoring'
+import { TextLink } from '@/components/ui/TextLink'
+import { unitLearnPath } from '@/components/kanaCourse/unitLinks'
 
 /** Per-unit results of a skip test: score, then "Tested out" or a link to learn the unit. */
 export function SkipResultsList({ scores }: { scores: UnitScore[] }) {
@@ -39,16 +40,9 @@ const UnitRow = memo(function UnitRow({ score: { unit, correct, total, passed } 
           Tested out
         </span>
       ) : (
-        <Link
-          to={`${basePath}/unit/${unit.id}`}
-          aria-label={`Learn the ${unit.title} unit`}
-          className="inline-flex min-h-11 shrink-0 items-center gap-1 rounded-full px-3 text-sm font-bold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-        >
+        <TextLink to={unitLearnPath(basePath, unit.id)} aria-label={`Learn the ${unit.title} unit`} className="shrink-0 px-3">
           Learn this
-          <span aria-hidden className="flex">
-            <Icon name="arrow_forward" className="text-lg" />
-          </span>
-        </Link>
+        </TextLink>
       )}
     </li>
   )

@@ -32,6 +32,8 @@ export function useUnitSteps(unit: KanaUnit): {
   completed: number
   /** Tested out with a skip test: counts as finished even with steps left. */
   skipped: boolean
+  /** Finished: quiz passed, tested out or every step done (isUnitComplete). */
+  complete: boolean
 } {
   const path = useLearningPath()
   const progress = path.units[unit.id] ?? {}
@@ -45,7 +47,9 @@ export function useUnitSteps(unit: KanaUnit): {
     print: Boolean(progress.printedAt),
     quiz: Boolean(progress.quizPassedAt),
   }
-  return { steps, done, completed: steps.filter((s) => done[s]).length, skipped: Boolean(progress.skippedAt) }
+  const completed = steps.filter((s) => done[s]).length
+  const skipped = Boolean(progress.skippedAt)
+  return { steps, done, completed, skipped, complete: done.quiz || skipped || completed === steps.length }
 }
 
 export interface KanaFinalTests {

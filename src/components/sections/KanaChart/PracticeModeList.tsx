@@ -49,39 +49,55 @@ interface PracticeModeListProps {
    * Pass extra breakpoint columns for compact via `className` (e.g. `sm:grid-cols-3`).
    */
   variant?: 'card' | 'compact'
+  /**
+   * Opens a mode in place (the Learn page's popup) instead of linking to its
+   * page. The whole-course "Review due kana" is left out then: it is not unit practice.
+   */
+  onSelect?: (mode: Exclude<ModeId, 'review'>) => void
   className?: string
 }
 
 /** The practice modes as link cards. Used by the chart page, the Course page and each unit page. */
-export function PracticeModeList({ unitId, hints, layout = 'wide', variant = 'card', className }: PracticeModeListProps) {
+export function PracticeModeList({ unitId, hints, layout = 'wide', variant = 'card', onSelect, className }: PracticeModeListProps) {
   const query = unitId ? `?unit=${encodeURIComponent(unitId)}` : ''
   const script = useKanaScript()
   const practiceBase = `${script.basePath}/practice`
-  const modes = MODES.filter((mode) => isAvailable(mode.id, script, unitId))
+  const modes = MODES.filter((mode) => isAvailable(mode.id, script, unitId) && !(onSelect && mode.id === 'review'))
 
   if (variant === 'compact') {
+    const tile = cn(
+      'flex h-full min-h-12 w-full items-center gap-2 rounded-xl border border-outline-variant/60 bg-surface-container-lowest px-2.5 py-2 text-left transition-colors duration-150',
+      'hover:border-primary/40 hover:bg-surface-container-low dark:border-outline/60 dark:bg-surface-container-low dark:hover:bg-surface-container',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
+    )
     return (
       <ul className={cn('grid grid-cols-2 gap-2 text-left', className)}>
-        {modes.map((mode) => (
-          <li key={mode.id}>
-            <Link
-              to={`${practiceBase}/${mode.id}${query}`}
-              className={cn(
-                'flex h-full min-h-12 items-center gap-2 rounded-xl border border-outline-variant/60 bg-surface-container-lowest px-2.5 py-2 transition-colors duration-150',
-                'hover:border-primary/40 hover:bg-surface-container-low dark:border-outline/60 dark:bg-surface-container-low dark:hover:bg-surface-container',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
-              )}
-            >
+        {modes.map((mode) => {
+          const inner = (
+            <>
               <span aria-hidden className="flex shrink-0">
                 <Icon name={mode.icon} className="text-xl text-primary" />
               </span>
               <span className="min-w-0">
                 <span className="block text-sm font-semibold leading-tight text-on-surface">{mode.title}</span>
-                <span className="block text-xs tabular-nums text-on-surface-variant">{mode.minutes} min</span>
+                <span className="block text-xs tabular-nums text-on-surface-variant">{hints?.[mode.id] ?? `${mode.minutes} min`}</span>
               </span>
-            </Link>
-          </li>
-        ))}
+            </>
+          )
+          return (
+            <li key={mode.id}>
+              {onSelect && mode.id !== 'review' ? (
+                <button type="button" onClick={() => onSelect(mode.id as Exclude<ModeId, 'review'>)} className={tile}>
+                  {inner}
+                </button>
+              ) : (
+                <Link to={`${practiceBase}/${mode.id}${query}`} className={tile}>
+                  {inner}
+                </Link>
+              )}
+            </li>
+          )
+        })}
       </ul>
     )
   }

@@ -25,6 +25,11 @@ const TIER_LABEL: Record<ActivityTier, string> = { 0: 'Rest day', 1: 'Light', 2:
 const LEGEND_TIERS: readonly ActivityTier[] = [1, 2, 3, 4]
 const DOW = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
+/** A past day the API sent nothing for reads as a rest day. */
+function restDay(monthStart: Date, day: number): CalendarDay {
+  return { date: toLocalDate(new Date(monthStart.getFullYear(), monthStart.getMonth(), day)), answers: 0, minutes: 0, accuracy: null, goal_met: false }
+}
+
 /** The streak pill's month preview: study time per day this month (GET /progress/calendar), goal-met days dotted. */
 export function StreakMonthPopup({ streak }: { streak: number }) {
   const today = toLocalDate(new Date())
@@ -65,14 +70,16 @@ export function StreakMonthPopup({ streak }: { streak: number }) {
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-1 px-0.5">
+      {/* The details row follows the pointer (or a tap) and clears only when it leaves the
+          whole grid, so crossing the gaps between days never flickers back to the legend. */}
+      <div className="grid grid-cols-7 gap-1 px-0.5" onPointerLeave={() => setHovered(null)}>
         {cells.map((day, i) => {
           if (!day) return <div key={`pad-${i}`} className="aspect-square" />
           const entry = byDay.get(day)
           const tier = activityTier(entry?.minutes ?? 0)
           const isFuture = day > todayNum
           return (
-            <div key={day} onMouseEnter={() => entry && setHovered(entry)} onMouseLeave={() => setHovered(null)} className="aspect-square">
+            <div key={day} onPointerMove={() => !isFuture && setHovered(entry ?? restDay(first, day))} onClick={() => !isFuture && setHovered(entry ?? restDay(first, day))} className="aspect-square">
               <div
                 className={cn(
                   'relative w-full h-full rounded-lg flex items-center justify-center cursor-default select-none',

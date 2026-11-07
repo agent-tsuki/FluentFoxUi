@@ -1,4 +1,4 @@
-import { defineConfig, loadEnv, type Plugin } from 'vite'
+import { defineConfig, loadEnv, type Plugin, type ProxyOptions } from 'vite'
 import react from '@vitejs/plugin-react'
 import { fileURLToPath, URL } from 'node:url'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -88,6 +88,32 @@ function cdnPreconnect(cdnUrl: string | undefined): Plugin {
     name: 'foxsensei-cdn-preconnect',
     transformIndexHtml: () =>
       cdn ? [{ tag: 'link', attrs: { rel: 'preconnect', href: cdn }, injectTo: 'head' }] : [],
+  }
+}
+
+/**
+ * Dev-only proxy to a deployed API, for testing locally against real data.
+ * The API only accepts browser requests from the site's own origin (CORS and
+ * the cookie CSRF check), so the dev server forwards `/api/*` to
+ * VITE_API_PROXY_TARGET and presents the request as coming from
+ * VITE_API_PROXY_ORIGIN. The browser only ever talks to localhost, so the
+ * refresh cookie is stored for localhost. Set VITE_API_URL=/api to use it.
+ * Google/X sign-in still redirects to the real site, so use email login locally.
+ */
+function devApiProxy(env: Record<string, string>): Record<string, ProxyOptions> | undefined {
+  const target = env.VITE_API_PROXY_TARGET
+  if (!target) return undefined
+  const origin = env.VITE_API_PROXY_ORIGIN || target
+  return {
+    '/api': {
+      target,
+      changeOrigin: true,
+      secure: true,
+      rewrite: (path) => path.replace(/^\/api/, ''),
+      headers: { origin, referer: `${origin}/` },
+      // Keep cookies on localhost even if the API scopes them to its domain.
+      cookieDomainRewrite: { '*': '' },
+    },
   }
 }
 
@@ -223,6 +249,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_')
 
   return {
+    server: { proxy: devApiProxy(env) },
     plugins: [
       react(),
       contentSecurityPolicy(env.VITE_API_URL, env.VITE_CDN_URL),

@@ -7,10 +7,12 @@ interface KanaMnemonicProps {
   char: KanaChar
   /** Speech callback; omitted when the browser has no Japanese voice. */
   onSpeak?: (text: string) => void
+  /** Text whose clip is still loading (from useJapaneseSpeech), for the example's spinner. */
+  loadingText?: string | null
 }
 
 /** KanaMnemonic — one-line memory hint plus the kana's example word. */
-export function KanaMnemonic({ char, onSpeak }: KanaMnemonicProps) {
+export function KanaMnemonic({ char, onSpeak, loadingText }: KanaMnemonicProps) {
   const script = useKanaScript()
   const hint = script.memoryHint(char.character, char.romaji)
   const sample = script.sampleWords[char.id] ?? script.sampleWords[char.romaji]
@@ -39,7 +41,7 @@ export function KanaMnemonic({ char, onSpeak }: KanaMnemonicProps) {
             </p>
             <p className="text-sm text-on-surface-variant">{sample.meaning}</p>
           </div>
-          {onSpeak && <SpeakerButton onClick={() => onSpeak(kana)} label={`Play ${reading ?? kana}`} />}
+          {onSpeak && <SpeakerButton onClick={() => onSpeak(kana)} label={`Play ${reading ?? kana}`} loading={loadingText === kana} />}
         </div>
       )}
     </div>

@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { Icon } from '@/components/ui/Icon'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/cn'
 import { durations, easings } from '@/lib/motion'
@@ -104,7 +105,7 @@ function BoardButton({ direction, target, onClick }: BoardButtonProps) {
       )}
     >
       <span className="sr-only">{isPrev ? PATH_COPY.prevSrLabel : PATH_COPY.nextSrLabel} </span>
-      {isPrev && <span aria-hidden="true">← </span>}
+      {isPrev && <Icon name="arrow_back" className="mr-1 align-[-0.2em] text-[1.125em]" />}
       {target ? (
         <>
           {label} · {target.en}
@@ -114,7 +115,7 @@ function BoardButton({ direction, target, onClick }: BoardButtonProps) {
       ) : (
         PATH_COPY.endOfLine
       )}
-      {!isPrev && <span aria-hidden="true"> →</span>}
+      {!isPrev && <Icon name="arrow_forward" className="ml-1 align-[-0.2em] text-[1.125em]" />}
     </button>
   )
 }

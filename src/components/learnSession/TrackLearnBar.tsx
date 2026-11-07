@@ -1,4 +1,5 @@
 import { ActionLink } from '@/components/learn/ActionLink'
+import { useReviewGate } from '@/hooks/useReviewGate'
 import { Icon } from '@/components/ui/Icon'
 import { useLearnSummary } from '@/hooks/useLearnSummary'
 import { TRACK_LABEL, lessonPath, reviewPath } from '@/lib/learn/paths'
@@ -16,6 +17,7 @@ interface TrackLearnBarProps {
  */
 export function TrackLearnBar({ track, className }: TrackLearnBarProps) {
   const { summary } = useLearnSummary(track)
+  const gateReview = useReviewGate()
   if (!summary) return null
   const due = summary.due_now
   return (
@@ -30,7 +32,7 @@ export function TrackLearnBar({ track, className }: TrackLearnBarProps) {
       </p>
       <div className="flex gap-2">
         {due > 0 && (
-          <ActionLink to={reviewPath(track)} className="flex-1 sm:flex-none">
+          <ActionLink to={reviewPath(track)} onClick={gateReview(track)} className="flex-1 sm:flex-none">
             <Icon name="replay" className="text-xl" /> Review
           </ActionLink>
         )}

@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useReviewGate } from '@/hooks/useReviewGate'
 import { Link } from 'react-router-dom'
 import { useKanjiLevel } from '@/context/KanjiLevelContext'
 import { useKanjiCourse } from '@/pages/kanjiCourseContext'
@@ -7,7 +8,8 @@ import { useKanjiStage } from '@/hooks/useKanji'
 import { MASTERY_HINT, MASTERY_TONE } from '@/lib/learn/mastery'
 import { useLearnSummary } from '@/hooks/useLearnSummary'
 import { useReviewForecast } from '@/hooks/useReviewForecast'
-import { KANJI_TRACK, lessonPath, reviewPath } from '@/lib/learn/paths'
+import { KANJI_TRACK, reviewPath } from '@/lib/learn/paths'
+import { useKanjiOverlayLink } from '@/components/kanji/kanjiOverlays'
 import { Icon } from '@/components/ui/Icon'
 import { ActionLink } from '@/components/learn/ActionLink'
 import { ReviewForecast } from '@/components/kanji/ReviewForecast'
@@ -24,8 +26,10 @@ const CARD =
  */
 export function KanjiReviewsPage() {
   const level = useKanjiLevel()
+  const overlayLink = useKanjiOverlayLink()
   const { chars, rowsByChar } = useKanjiCourse()
   const { summary } = useLearnSummary(KANJI_TRACK)
+  const gateReview = useReviewGate()
   const forecast = useReviewForecast(KANJI_TRACK)
   const stageOf = useKanjiStage()
   const byStage = useMemo(() => {
@@ -52,13 +56,13 @@ export function KanjiReviewsPage() {
         </p>
         <div className="mt-4 flex flex-col gap-2 sm:flex-row">
           {dueCount > 0 && (
-            <ActionLink to={reviewPath(KANJI_TRACK)} className="w-full sm:w-auto">
+            <ActionLink to={reviewPath(KANJI_TRACK)} onClick={gateReview(KANJI_TRACK)} className="w-full sm:w-auto">
               <Icon name="replay" className="text-xl" />
               Start reviews
             </ActionLink>
           )}
           {summary && summary.new_left_today > 0 && (
-            <ActionLink to={lessonPath(KANJI_TRACK)} variant={dueCount > 0 ? 'outline' : 'primary'} className="w-full sm:w-auto">
+            <ActionLink to={overlayLink({ lesson: true })} variant={dueCount > 0 ? 'outline' : 'primary'} className="w-full sm:w-auto">
               <Icon name="school" className="text-xl" />
               Learn new kanji
             </ActionLink>

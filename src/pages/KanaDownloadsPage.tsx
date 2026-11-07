@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { ChartDownloads } from '@/components/sections/KanaChart/ChartDownloads'
 import { useKanaCourse } from '@/pages/kanaCourseContext'
 import { useLearningPath } from '@/hooks/useLearningPath'
@@ -8,6 +9,8 @@ import { Icon } from '@/components/ui/Icon'
 import { TestsSection } from '@/components/kanaCourse/TestsSection'
 import { DownloadWorksheetRow } from '@/components/kanaCourse/DownloadWorksheetRow'
 import { useCourseUnits } from '@/components/kanaCourse/courseUnits'
+import { AudioPackCard } from '@/components/audio/AudioPackCard'
+import { kanaPackTexts } from '@/lib/audio/kanaPackTexts'
 
 /**
  * Downloads page (/kana/<script>/downloads): three chart posters and one
@@ -20,6 +23,7 @@ export function KanaDownloadsPage() {
   const { next, units: courseUnits } = useCourseUnits(kanaById)
   const recommended = next ?? courseUnits.find((unit) => !pathUnits[unit.unit.id]?.printedAt) ?? courseUnits[0]
   const printedCount = courseUnits.filter((unit) => Boolean(pathUnits[unit.unit.id]?.printedAt)).length
+  const audioTexts = useMemo(() => kanaPackTexts(allKana, script), [allKana, script])
 
   return (
     <div className="space-y-10 md:space-y-12">
@@ -45,6 +49,16 @@ export function KanaDownloadsPage() {
           </ul>
         </section>
       )}
+
+      <AudioPackCard
+        texts={audioTexts}
+        courseLabel={script.label}
+        section={{
+          id: 'audio',
+          title: 'Audio for offline',
+          description: `Save every ${script.label.toLowerCase()} sound and example word on this device: they play instantly, even without internet.`,
+        }}
+      />
 
       <TestsSection
         id="posters"

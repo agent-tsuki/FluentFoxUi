@@ -1,5 +1,8 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { mockFooterLinks } from '@/api/mock/navigation'
+import { whenPageSettles } from '@/lib/afterPageSettles'
+import { getAudioInfo } from '@/lib/audio/audioInfo'
 
 // Internal routes that should use <Link> for SPA navigation
 const INTERNAL_PREFIXES = ['/about', '/privacy', '/terms', '/']
@@ -8,9 +11,30 @@ function isInternal(href: string) {
   return INTERNAL_PREFIXES.some((prefix) => href.startsWith(prefix))
 }
 
+/**
+ * The voice's credit line (e.g. "VOICEVOX:冥鳴ひまり"), which its licence asks
+ * to show wherever the audio is used. Looked up once the page has settled, so
+ * the footer adds nothing to the first load.
+ */
+function useVoiceCredit(): string | undefined {
+  const [credit, setCredit] = useState<string>()
+  useEffect(() => {
+    let cancelled = false
+    const stop = whenPageSettles(() => {
+      void getAudioInfo().then((info) => !cancelled && setCredit(info.enabled ? info.credit : undefined))
+    })
+    return () => {
+      cancelled = true
+      stop()
+    }
+  }, [])
+  return credit
+}
+
 export function Footer() {
+  const voiceCredit = useVoiceCredit()
   return (
-    <footer className="bg-surface-container-low w-full py-12 px-8 border-t border-outline-variant/20">
+    <footer className="relative z-20 bg-surface-container-low w-full py-12 px-8 border-t border-outline-variant/20">
       <div className="flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto gap-8">
         <div className="text-lg font-bold text-on-surface font-headline tracking-tighter">
           FoxSensei
@@ -40,8 +64,9 @@ export function Footer() {
           )}
         </div>
 
-        <div className="text-xs tracking-tight text-on-surface-variant">
-          © {new Date().getFullYear()} FoxSensei. Learn Japanese Naturally.
+        <div className="text-center text-xs tracking-tight text-on-surface-variant md:text-right">
+          <p>© {new Date().getFullYear()} FoxSensei. Learn Japanese Naturally.</p>
+          {voiceCredit && <p className="mt-1">Japanese voice: {voiceCredit}</p>}
         </div>
       </div>
     </footer>

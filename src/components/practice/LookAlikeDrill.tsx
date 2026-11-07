@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import type { KanaChar } from '@/types'
 import { useAnswerTimer } from '@/hooks/useAnswerTimer'
 import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
+import { usePreloadSpeech } from '@/hooks/usePreloadSpeech'
 import { choiceAnswer } from '@/lib/learn/practiceSession'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { lookAlikeSetsFor } from '@/lib/content/kana/lookAlikeSets'
@@ -52,6 +53,7 @@ function LookAlikeSession({ kana, all, isSubset, script, focusIds: priorityIds, 
   const nextRef = useRef<HTMLDivElement>(null)
 
   const round = rounds[index]
+  usePreloadSpeech([round?.target.character, rounds[index + 1]?.target.character])
   const correct = picked && round ? picked.id === round.target.id : null
 
   // New round: focus the prompt so screen readers hear the question.

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import type { KanaChar } from '@/types'
 import { useAnswerTimer, type AnswerTimerControls } from '@/hooks/useAnswerTimer'
 import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
+import { usePreloadSpeech } from '@/hooks/usePreloadSpeech'
 import { newClientEventId } from '@/lib/learn/answerTimer'
 import { choiceAnswer } from '@/lib/learn/practiceSession'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
@@ -124,6 +125,7 @@ function WordBuilderSession({ kana, all, isSubset, script, onAnswer, onExit, onC
   const pendingReturn = useRef<Set<number> | null>(null)
 
   const round = rounds[roundIndex]
+  usePreloadSpeech([round?.word.word, rounds[roundIndex + 1]?.word.word])
   const tileByKey = useMemo(() => new Map(round?.tiles.map((t) => [t.key, t]) ?? []), [round])
   const placedKeys = useMemo(() => new Set(slots.filter((s): s is string => s !== null)), [slots])
   const done = phase === 'correct' || phase === 'revealed'

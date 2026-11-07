@@ -63,9 +63,11 @@ const SIZE = {
 } as const
 
 /** The tint layer and corner dots; shared with MasteryLegend's swatches. */
-export function MasteryMarks({ mastery, className }: { mastery: KanaMastery; className?: string }) {
+export function MasteryMarks({ mastery, className, dotClassName }: { mastery: KanaMastery; className?: string; dotClassName?: string }) {
   const dots = MASTERY_DOTS[mastery]
   const tint = TINT[mastery]
+  // At most two dots per row: three sit as a small triangle (two above, one below).
+  const rows = dots > 2 ? [2, dots - 2] : [dots]
   return (
     <>
       {tint && <span aria-hidden className={cn('absolute inset-0 rounded-[inherit]', tint)} />}
@@ -73,12 +75,19 @@ export function MasteryMarks({ mastery, className }: { mastery: KanaMastery; cla
         <span
           aria-hidden
           className={cn(
-            'pointer-events-none absolute flex max-w-[calc(100%-0.75rem)] items-center justify-end gap-px',
+            'pointer-events-none absolute flex max-w-[calc(100%-0.75rem)] flex-col items-center gap-0.5',
             className ?? 'right-1.5 top-1.5',
           )}
         >
-          {Array.from({ length: dots }, (_, i) => (
-            <span key={i} className={cn('block h-1.5 w-1.5 shrink-0 rounded-full', MASTERY_TONE[mastery].fill)} />
+          {rows.map((count, r) => (
+            <span key={r} className="flex gap-0.5">
+              {Array.from({ length: count }, (_, i) => (
+                <span
+                  key={i}
+                  className={cn('block shrink-0 rounded-full', dotClassName ?? 'size-1.5', MASTERY_TONE[mastery].fill)}
+                />
+              ))}
+            </span>
           ))}
         </span>
       )}

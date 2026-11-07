@@ -6,6 +6,7 @@ import { JaText } from '@/components/learn/JaText'
 import { kanaPreview, unitKana } from '@/components/learn/unitStatus'
 import { TESTS_LIST, TestsRow } from '@/components/kanaCourse/TestsRow'
 import { cn } from '@/lib/cn'
+import { unitQuizPath } from '@/components/kanaCourse/unitLinks'
 
 interface TestCentreProps {
   kanaById: ReadonlyMap<string, KanaChar>
@@ -41,7 +42,7 @@ export function TestCentre({ kanaById, className }: TestCentreProps) {
                 return (
                   <li key={unit.id}>
                     <TestsRow
-                      to={`${script.basePath}/quiz/${unit.id}`}
+                      to={unitQuizPath(script.basePath, unit.id)}
                       leading={number}
                       title={
                         <>

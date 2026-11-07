@@ -1,5 +1,5 @@
 import { GOOGLE_MAPS_EMBED_KEY } from '@/lib/config'
-import { Icon } from '@/components/ui/Icon'
+import { ExternalTextLink } from '@/components/ui/TextLink'
 
 const EMBED_URL = 'https://www.google.com/maps/embed/v1/place'
 const SEARCH_URL = 'https://www.google.com/maps/search/'
@@ -20,9 +20,9 @@ export function LoginMap({ latitude, longitude, precise, label }: LoginMapProps)
 
   if (!GOOGLE_MAPS_EMBED_KEY) {
     return (
-      <a href={openUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
-        <Icon name="location_on" className="text-sm" /> Open in Google Maps
-      </a>
+      <ExternalTextLink href={openUrl} size="xs" leadingIcon="location_on">
+        Open in Google Maps
+      </ExternalTextLink>
     )
   }
 

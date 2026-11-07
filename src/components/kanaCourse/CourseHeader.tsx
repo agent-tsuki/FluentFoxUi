@@ -1,14 +1,13 @@
 import type { Ref } from 'react'
-import { Link } from 'react-router-dom'
 import type { KanaChar } from '@/types'
 import { Eyebrow } from '@/components/ui/SectionHeader'
-import { Icon } from '@/components/ui/Icon'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { SkeletonBlock } from '@/components/ui/LoadingState'
 import { useKanaScript } from '@/context/KanaScriptContext'
 import { scriptKanaCount } from '@/lib/content/kana/scripts'
 import { cn } from '@/lib/cn'
 import { useCourseProgress } from './useCourseProgress'
+import { TextLink } from '@/components/ui/TextLink'
 
 /**
  * CourseHeader — the compact, left-aligned header shared by the four kana
@@ -48,13 +47,9 @@ export function CourseHeader({ variant, title, description, allKana, headingRef,
           <p className="py-1 text-sm text-on-surface-variant">
             {script.units.length} units · {allKana?.length || scriptKanaCount(script)} kana · Final test &amp; certificate
           </p>
-          <Link
-            to={`${script.basePath}/skip/all`}
-            className="-ml-2 inline-flex min-h-11 items-center gap-0.5 rounded-xl px-2 text-sm font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          >
+          <TextLink to={`${script.basePath}/skip/all`} leadingIcon="fast_forward">
             Already know {script.label.toLowerCase()}? Test out
-            <Icon name="chevron_right" className="text-lg" />
-          </Link>
+          </TextLink>
         </div>
       )}
 

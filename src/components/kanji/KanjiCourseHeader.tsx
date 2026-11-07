@@ -1,14 +1,15 @@
 import type { Ref } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import type { KanjiLevelIndex } from '@/types/kanji'
 import { Eyebrow } from '@/components/ui/SectionHeader'
-import { Icon } from '@/components/ui/Icon'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { SkeletonBlock } from '@/components/ui/LoadingState'
 import { useKanjiLevel } from '@/context/KanjiLevelContext'
-import { KANJI_LEVELS, kanjiLevelPath, kanjiSkipPath } from '@/lib/content/kanji/levels'
+import { KANJI_LEVELS, kanjiLevelPath } from '@/lib/content/kanji/levels'
+import { useKanjiOverlayLink } from './kanjiOverlays'
 import { cn } from '@/lib/cn'
 import { useKanjiCourseUnits } from './kanjiUnits'
+import { TextLink } from '@/components/ui/TextLink'
 
 /**
  * KanjiCourseHeader — the header shared by a level's pages: eyebrow, h1, the
@@ -25,6 +26,7 @@ interface KanjiCourseHeaderProps {
 
 export function KanjiCourseHeader({ variant, title, description, index, headingRef }: KanjiCourseHeaderProps) {
   const level = useKanjiLevel()
+  const overlayLink = useKanjiOverlayLink()
   const isCourse = variant === 'course'
 
   return (
@@ -49,13 +51,9 @@ export function KanjiCourseHeader({ variant, title, description, index, headingR
           <p className="py-1 text-sm tabular-nums text-on-surface-variant">
             {index.units.length} units · {index.rows.length} kanji · Level test &amp; certificate
           </p>
-          <Link
-            to={kanjiSkipPath(level.id, 'all')}
-            className="-ml-2 inline-flex min-h-11 items-center gap-0.5 rounded-xl px-2 text-sm font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          >
+          <TextLink to={overlayLink({ skip: 'all' })} leadingIcon="fast_forward">
             Know {level.label}? Test out
-            <Icon name="chevron_right" className="text-lg" />
-          </Link>
+          </TextLink>
         </div>
       )}
 

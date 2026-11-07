@@ -6,6 +6,9 @@ interface TestsSectionProps {
   title: string
   description?: ReactNode
   className?: string
+  /** Extra classes for the title block and the content (e.g. grid placement when the section is `display: contents`). */
+  headerClassName?: string
+  bodyClassName?: string
   children: ReactNode
 }
 
@@ -14,15 +17,17 @@ interface TestsSectionProps {
  * one muted line, then the content. `scroll-mt-36` clears the site navbar +
  * sticky SectionNav when the section is a #hash target.
  */
-export function TestsSection({ id, title, description, className, children }: TestsSectionProps) {
+export function TestsSection({ id, title, description, className, headerClassName, bodyClassName, children }: TestsSectionProps) {
   const headingId = `${id}-heading`
   return (
     <section id={id} aria-labelledby={headingId} className={cn('scroll-mt-36', className)}>
-      <h2 id={headingId} className="font-headline text-xl font-bold text-on-surface md:text-2xl">
-        {title}
-      </h2>
-      {description && <p className="mt-1 max-w-prose text-sm leading-relaxed text-on-surface-variant">{description}</p>}
-      <div className="mt-4">{children}</div>
+      <div className={headerClassName}>
+        <h2 id={headingId} className="font-headline text-xl font-bold text-on-surface md:text-2xl">
+          {title}
+        </h2>
+        {description && <p className="mt-1 max-w-prose text-sm leading-relaxed text-on-surface-variant">{description}</p>}
+      </div>
+      <div className={cn('mt-4', bodyClassName)}>{children}</div>
     </section>
   )
 }

@@ -1,7 +1,8 @@
-import { Link } from 'react-router-dom'
 import { Eyebrow } from '@/components/ui/SectionHeader'
 import { FadeIn } from '@/components/ui/FadeIn'
 import { cn } from '@/lib/cn'
+import { Icon } from '@/components/ui/Icon'
+import { TextLink } from '@/components/ui/TextLink'
 import {
   RESOURCES_SECTION as COPY,
   EXTERNAL_RESOURCES,
@@ -55,16 +56,9 @@ export function ResourcesSection() {
           ))}
         </ul>
 
-        <Link
-          to={COPY.browseAllTo}
-          className={cn(
-            'inline-flex min-h-11 items-center self-center rounded-xl px-2 py-3 text-lg font-bold text-primary hover:underline',
-            FOCUS_RING,
-          )}
-        >
+        <TextLink to={COPY.browseAllTo} size="lg" className="self-center px-2 py-3 font-bold">
           {COPY.browseAll}
-          <span aria-hidden="true">&nbsp;→</span>
-        </Link>
+        </TextLink>
       </div>
     </section>
   )
@@ -104,9 +98,10 @@ function ResourceCard({ resource }: ResourceCardProps) {
         <p className="text-base leading-normal text-on-surface-variant">
           <strong className="font-bold text-on-surface">{resource.bestAt}</strong> {resource.description}
         </p>
-        <span className="mt-auto pt-2 text-base font-bold text-primary group-hover:underline">
-          {resource.cta}
-          <span aria-hidden="true">&nbsp;→</span>
+        <span className="mt-auto inline-flex items-center gap-1.5 pt-2 text-base font-bold text-primary">
+          {/* Underline the words only; the arrow nudges instead. */}
+          <span className="underline-offset-4 decoration-2 group-hover:underline">{resource.cta}</span>
+          <Icon name="north_east" className="text-lg transition-transform duration-200 motion-safe:group-hover:-translate-y-0.5 motion-safe:group-hover:translate-x-0.5" />
           <span className="sr-only"> {COPY.newTabHint}</span>
         </span>
       </div>

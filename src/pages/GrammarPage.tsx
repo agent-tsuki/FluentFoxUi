@@ -3,6 +3,8 @@ import { GrammarSidebar } from '@/components/grammar/GrammarSidebar'
 import { GrammarContent } from '@/components/grammar/GrammarContent'
 import { MobileGrammarNav } from '@/components/grammar/MobileGrammarNav'
 import { LOCKED_GRAMMAR_LEVELS } from '@/components/grammar/LevelSwitcher'
+import { FIXED_SIDEBAR_OFFSET } from '@/components/layout/FixedSidebar'
+import { readCompletedChapters, writeCompletedChapters } from '@/lib/grammar/completion'
 import { Icon } from '@/components/ui/Icon'
 import { LoadingState, SkeletonBlock } from '@/components/ui/LoadingState'
 import { ErrorState } from '@/components/ui/ErrorState'
@@ -20,7 +22,7 @@ const ANCHOR_OFFSET =
 
 function LockedLevelScreen({ level }: { level: string }) {
   return (
-    <div className="flex-1 lg:ml-72 bg-surface min-h-[calc(100dvh-theme(spacing.nav))] flex items-center justify-center p-8">
+    <div className={`flex-1 ${FIXED_SIDEBAR_OFFSET} bg-surface min-h-[calc(100dvh-theme(spacing.nav))] flex items-center justify-center p-8`}>
       <div className="max-w-sm w-full text-center space-y-6">
         <div className="flex items-center justify-center">
           <div className="w-24 h-24 rounded-full bg-surface-container-high flex items-center justify-center shadow-inner">
@@ -84,14 +86,9 @@ export function GrammarPage() {
   const [revealMode, setRevealMode] = useState(false)
   const [completedChapters, setCompletedChapters] = useState<Set<number>>(new Set())
 
-  // Load completed chapters from localStorage when level changes
+  // Load completed chapters (kept on this device) when the level changes.
   useEffect(() => {
-    try {
-      const s = localStorage.getItem(`ff-complete-${level?.toLowerCase()}`)
-      setCompletedChapters(s ? new Set(JSON.parse(s)) : new Set())
-    } catch {
-      setCompletedChapters(new Set())
-    }
+    setCompletedChapters(level ? readCompletedChapters(level) : new Set())
   }, [level])
 
   useEffect(() => {
@@ -151,7 +148,7 @@ export function GrammarPage() {
     setCompletedChapters(prev => {
       const next = new Set(prev)
       next.add(summary.id)
-      localStorage.setItem(`ff-complete-${levelKey}`, JSON.stringify([...next]))
+      writeCompletedChapters(levelKey, next)
       return next
     })
   }
@@ -191,7 +188,7 @@ export function GrammarPage() {
         prevChapterId={prevChapterId}
         nextChapterId={nextChapterId}
       />
-      <main className={`flex-1 lg:ml-72 bg-surface fade-in ${ANCHOR_OFFSET}`}>
+      <main className={`flex-1 ${FIXED_SIDEBAR_OFFSET} bg-surface fade-in ${ANCHOR_OFFSET}`}>
         {body}
       </main>
     </div>

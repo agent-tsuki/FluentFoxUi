@@ -1,23 +1,25 @@
-import { useEffect, useRef, type PointerEvent as ReactPointerEvent } from 'react'
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { createPortal } from 'react-dom'
-import { AnimatePresence, motion, useDragControls, type PanInfo } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useKanaScript } from '@/context/KanaScriptContext'
 import { useAuth } from '@/context/AuthContext'
 import { YourProgress } from '@/components/progress/YourProgress'
+import { Icon } from '@/components/ui/Icon'
 import { kanaTrack } from '@/lib/learn/practiceSession'
 import { kanaSpeechText } from '@/lib/content/kana/kanaMarks'
 import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
-import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { cn } from '@/lib/cn'
-import { durations, easings, springs, swapVariants } from '@/lib/motion'
+import { durations, easings, swapVariants } from '@/lib/motion'
 import { KanaSheetHeader } from '@/components/kana/KanaSheetHeader'
-import { KanaStrokeSections, Section as SheetSection } from '@/components/kana/KanaStrokeSections'
+import { KanaMnemonic } from '@/components/kana/KanaMnemonic'
+import { PaperPractice } from '@/components/kana/PaperPractice'
+import { DIVIDER_TOP, KanaStrokeHero, Section } from '@/components/kana/KanaStrokeSections'
 import { useSheetDialog } from '@/components/kana/useSheetDialog'
 import type { KanaChar } from '@/types'
 
 interface KanaDetailSheetProps {
-  /** The kana to show; `null` closes the sheet. */
+  /** The kana to show; `null` closes the dialog. */
   char: KanaChar | null
   onClose: () => void
   onPrev?: () => void
@@ -28,27 +30,36 @@ const TITLE_ID = 'kana-detail-sheet-title'
 /** Horizontal travel (px) that counts as a prev/next swipe. */
 const SWIPE_DISTANCE = 60
 
-const PANEL = {
-  phone: 'inset-x-0 bottom-0 max-h-[90dvh] rounded-t-3xl border-t pb-[env(safe-area-inset-bottom)]',
-  desktop: 'inset-y-0 right-0 w-full max-w-md rounded-l-3xl border-l',
-}
+const STEP_BUTTON = cn(
+  'inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-outline-variant/60 text-on-surface-variant sm:size-12',
+  'transition-colors hover:border-outline hover:bg-surface-container-high hover:text-on-surface active:scale-95',
+  'outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-30',
+)
+
+const PHONE_STEP = cn(
+  'inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-outline-variant/60 text-sm font-semibold text-on-surface',
+  'transition-colors active:bg-surface-container-high outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-30',
+)
 
 /**
- * KanaDetailSheet — the "character sheet" for one kana: sound, stroke order,
- * memory hint, example word, and a trace pad. A bottom sheet on phones (drag
- * the handle down to dismiss, swipe sideways for prev/next) and a right-side
- * panel from `lg`. Accessible modal dialog; marks the kana as seen on open.
+ * KanaDetailSheet — the kana dialog, centred on every screen and built around
+ * the stroke order: the animation is the largest thing in it, with previous /
+ * next beside it (also ←/→ keys and sideways swipes), so stepping through a
+ * row replays each kana's strokes. A nudge to write it on paper (ten times,
+ * saying it aloud), the memory hint, example word and the learner's progress
+ * sit beside it on wide screens and below it on phones.
+ * Accessible modal dialog (focus trap, Escape, scroll lock).
  */
 export function KanaDetailSheet({ char, onClose, onPrev, onNext }: KanaDetailSheetProps) {
   const reducedMotion = useReducedMotion()
-  const isDesktop = useMediaQuery('(min-width: 1024px)')
-  const { supported, speak } = useJapaneseSpeech()
+  const { supported, speak, loadingText } = useJapaneseSpeech()
   const panelRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const swipeStart = useRef<{ x: number; y: number } | null>(null)
-  const dragControls = useDragControls()
   const script = useKanaScript()
   const { user } = useAuth()
+  // Slow by default (easier to follow); kept here so the chosen speed carries over while stepping through kana.
+  const [slow, setSlow] = useState(true)
 
   const open = char !== null
   const charId = char?.id
@@ -60,8 +71,7 @@ export function KanaDetailSheet({ char, onClose, onPrev, onNext }: KanaDetailShe
   }, [charId])
 
   const onSwipeStart = (e: ReactPointerEvent) => {
-    const onPad = (e.target as Element).closest('[data-trace-pad]')
-    swipeStart.current = e.pointerType === 'touch' && !onPad ? { x: e.clientX, y: e.clientY } : null
+    swipeStart.current = e.pointerType === 'touch' ? { x: e.clientX, y: e.clientY } : null
   }
   const onSwipeEnd = (e: ReactPointerEvent) => {
     const start = swipeStart.current
@@ -74,11 +84,6 @@ export function KanaDetailSheet({ char, onClose, onPrev, onNext }: KanaDetailShe
     else onNext?.()
   }
 
-  const onDragEnd = (_: unknown, info: PanInfo) => {
-    if (info.offset.y > 120 || info.velocity.y > 600) onClose()
-  }
-
-  const hidden = isDesktop ? { x: '100%' } : { y: '100%' }
   const fade = { duration: durations.enter, ease: easings.out }
   const say = supported ? speak : undefined
 
@@ -86,11 +91,11 @@ export function KanaDetailSheet({ char, onClose, onPrev, onNext }: KanaDetailShe
     <AnimatePresence>
       {/* AnimatePresence keeps the last render on screen while it animates out. */}
       {char && (
-        <motion.div key="kana-sheet" className="fixed inset-0 z-[60]">
+        <motion.div key="kana-dialog" className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-6">
           {/* Backdrop — bg-black (not on-surface, which flips per theme) so it always darkens. */}
           <motion.div
             aria-hidden
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0 bg-black/55"
             onClick={onClose}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -104,55 +109,83 @@ export function KanaDetailSheet({ char, onClose, onPrev, onNext }: KanaDetailShe
             aria-labelledby={TITLE_ID}
             tabIndex={-1}
             onKeyDown={trapFocus}
-            drag={!isDesktop && !reducedMotion ? 'y' : false}
-            dragListener={false}
-            dragControls={dragControls}
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={{ top: 0, bottom: 0.7 }}
-            onDragEnd={onDragEnd}
-            initial={reducedMotion ? { opacity: 0 } : hidden}
-            animate={reducedMotion ? { opacity: 1 } : { x: 0, y: 0 }}
-            exit={reducedMotion ? { opacity: 0 } : { ...hidden, transition: { duration: durations.resize, ease: easings.out } }}
-            transition={reducedMotion ? fade : springs.sheet}
-            className={cn(
-              'absolute flex flex-col border-outline-variant/40 bg-surface-container-lowest text-on-surface shadow-elevation-3 outline-none',
-              isDesktop ? PANEL.desktop : PANEL.phone,
-            )}
+            initial={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.97, transition: { duration: durations.exit, ease: easings.out } }}
+            transition={fade}
+            // Solid in dark mode too (not the frosted glass of page cards): nothing behind competes with the strokes.
+            className="relative flex max-h-full w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-outline-variant/40 bg-surface-container-lowest text-on-surface shadow-elevation-3 outline-none dark:bg-surface-container-lowest dark:backdrop-filter-none lg:max-h-[min(100%,46rem)] lg:max-w-4xl"
           >
-            {isDesktop ? (
-              <div className="h-4" />
-            ) : (
-              // Drag handle: the whole strip above the header starts the dismiss drag.
-              <div aria-hidden className="flex h-8 shrink-0 cursor-grab touch-none justify-center pt-2" onPointerDown={(e) => dragControls.start(e)}>
-                <div className="h-1 w-10 rounded-full bg-outline-variant" />
-              </div>
-            )}
             <KanaSheetHeader
               char={char}
               titleId={TITLE_ID}
               onClose={onClose}
-              onPrev={onPrev}
-              onNext={onNext}
               onSpeak={supported ? () => speak(kanaSpeechText(char, script.sampleWords)) : undefined}
+              speakLoading={loadingText !== null && loadingText === kanaSpeechText(char, script.sampleWords)}
             />
             <div
               ref={scrollRef}
-              className="custom-scrollbar mt-3 flex-1 touch-pan-y overflow-y-auto overscroll-contain"
-              onPointerDown={onSwipeStart}
-              onPointerUp={onSwipeEnd}
-              onPointerCancel={() => (swipeStart.current = null)}
+              className="custom-scrollbar flex-1 touch-pan-y overflow-y-auto overscroll-contain lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:overflow-hidden"
             >
+              {/* Stroke order, the focus: previous / drawing / next. Swipe sideways to step. */}
+              <div
+                className="relative px-4 pb-5 pt-1 sm:px-5 lg:pb-6 lg:before:absolute lg:before:inset-y-6 lg:before:right-0 lg:before:w-0.5 lg:before:rounded-full lg:before:bg-outline-variant/40 lg:before:content-['']"
+                onPointerDown={onSwipeStart}
+                onPointerUp={onSwipeEnd}
+                onPointerCancel={() => (swipeStart.current = null)}
+              >
+                <div className="flex items-center gap-4">
+                  {/* Beside the drawing from sm; phones get a row underneath so the drawing can use the full width. */}
+                  <button type="button" onClick={onPrev} disabled={!onPrev} aria-label="Previous kana" className={cn(STEP_BUTTON, 'max-sm:hidden')}>
+                    <Icon name="arrow_back" className="text-2xl" />
+                  </button>
+                  <motion.div
+                    key={char.id}
+                    className="min-w-0 flex-1"
+                    variants={reducedMotion ? undefined : swapVariants}
+                    initial={reducedMotion ? false : 'initial'}
+                    animate="animate"
+                  >
+                    <KanaStrokeHero char={char} slow={slow} onSlowChange={setSlow} />
+                  </motion.div>
+                  <button type="button" onClick={onNext} disabled={!onNext} aria-label="Next kana" className={cn(STEP_BUTTON, 'max-sm:hidden')}>
+                    <Icon name="arrow_forward" className="text-2xl" />
+                  </button>
+                </div>
+                <div className="mt-3 flex gap-3 sm:hidden">
+                  <button type="button" onClick={onPrev} disabled={!onPrev} className={PHONE_STEP}>
+                    <Icon name="arrow_back" className="text-xl" />
+                    Previous
+                  </button>
+                  <button type="button" onClick={onNext} disabled={!onNext} className={PHONE_STEP}>
+                    Next
+                    <Icon name="arrow_forward" className="text-xl" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Memory hint, example and progress: below on phones, a side column (own scroll) on wide screens. */}
               <motion.div
-                key={char.id}
+                key={`${char.id}-notes`}
+                className={cn(
+                  DIVIDER_TOP,
+                  // Wide screens: the divider stands upright on the stroke column's edge instead (this column scrolls).
+                  'custom-scrollbar lg:overflow-y-auto lg:overscroll-contain lg:before:hidden',
+                )}
                 variants={reducedMotion ? undefined : swapVariants}
                 initial={reducedMotion ? false : 'initial'}
                 animate="animate"
               >
-                <KanaStrokeSections char={char} onSpeak={say} />
+                <Section title="Practise on paper">
+                  <PaperPractice char={char} />
+                </Section>
+                <Section title="Remember it">
+                  <KanaMnemonic char={char} onSpeak={say} loadingText={loadingText} />
+                </Section>
                 {user?.emailVerified && (
-                  <SheetSection title="Your progress">
+                  <Section title="Your progress">
                     <YourProgress itemType="kana" id={char.character} track={kanaTrack(script.id)} />
-                  </SheetSection>
+                  </Section>
                 )}
               </motion.div>
             </div>

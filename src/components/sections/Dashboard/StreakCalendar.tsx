@@ -74,8 +74,9 @@ export function StreakCalendar({ data, showHeading = true }: StreakCalendarProps
             })}
           </div>
 
-          {/* Day-of-week labels + grid */}
-          <div className="flex" style={{ gap: GAP }}>
+          {/* Day-of-week labels + grid. The details row clears only when the pointer
+              leaves the whole grid, so moving across the gaps between days never flickers. */}
+          <div className="flex" style={{ gap: GAP }} onPointerLeave={() => setTooltip(null)}>
             {/* DOW labels */}
             <div className="flex flex-col" style={{ gap: GAP, width: 32, flexShrink: 0, paddingTop: 0 }}>
               {DOW_LABELS.map((d, i) => (
@@ -97,8 +98,8 @@ export function StreakCalendar({ data, showHeading = true }: StreakCalendarProps
                 {week.map((cell, di) => (
                   <div
                     key={di}
-                    onMouseEnter={() => !cell.isPlaceholder && setTooltip(cell)}
-                    onMouseLeave={() => setTooltip(null)}
+                    onPointerMove={() => !cell.isPlaceholder && setTooltip(cell)}
+                    onClick={() => !cell.isPlaceholder && setTooltip(cell)}
                     style={{
                       width:  CELL,
                       height: CELL,

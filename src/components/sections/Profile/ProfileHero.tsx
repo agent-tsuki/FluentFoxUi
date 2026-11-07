@@ -5,6 +5,7 @@ import { asset } from '@/lib/assets'
 import { placeLabel } from '@/lib/profile/countries'
 import { monthYear, timeAgo } from '@/lib/profile/formatTime'
 import { deviceName, devicePlace } from '@/lib/profile/deviceLabel'
+import { TextButton } from '@/components/ui/TextLink'
 
 interface ProfileHeroProps {
   profile:        UserProfile
@@ -34,14 +35,9 @@ export function ProfileHero({ profile, onChangeAvatar }: ProfileHeroProps) {
             />
           </div>
         </button>
-        <button
-          type="button"
-          onClick={onChangeAvatar}
-          className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary hover:underline"
-        >
-          <Icon name="photo_camera" className="text-base" />
+        <TextButton onClick={onChangeAvatar} size="xs" leadingIcon="photo_camera" className="font-bold uppercase tracking-wider">
           Change photo
-        </button>
+        </TextButton>
       </div>
 
       <div className="flex-1 text-center sm:text-left space-y-3">

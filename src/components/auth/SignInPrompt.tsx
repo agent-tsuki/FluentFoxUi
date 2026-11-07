@@ -7,15 +7,16 @@ import { useAuth } from '@/context/AuthContext'
 import { useModal } from '@/context/ModalContext'
 import { authModalPrefetchHandlers } from '@/components/sections/AuthModal'
 
-type Variant = 'page' | 'panel'
+type Variant = 'page' | 'panel' | 'inline'
 
 const VARIANTS: Record<Variant, string> = {
   page: 'mx-auto max-w-md px-6 py-16 md:py-24',
   panel: 'rounded-2xl bg-surface-container-low p-5',
+  inline: '',
 }
 
 interface SignInPromptProps {
-  /** 'page' replaces a whole route; 'panel' sits inline on a lesson page. */
+  /** 'page' replaces a whole route; 'panel' sits inline on a lesson page; 'inline' is one compact line (inside a tab). */
   variant?: Variant
   className?: string
 }
@@ -32,6 +33,35 @@ export function SignInPrompt({ variant = 'panel', className }: SignInPromptProps
   const { pathname, search, hash } = useLocation()
   const unverified = Boolean(user && !user.emailVerified)
   const returnTo = `${pathname}${search}${hash}`
+  if (variant === 'inline') {
+    return (
+      <section
+        aria-label="Sign in to practise"
+        className={cn('flex flex-wrap items-center gap-x-4 gap-y-3 rounded-xl bg-surface-container-low px-4 py-3', className)}
+      >
+        <span aria-hidden className="flex">
+          <Icon name="lock" className="text-xl text-primary" />
+        </span>
+        <p className="min-w-0 flex-1 basis-48 text-sm text-on-surface-variant">
+          {unverified ? 'Verify your email to practise and save progress.' : 'Sign in to practise and save your progress.'}
+        </p>
+        {unverified ? (
+          <Link to="/verify-email" className="text-sm font-bold text-primary underline-offset-4 hover:underline">
+            Verify my email
+          </Link>
+        ) : (
+          <div className="flex gap-2">
+            <Button onClick={() => openModal('login', { returnTo })} className="min-h-10 !px-4 !py-1.5 text-sm" {...authModalPrefetchHandlers}>
+              Log in
+            </Button>
+            <Button variant="outline" onClick={() => openModal('signup', { returnTo })} className="min-h-10 !px-4 !py-1.5 text-sm" {...authModalPrefetchHandlers}>
+              Sign up free
+            </Button>
+          </div>
+        )}
+      </section>
+    )
+  }
   return (
     <section
       aria-label="Sign in to practise"
@@ -67,8 +97,8 @@ export function SignInPrompt({ variant = 'panel', className }: SignInPromptProps
 }
 
 /** Renders `children` for verified learners and the sign-in prompt for everyone else. */
-export function LearnerOnly({ children }: { children: ReactNode }) {
+export function LearnerOnly({ children, prompt = 'panel' }: { children: ReactNode; prompt?: Variant }) {
   const { user, isLoading } = useAuth()
   if (isLoading) return null
-  return user?.emailVerified ? <>{children}</> : <SignInPrompt />
+  return user?.emailVerified ? <>{children}</> : <SignInPrompt variant={prompt} />
 }

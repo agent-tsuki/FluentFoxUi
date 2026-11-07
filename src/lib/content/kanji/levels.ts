@@ -74,21 +74,32 @@ export function kanjiLevelPagePath(level: KanjiLevelId, page: KanjiLevelPageId):
   return page === 'course' ? base : `${base}/${page}`
 }
 
+/**
+ * A unit, opened in place on the level's course page (`?unit=`, the param
+ * names of useUnitAccordionParams). The old /unit/:id page redirects here.
+ */
 export function kanjiUnitPath(level: KanjiLevelId, unitId: string): string {
-  return `${kanjiLevelPath(level)}/unit/${unitId}`
+  return withQuery(kanjiLevelPath(level), { unit: unitId })
 }
 
+/** A unit's quiz, as a popup over its open row (the old /quiz/:id page redirects here). */
 export function kanjiUnitQuizPath(level: KanjiLevelId, unitId: string): string {
-  return `${kanjiLevelPath(level)}/quiz/${unitId}`
+  return withQuery(kanjiLevelPath(level), { unit: unitId, quiz: '1' })
 }
 
 /** Placement (`'all'`) or group test-out (a group id). */
+/**
+ * A test-out as a popup on the level's course page (`?skip=`, see
+ * kanjiOverlays; pages inside the course open it on themselves instead).
+ * The old /skip/:scope page redirects here.
+ */
 export function kanjiSkipPath(level: KanjiLevelId, scope: string): string {
-  return `${kanjiLevelPath(level)}/skip/${scope}`
+  return withQuery(kanjiLevelPath(level), { skip: scope })
 }
 
+/** The level test as a popup on the course page (`?test=level`); the old /test page redirects here. */
 export function kanjiLevelTestPath(level: KanjiLevelId): string {
-  return `${kanjiLevelPath(level)}/test`
+  return withQuery(kanjiLevelPath(level), { test: 'level' })
 }
 
 /** `/kanji/n5/practice/review?unit=u04` */
