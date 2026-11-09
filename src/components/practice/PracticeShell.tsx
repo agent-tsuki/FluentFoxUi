@@ -13,29 +13,39 @@ interface PracticeShellProps {
   children: ReactNode
   /** Fill the screen below the navbar (a page). Defaults to PracticeShellFill. */
   fill?: boolean
+  /** Use the page's full width (a worksheet with a side panel). */
+  wide?: boolean
 }
 
 /** False inside a popup (e.g. the unit quiz dialog), which sizes itself, so every shell inside skips the full-screen height. */
 export const PracticeShellFill = createContext(true)
+
+/** Set to show a labelled Back button instead of the close icon, e.g. "Back" inside a chapter's Exercise tab. */
+export const PracticeShellBack = createContext<string | null>(null)
 
 /**
  * Shared frame for every practice mode: exit, title, progress, then the mode's
  * own content. Interactive content should sit in the lower half of the screen
  * on phones (thumb reach); the shell keeps its header compact for that.
  */
-export function PracticeShell({ title, progress, status, onExit, children, fill }: PracticeShellProps) {
+export function PracticeShell({ title, progress, status, onExit, children, fill, wide }: PracticeShellProps) {
   const fillDefault = useContext(PracticeShellFill)
   const fillScreen = fill ?? fillDefault
+  const backLabel = useContext(PracticeShellBack)
   return (
-    <div className={cn('mx-auto flex w-full max-w-xl flex-col px-4 pb-6 pt-3 sm:px-6 sm:pt-6', fillScreen && 'min-h-[calc(100dvh-theme(spacing.nav))]')}>
+    <div className={cn('mx-auto flex w-full flex-col px-4 pb-6 pt-3 sm:px-6 sm:pt-6', wide ? 'max-w-5xl' : 'max-w-xl', fillScreen && 'min-h-[calc(100dvh-theme(spacing.nav))]')}>
       <header className="flex items-center gap-3">
         <button
           type="button"
           onClick={onExit}
-          aria-label="Exit practice"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          aria-label={backLabel ? undefined : 'Exit practice'}
+          className={cn(
+            'flex h-11 shrink-0 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+            backLabel ? 'gap-1 pl-2 pr-3 text-sm font-semibold hover:text-on-surface' : 'w-11',
+          )}
         >
-          <Icon name="close" className="text-2xl" />
+          <Icon name={backLabel ? 'arrow_back' : 'close'} className={backLabel ? 'text-xl' : 'text-2xl'} />
+          {backLabel}
         </button>
         <div className="min-w-0 flex-1">
           <p className="truncate font-headline text-base font-bold text-on-surface">{title}</p>

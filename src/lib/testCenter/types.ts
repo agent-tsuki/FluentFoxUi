@@ -22,19 +22,25 @@ export type TestFormatId =
   | 'grammar-typed'
   | 'grammar-meaning'
 
-/** How the learner answers: tap one of four, pick from a dropdown in the sentence, or type. */
-export type AnswerKind = 'choice' | 'select' | 'text'
+/** How the learner answers: tap one of four, pick from a dropdown in the sentence, type, or put word tiles in order. */
+export type AnswerKind = 'choice' | 'select' | 'text' | 'tiles'
 
 /**
  * What a question shows.
  * glyph    — one big item: あ, 日, 学生, "water".
  * sentence — a Japanese sentence, read in full.
  * gap      — a Japanese sentence with one blank (the dropdown or text box sits in it).
+ * audio    — a line to hear (played with a button; `voice` is its speech voice).
+ * picture  — an image above a Japanese sentence with one blank.
+ * exchange — a short conversation and an English claim about it.
  */
 export type TestPrompt =
   | { type: 'glyph'; text: string; ja: boolean }
   | { type: 'sentence'; text: string }
   | { type: 'gap'; before: string; after: string }
+  | { type: 'audio'; text: string; voice?: string }
+  | { type: 'picture'; src: string; alt: string; before: string; after: string }
+  | { type: 'exchange'; lines: string[]; statement: string }
 
 /** How a typed answer is compared. */
 export type TypedAnswer =
@@ -60,6 +66,10 @@ interface QuestionBase {
   translation?: string
   /** One line on why, shown after answering. */
   explanation?: string
+  /** The sentence the task starts from, shown above the prompt (change-the-form drills). */
+  source?: string
+  /** Names the question on the results page, instead of its format's title. */
+  label?: string
 }
 
 export interface ChoiceQuestion extends QuestionBase {
@@ -87,7 +97,15 @@ export interface TextQuestion extends QuestionBase {
   placeholder: string
 }
 
-export type TestQuestion = ChoiceQuestion | SelectQuestion | TextQuestion
+export interface TilesQuestion extends QuestionBase {
+  kind: 'tiles'
+  /** The words, shuffled; each is used once. */
+  tiles: string[]
+  /** Accepted orders, as the tiles joined with nothing between them. */
+  accepted: string[]
+}
+
+export type TestQuestion = ChoiceQuestion | SelectQuestion | TextQuestion | TilesQuestion
 
 export interface TestAnswer {
   question: TestQuestion

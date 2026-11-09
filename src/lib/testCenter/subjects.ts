@@ -38,6 +38,7 @@ export const ANSWER_LABEL: Record<AnswerKind, { label: string; icon: string }> =
   choice: { label: 'Multiple choice', icon: 'checklist' },
   select: { label: 'Dropdown', icon: 'unfold_more' },
   text: { label: 'Typed', icon: 'edit' },
+  tiles: { label: 'Word tiles', icon: 'swap_horiz' },
 }
 
 export const TEST_SUBJECTS: readonly TestSubjectDef[] = [

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useState, type FormEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useId, useState, type FormEvent } from 'react'
 import { PracticeShell } from '@/components/practice/PracticeShell'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
@@ -6,7 +6,8 @@ import { TextInput } from '@/components/ui/FormField'
 import { cn } from '@/lib/cn'
 import { useAnswerTimer, type AnswerTimerControls } from '@/hooks/useAnswerTimer'
 import { hasJapanese, markTestAnswer } from '@/lib/testCenter/mark'
-import type { ChoiceQuestion, SelectQuestion, TestAnswer, TestQuestion, TextQuestion } from '@/lib/testCenter/types'
+import type { ChoiceQuestion, SelectQuestion, TestAnswer, TestQuestion, TextQuestion, TilesQuestion } from '@/lib/testCenter/types'
+import { QuestionPrompt as Prompt } from './QuestionPrompt'
 
 /** A right answer moves on by itself after this long; a wrong one waits for Continue. */
 const NEXT_AFTER_RIGHT_MS = 900
@@ -24,8 +25,8 @@ interface TestRunnerProps {
 
 /**
  * Asks a practice test one question at a time, in whatever form each question
- * takes: four options (keys 1–4), a dropdown inside the sentence, or a text
- * box. After each answer it says right or wrong with a one-line why.
+ * takes: options (keys 1–4), a dropdown inside the sentence, a text box, or
+ * word tiles to put in order. After each answer it says right or wrong with a one-line why.
  */
 export function TestRunner({ title, questions, onFinish, onExit, onAnswer, leaveNote = 'Practice tests aren’t saved.' }: TestRunnerProps) {
   const [answers, setAnswers] = useState<TestAnswer[]>([])
@@ -69,6 +70,7 @@ export function TestRunner({ title, questions, onFinish, onExit, onAnswer, leave
         {question.kind === 'choice' && <ChoiceView key={question.id} question={question} result={current} onAnswer={answer} />}
         {question.kind === 'select' && <SelectView key={question.id} question={question} result={current} onAnswer={answer} />}
         {question.kind === 'text' && <TextView key={question.id} question={question} result={current} onAnswer={answer} />}
+        {question.kind === 'tiles' && <TilesView key={question.id} question={question} result={current} onAnswer={answer} />}
 
         <div className="mt-auto pt-6" aria-live="polite">
           {current && <Feedback result={current} onContinue={next} last={index + 1 >= questions.length} />}
@@ -100,41 +102,6 @@ export function TestRunner({ title, questions, onFinish, onExit, onAnswer, leave
         )}
       </div>
     </PracticeShell>
-  )
-}
-
-// ─── Prompt ──────────────────────────────────────────────────────────────────
-
-/** The question's main line: a big item, a sentence, or a sentence with a gap (`slot` fills it). */
-function Prompt({ question, slot }: { question: TestQuestion; slot?: ReactNode }) {
-  const { prompt } = question
-  return (
-    <div className="my-8 text-center sm:my-10">
-      {prompt.type === 'glyph' ? (
-        <p
-          lang={prompt.ja ? 'ja' : undefined}
-          className={cn(
-            'font-bold text-on-surface',
-            prompt.ja
-              ? cn('font-jp leading-none', Array.from(prompt.text).length <= 2 ? 'text-7xl sm:text-8xl' : 'text-5xl sm:text-6xl')
-              : 'font-headline text-3xl sm:text-4xl',
-          )}
-        >
-          {prompt.text}
-        </p>
-      ) : prompt.type === 'sentence' ? (
-        <p lang="ja" className="font-jp text-2xl font-medium leading-relaxed text-on-surface sm:text-3xl">
-          {prompt.text}
-        </p>
-      ) : (
-        <p lang="ja" className="font-jp text-2xl font-medium leading-[2.4] text-on-surface sm:text-3xl sm:leading-[2.2]">
-          {prompt.before}
-          {slot ?? <span className="mx-1 inline-block w-16 border-b-2 border-on-surface-variant align-baseline" aria-label="gap" />}
-          {prompt.after}
-        </p>
-      )}
-      {question.translation && <p className="mt-3 text-sm text-on-surface-variant">{question.translation}</p>}
-    </div>
   )
 }
 
@@ -304,11 +271,61 @@ function TextView({ question, result, onAnswer }: { question: TextQuestion; resu
   )
 }
 
+// ─── Word tiles ──────────────────────────────────────────────────────────────
+
+const TILE = 'min-h-11 rounded-xl border-2 px-3 py-1.5 font-jp text-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
+
+function TilesView({ question, result, onAnswer }: { question: TilesQuestion; result: TestAnswer | null; onAnswer: (given: string) => void }) {
+  /** Positions in `question.tiles`, in the order tapped (the same word can appear twice). */
+  const [order, setOrder] = useState<number[]>([])
+  const complete = order.length === question.tiles.length
+  const remove = (at: number) => !result && setOrder((o) => o.filter((_, i) => i !== at))
+  const add = (tile: number) => !result && setOrder((o) => [...o, tile])
+  return (
+    <div>
+      <Prompt question={question} />
+      <div
+        lang="ja"
+        aria-label="Your sentence"
+        className={cn(
+          'mx-auto flex min-h-16 max-w-md flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-3',
+          !result && 'border-outline-variant/60',
+          result && (result.correct ? 'border-success bg-success/10' : 'border-error bg-error/10'),
+        )}
+      >
+        {order.map((tile, at) => (
+          <button key={tile} type="button" aria-label={`Remove ${question.tiles[tile]}`} aria-disabled={result ? true : undefined} onClick={() => remove(at)} className={cn(TILE, 'border-primary/60 bg-primary/5 text-primary')}>
+            {question.tiles[tile]}
+          </button>
+        ))}
+      </div>
+      <div lang="ja" className="mx-auto mt-4 flex max-w-md flex-wrap justify-center gap-2">
+        {question.tiles.map((word, tile) =>
+          order.includes(tile) ? null : (
+            <button key={tile} type="button" aria-disabled={result ? true : undefined} onClick={() => add(tile)} className={cn(TILE, 'border-outline-variant/60 bg-surface-container-lowest text-on-surface hover:border-primary/60')}>
+              {word}
+            </button>
+          ),
+        )}
+      </div>
+      {!result && (
+        <Button
+          onClick={() => onAnswer(order.map((tile) => question.tiles[tile]).join(''))}
+          disabled={!complete}
+          className="mx-auto mt-6 flex w-full max-w-xs items-center justify-center gap-2 disabled:pointer-events-none disabled:opacity-50"
+        >
+          Check
+        </Button>
+      )}
+    </div>
+  )
+}
+
 // ─── Feedback ────────────────────────────────────────────────────────────────
 
 function Feedback({ result, onContinue, last }: { result: TestAnswer; onContinue: () => void; last: boolean }) {
   const { question } = result
-  const showAnswer = !result.correct || question.kind === 'text'
+  const showAnswer = !result.correct || question.kind === 'text' || question.kind === 'tiles'
   return (
     <div className={cn('rounded-2xl border p-4', result.correct ? 'border-success/40 bg-success/10' : 'border-error/40 bg-error/10')}>
       <div className="flex items-start gap-3">

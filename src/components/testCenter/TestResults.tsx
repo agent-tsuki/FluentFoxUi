@@ -24,7 +24,8 @@ interface TestResultsProps {
 }
 
 function promptText(prompt: TestPrompt): string {
-  if (prompt.type === 'gap') return `${prompt.before}＿＿${prompt.after}`
+  if (prompt.type === 'gap' || prompt.type === 'picture') return `${prompt.before}＿＿${prompt.after}`
+  if (prompt.type === 'exchange') return `${prompt.lines.join(' ')} → ${prompt.statement}`
   return prompt.text
 }
 
@@ -94,7 +95,7 @@ export function TestResults({
                     className="rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-4 dark:border-outline/60 dark:bg-surface-container-low"
                   >
                     <p className="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                      {formatDef(question.format).title}
+                      {question.label ?? formatDef(question.format).title}
                     </p>
                     <p
                       lang={hasJapanese(prompt) ? 'ja' : undefined}

@@ -1,0 +1,177 @@
+{
+  "style": "Simple friendly flat vector illustration for a language-learning app. Soft pastel colours, plain light cream background, clear single subject, thick clean shapes. Absolutely no text, letters, numbers or writing anywhere.",
+  "pictures": [
+    {
+      "chapter": "ch10",
+      "name": "ch10-on",
+      "scene": "A cat sitting clearly on top of a closed cardboard box, the whole box visible.",
+      "image": "/exercises/n5/ch10-on.jpg",
+      "alt": "A cat sitting on top of a box.",
+      "sentence": "猫は箱の{}にいます。",
+      "answer": "上",
+      "options": [
+        "上",
+        "下",
+        "中",
+        "前",
+        "後ろ",
+        "隣"
+      ],
+      "translation": "The cat is on the box."
+    },
+    {
+      "chapter": "ch10",
+      "name": "ch10-under",
+      "scene": "A cat sitting clearly underneath a simple wooden table, the whole table visible with the cat on the floor below its top.",
+      "image": "/exercises/n5/ch10-under.jpg",
+      "alt": "A cat under a table.",
+      "sentence": "猫はテーブルの{}にいます。",
+      "answer": "下",
+      "options": [
+        "上",
+        "下",
+        "中",
+        "前",
+        "後ろ",
+        "隣"
+      ],
+      "translation": "The cat is under the table."
+    },
+    {
+      "chapter": "ch10",
+      "name": "ch10-in",
+      "scene": "A cat inside an open cardboard box, only its head and paws showing above the rim.",
+      "image": "/exercises/n5/ch10-in.jpg",
+      "alt": "A cat inside an open box.",
+      "sentence": "猫は箱の{}にいます。",
+      "answer": "中",
+      "options": [
+        "上",
+        "下",
+        "中",
+        "前",
+        "後ろ",
+        "隣"
+      ],
+      "translation": "The cat is in the box."
+    },
+    {
+      "chapter": "ch10",
+      "name": "ch10-front",
+      "scene": "A dog sitting clearly in front of a small house, close to the viewer, with the house behind it.",
+      "image": "/exercises/n5/ch10-front.jpg",
+      "alt": "A dog in front of a house.",
+      "sentence": "犬は家の{}にいます。",
+      "answer": "前",
+      "options": [
+        "上",
+        "下",
+        "中",
+        "前",
+        "後ろ",
+        "隣"
+      ],
+      "translation": "The dog is in front of the house."
+    },
+    {
+      "chapter": "ch10",
+      "name": "ch10-behind",
+      "scene": "A dog peeking out from behind a single tree trunk, most of the dog hidden by the trunk, only its head visible at the side.",
+      "image": "/exercises/n5/ch10-behind.jpg",
+      "alt": "A dog looking out from behind a tree.",
+      "sentence": "犬は木の{}にいます。",
+      "answer": "後ろ",
+      "options": [
+        "上",
+        "下",
+        "中",
+        "前",
+        "後ろ",
+        "隣"
+      ],
+      "translation": "The dog is behind the tree."
+    },
+    {
+      "chapter": "ch10",
+      "name": "ch10-next",
+      "scene": "A cat and a dog sitting side by side next to each other, facing the viewer, on the same ground line.",
+      "image": "/exercises/n5/ch10-next.jpg",
+      "alt": "A cat sitting next to a dog.",
+      "sentence": "猫は犬の{}にいます。",
+      "answer": "隣",
+      "options": [
+        "上",
+        "下",
+        "中",
+        "前",
+        "後ろ",
+        "隣"
+      ],
+      "translation": "The cat is next to the dog."
+    },
+    {
+      "chapter": "ch20",
+      "name": "ch20-hat",
+      "scene": "A smiling young person from the chest up wearing a bright red hat. Plain t-shirt. No glasses, no coat.",
+      "image": "/exercises/n5/ch20-hat.jpg",
+      "alt": "A person wearing a hat.",
+      "sentence": "この人は帽子を{}います。",
+      "answer": "被って",
+      "options": [
+        "被って",
+        "掛けて",
+        "履いて",
+        "着て"
+      ],
+      "translation": "This person is wearing a hat."
+    },
+    {
+      "chapter": "ch20",
+      "name": "ch20-glasses",
+      "scene": "A smiling young person from the chest up wearing round black glasses. Plain t-shirt. No hat, no coat.",
+      "image": "/exercises/n5/ch20-glasses.jpg",
+      "alt": "A person wearing glasses.",
+      "sentence": "この人は眼鏡を{}います。",
+      "answer": "掛けて",
+      "options": [
+        "被って",
+        "掛けて",
+        "履いて",
+        "着て"
+      ],
+      "translation": "This person is wearing glasses."
+    },
+    {
+      "chapter": "ch20",
+      "name": "ch20-shoes",
+      "scene": "A full-body young person standing, wearing bright red sneakers that stand out, with plain grey clothes in neutral colours. No hat, no glasses, no coat.",
+      "image": "/exercises/n5/ch20-shoes.jpg",
+      "alt": "A person putting on shoes.",
+      "sentence": "この人は靴を{}います。",
+      "answer": "履いて",
+      "options": [
+        "被って",
+        "掛けて",
+        "履いて",
+        "着て"
+      ],
+      "translation": "This person is wearing shoes."
+    },
+    {
+      "chapter": "ch20",
+      "name": "ch20-coat",
+      "scene": "A full-body young person standing and wearing a long buttoned-up green winter coat. No hat, no glasses.",
+      "image": "/exercises/n5/ch20-coat.jpg",
+      "alt": "A person wearing a coat.",
+      "sentence": "この人はコートを{}います。",
+      "answer": "着て",
+      "options": [
+        "被って",
+        "掛けて",
+        "履いて",
+        "着て"
+      ],
+      "translation": "This person is wearing a coat."
+    }
+  ]
+}
