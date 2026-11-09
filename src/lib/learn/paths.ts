@@ -6,12 +6,26 @@ export const HOW_GRADING_WORKS_PATH = '/learn/how-grading-works'
 /** The kanji track of v1: N5 only. */
 export const KANJI_TRACK: LearningTrack = 'kanji_n5'
 
-export const LEARNING_TRACKS: readonly LearningTrack[] = ['hiragana', 'katakana', 'kanji_n5']
+export const LEARNING_TRACKS: readonly LearningTrack[] = ['hiragana', 'katakana', 'kanji_n5', 'vocab_n5', 'grammar_n5']
+
+/** Tracks taught by lessons; chapter words and sentences come from their chapter instead. */
+export type LessonTrack = 'hiragana' | 'katakana' | 'kanji_n5'
+export const LESSON_TRACKS: readonly LessonTrack[] = ['hiragana', 'katakana', 'kanji_n5']
+
+/** The grammar chapter tracks (vocab quiz and exercise). */
+export const CHAPTER_VOCAB_TRACK: LearningTrack = 'vocab_n5'
+export const CHAPTER_GRAMMAR_TRACK: LearningTrack = 'grammar_n5'
 
 export const TRACK_LABEL: Record<LearningTrack, string> = {
   hiragana: 'Hiragana',
   katakana: 'Katakana',
   kanji_n5: 'N5 kanji',
+  vocab_n5: 'N5 vocabulary',
+  grammar_n5: 'N5 grammar',
+}
+
+export function isLessonTrack(value: string | null | undefined): value is LessonTrack {
+  return LESSON_TRACKS.some((t) => t === value)
 }
 
 export function isLearningTrack(value: string | null | undefined): value is LearningTrack {

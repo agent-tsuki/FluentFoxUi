@@ -131,6 +131,11 @@ export const learnService = {
     return put(`${path}?track=${encodeURIComponent(track)}`, req)
   },
 
+  /** Marks a grammar chapter complete (its words and sentences join reviews), or takes the mark away. */
+  setChapterCompletion(level: string, chapterSlug: string, completed: boolean): Promise<UnitProgressData> {
+    return put(`/learn/grammar/${encodeURIComponent(level)}/chapters/${encodeURIComponent(chapterSlug)}/completion`, { completed })
+  },
+
   getKanjiNote(char: string): Promise<KanjiNote> {
     return get(`/learn/kanji/${encodeURIComponent(char)}/note`)
   },

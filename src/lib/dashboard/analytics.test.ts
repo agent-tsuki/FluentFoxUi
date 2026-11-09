@@ -99,7 +99,7 @@ describe('forecastSummary', () => {
       dueToday: 5,
       avgPerDay: 14 / 3,
       peak: { date: '2026-11-07', total: 9 },
-      byTrack: { hiragana: 7, katakana: 0, kanji_n5: 7 },
+      byTrack: { hiragana: 7, katakana: 0, kanji_n5: 7, vocab_n5: 0, grammar_n5: 0 },
     })
   })
 })

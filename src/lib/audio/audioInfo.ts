@@ -1,4 +1,4 @@
-import { audioService, type AudioInfo } from '@/api/services/audioService'
+import { audioService, type AudioInfo, type SpeechVoice } from '@/api/services/audioService'
 import { pruneClips } from '@/lib/audio/clipCache'
 
 const DISABLED: AudioInfo = { enabled: false }
@@ -33,7 +33,21 @@ export function peekAudioInfo(): AudioInfo | null {
   return infoValue
 }
 
-/** CDN URL of a sentence's clip in the main voice. */
-export function clipUrl(info: AudioInfo, hash: string): string {
-  return `${info.base_url}/${hash}${info.ext}`
+/** The voice the API will use: a cast or second voice only when it has it (else the main voice answers for it). */
+export function availableVoice(info: AudioInfo, voice: SpeechVoice = 'main'): SpeechVoice {
+  if (voice === 'alt') return info.alt_base_url ? 'alt' : 'main'
+  return info.voices?.[voice] ? voice : 'main'
+}
+
+/** CDN URL of a sentence's clip in a voice (the main voice by default). */
+export function clipUrl(info: AudioInfo, hash: string, voice: SpeechVoice = 'main'): string {
+  const v = availableVoice(info, voice)
+  const base = v === 'main' ? info.base_url : v === 'alt' ? info.alt_base_url : info.voices?.[v]?.base_url
+  return `${base}/${hash}${info.ext}`
+}
+
+/** Every voice's credit line, once each (their licences ask for them to be shown). */
+export function voiceCredits(info: AudioInfo): string[] {
+  const all = [info.credit, info.alt_credit, ...Object.values(info.voices ?? {}).map((v) => v.credit)]
+  return [...new Set(all.filter((c): c is string => Boolean(c)))]
 }

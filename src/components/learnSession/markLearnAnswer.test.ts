@@ -24,6 +24,10 @@ describe('questionView', () => {
     ['a typed kanji reading', q('kanji_reading_typed', '日', 'にち'), { display: 'japanese', input: 'typed', typesKana: true }],
     ['a typed kanji meaning', q('kanji_meaning_typed', '日', 'day'), { input: 'typed', typesKana: false }],
     ['a choice type sent without options', q('kanji_meaning_mcq', '日', 'day'), { input: 'typed' }],
+    ['a grammar gap to pick', q('grammar_gap_mcq', 'わたし{}学生です。', 'は', { options: ['は', 'を'] }), { display: 'sentence', input: 'choice' }],
+    ['a grammar gap to type', q('grammar_gap_typed', 'わたし{}学生です。', 'は'), { display: 'sentence', input: 'typed', typesKana: true }],
+    ['a sentence to translate', q('grammar_translate_mcq', 'わたしは学生です。', 'I am a student.', { options: ['I am a student.', 'I go.'] }), { display: 'sentence', input: 'choice', optionsJapanese: false }],
+    ['a typed word meaning', q('vocab_meaning_typed', '駅', 'station'), { display: 'japanese', input: 'typed', typesKana: false }],
   ])('shows %s', (_name, question, expected) => {
     expect(questionView(question)).toMatchObject(expected)
   })
@@ -38,6 +42,9 @@ describe('markLearnAnswer', () => {
     ['another accepted reading', q('kanji_reading_typed', '日', 'にち', { accepted_answers: ['ひ', 'じつ'] }), 'hi', true],
     ['a wrong reading', q('kanji_reading_typed', '日', 'にち'), 'tsuki', false],
     ['a meaning in another case', q('kanji_meaning_typed', '日', 'day'), ' Day ', true],
+    ['a particle typed by its sound', q('grammar_gap_typed', 'わたし{}学生です。', 'は'), 'wa', true],
+    ['a particle typed in kana', q('grammar_gap_typed', 'わたし{}学生です。', 'は'), 'は', true],
+    ['a wrong particle', q('grammar_gap_typed', 'わたし{}学生です。', 'は'), 'ga', false],
     ['an accepted synonym', q('kanji_meaning_typed', '日', 'day', { accepted_answers: ['sun'] }), 'the sun', true],
     ['an empty answer', q('kanji_meaning_typed', '日', 'day'), '   ', false],
   ])('marks %s', (_name, question, given, correct) => {

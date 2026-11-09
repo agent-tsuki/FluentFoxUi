@@ -1,8 +1,9 @@
 import { memo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import type { GrammarChapterSummary } from '@/types/grammar'
 import { Icon } from '@/components/ui/Icon'
 import { cn } from '@/lib/cn'
+import { chapterPath, isChapterTab, type ChapterTab } from '@/lib/content/jlpt/levels'
 
 interface ChapterListProps {
   level: string
@@ -16,17 +17,19 @@ interface ChapterListProps {
 
 interface ChapterItemProps {
   level: string
+  /** The tab open now (Grammar / Vocabulary / Exercise): switching chapter keeps it. */
+  tab: ChapterTab
   chapter: GrammarChapterSummary
   isActive: boolean
   isDone: boolean
   onSelect?: (chapterId: number) => void
 }
 
-const ChapterItem = memo(function ChapterItem({ level, chapter, isActive, isDone, onSelect }: ChapterItemProps) {
+const ChapterItem = memo(function ChapterItem({ level, tab, chapter, isActive, isDone, onSelect }: ChapterItemProps) {
   return (
     <li>
       <Link
-        to={`/grammar/${level}/${chapter.id}`}
+        to={chapterPath(level, chapter.id, tab)}
         aria-current={isActive ? 'page' : undefined}
         data-active={isActive || undefined}
         onClick={() => onSelect?.(chapter.id)}
@@ -79,6 +82,8 @@ const ChapterItem = memo(function ChapterItem({ level, chapter, isActive, isDone
  * phone chapter sheet in MobileGrammarNav.
  */
 export function ChapterList({ level, chapters, completedChapters, activeChapterId, onSelect, className }: ChapterListProps) {
+  const { tab: tabParam } = useParams()
+  const tab: ChapterTab = isChapterTab(tabParam) ? tabParam : 'grammar'
   if (chapters.length === 0) {
     return (
       <div className={cn('px-5 py-12 text-center', className)}>
@@ -97,6 +102,7 @@ export function ChapterList({ level, chapters, completedChapters, activeChapterI
         <ChapterItem
           key={ch.id}
           level={level}
+          tab={tab}
           chapter={ch}
           isActive={ch.id === activeChapterId}
           isDone={completedChapters.has(ch.id)}

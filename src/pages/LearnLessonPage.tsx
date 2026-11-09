@@ -4,10 +4,9 @@ import { learnService } from '@/api/services/learnService'
 import { LearnSessionScreen } from '@/components/learnSession/LearnSessionScreen'
 import { kanaBasePath } from '@/lib/content/kana/scriptIds'
 import { kanjiLevelPath } from '@/lib/content/kanji/levels'
-import { TRACK_LABEL, isLearningTrack } from '@/lib/learn/paths'
-import type { LearningTrack } from '@/types/learn'
+import { TRACK_LABEL, isLessonTrack, type LessonTrack } from '@/lib/learn/paths'
 
-function courseHome(track: LearningTrack): string {
+function courseHome(track: LessonTrack): string {
   return track === 'kanji_n5' ? kanjiLevelPath('n5') : kanaBasePath(track)
 }
 
@@ -20,7 +19,7 @@ export function LearnLessonPage() {
   const { track } = useParams()
   const navigate = useNavigate()
   const [round, setRound] = useState(0)
-  const valid = isLearningTrack(track) ? track : null
+  const valid = isLessonTrack(track) ? track : null
   const start = useCallback(() => learnService.startLesson({ track: valid ?? 'hiragana' }), [valid])
   const exit = useCallback(() => navigate(valid ? courseHome(valid) : '/'), [navigate, valid])
   if (!valid) return <Navigate to="/" replace />

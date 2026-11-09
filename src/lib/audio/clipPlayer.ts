@@ -10,6 +10,8 @@ const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAI
 
 let element: HTMLAudioElement | null = null
 let stopCurrent: (() => void) | null = null
+/** The playing clips: which one, of how many. */
+let playing: { index: number; count: number } | null = null
 /** Set once the element has played: from then on it may play without a tap. */
 let unlocked = false
 
@@ -60,6 +62,21 @@ export function stopClips(): void {
   stopCurrent = null
 }
 
+/** How far playback is: clip `part` of `parts` (one per sentence), `fraction` of the way through it. */
+export interface PlaybackProgress {
+  part: number
+  parts: number
+  fraction: number
+}
+
+/** Where the clips now playing are, or null when none are (for highlighting the words as they are said). */
+export function clipProgress(): PlaybackProgress | null {
+  if (!playing || !element) return null
+  const { duration, currentTime } = element
+  const fraction = Number.isFinite(duration) && duration > 0 ? Math.min(1, currentTime / duration) : 0
+  return { part: playing.index, parts: playing.count, fraction }
+}
+
 export interface ClipPlayback {
   onStart?: () => void
   /** Called once: finished, failed or stopped. */
@@ -83,7 +100,10 @@ export function playClips(clips: Blob[], { onStart, onEnd }: ClipPlayback = {}):
       audio.onerror = null
       audio.pause()
       urls.forEach((url) => URL.revokeObjectURL(url))
-      if (stopCurrent === stop) stopCurrent = null
+      if (stopCurrent === stop) {
+        stopCurrent = null
+        playing = null
+      }
       if (started) onEnd?.()
       resolve(ok || started)
     }
@@ -91,6 +111,7 @@ export function playClips(clips: Blob[], { onStart, onEnd }: ClipPlayback = {}):
     stopCurrent = stop
 
     const playAt = (i: number) => {
+      playing = { index: i, count: urls.length }
       audio.src = urls[i]
       audio.play().then(
         () => {

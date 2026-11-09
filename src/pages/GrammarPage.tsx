@@ -8,9 +8,16 @@ import { readCompletedChapters, writeCompletedChapters } from '@/lib/grammar/com
 import { Icon } from '@/components/ui/Icon'
 import { LoadingState, SkeletonBlock } from '@/components/ui/LoadingState'
 import { ErrorState } from '@/components/ui/ErrorState'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useGrammarChapters } from '@/hooks/useGrammarChapters'
 import { useGrammarChapter } from '@/hooks/useGrammarChapter'
+import { useChapterProgress } from '@/hooks/useChapterProgress'
+import { showToast } from '@/store/toastStore'
+import { ChapterTabs } from '@/components/grammar/ChapterTabs'
+import { ChapterVocabulary } from '@/components/grammar/ChapterVocabulary'
+import { ChapterExercise } from '@/components/grammar/ChapterExercise'
+import { ChapterListening } from '@/components/grammar/ChapterListening'
+import { chapterPath, isChapterTab, type ChapterTab } from '@/lib/content/jlpt/levels'
 
 // Column on phones (sticky MobileGrammarNav on top), row on desktop (fixed sidebar + content).
 const PAGE_LAYOUT = 'min-h-dvh pt-nav flex flex-col lg:flex-row'
@@ -81,22 +88,33 @@ function ChapterSkeleton() {
 const VALID_LEVELS = ['n5', 'n4', 'n3', 'n2', 'n1']
 
 export function GrammarPage() {
-  const { level, chapterId } = useParams<{ level: string; chapterId?: string }>()
+  const { level, chapterId, tab: tabParam } = useParams<{ level: string; chapterId?: string; tab?: string }>()
   const selectedChapterId = chapterId ? parseInt(chapterId) : 1
+  // Grammar notes, or the chapter's Vocabulary / Exercise / Listening tab.
+  const tab: ChapterTab = isChapterTab(tabParam) ? tabParam : 'grammar'
   const [revealMode, setRevealMode] = useState(false)
-  const [completedChapters, setCompletedChapters] = useState<Set<number>>(new Set())
+  const [localCompleted, setLocalCompleted] = useState<Set<number>>(new Set())
 
   // Load completed chapters (kept on this device) when the level changes.
   useEffect(() => {
-    setCompletedChapters(level ? readCompletedChapters(level) : new Set())
+    setLocalCompleted(level ? readCompletedChapters(level) : new Set())
   }, [level])
 
   useEffect(() => {
     window.scrollTo(0, 0)
     setRevealMode(false)
-  }, [level, chapterId])
+  }, [level, chapterId, tab])
 
   const levelKey = level?.toLowerCase() ?? ''
+  // Signed-in learners' chapters are complete on the server; guests keep ticks on this device.
+  const progress = useChapterProgress(levelKey)
+  const completedChapters = useMemo(
+    () =>
+      progress.enabled
+        ? new Set([...progress.byChapter].filter(([, p]) => p.completed).map(([n]) => n))
+        : localCompleted,
+    [progress.enabled, progress.byChapter, localCompleted],
+  )
   const isValidLevel = VALID_LEVELS.includes(levelKey)
   const isLocked = LOCKED_GRAMMAR_LEVELS.has(levelKey)
 
@@ -113,6 +131,10 @@ export function GrammarPage() {
 
   if (!level || !isValidLevel) {
     return <Navigate to="/grammar/n5/1" replace />
+  }
+  // An unknown tab (or /grammar/n5/3/grammar) opens the chapter's notes.
+  if (tabParam !== undefined && (!isChapterTab(tabParam) || tabParam === 'grammar')) {
+    return <Navigate to={chapterPath(level, selectedChapterId)} replace />
   }
 
   const activeChapterId = summary?.id ?? selectedChapterId
@@ -145,7 +167,13 @@ export function GrammarPage() {
 
   const markChapterComplete = () => {
     if (!summary) return
-    setCompletedChapters(prev => {
+    if (progress.enabled) {
+      progress.setCompleted(summary.id, true).catch(() =>
+        showToast({ tone: 'error', title: "We couldn't mark the chapter complete", message: 'Please try again.' }),
+      )
+      return
+    }
+    setLocalCompleted(prev => {
       const next = new Set(prev)
       next.add(summary.id)
       writeCompletedChapters(levelKey, next)
@@ -157,6 +185,14 @@ export function GrammarPage() {
   let body
   if (chapterState.error) {
     body = <ErrorState message="We couldn't load this chapter. Please try again." onRetry={chapterState.refetch} />
+  } else if (chapter && tab === 'vocabulary') {
+    body = <ChapterVocabulary chapter={chapter} best={progress.byChapter.get(chapter.id)?.vocabBest} onRecorded={progress.refetch} />
+  } else if (chapter && tab === 'exercise') {
+    body = (
+      <ChapterExercise level={levelKey} chapterId={chapter.id} best={progress.byChapter.get(chapter.id)?.exerciseBest} onRecorded={progress.refetch} />
+    )
+  } else if (chapter && tab === 'listening') {
+    body = <ChapterListening level={levelKey} chapterId={chapter.id} />
   } else if (chapter) {
     body = (
       <GrammarContent
@@ -189,6 +225,7 @@ export function GrammarPage() {
         nextChapterId={nextChapterId}
       />
       <main className={`flex-1 ${FIXED_SIDEBAR_OFFSET} bg-surface fade-in ${ANCHOR_OFFSET}`}>
+        {summary && <ChapterTabs level={levelKey} chapterId={summary.id} title={summary.title} current={tab} />}
         {body}
       </main>
     </div>

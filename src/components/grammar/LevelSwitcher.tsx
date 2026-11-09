@@ -42,12 +42,12 @@ export function LevelSwitcher({ level, size = 'sm', className }: LevelSwitcherPr
               key={l}
               title={`${label} — Coming Soon`}
               className={cn(
-                'relative rounded-lg text-xs font-bold flex flex-col items-center justify-center gap-0.5 cursor-not-allowed text-on-surface-variant/35 select-none',
+                'relative rounded-lg text-xs font-bold flex items-center justify-center gap-0.5 cursor-not-allowed text-on-surface-variant/40 select-none',
                 SEGMENT_SIZE[size],
               )}
             >
-              <Icon name="lock" className="text-2xs leading-none" />
-              <span className="text-2xs" aria-hidden>{label}</span>
+              <Icon name="lock" className="text-xs leading-none" />
+              <span aria-hidden>{label}</span>
               <span className="sr-only">{label} — locked, coming soon</span>
             </div>
           )

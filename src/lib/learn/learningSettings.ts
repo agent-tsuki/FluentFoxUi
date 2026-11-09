@@ -6,7 +6,7 @@
 import type { AnswerMode, LearningSettings, LearningSettingsUpdate } from '@/types/learn'
 
 /** Every numeric setting the page edits. */
-export type NumericSettingKey = Exclude<keyof LearningSettings, 'answer_mode' | 'show_retention'>
+export type NumericSettingKey = Exclude<keyof LearningSettings, 'answer_mode' | 'show_retention' | 'chapter_completion'>
 
 export interface SettingRange {
   min: number
@@ -23,6 +23,7 @@ export const SETTING_RANGES: Record<NumericSettingKey, SettingRange> = {
   lesson_size: { min: 1, max: 20, step: 1 },
   day_starts_at_hour: { min: 0, max: 23, step: 1 },
   desired_retention: { min: 0.7, max: 0.97, step: 0.01 },
+  chapter_pass_pct: { min: 50, max: 100, step: 5 },
 }
 
 export const ANSWER_MODES: readonly AnswerMode[] = ['mixed', 'choice', 'typed']
@@ -45,6 +46,8 @@ export const DEFAULT_LEARNING_SETTINGS: LearningSettings = {
   day_starts_at_hour: 4,
   answer_mode: 'mixed',
   show_retention: true,
+  chapter_pass_pct: 70,
+  chapter_completion: 'auto',
 }
 
 export type SettingsErrors = Partial<Record<NumericSettingKey, string>>

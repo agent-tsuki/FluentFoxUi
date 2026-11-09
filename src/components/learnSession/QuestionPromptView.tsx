@@ -1,7 +1,7 @@
 import { forwardRef } from 'react'
 import { cn } from '@/lib/cn'
 import { Icon } from '@/components/ui/Icon'
-import type { QuestionView } from '@/lib/learn/questionView'
+import { SENTENCE_GAP, type QuestionView } from '@/lib/learn/questionView'
 import type { LearnQuestion } from '@/types/learn'
 
 interface QuestionPromptViewProps {
@@ -38,6 +38,19 @@ export const QuestionPromptView = forwardRef<HTMLHeadingElement, QuestionPromptV
         >
           {prompt}
         </p>
+      )}
+      {view.display === 'sentence' && (
+        <div aria-hidden="true" className="max-w-xl space-y-3">
+          <p lang="ja" className="font-jp text-2xl font-medium leading-relaxed text-on-surface sm:text-3xl">
+            {prompt.split(SENTENCE_GAP).map((part, i, parts) => (
+              <span key={i}>
+                {part}
+                {i < parts.length - 1 && <span className="mx-1 inline-block w-14 border-b-2 border-on-surface-variant align-baseline" />}
+              </span>
+            ))}
+          </p>
+          {question.sentence?.translation && <p className="text-sm text-on-surface-variant">{question.sentence.translation}</p>}
+        </div>
       )}
       {view.display === 'latin' && (
         <p

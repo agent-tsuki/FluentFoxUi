@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useSyncExternalStore, type ReactNode } from 'react'
-import { createBrowserRouter, Navigate, RouterProvider, Outlet, useLocation, useSearchParams, type RouteObject } from 'react-router-dom'
+import { createBrowserRouter, Navigate, RouterProvider, Outlet, useLocation, useSearchParams, useParams, type RouteObject } from 'react-router-dom'
 import { PathUserSync } from '@/components/auth/PathUserSync'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
@@ -84,6 +84,7 @@ const CoursesManagerPage   = lazy(() => import('@/pages/admin/CoursesManagerPage
 const CourseEditorPage     = lazy(() => import('@/pages/admin/CourseEditorPage').then(m => ({ default: m.CourseEditorPage })))
 const TeachersPage         = lazy(() => import('@/pages/admin/TeachersPage').then(m => ({ default: m.TeachersPage })))
 const PermissionsPage      = lazy(() => import('@/pages/admin/PermissionsPage').then(m => ({ default: m.PermissionsPage })))
+const AudioPage            = lazy(() => import('@/pages/admin/AudioPage').then(m => ({ default: m.AudioPage })))
 
 // lottie-web + the koi JSON load only when this background is actually shown.
 const KoiBackground = lazy(() => import('@/components/ui/KoiBackground').then(m => ({ default: m.KoiBackground })))
@@ -275,6 +276,12 @@ function kanjiLevelRoutes(level: KanjiLevelMeta): RouteObject {
   }
 }
 
+/** /jlpt, /jlpt/n5, /jlpt/n5/… → that level's first chapter (N5 when unknown). */
+function JlptRedirect() {
+  const { level } = useParams()
+  return <Navigate to={`/grammar/${level && /^n[1-5]$/.test(level) ? level : 'n5'}/1`} replace />
+}
+
 /** /kanji → the last level visited (or N5). */
 function KanjiIndexRedirect() {
   let level: string | null = null
@@ -325,7 +332,10 @@ const router = createBrowserRouter([
       { path: 'review',          element: <RequireAuth guestPrompt><ReviewPage /></RequireAuth> },
       // /kanji/日 (validated inside: anything that isn't one kanji is a 404).
       { path: 'kanji/:char',     element: <KanjiDetailPage /> },
-      { path: 'grammar/:level/:chapterId?',  element: <GrammarPage /> },
+      // A chapter's Grammar notes, or its Vocabulary / Exercise / Listening tab.
+      { path: 'grammar/:level/:chapterId?/:tab?',  element: <GrammarPage /> },
+      // JLPT levels are their chapters now; old /jlpt links open the level's first chapter.
+      { path: 'jlpt/:level?/*',  element: <JlptRedirect /> },
       { path: 'quiz',            element: <RequireAuth guestPrompt><QuizPage /></RequireAuth> },
       { path: 'classes',         element: <ClassesPage /> },
       { path: 'classes/:teacherId', element: <ClassDetailPage /> },
@@ -381,6 +391,7 @@ const router = createBrowserRouter([
           { path: 'classes/courses/:id',     element: <CourseEditorPage /> },
           { path: 'teachers',                element: <TeachersPage /> },
           { path: 'permissions',             element: <PermissionsPage /> },
+          { path: 'audio',                   element: <AudioPage /> },
         ],
       },
 

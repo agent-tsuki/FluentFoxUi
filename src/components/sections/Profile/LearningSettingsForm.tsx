@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { AnswerMode, LearningSettings } from '@/types/learn'
+import type { AnswerMode, ChapterCompletion, LearningSettings } from '@/types/learn'
 import { cn } from '@/lib/cn'
 import {
   ANSWER_MODES,
@@ -27,6 +27,20 @@ const COUNT_FIELDS: readonly { key: NumericSettingKey; label: string; hint: stri
   { key: 'max_reviews_per_day', label: 'Max reviews per day', hint: 'Review answers before the queue waits for tomorrow', unit: 'reviews' },
   { key: 'session_size', label: 'Review session size', hint: 'Cards in one review session', unit: 'cards' },
   { key: 'lesson_size', label: 'Lesson size', hint: 'New items taught in one lesson', unit: 'items' },
+]
+
+const SELECT_CLASS =
+  'w-full min-h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-3 py-2 text-base text-on-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-primary'
+
+/** The pass marks offered, plus the learner's own if it is another value the server allows. */
+const PASS_MARKS = [60, 70, 80, 90] as const
+function passMarks(current: number): number[] {
+  return [...new Set<number>([...PASS_MARKS, current])].sort((a, b) => a - b)
+}
+
+const CHAPTER_COMPLETIONS: readonly { value: ChapterCompletion; label: string; hint: string }[] = [
+  { value: 'auto', label: 'Automatically when I pass the exercise', hint: 'Passing a chapter’s exercise ticks it off.' },
+  { value: 'manual', label: 'I’ll mark chapters myself', hint: 'Use “Mark complete” on a chapter; passing the exercise only records your score.' },
 ]
 
 const HOURS = Array.from({ length: SETTING_RANGES.day_starts_at_hour.max + 1 }, (_, h) => h)
@@ -109,6 +123,49 @@ export function LearningSettingsForm({ draft, errors, onChange }: LearningSettin
           <p className={cn('text-xs font-body', errors.desired_retention ? 'text-error' : 'text-on-surface-variant')}>
             {errors.desired_retention ?? 'How likely you should be to remember a card when it comes back. Higher means more reviews.'}
           </p>
+        </div>
+      </Panel>
+
+      <Panel title="Grammar chapters" description="When a chapter's vocab quiz and exercise pass, and who marks a chapter complete">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="space-y-1.5">
+            <label htmlFor="chapter-pass-mark" className="block text-sm font-semibold text-on-surface font-body">
+              Pass mark
+            </label>
+            <select
+              id="chapter-pass-mark"
+              value={draft.chapter_pass_pct}
+              onChange={(e) => onChange('chapter_pass_pct', Number(e.target.value))}
+              className={SELECT_CLASS}
+            >
+              {passMarks(draft.chapter_pass_pct).map((pct) => (
+                <option key={pct} value={pct}>
+                  {pct}%
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-on-surface-variant font-body">Share of questions a chapter&rsquo;s vocab quiz or exercise needs right</p>
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="chapter-completion" className="block text-sm font-semibold text-on-surface font-body">
+              Completing a chapter
+            </label>
+            <select
+              id="chapter-completion"
+              value={draft.chapter_completion}
+              onChange={(e) => onChange('chapter_completion', e.target.value as ChapterCompletion)}
+              className={SELECT_CLASS}
+            >
+              {CHAPTER_COMPLETIONS.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-on-surface-variant font-body">
+              {CHAPTER_COMPLETIONS.find((c) => c.value === draft.chapter_completion)?.hint}
+            </p>
+          </div>
         </div>
       </Panel>
 

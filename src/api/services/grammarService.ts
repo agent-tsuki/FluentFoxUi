@@ -1,4 +1,6 @@
-import type { GrammarChapter, GrammarChapterSummary } from '@/types/grammar'
+import type { ChapterContent, GrammarChapter, GrammarChapterSummary } from '@/types/grammar'
+import type { ApiResponse } from '@/types/api'
+import { apiClient } from '@/api/client'
 import { getMockChapterList, loadMockChapter, peekMockChapter } from '@/api/mock/grammarData'
 
 // ─── Swap mock data for real fetch() calls when the API is ready ──────────────
@@ -33,4 +35,8 @@ export const grammarService = {
   prefetchChapter: (level: string, id: number): void => {
     loadMockChapter(level, id).catch(() => undefined)
   },
+
+  /** A chapter's words (with hints) and its practice sentences read in full, from the API. Public. */
+  getChapterContent: async (level: string, chapterSlug: string): Promise<ChapterContent> =>
+    (await apiClient.get<ApiResponse<ChapterContent>>(`/content/grammar/${encodeURIComponent(level)}/chapters/${encodeURIComponent(chapterSlug)}`)).data,
 }

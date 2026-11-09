@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import type { SpeechVoice } from '@/api/services/audioService'
 import { useAuth } from '@/context/AuthContext'
 import { preloadSpeech } from '@/lib/audio/loadSpeech'
 
@@ -7,13 +8,14 @@ import { preloadSpeech } from '@/lib/audio/loadSpeech'
  * next listening question's text. Each text is fetched once (a tap while it
  * is still loading waits for the same request), and nothing is cancelled when
  * the learner moves on, so a clip already on its way is kept for later.
+ * `voice` picks a dialogue's second speaker.
  */
-export function usePreloadSpeech(texts: readonly (string | null | undefined)[]): void {
+export function usePreloadSpeech(texts: readonly (string | null | undefined)[], voice: SpeechVoice = 'main'): void {
   const { user } = useAuth()
   const canGenerate = Boolean(user?.emailVerified)
   const key = texts.filter((t): t is string => Boolean(t)).join('\u0000')
 
   useEffect(() => {
-    if (key) preloadSpeech(key.split('\u0000'), canGenerate)
-  }, [key, canGenerate])
+    if (key) preloadSpeech(key.split('\u0000'), canGenerate, voice)
+  }, [key, canGenerate, voice])
 }

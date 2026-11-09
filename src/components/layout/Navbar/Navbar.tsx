@@ -1,11 +1,11 @@
 import { lazy, Suspense, useState, useRef, useEffect } from 'react'
-import { useReviewGate } from '@/hooks/useReviewGate'
 import { Link } from 'react-router-dom'
 import { mockNavItems } from '@/api/mock/navigation'
 import type { NavItem } from '@/types'
 import { useModal } from '@/context/ModalContext'
 import { useAuth } from '@/context/AuthContext'
 import { NavDropdown } from './NavDropdown'
+import { JlptMegaMenu } from './JlptMegaMenu'
 import { MobileNavSections } from './MobileNavSections'
 import { Button } from '@/components/ui/Button'
 import { FoxLogo, FoxLogoHandle } from './FoxLogo'
@@ -18,7 +18,6 @@ import { useLearnSummary } from '@/hooks/useLearnSummary'
 import { useProgressOverview } from '@/hooks/useProgress'
 import { useLingeringPopover } from '@/hooks/useLingeringPopover'
 import { DueBadge } from '@/components/learnSession/DueBadge'
-import { reviewPath } from '@/lib/learn/paths'
 import { asset } from '@/lib/assets'
 import { AdminMenuLink } from '@/components/admin/AdminMenuLink'
 import { THEME_BUTTON_INTENT, ThemeToggleIcon } from './ThemeToggleIcon'
@@ -27,8 +26,8 @@ import { THEME_BUTTON_INTENT, ThemeToggleIcon } from './ThemeToggleIcon'
 const StreakMonthPopup = lazy(() => import('./StreakMonthPopup').then((m) => ({ default: m.StreakMonthPopup })))
 
 const navItems: NavItem[] = mockNavItems
-/** How long the streak calendar stays after the pointer leaves the flame or the calendar. */
-const STREAK_PREVIEW_LINGER_MS = 2000
+/** The streak calendar opens on click and closes this long after the pointer leaves it (or after a tap). */
+const STREAK_PREVIEW_LINGER_MS = 1000
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen]         = useState(false)
@@ -39,7 +38,6 @@ export function Navbar() {
   const streak = useProgressOverview().data?.streak.current ?? 0
   const { darkMode, toggleDarkMode } = useUI()
   const streakPopover = useLingeringPopover(STREAK_PREVIEW_LINGER_MS)
-  const gateReview = useReviewGate()
   const streakOpen = streakPopover.open
   const closeStreak = streakPopover.close
 
@@ -81,8 +79,8 @@ export function Navbar() {
     return () => document.removeEventListener('pointerdown', onPointerDown)
   }, [avatarMenuOpen])
 
-  // Streak popup: close at once on an outside click. Hover, tap and keyboard open it, and it
-  // lingers 2 s after the pointer leaves (useLingeringPopover).
+  // Streak popup: close at once on an outside click. A click, tap or Enter opens it, and it
+  // closes 1 s after the pointer leaves (useLingeringPopover).
   useEffect(() => {
     if (!streakOpen) return
     const onPointerDown = (e: PointerEvent) => {
@@ -148,28 +146,21 @@ export function Navbar() {
           {/* Desktop Nav Links */}
           <div className="hidden md:flex items-center gap-8 lg:gap-10 tracking-wide text-sm font-semibold">
             {navItems.map((item) =>
-              item.dropdown ? (
+              item.mega === 'jlpt' ? (
+                <JlptMegaMenu key={item.label} label={item.label} />
+              ) : item.dropdown ? (
                 <NavDropdown key={item.label} label={item.label} items={item.dropdown} />
               ) : (
                 <Link
                   key={item.label}
                   to={item.href ?? '/'}
-                  className="text-on-surface-variant hover:text-on-surface hover:scale-105 transition-all duration-200"
+                  className="flex items-center gap-1.5 text-on-surface-variant hover:text-on-surface hover:scale-105 transition-all duration-200"
                 >
                   {item.label}
+                  {/* Reviews live on the Quiz page now; its link carries the due count. */}
+                  {user && item.href === '/quiz' && <DueBadge count={dueNow} />}
                 </Link>
               )
-            )}
-            {/* Review (signed in), next to Classes, with the due count */}
-            {user && (
-              <Link
-                to={reviewPath()}
-                onClick={gateReview()}
-                className="flex items-center gap-1.5 text-on-surface-variant hover:text-on-surface hover:scale-105 transition-all duration-200"
-              >
-                Review
-                <DueBadge count={dueNow} />
-              </Link>
             )}
           </div>
 
@@ -180,7 +171,7 @@ export function Navbar() {
               <div ref={streakRef} className="relative hidden md:block" {...streakPopover.wrapperProps}>
                 <Link
                   to="/dashboard"
-                  // A first tap or Enter shows the calendar preview; the next one opens the dashboard.
+                  // A click, tap or Enter shows the calendar preview; the next one opens the dashboard.
                   onClick={streakPopover.onTriggerClick}
                   aria-label={`${streak}-day streak. Show streak calendar`}
                   className="group/streak flex items-center gap-2 min-h-11 px-2 rounded-full transition-colors hover:bg-surface-container"
@@ -386,17 +377,6 @@ export function Navbar() {
                       <ThemeToggleIcon dark={darkMode} className="text-base" />
                       {darkMode ? 'Light theme' : 'Dark theme'}
                     </button>
-                    <Link
-                      to={reviewPath()}
-                      onClick={(e) => {
-                        closeMobile()
-                        gateReview()(e)
-                      }}
-                      className="flex items-center gap-2 px-3 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container text-sm transition-colors"
-                    >
-                      Review all
-                      <DueBadge count={dueNow} />
-                    </Link>
                     <button
                       onClick={() => { logout(); closeMobile() }}
                       className="w-full flex items-center gap-2 px-3 py-3 rounded-lg text-error hover:bg-error/5 text-sm text-left transition-colors"

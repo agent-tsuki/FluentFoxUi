@@ -93,7 +93,7 @@ function routeWork(pathname: string, search: string): RouteWork | null {
   }
 
   // /grammar/n5 opens chapter 1; other levels show the locked screen (same page code).
-  const grammar = /^\/grammar\/(n[1-5])(?:\/(\d+))?$/.exec(path)
+  const grammar = /^\/grammar\/(n[1-5])(?:\/(\d+))?(?:\/(?:vocabulary|exercise|listening))?$/.exec(path)
   if (grammar) {
     const board = grammar[1] === 'n5' ? n5BoardPath(Number(grammar[2] ?? 1)) : undefined
     const level = grammar[1]

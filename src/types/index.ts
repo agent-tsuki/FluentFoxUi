@@ -9,6 +9,8 @@ export interface NavItem {
   label: string
   href?: string
   dropdown?: DropdownItem[]
+  /** A wide menu instead of a list: 'jlpt' shows every level with its parts. */
+  mega?: 'jlpt'
 }
 
 // ─── Flashcard ────────────────────────────────────────────────────────────────
@@ -87,76 +89,6 @@ export interface KanaSection {
 // ─── Kanji ────────────────────────────────────────────────────────────────────
 
 export type JlptLevel = 'N5' | 'N4' | 'N3' | 'N2' | 'N1'
-
-// ─── Quiz Config ──────────────────────────────────────────────────────────────
-
-export type QuizCategory = 'kanji' | 'hiragana' | 'katakana' | 'grammar' | 'pyq'
-export type QuizFilterMethod = 'chapter' | 'custom'
-export type QuizJlptLevel = 'n5' | 'n4' | 'n3' | 'n2' | 'n1'
-
-export interface QuizJlptOption {
-  value: QuizJlptLevel
-  label: string
-}
-
-export interface QuizCategoryOption {
-  value: QuizCategory
-  label: string
-}
-
-export interface QuizKanjiPreviewChar {
-  character: string
-  meaning: string
-}
-
-export interface QuizSelectableKanji {
-  character: string
-  selected: boolean
-}
-
-export interface QuizGrammarCard {
-  id: string
-  icon: string
-  title: string
-  description: string
-}
-
-export interface QuizConfigData {
-  pageLabel: string
-  heading: string
-  subheading: string
-  jlptLevels: QuizJlptOption[]
-  categories: QuizCategoryOption[]
-  kanjiPreview: QuizKanjiPreviewChar[]
-  selectableKanji: QuizSelectableKanji[]
-  grammarCards: QuizGrammarCard[]
-  proTip: string
-}
-
-// ─── Quiz Game ────────────────────────────────────────────────────────────────
-
-export type QuizQuestionType =
-  | 'hiragana-to-romaji'
-  | 'romaji-to-hiragana'
-  | 'kanji-to-meaning'
-  | 'kanji-to-onyomi'
-
-export interface QuizQuestionData {
-  id: string
-  type: QuizQuestionType
-  prompt: string          // The character or word shown to the user
-  promptLabel: string     // Instruction text e.g. "What is the romaji reading?"
-  correctAnswer: string   // Correct option value
-  options: string[]       // Exactly 4 options (includes correct answer)
-}
-
-export interface QuizResultData {
-  score: number
-  total: number
-  timeElapsed: number     // seconds
-  missedQuestions: QuizQuestionData[]
-  maxStreak: number
-}
 
 // ─── Profile ──────────────────────────────────────────────────────────────────
 

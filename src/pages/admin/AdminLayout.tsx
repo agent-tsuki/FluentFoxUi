@@ -25,6 +25,7 @@ const NAV: AdminNavItem[] = [
   { to: '/admin/classes/courses', label: 'Courses', icon: 'school', visible: p => p.canAny('classes.course.edit') },
   { to: '/admin/teachers', label: 'Teachers', icon: 'mail', visible: p => p.canAny('permissions.manage') },
   { to: '/admin/permissions', label: 'Permissions', icon: 'verified', visible: p => p.canAny('permissions.manage') },
+  { to: '/admin/audio', label: 'Audio', icon: 'headphones', visible: p => p.permissions?.isSuperAdmin === true },
 ]
 
 /**

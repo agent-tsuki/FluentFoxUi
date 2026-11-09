@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
+import { chapterPath, isChapterTab } from '@/lib/content/jlpt/levels'
 import type { GrammarChapterSummary } from '@/types/grammar'
 import { Icon } from '@/components/ui/Icon'
 import { cn } from '@/lib/cn'
@@ -37,6 +38,7 @@ export function MobileGrammarNav({
   nextChapterId,
 }: MobileGrammarNavProps) {
   const navigate = useNavigate()
+  const { tab } = useParams()
   const [sheetOpen, setSheetOpen] = useState(false)
   const { ref: barRef, height: barHeight } = useMeasuredHeight<HTMLDivElement>()
   const closeSheet = useCallback(() => setSheetOpen(false), [])
@@ -45,7 +47,7 @@ export function MobileGrammarNav({
   useEffect(() => setSheetOpen(false), [level, activeChapterId])
 
   const position = chapters.findIndex(c => c.id === activeChapterId) + 1
-  const goTo = (id?: number) => id !== undefined && navigate(`/grammar/${level}/${id}`)
+  const goTo = (id?: number) => id !== undefined && navigate(chapterPath(level, id, isChapterTab(tab) ? tab : 'grammar'))
 
   return (
     // The bar is `fixed` (not `sticky`): the App root's `overflow-x-hidden` makes it the

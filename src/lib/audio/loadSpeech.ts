@@ -1,5 +1,5 @@
-import { audioService, type SpeechSegment } from '@/api/services/audioService'
-import { clipUrl, getAudioInfo } from '@/lib/audio/audioInfo'
+import { audioService, type SpeechSegment, type SpeechVoice } from '@/api/services/audioService'
+import { availableVoice, clipUrl, getAudioInfo } from '@/lib/audio/audioInfo'
 import { loadClip, savedClip } from '@/lib/audio/clipCache'
 import { clipHash, sentences } from '@/lib/audio/speechText'
 import { IS_DEV } from '@/lib/config'
@@ -10,6 +10,8 @@ export interface LoadSpeechOptions {
   signal?: AbortSignal
   /** No development trace (preloading). */
   quiet?: boolean
+  /** A dialogue's second speaker; the main voice by default. */
+  voice?: SpeechVoice
 }
 
 /**
@@ -21,7 +23,7 @@ export interface LoadSpeechOptions {
  */
 export async function loadSpeech(text: string, options: LoadSpeechOptions): Promise<Blob[] | null> {
   // A tap on a clip that is still preloading waits for that request instead of starting another.
-  const key = `${options.canGenerate ? 'gen' : 'find'}:${text}`
+  const key = `${options.canGenerate ? 'gen' : 'find'}:${options.voice ?? 'main'}:${text}`
   const running = inFlight.get(key)
   if (running) {
     const shared = await running
@@ -63,26 +65,27 @@ const inFlight = new Map<string, Promise<Blob[] | null>>()
  * listening question) into the browser, so they play at once. Errors are
  * ignored: the tap itself will try again.
  */
-export function preloadSpeech(texts: readonly string[], canGenerate: boolean): void {
+export function preloadSpeech(texts: readonly string[], canGenerate: boolean, voice: SpeechVoice = 'main'): void {
   for (const text of new Set(texts)) {
-    if (text.trim()) loadSpeech(text, { canGenerate, quiet: true }).catch(() => undefined)
+    if (text.trim()) loadSpeech(text, { canGenerate, quiet: true, voice }).catch(() => undefined)
   }
 }
 
-async function fetchSpeech(text: string, { canGenerate, signal, quiet = false }: LoadSpeechOptions): Promise<Blob[] | null> {
+async function fetchSpeech(text: string, { canGenerate, signal, quiet = false, voice: wanted }: LoadSpeechOptions): Promise<Blob[] | null> {
   const trace = quiet ? (_text: string, _why: string, clips: Blob[] | null = null) => clips : traceVoice
   const info = await getAudioInfo()
   const parts = sentences(text)
   if (!info.enabled || parts.length === 0) return trace(text, 'browser voice: recorded audio is off (/audio/info enabled=false)')
 
-  const names = await Promise.all(parts.map(async (s) => clipUrl(info, await clipHash(s))))
+  const voice = availableVoice(info, wanted)
+  const names = await Promise.all(parts.map(async (s) => clipUrl(info, await clipHash(s), voice)))
   const saved = await Promise.all(names.map((name) => savedClip(name)))
   if (saved.every(Boolean)) return trace(text, 'recorded clip saved in the browser', saved as Blob[])
 
-  let segments = await listClips(text, canGenerate)
+  let segments = await listClips(text, canGenerate, voice)
   for (let retry = 0; canGenerate && !quiet && retry < PENDING_RETRIES && !allListed(segments); retry++) {
     await sleep(PENDING_RETRY_MS, signal)
-    segments = await listClips(text, canGenerate)
+    segments = await listClips(text, canGenerate, voice)
   }
   if (!allListed(segments)) {
     return trace(
@@ -99,8 +102,8 @@ async function fetchSpeech(text: string, { canGenerate, signal, quiet = false }:
 }
 
 /** The text's clips as the API lists them: lookup only, or (verified learners) generating the missing ones. */
-async function listClips(text: string, canGenerate: boolean): Promise<SpeechSegment[]> {
-  const result = canGenerate ? await audioService.speak([text]) : await audioService.findClips([text])
+async function listClips(text: string, canGenerate: boolean, voice: SpeechVoice): Promise<SpeechSegment[]> {
+  const result = canGenerate ? await audioService.speak([text], voice) : await audioService.findClips([text], voice)
   return result.items[0]?.segments ?? []
 }
 

@@ -3,23 +3,15 @@ import { CONTACT_MAILTO } from '@/lib/content/home/founder'
 
 export const mockNavItems: NavItem[] = [
   {
-    label: 'Grammar',
-    dropdown: [
-      { label: 'N5 Beginner', href: '/grammar/n5' },
-      { label: 'N4 Elementary', href: '/grammar/n4' },
-      { label: 'N3 Intermediate', href: '/grammar/n3' },
-      { label: 'N2 Advanced', href: '/grammar/n2' },
-      { label: 'N1 Mastery', href: '/grammar/n1' },
-    ],
-  },
-  {
-    label: 'Kanas',
+    label: 'Kana',
     dropdown: [
       { label: 'Hiragana', href: '/kana/hiragana' },
       { label: 'Katakana', href: '/kana/katakana' },
       { label: 'Kanji', href: '/kanji' },
     ],
   },
+  // Every level's chapters: grammar, vocabulary and exercise (JlptMegaMenu).
+  { label: 'JLPT', mega: 'jlpt' },
   { label: 'Quiz', href: '/quiz' },
   { label: 'Classes', href: '/classes' },
 ]

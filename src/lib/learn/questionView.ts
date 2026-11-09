@@ -5,7 +5,8 @@
  */
 import type { LearnQuestion, QuestionType } from '@/types/learn'
 
-export type PromptDisplay = 'japanese' | 'latin' | 'audio'
+/** sentence: a grammar sentence, read at reading size, with a blank where {} marks the gap. */
+export type PromptDisplay = 'japanese' | 'latin' | 'audio' | 'sentence'
 export type AnswerInput = 'choice' | 'typed'
 
 export interface QuestionView {
@@ -25,7 +26,21 @@ export function isJapaneseText(text: string): boolean {
 }
 
 const LISTEN_TYPES: ReadonlySet<QuestionType> = new Set(['kana_listen', 'kanji_listen'])
-const TYPED_TYPES: ReadonlySet<QuestionType> = new Set(['kana_typed', 'kanji_meaning_typed', 'kanji_reading_typed'])
+const TYPED_TYPES: ReadonlySet<QuestionType> = new Set([
+  'kana_typed',
+  'kanji_meaning_typed',
+  'kanji_reading_typed',
+  'vocab_meaning_typed',
+  'grammar_gap_typed',
+])
+const SENTENCE_TYPES: ReadonlySet<QuestionType> = new Set(['grammar_gap_mcq', 'grammar_gap_typed', 'grammar_translate_mcq'])
+
+/** The gap in a grammar question's prompt. */
+export const SENTENCE_GAP = '{}'
+
+export function isGapQuestion(type: QuestionType): boolean {
+  return type === 'grammar_gap_mcq' || type === 'grammar_gap_typed'
+}
 
 const ASK: Partial<Record<QuestionType, string>> = {
   kana_mcq_romaji: 'How do you read this kana?',
@@ -39,6 +54,11 @@ const ASK: Partial<Record<QuestionType, string>> = {
   kanji_reading_typed: 'Type a reading of this kanji',
   kanji_listen: 'Which kanji is in the word you heard?',
   kanji_lookalike: 'Which kanji means this? Careful, some look alike.',
+  vocab_meaning_mcq: 'What does this word mean?',
+  vocab_meaning_typed: 'Type the meaning of this word',
+  grammar_gap_mcq: 'Which word fills the gap?',
+  grammar_gap_typed: 'Type the word that fills the gap',
+  grammar_translate_mcq: 'What does this sentence mean?',
 }
 
 export function questionView(question: LearnQuestion): QuestionView {
@@ -47,7 +67,7 @@ export function questionView(question: LearnQuestion): QuestionView {
   const input: AnswerInput = TYPED_TYPES.has(type) || !hasOptions ? 'typed' : 'choice'
   return {
     ask: ASK[type] ?? (input === 'typed' ? 'Type the answer' : 'Pick the answer'),
-    display: LISTEN_TYPES.has(type) ? 'audio' : isJapaneseText(prompt) ? 'japanese' : 'latin',
+    display: LISTEN_TYPES.has(type) ? 'audio' : SENTENCE_TYPES.has(type) ? 'sentence' : isJapaneseText(prompt) ? 'japanese' : 'latin',
     input,
     typesKana: input === 'typed' && isJapaneseText(answer),
     optionsJapanese: isJapaneseText(answer),

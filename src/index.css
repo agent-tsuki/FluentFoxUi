@@ -49,6 +49,8 @@
   --chart-1: 42 120 214;  /* #2a78d6 blue */
   --chart-2: 235 104 52;  /* #eb6834 orange */
   --chart-3: 27 175 122;  /* #1baf7a aqua */
+  --chart-4: 237 161 0;   /* #eda100 yellow */
+  --chart-5: 232 123 164; /* #e87ba4 magenta */
 
   /* Elevation shadows */
   --shadow-elevation-1: 0 4px 20px rgba(25, 28, 29, 0.04), 0 2px 8px rgba(25, 28, 29, 0.02);
@@ -74,6 +76,19 @@
   --home-sand:        238 232 220; /* #eee8dc */
   --home-panel:       232 237 223; /* #e8eddf */
   --home-leaf:        72 112 90;   /* #48705a */
+
+  /* Scene — the practice tests header illustration (dawn) */
+  --scene-sky-top:    252 232 222; /* #fce8de */
+  --scene-sky-bottom: 238 233 247; /* #eee9f7 */
+  --scene-sun:        255 206 176; /* #ffceb0 */
+  --scene-far:        214 207 232; /* #d6cfe8 */
+  --scene-mountain:   146 136 184; /* #9288b8 */
+  --scene-snow:       255 255 255; /* #ffffff */
+  --scene-hill:       176 192 182; /* #b0c0b6 */
+  --scene-water:      222 226 242; /* #dee2f2 */
+  --scene-blossom:    247 192 208; /* #f7c0d0 */
+  --scene-blossom-deep: 232 146 174; /* #e892ae */
+  --scene-wood:       187 77 44;   /* #bb4d2c */
 }
 
 html.dark {
@@ -109,6 +124,8 @@ html.dark {
   --chart-1: 57 135 229;  /* #3987e5 */
   --chart-2: 217 89 38;   /* #d95926 */
   --chart-3: 25 158 112;  /* #199e70 */
+  --chart-4: 201 133 0;   /* #c98500 */
+  --chart-5: 213 81 129;  /* #d55181 */
 
   /* Elevation shadows — deep navy-black */
   --shadow-elevation-1: 0 4px 20px rgba(3, 6, 16, 0.35), 0 2px 8px rgba(3, 6, 16, 0.25);
@@ -134,6 +151,19 @@ html.dark {
   --home-sand:        31 34 54;    /* #1F2236 */
   --home-panel:       21 29 51;    /* #151D33 */
   --home-leaf:        134 200 170; /* #86C8AA */
+
+  /* Scene — the practice tests header illustration (moonlit) */
+  --scene-sky-top:    13 18 38;    /* #0d1226 */
+  --scene-sky-bottom: 38 34 74;    /* #26224a */
+  --scene-sun:        242 232 214; /* #f2e8d6 — the moon */
+  --scene-far:        44 48 88;    /* #2c3058 */
+  --scene-mountain:   62 62 110;   /* #3e3e6e */
+  --scene-snow:       206 210 236; /* #ced2ec */
+  --scene-hill:       27 36 60;    /* #1b243c */
+  --scene-water:      24 30 60;    /* #181e3c */
+  --scene-blossom:    233 166 198; /* #e9a6c6 */
+  --scene-blossom-deep: 196 112 160; /* #c470a0 */
+  --scene-wood:       240 138 93;  /* #f08a5d */
 }
 
 /* ─── Scrollbars ─────────────────────────────────────────────────────────────

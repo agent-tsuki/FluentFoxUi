@@ -6,12 +6,12 @@
 
 // ─── Enums (plan §3) ──────────────────────────────────────────────────────────
 
-export type LearningTrack = 'hiragana' | 'katakana' | 'kanji_n5'
-export type SrsItemType = 'kana' | 'kanji'
+export type LearningTrack = 'hiragana' | 'katakana' | 'kanji_n5' | 'vocab_n5' | 'grammar_n5'
+export type SrsItemType = 'kana' | 'kanji' | 'vocab' | 'grammar_sentence'
 export type CardFacet = 'recognition' | 'meaning' | 'reading' | 'writing'
 export type SessionKind = 'lesson' | 'review' | 'practice' | 'unit_quiz' | 'skip_test' | 'final_test'
 export type TestKind = 'unit_quiz' | 'skip' | 'final'
-export type UnitType = 'kana' | 'kanji'
+export type UnitType = 'kana' | 'kanji' | 'vocab_chapter' | 'grammar_chapter'
 export type AnswerMode = 'choice' | 'typed' | 'mixed'
 export type GuideLevel = 'full' | 'faded' | 'none'
 export type PracticeMode = 'weak' | 'unit' | 'lookalike' | 'speed' | 'match'
@@ -33,6 +33,11 @@ export type QuestionType =
   | 'kanji_reading_typed'
   | 'kanji_listen'
   | 'kanji_lookalike'
+  | 'vocab_meaning_mcq'
+  | 'vocab_meaning_typed'
+  | 'grammar_gap_mcq'
+  | 'grammar_gap_typed'
+  | 'grammar_translate_mcq'
 
 export type GradeReason =
   | 'fast'
@@ -109,6 +114,17 @@ export interface LearnQuestion {
   char?: string
   /** 8+ lapses: after a miss the UI shows the mnemonic and look-alike comparison. */
   is_leech?: boolean
+  /** Grammar sentence questions only. The prompt is the sentence with {} at the gap (or read in full to translate). */
+  sentence?: SentenceQuestion
+}
+
+export interface SentenceQuestion {
+  /** The sentence with the gap filled in. */
+  filled: string
+  /** The English, for gap questions (absent when it is the answer). */
+  translation?: string
+  /** One line on why, shown after answering. */
+  explanation: string
 }
 
 /** A new item a lesson teaches before its check quiz. */
@@ -260,7 +276,13 @@ export interface LearningSettings {
   day_starts_at_hour: number
   answer_mode: AnswerMode
   show_retention: boolean
+  /** Percent a chapter's vocab quiz or exercise needs to pass, 50 to 100. */
+  chapter_pass_pct: number
+  /** auto: passing the exercise completes the chapter; manual: the learner marks it. */
+  chapter_completion: ChapterCompletion
 }
+
+export type ChapterCompletion = 'auto' | 'manual'
 
 export type LearningSettingsUpdate = Partial<LearningSettings>
 

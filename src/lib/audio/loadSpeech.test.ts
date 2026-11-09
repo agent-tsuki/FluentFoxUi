@@ -61,9 +61,25 @@ describe('loadSpeech', () => {
   it('fetches only the CDN URL the API lists for a guest', async () => {
     findClips.mockResolvedValue(listed(ASA))
     expect(await loadSpeech('あさ', { canGenerate: false })).toHaveLength(1)
-    expect(findClips).toHaveBeenCalledWith(['あさ'])
+    expect(findClips).toHaveBeenCalledWith(['あさ'], 'main')
     expect(loadClip).toHaveBeenCalledWith(ASA, undefined)
     expect(speak).not.toHaveBeenCalled()
+  })
+
+  it('asks for the second voice, and names its saved copy in that voice’s folder', async () => {
+    getAudioInfo.mockResolvedValue({ ...INFO, alt_base_url: 'https://cdn.test/audio/v1/voicevox-13' })
+    const alt = ASA.replace('voicevox-14', 'voicevox-13')
+    findClips.mockResolvedValue(listed(alt))
+    expect(await loadSpeech('あさ', { canGenerate: false, voice: 'alt' })).toHaveLength(1)
+    expect(savedClip).toHaveBeenCalledWith(alt)
+    expect(findClips).toHaveBeenCalledWith(['あさ'], 'alt')
+  })
+
+  it('uses the main voice for the second speaker when the API has no second voice', async () => {
+    findClips.mockResolvedValue(listed(ASA))
+    expect(await loadSpeech('あさ', { canGenerate: false, voice: 'alt' })).toHaveLength(1)
+    expect(savedClip).toHaveBeenCalledWith(ASA)
+    expect(findClips).toHaveBeenCalledWith(['あさ'], 'main')
   })
 
   it('gives guests the browser voice, and asks the CDN nothing, when no clip exists', async () => {
@@ -75,7 +91,7 @@ describe('loadSpeech', () => {
   it('asks the API to find or generate the clip for a verified learner', async () => {
     speak.mockResolvedValue(listed('https://cdn.test/fallback.mp3'))
     const clips = await loadSpeech('あさ', { canGenerate: true })
-    expect(speak).toHaveBeenCalledWith(['あさ'])
+    expect(speak).toHaveBeenCalledWith(['あさ'], 'main')
     expect(findClips).not.toHaveBeenCalled()
     expect(loadClip).toHaveBeenCalledWith('https://cdn.test/fallback.mp3', undefined)
     expect(clips).toHaveLength(1)

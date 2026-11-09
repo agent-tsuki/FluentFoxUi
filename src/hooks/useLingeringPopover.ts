@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState, type MouseEvent, type PointerEvent } from 'react'
 
 /**
- * A hover preview that is forgiving to use: a mouse opens it on hover and it
- * stays open while the pointer is over the trigger or the popover (both inside
- * the wrapper), then lingers for `lingerMs` after the pointer leaves, so moving
- * across a gap never snaps it shut. A tap or keyboard activation opens it for
- * `lingerMs`; activating again within that time follows the link.
+ * A click-to-open preview: a click, tap or keyboard activation opens it (hover
+ * alone never does). It stays open while the pointer is over the trigger or
+ * the popover (both inside the wrapper) and closes `lingerMs` after the
+ * pointer leaves; opened without the pointer over it (a tap, the keyboard) it
+ * closes after `lingerMs`. Activating again while open follows the link.
  */
 export function useLingeringPopover(lingerMs: number) {
   const [open, setOpen] = useState(false)
@@ -29,8 +29,8 @@ export function useLingeringPopover(lingerMs: number) {
     onPointerEnter: (e: PointerEvent) => {
       if (e.pointerType !== 'mouse') return
       pointerInside.current = true
+      // Coming back over an open preview keeps it; hover never opens it.
       cancelClose()
-      setOpen(true)
     },
     onPointerLeave: (e: PointerEvent) => {
       if (e.pointerType !== 'mouse') return
@@ -43,10 +43,7 @@ export function useLingeringPopover(lingerMs: number) {
     },
   }
 
-  /**
-   * The trigger's click: the first activation without a hover opens the
-   * preview instead of following the link.
-   */
+  /** The trigger's click: the first one opens the preview instead of following the link. */
   const onTriggerClick = (e: MouseEvent) => {
     if (open) return
     e.preventDefault()

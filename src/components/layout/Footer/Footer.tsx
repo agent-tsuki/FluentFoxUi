@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { mockFooterLinks } from '@/api/mock/navigation'
 import { whenPageSettles } from '@/lib/afterPageSettles'
-import { getAudioInfo } from '@/lib/audio/audioInfo'
+import { getAudioInfo, voiceCredits } from '@/lib/audio/audioInfo'
 
 // Internal routes that should use <Link> for SPA navigation
 const INTERNAL_PREFIXES = ['/about', '/privacy', '/terms', '/']
@@ -12,7 +12,7 @@ function isInternal(href: string) {
 }
 
 /**
- * The voice's credit line (e.g. "VOICEVOX:冥鳴ひまり"), which its licence asks
+ * The voices' credit lines (e.g. "VOICEVOX:冥鳴ひまり"), which their licence asks
  * to show wherever the audio is used. Looked up once the page has settled, so
  * the footer adds nothing to the first load.
  */
@@ -21,7 +21,9 @@ function useVoiceCredit(): string | undefined {
   useEffect(() => {
     let cancelled = false
     const stop = whenPageSettles(() => {
-      void getAudioInfo().then((info) => !cancelled && setCredit(info.enabled ? info.credit : undefined))
+      void getAudioInfo().then(
+        (info) => !cancelled && setCredit(info.enabled ? voiceCredits(info).join(' · ') || undefined : undefined),
+      )
     })
     return () => {
       cancelled = true

@@ -108,6 +108,14 @@ export function SessionQuestion({ entry, mark, isLast, onSubmit, onNext }: Sessi
           </>
         )}
       </p>
+      {mark && question.sentence?.explanation && (
+        <p className="mb-3 text-center text-sm text-on-surface-variant">
+          <span lang="ja" className="font-jp text-on-surface">
+            {question.sentence.filled}
+          </span>{' '}
+          · {question.sentence.explanation}
+        </p>
+      )}
       {mark && !mark.correct && question.is_leech && <LeechHint itemType={question.item_type} char={cardChar(question)} />}
       {view.input === 'choice' ? (
         <OptionGrid

@@ -8,6 +8,7 @@ import { LOCKED_GRAMMAR_LEVELS } from '@/components/grammar/LevelSwitcher'
 import { Icon } from '@/components/ui/Icon'
 import { cn } from '@/lib/cn'
 import { readCompletedChapters } from '@/lib/grammar/completion'
+import { useChapterProgress } from '@/hooks/useChapterProgress'
 import type { GrammarChapterSummary } from '@/types/grammar'
 
 const OPEN_LEVEL = 'n5'
@@ -19,7 +20,14 @@ function chapterPath(level: string, id: number): string {
 }
 
 function GrammarBody({ chapters }: { chapters: GrammarChapterSummary[] }) {
-  const done = useMemo(() => readCompletedChapters(OPEN_LEVEL), [])
+  // Kept on the server for signed-in learners; older on-device ticks otherwise.
+  const progress = useChapterProgress(OPEN_LEVEL)
+  const local = useMemo(() => readCompletedChapters(OPEN_LEVEL), [])
+  const done = useMemo(
+    () => (progress.enabled ? new Set([...progress.byChapter].filter(([, p]) => p.completed).map(([n]) => n)) : local),
+    [progress.enabled, progress.byChapter, local],
+  )
+  const vocabPassed = [...progress.byChapter.values()].filter((p) => p.vocabPassed).length
   const doneCount = chapters.filter((c) => done.has(c.id)).length
   const next = chapters.find((c) => !done.has(c.id))
   const share = chapters.length > 0 ? doneCount / chapters.length : 0
@@ -29,7 +37,7 @@ function GrammarBody({ chapters }: { chapters: GrammarChapterSummary[] }) {
       <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <StatTile icon="task_alt" label="Chapters done" value={`${doneCount}/${chapters.length}`} hint="JLPT N5" />
         <StatTile icon="menu_book" label="N5 complete" value={`${Math.round(share * PERCENT)}%`} hint={`${chapters.length - doneCount} chapters left`} />
-        <StatTile icon="lock_open" label="Levels open" value={`${LEVELS.length - LOCKED_GRAMMAR_LEVELS.size}/${LEVELS.length}`} hint="N4 to N1 are on the way" />
+        <StatTile icon="translate" label="Vocab quizzes passed" value={`${vocabPassed}/${chapters.length}`} hint="Their words come back in reviews" />
         <StatTile icon="route" label="Up next" value={next ? `Ch. ${next.id}` : 'Done'} hint={next?.title ?? 'Every N5 chapter finished'} />
       </div>
 
@@ -48,7 +56,7 @@ function GrammarBody({ chapters }: { chapters: GrammarChapterSummary[] }) {
         </Link>
       )}
 
-      <Panel title="By JLPT level" description="Share of chapters you have marked complete.">
+      <Panel title="By JLPT level" description="Share of chapters complete.">
         <BarList
           label="Grammar chapters complete by level"
           rows={LEVELS.map((level) => {
@@ -68,6 +76,7 @@ function GrammarBody({ chapters }: { chapters: GrammarChapterSummary[] }) {
         <ol className="grid grid-cols-1 gap-2 sm:grid-cols-2 2xl:grid-cols-3">
           {chapters.map((c) => {
             const complete = done.has(c.id)
+            const scores = progress.byChapter.get(c.id)
             return (
               <li key={c.id}>
                 <Link
@@ -85,7 +94,19 @@ function GrammarBody({ chapters }: { chapters: GrammarChapterSummary[] }) {
                   >
                     {complete ? <Icon name="check" className="text-base" /> : c.id}
                   </span>
-                  <span className="min-w-0 flex-1 font-semibold text-on-surface">{c.title}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-semibold text-on-surface">{c.title}</span>
+                    {(scores?.exerciseBest !== undefined || scores?.vocabBest !== undefined) && (
+                      <span className="block text-xs text-on-surface-variant">
+                        {[
+                          scores.exerciseBest !== undefined && `Exercise ${scores.exerciseBest}%`,
+                          scores.vocabBest !== undefined && `Vocab ${scores.vocabBest}%`,
+                        ]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </span>
+                    )}
+                  </span>
                   <span className="sr-only">{complete ? 'Complete' : 'Not complete'}</span>
                 </Link>
               </li>
@@ -94,10 +115,12 @@ function GrammarBody({ chapters }: { chapters: GrammarChapterSummary[] }) {
         </ol>
       </Panel>
 
-      <p className="flex items-center gap-2 text-xs text-on-surface-variant">
-        <Icon name="info" className="text-base" />
-        Grammar progress is saved on this device, so it may differ on your other devices.
-      </p>
+      {!progress.enabled && (
+        <p className="flex items-center gap-2 text-xs text-on-surface-variant">
+          <Icon name="info" className="text-base" />
+          Grammar progress is saved on this device until you sign in and verify your email.
+        </p>
+      )}
     </div>
   )
 }

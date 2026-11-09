@@ -87,6 +87,8 @@ const config: Config = {
         'chart-1': 'rgb(var(--chart-1) / <alpha-value>)',
         'chart-2': 'rgb(var(--chart-2) / <alpha-value>)',
         'chart-3': 'rgb(var(--chart-3) / <alpha-value>)',
+        'chart-4': 'rgb(var(--chart-4) / <alpha-value>)',
+        'chart-5': 'rgb(var(--chart-5) / <alpha-value>)',
 
         /* ── Static tokens (same in light and dark) ── */
         'on-tertiary-fixed': '#001e2d',
