@@ -40,3 +40,9 @@ Use these for frontend work; they follow docs/FRONTEND_STANDARDS.md and docs/UIU
 - **frontend-reviewer** — review changes against the engineering standards before merge.
 - **ui-ux-reviewer** — review visual design & UX (color/contrast, dark-mode parity, elevation, type, motion, states, premium/minimal feel).
 - **responsive-auditor** — review responsiveness & interaction across breakpoints (touch targets, fluid type, overflow, reduced-motion).
+- **product-context-researcher** — briefing for design work: product, audience, nav map, page flow, live vs code, unknowns.
+- **design-auditor** — exact inventory + critique of the current tokens, type, scales and components, with live screenshots.
+- **design-cross-examiner** — adversarially verifies other design reviews, rules on reuse, produces the reconciled TOP 15.
+- **user-intent-evaluator** — turns a vague request into ≤4 multiple-choice questions for the user (plus stated defaults).
+- **design-manager** — final QA: grades each agent's sources/standards, coverage matrix vs the delivered system, top 5 corrections.
+- Design-review workflow and reports: `docs/design-review/`.
