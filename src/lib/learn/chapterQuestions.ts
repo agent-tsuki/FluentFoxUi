@@ -110,6 +110,7 @@ export function chapterTestQuestions(session: SessionStart): ChapterQuestions {
  * server accepts for the particle は).
  */
 export function chapterAnswer(question: TestQuestion, given: string): GivenAnswer {
+  if (question.kind === 'tiles') return typedAnswer(given)
   if (question.kind !== 'text') return choiceAnswer(given, question.options)
   if (question.compare === 'japanese' && hasLatin(given)) return typedAnswer(romajiToHiragana(given.trim().toLowerCase()))
   return typedAnswer(given)

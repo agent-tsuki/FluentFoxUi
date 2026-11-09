@@ -56,6 +56,12 @@ export interface ChapterContent {
   sentences: ChapterSentenceText[]
   /** The Listening tab's dialogues and passages; missing from an API older than the listening content. */
   passages?: ChapterPassage[]
+  /** The Exercise tab's material; missing from an API older than the exercises. */
+  gaps?: ChapterGap[]
+  true_false?: ChapterTrueFalse[]
+  transforms?: ChapterTransform[]
+  pictures?: ChapterPicture[]
+  word_sentences?: ChapterWordSentence[]
 }
 
 /**
@@ -90,6 +96,52 @@ export interface ChapterWordContent {
   hint?: string
   /** What to speak instead of the kana, where the voice engine misreads the kana alone. */
   say?: string
+}
+
+/** A practice sentence with {} where its answer goes (the Exercise tab). */
+export interface ChapterGap {
+  sentence: string
+  answer: string
+  distractors: string[]
+  translation: string
+  explanation: string
+}
+
+/** Read a short exchange and say whether the statement is true. */
+export interface ChapterTrueFalse {
+  lines: string[]
+  statement: string
+  answer: boolean
+  explanation: string
+}
+
+/** Change a sentence as asked, typing the missing part. */
+export interface ChapterTransform {
+  source: string
+  task: string
+  /** The result, with {} for the part to type. */
+  sentence: string
+  answer: string
+  also_accept: string[]
+  explanation: string
+}
+
+/** Drop a chapter word into the sentence's blank. */
+export interface ChapterWordSentence {
+  /** The sentence, with {} for the word. */
+  sentence: string
+  answer: string
+  translation: string
+}
+
+/** Choose the word that matches a picture. */
+export interface ChapterPicture {
+  image: string
+  alt: string
+  sentence: string
+  answer: string
+  options: string[]
+  translation: string
 }
 
 export interface ChapterSentenceText {

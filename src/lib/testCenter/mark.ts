@@ -54,8 +54,13 @@ function markText(question: TextQuestion, given: string): boolean {
   }
 }
 
-/** Marks one answer: choice and dropdown match the option exactly; typed answers are normalised. */
+function isCorrect(question: TestQuestion, given: string): boolean {
+  if (question.kind === 'text') return markText(question, given)
+  if (question.kind === 'tiles') return question.accepted.includes(given)
+  return given === question.answer
+}
+
+/** Marks one answer: choice and dropdown match the option exactly; typed answers are normalised; tiles match an accepted order. */
 export function markTestAnswer(question: TestQuestion, given: string): TestAnswer {
-  const correct = question.kind === 'text' ? markText(question, given) : given === question.answer
-  return { question, given, correct }
+  return { question, given, correct: isCorrect(question, given) }
 }

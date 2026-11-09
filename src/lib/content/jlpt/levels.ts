@@ -40,7 +40,7 @@ export interface ChapterTabDef {
 export const CHAPTER_TABS: readonly ChapterTabDef[] = [
   { id: 'grammar', title: 'Grammar', icon: 'menu_book', summary: 'The chapter’s patterns, with example sentences.' },
   { id: 'vocabulary', title: 'Vocabulary', icon: 'translate', summary: 'The chapter’s words, with readings and audio.' },
-  { id: 'exercise', title: 'Exercise', icon: 'quiz', summary: 'Fill the gaps and translate, then check.' },
+  { id: 'exercise', title: 'Exercise', icon: 'quiz', summary: 'Vocabulary, grammar and sentence practice, then a review.' },
   { id: 'listening', title: 'Listening', icon: 'headphones', summary: 'Hear the chapter’s words and sentences, pick what they mean.' },
 ]
 
