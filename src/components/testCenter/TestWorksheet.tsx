@@ -26,6 +26,8 @@ interface TestWorksheetProps {
   sizes?: readonly number[]
   count?: number
   onCount?: (count: number) => void
+  /** After the sheet is checked: how many were right, out of how many. */
+  onChecked?: (right: number, total: number) => void
 }
 
 interface ControlProps<Q> {
@@ -328,7 +330,7 @@ const BANK_EXTRAS = 3
  * any question and holds the exercise's options. With `wordBank`, the blanks
  * are filled by dragging from one shared set of words. Nothing is saved.
  */
-export function TestWorksheet({ title, questions, onExit, onRetryMissed, onAgain, doneLabel, wordBank = false, sizes, count, onCount }: TestWorksheetProps) {
+export function TestWorksheet({ title, questions, onExit, onRetryMissed, onAgain, doneLabel, wordBank = false, sizes, count, onCount, onChecked }: TestWorksheetProps) {
   const [given, setGiven] = useState<Record<string, string>>({})
   const [results, setResults] = useState<TestAnswer[] | null>(null)
   const [hints, setHints] = useState(true)
@@ -378,7 +380,9 @@ export function TestWorksheet({ title, questions, onExit, onRetryMissed, onAgain
 
   const check = () => {
     setPicked(null)
-    setResults(questions.map((q) => markTestAnswer(q, given[q.id] ?? '')))
+    const marked = questions.map((q) => markTestAnswer(q, given[q.id] ?? ''))
+    setResults(marked)
+    onChecked?.(marked.filter((r) => r.correct).length, marked.length)
   }
   const okToDiscard = (message: string) => !dirty || window.confirm(message)
   const exit = () => okToDiscard('Leave this exercise? Your answers aren’t saved.') && onExit()

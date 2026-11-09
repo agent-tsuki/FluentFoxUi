@@ -47,7 +47,11 @@ const build = (id: string): TestQuestion[] => {
 describe('chapterPracticeSets', () => {
   it('offers every exercise the chapter has material for', () => {
     expect(chapterPracticeSets(content).map((s) => s.id)).toEqual([
-      'vocab-meaning', 'vocab-word', 'vocab-context', 'check', 'true-false', 'listen', 'picture', 'tiles', 'change', 'write', 'review',
+      'vocab-meaning', 'vocab-word', 'vocab-kana', 'vocab-type', 'vocab-context',
+      'check', 'fix', 'gap-typed', 'true-false', 'read', 'picture',
+      'hear-word', 'listen', 'listen-tiles', 'dictation',
+      'say', 'tiles', 'change', 'write',
+      'review',
     ])
   })
 
@@ -149,4 +153,93 @@ describe('chapterPracticeSets', () => {
     expect(new Set(questions.map((q) => q.id)).size).toBe(questions.length)
     expect(new Set(questions.map((q) => q.label)).size).toBeGreaterThanOrEqual(5)
   })
+
+  it('offers between 10 and 20 different exercises for a full chapter', () => {
+    const n = chapterPracticeSets(content).filter((x) => x.id !== 'review').length
+    expect(n).toBeGreaterThanOrEqual(10)
+    expect(n).toBeLessThanOrEqual(20)
+  })
+
+  it('marks its own answer right in every exercise', () => {
+    for (const s of chapterPracticeSets(content)) {
+      for (const q of s.build(seeded())) {
+        const given = q.kind === 'tiles' ? q.accepted[0] : q.answer
+        expect(markTestAnswer(q, given).correct, `${s.id}: ${q.id}`).toBe(true)
+        if (q.kind === 'choice' || q.kind === 'select') expect(q.options, `${s.id}: ${q.id}`).toContain(q.answer)
+      }
+    }
+  })
+
+  it('asks readings only of words written in kanji, and accepts them in romaji', () => {
+    const qs = build('vocab-type')
+    expect(qs.length).toBeGreaterThan(0)
+    for (const q of qs) {
+      expect(q.prompt.type === 'glyph' && q.prompt.text).not.toBe(q.answer)
+    }
+    const kana = build('vocab-kana')
+    expect(kana.every((q) => q.kind === 'choice' && new Set(q.options).size === q.options.length)).toBe(true)
+  })
+
+  it('fixes a gap filled with a wrong option', () => {
+    const [q] = build('fix')
+    expect(q.prompt).toMatchObject({ type: 'sentence' })
+    expect(q.prompt.type === 'sentence' && q.prompt.text).not.toContain('{}')
+    expect(q.answer).toMatch(/→ は$/)
+    expect(q.prompt.type === 'sentence' && q.prompt.text).not.toBe('わたしは学生です。')
+  })
+
+  it('types a gap without options', () => {
+    const [q] = build('gap-typed')
+    expect(q.kind).toBe('text')
+    expect(markTestAnswer(q, 'wa').correct).toBe(true)
+  })
+
+  it('plays audio for the listening exercises', () => {
+    for (const id of ['hear-word', 'listen-tiles', 'dictation']) {
+      const qs = build(id)
+      expect(qs.length, id).toBeGreaterThan(0)
+      expect(qs.every((q) => q.prompt.type === 'audio'), id).toBe(true)
+    }
+  })
+
+  it('accepts a dictation in hiragana', () => {
+    const q = build('dictation').find((x) => x.answer === '私は学生です。')
+    if (!q) return
+    expect(markTestAnswer(q, 'わたしはがくせいです').correct).toBe(true)
+  })
+
+  describe('grammar gaps made from the sentences, when a chapter has none written', () => {
+    const plain = { ...content, gaps: [], true_false: [], transforms: [], pictures: [] }
+    const qs = (id: string) => set(plain, id)?.build(seeded()) ?? []
+
+    it('still offers the grammar exercises', () => {
+      const ids = chapterPracticeSets(plain).map((s) => s.id)
+      expect(ids).toEqual(expect.arrayContaining(['check', 'fix', 'gap-typed']))
+    })
+
+    it('blanks a demonstrative and asks これ or この', () => {
+      const fromLine = qs('check').filter((x) => x.translation === 'Is that a book?')
+      expect(fromLine.map((x) => x.answer).sort()).toEqual(['あれ', 'は'].sort())
+      const q = fromLine.find((x) => x.answer === 'あれ')
+      expect(q?.kind === 'select' && [...q.options].sort()).toEqual(['あの', 'あれ'].sort())
+    })
+
+    it('never offers two particles that could both be right', () => {
+      for (const q of qs('check')) {
+        if (q.kind !== 'select') continue
+        if (['は', 'が', 'も'].includes(q.answer)) expect(q.options.filter((o) => ['は', 'が', 'も'].includes(o))).toEqual([q.answer])
+        if (['に', 'へ'].includes(q.answer)) expect(q.options.filter((o) => ['に', 'へ'].includes(o))).toEqual([q.answer])
+      }
+    })
+
+    it('says why after answering, and marks its own answer right', () => {
+      for (const id of ['check', 'fix', 'gap-typed']) {
+        for (const q of qs(id)) {
+          expect(q.explanation, id).toBeTruthy()
+          expect(markTestAnswer(q, q.answer).correct, id).toBe(true)
+        }
+      }
+    })
+  })
 })
+

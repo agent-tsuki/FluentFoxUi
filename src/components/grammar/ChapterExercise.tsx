@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { LearnerOnly } from '@/components/auth/SignInPrompt'
 import { PracticeShellBack, PracticeShellFill } from '@/components/practice/PracticeShell'
 import { TestWorksheet } from '@/components/testCenter/TestWorksheet'
@@ -7,8 +7,10 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { Icon } from '@/components/ui/Icon'
 import { LoadingState } from '@/components/ui/LoadingState'
+import { ProgressBar } from '@/components/ui/ProgressBar'
 import { useChapterContent } from '@/hooks/useChapterContent'
 import { chapterPracticeSets, type PracticeGroup, type PracticeSet } from '@/lib/learn/chapterPractice'
+import { exerciseKey, isMastered, loadExerciseBests, saveExerciseBests, withAttempt, type ExerciseBests } from '@/lib/learn/exerciseMastery'
 import { CHAPTER_GRAMMAR_TRACK } from '@/lib/learn/paths'
 import type { TestQuestion } from '@/lib/testCenter/types'
 import { ChapterQuiz } from './ChapterQuiz'
@@ -23,13 +25,27 @@ interface ChapterExerciseProps {
 }
 
 const GROUPS: { id: PracticeGroup; line: string }[] = [
-  { id: 'Vocabulary', line: 'Know the words.' },
-  { id: 'Confirm', line: 'Check you understood the grammar.' },
-  { id: 'Construct', line: 'Make sentences yourself.' },
+  { id: 'Vocabulary', line: 'Know the words: recognise them, read them, recall them, use them.' },
+  { id: 'Grammar', line: 'Check you understood the grammar, then fix and recall it.' },
+  { id: 'Listening', line: 'From a single word to writing what you hear.' },
+  { id: 'Build sentences', line: 'Make sentences yourself.' },
   { id: 'Review', line: 'A bit of everything.' },
 ]
 
-const PracticeCard = memo(function PracticeCard({ set, onStart }: { set: PracticeSet; onStart: (set: PracticeSet) => void }) {
+function BestLabel({ best }: { best?: number }) {
+  if (best === undefined) return null
+  if (isMastered(best)) {
+    return (
+      <span className="flex shrink-0 items-center gap-1 rounded-md bg-success/15 px-2 py-0.5 text-xs font-semibold text-on-surface">
+        <Icon name="check_circle" filled className="text-sm text-success" />
+        Mastered
+      </span>
+    )
+  }
+  return <span className="shrink-0 text-xs font-semibold tabular-nums text-on-surface-variant">Best {Math.round(best * 100)}%</span>
+}
+
+const PracticeCard = memo(function PracticeCard({ set, best, onStart }: { set: PracticeSet; best?: number; onStart: (set: PracticeSet) => void }) {
   return (
     <li>
       <button
@@ -44,6 +60,7 @@ const PracticeCard = memo(function PracticeCard({ set, onStart }: { set: Practic
           <span className="block text-sm font-semibold text-on-surface">{set.title}</span>
           <span className="block text-xs text-on-surface-variant">{set.summary}</span>
         </span>
+        <BestLabel best={best} />
         <Icon name="arrow_forward" className="shrink-0 text-lg text-on-surface-variant transition-colors group-hover:text-primary" />
       </button>
     </li>
@@ -57,6 +74,8 @@ interface Run {
   count?: number
   /** Remounts the worksheet for each new attempt. */
   attempt: number
+  /** A whole exercise, not just the missed questions: only these count towards a best score. */
+  full: boolean
 }
 
 /**
@@ -71,7 +90,19 @@ export function ChapterExercise({ level, chapterId, best, onRecorded }: ChapterE
   const sets = useMemo(() => (content.data ? chapterPracticeSets(content.data) : []), [content.data])
   const [run, setRun] = useState<Run | null>(null)
   const [testing, setTesting] = useState(false)
-  const start = useMemo(() => (set: PracticeSet) => setRun({ set, questions: set.build(), count: set.sizes?.[0], attempt: 0 }), [])
+  const start = useMemo(() => (set: PracticeSet) => setRun({ set, questions: set.build(), count: set.sizes?.[0], attempt: 0, full: true }), [])
+  const [bests, setBests] = useState<ExerciseBests>(loadExerciseBests)
+  const bestOf = useCallback((set: PracticeSet) => bests[exerciseKey(level, chapterId, set.id)], [bests, level, chapterId])
+  const record = useCallback(
+    (set: PracticeSet, right: number, total: number) =>
+      setBests((old) => {
+        const next = withAttempt(old, exerciseKey(level, chapterId, set.id), right, total)
+        if (next !== old) saveExerciseBests(next)
+        return next
+      }),
+    [level, chapterId],
+  )
+  const mastered = sets.filter((set) => isMastered(bestOf(set))).length
 
   if (testing) {
     return (
@@ -88,7 +119,7 @@ export function ChapterExercise({ level, chapterId, best, onRecorded }: ChapterE
   }
 
   if (run) {
-    const again = (questions: TestQuestion[]) => setRun({ ...run, questions, attempt: run.attempt + 1 })
+    const again = (questions: TestQuestion[], full: boolean) => setRun({ ...run, questions, full, attempt: run.attempt + 1 })
     return (
       <PracticeShellFill.Provider value={false}>
         <PracticeShellBack.Provider value="Back">
@@ -98,13 +129,14 @@ export function ChapterExercise({ level, chapterId, best, onRecorded }: ChapterE
               title={`${run.set.title} · Chapter ${chapterId}`}
               questions={run.questions}
               onExit={() => setRun(null)}
-              onRetryMissed={again}
-              onAgain={() => again(run.set.build(undefined, run.count))}
+              onRetryMissed={(missed) => again(missed, false)}
+              onAgain={() => again(run.set.build(undefined, run.count), true)}
+              onChecked={(right, total) => run.full && record(run.set, right, total)}
               doneLabel="All exercises"
               wordBank={run.set.wordBank}
               sizes={run.set.sizes}
               count={run.count}
-              onCount={(count) => setRun({ ...run, count, questions: run.set.build(undefined, count), attempt: run.attempt + 1 })}
+              onCount={(count) => setRun({ ...run, count, full: true, questions: run.set.build(undefined, count), attempt: run.attempt + 1 })}
             />
           </div>
         </PracticeShellBack.Provider>
@@ -131,7 +163,16 @@ export function ChapterExercise({ level, chapterId, best, onRecorded }: ChapterE
   return (
     <div className="px-6 pb-4 pt-8 xl:px-10">
       <h1 className="font-headline text-2xl font-bold text-on-surface sm:text-3xl">Practise this chapter</h1>
-      <p className="mt-1 max-w-prose text-sm text-on-surface-variant">Start with whichever you like; nothing is locked.</p>
+      <p className="mt-1 max-w-prose text-sm text-on-surface-variant">
+        {sets.length} ways to practise this chapter. Start with whichever you like; nothing is locked. Score 90% or more on an exercise to master it.
+      </p>
+      <div className="mt-4 max-w-sm">
+        <p className="mb-1.5 flex justify-between text-xs font-semibold text-on-surface-variant">
+          <span>{mastered} of {sets.length} mastered</span>
+          <span className="tabular-nums">{Math.round((mastered / sets.length) * 100)}%</span>
+        </p>
+        <ProgressBar value={mastered} max={sets.length} label="Exercises mastered" valueText={`${mastered} of ${sets.length} exercises mastered`} tone={mastered === sets.length ? 'success' : 'primary'} />
+      </div>
 
       <div className="mt-6 space-y-7">
         {GROUPS.map((group) => {
@@ -145,7 +186,7 @@ export function ChapterExercise({ level, chapterId, best, onRecorded }: ChapterE
               <p className="text-sm text-on-surface-variant">{group.line}</p>
               <ul className="mt-3 grid gap-2.5 sm:grid-cols-2 2xl:grid-cols-3">
                 {inGroup.map((set) => (
-                  <PracticeCard key={set.id} set={set} onStart={start} />
+                  <PracticeCard key={set.id} set={set} best={bestOf(set)} onStart={start} />
                 ))}
               </ul>
             </section>
