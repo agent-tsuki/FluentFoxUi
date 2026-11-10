@@ -15,6 +15,7 @@ import { cn } from '@/lib/cn'
 import { PracticeResults, PracticeShell } from './PracticeShell'
 import { createRounds, maxBuildLevel, type BuildLevel, type BuildRound } from './build/buildRounds'
 import { useTileDrag } from './build/useTileDrag'
+import { WordPicture } from './build/WordPicture'
 import { useCompleteOnce } from './useCompleteOnce'
 import type { PracticeAnswerFn } from './types'
 import { withAllKana, type WithAllKanaProps } from './withAllKana'
@@ -343,9 +344,7 @@ function WordBuilderSession({ kana, all, isSubset, script, onAnswer, onExit, onC
       <div className="flex flex-1 flex-col justify-center">
       {/* Prompt */}
       <section aria-label="Word to build" className="relative flex flex-col items-center rounded-xl bg-surface-sunken px-4 pb-4 pt-5 text-center">
-        <span role="img" aria-label={word.meaning} className="select-none text-6xl leading-none sm:text-7xl">
-          {word.picture}
-        </span>
+        <WordPicture key={word.romaji} script={script.id} romaji={word.romaji} meaning={word.meaning} emoji={word.picture} />
         <p className="mt-3 font-display text-xl font-bold text-ink">{word.meaning}</p>
         <p className="text-ink-muted">
           Build <span className="font-bold text-ink">“{word.romaji}”</span>

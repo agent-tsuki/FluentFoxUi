@@ -4,7 +4,6 @@ import { useModal } from '@/context/ModalContext'
 import { useAuth } from '@/context/AuthContext'
 import { NavDropdown } from './NavDropdown'
 import { Button } from '@/components/ui/Button'
-import { FoxLogo, FoxLogoHandle } from './FoxLogo'
 import { Icon } from '@/components/ui/Icon'
 import { StreakFire } from '@/components/ui/StreakFire'
 import { useUI } from '@/context/UIContext'
@@ -55,7 +54,6 @@ export function Navbar() {
   const navHref = useNavHref()
   const inLesson = isLessonPath(pathname)
 
-  const foxLogoRef = useRef<FoxLogoHandle>(null)
   const avatarMenuRef = useRef<HTMLDivElement>(null)
   const streakRef = useRef<HTMLDivElement>(null)
   const mobileDrawerRef = useRef<HTMLDivElement>(null)
@@ -144,16 +142,15 @@ export function Navbar() {
         <div className="flex h-full items-center gap-2 px-3 lg:gap-6 lg:px-6">
           <Link
             to="/"
-            className="flex min-h-touch-target items-center gap-2 font-display text-lg font-bold text-ink"
+            className="group flex min-h-touch-target items-center font-display text-xl font-extrabold tracking-[-0.03em]"
             onClick={closeMobile}
-            onMouseEnter={() => foxLogoRef.current?.play()}
-            onMouseLeave={() => foxLogoRef.current?.reverse()}
           >
-            <FoxLogo ref={foxLogoRef} size={32} />
-            FoxSensei
+            {/* The wordmark is the logo. leading-none centres the line box, not the
+                letters: the lift puts its baseline on the menu links' baseline. */}
+            <span className="brand-wordmark -translate-y-[0.175em] leading-none">FoxSensei</span>
           </Link>
 
-          <ul className="hidden items-center gap-1 lg:flex">
+          <ul data-tour="nav" className="hidden items-center gap-1 lg:flex">
             {TOP_NAV.map((item) => {
               const active = isNavItemActive(item, pathname)
               return (
@@ -173,7 +170,7 @@ export function Navbar() {
 
           <div className="ml-auto flex items-center gap-2">
             {user && (
-              <div ref={streakRef} className="relative hidden lg:block" {...streakPopover.wrapperProps}>
+              <div ref={streakRef} data-tour="streak" className="relative hidden lg:block" {...streakPopover.wrapperProps}>
                 <Link
                   to="/dashboard"
                   onClick={streakPopover.onTriggerClick}

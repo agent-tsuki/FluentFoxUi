@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
-import { Button } from '@/components/ui/Button'
+import { Link } from 'react-router-dom'
+import { Button, buttonClasses } from '@/components/ui/Button'
+import { WELCOME_REPLAY_PATH } from '@/hooks/useWelcomeTour'
 import { useUI, type BackgroundAnimation, type ThemeChoice } from '@/context/UIContext'
 import { useAuth } from '@/context/AuthContext'
 import { useModal } from '@/context/ModalContext'
@@ -220,6 +222,22 @@ export function AccountSettings() {
                   </button>
                 ))}
               </div>
+            </div>
+          </div>
+
+          {/* Replays the first-visit welcome tour on the home page */}
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 bg-surface-sunken rounded-sm flex items-center justify-center text-ink-muted flex-shrink-0 mt-0.5">
+              <Icon name="tips_and_updates" className="text-xl" />
+            </div>
+            <div className="flex flex-1 flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-ink font-sans">Welcome tour</p>
+                <p className="text-xs text-ink-muted font-sans">A one-minute walk through FoxSensei</p>
+              </div>
+              <Link to={WELCOME_REPLAY_PATH} className={buttonClasses('secondary', 'sm')}>
+                <Icon name="replay" className="text-base" /> Replay
+              </Link>
             </div>
           </div>
         </div>

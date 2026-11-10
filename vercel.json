@@ -1,9 +1,22 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/kana/:script(hiragana|katakana)/unit/:unit",
+      "destination": "/kana/:script/learn?unit=:unit",
+      "permanent": true
+    },
+    {
+      "source": "/kanji/:level(n5|n4|n3|n2|n1)/unit/:unit",
+      "destination": "/kanji/:level?unit=:unit",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/spa.html"
     }
   ],
   "headers": [
@@ -18,6 +31,15 @@
     },
     {
       "source": "/favicon/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800, stale-while-revalidate=2592000"
+        }
+      ]
+    },
+    {
+      "source": "/og/(.*)",
       "headers": [
         {
           "key": "Cache-Control",

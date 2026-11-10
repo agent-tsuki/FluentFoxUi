@@ -1,5 +1,6 @@
 import type { KanjiLevelConfig } from '@/lib/content/kanji/courseTypes'
 import { kanjiLevelPagePath, type KanjiLevelPageId } from '@/lib/content/kanji/levels'
+import { kanjiPageTitle } from '@/lib/seo/titles'
 
 /**
  * The five pages of a kanji level (the sub-nav items), in nav order: one
@@ -22,7 +23,7 @@ export function kanjiPagesFor(level: KanjiLevelConfig, counts?: { kanji: number;
     navLabel,
     heading,
     description,
-    documentTitle: `${heading === level.title ? 'Course' : heading} · ${level.title} · FoxSensei`,
+    documentTitle: kanjiPageTitle(level.label, id, counts?.kanji),
   })
   return [
     page('course', 'Course', level.title, `Learn the ${n}${level.label} kanji${counts ? ` in ${counts.units} short units` : ''}, with readings and words.`),

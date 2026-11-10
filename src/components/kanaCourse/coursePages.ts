@@ -1,4 +1,5 @@
 import { scriptKanaCount, type KanaScriptConfig } from '@/lib/content/kana/scripts'
+import { kanaPageTitle } from '@/lib/seo/titles'
 
 /**
  * The four pages of a kana course (the SectionNav items), in learning order:
@@ -32,6 +33,7 @@ export function coursePagesFor(script: KanaScriptConfig): readonly CoursePage[] 
   const base = script.basePath
   const name = script.label
   const lower = name.toLowerCase()
+  const counts = { kanaCount: scriptKanaCount(script), unitCount: script.units.length }
   const pages: CoursePage[] = [
     {
       id: 'chart',
@@ -39,7 +41,7 @@ export function coursePagesFor(script: KanaScriptConfig): readonly CoursePage[] 
       navLabel: 'Chart',
       heading: `${name} chart`,
       description: `Explore all ${scriptKanaCount(script)} ${lower}, then move into the guided units when you are ready.`,
-      documentTitle: `Chart · ${name} · FoxSensei`,
+      documentTitle: kanaPageTitle(name, 'chart', counts),
     },
     {
       id: 'course',
@@ -47,7 +49,7 @@ export function coursePagesFor(script: KanaScriptConfig): readonly CoursePage[] 
       navLabel: 'Learn',
       heading: `Learn ${name}`,
       description: `Build confidence through ${script.units.length} short, guided ${lower} units.`,
-      documentTitle: `Learn · ${name} · FoxSensei`,
+      documentTitle: kanaPageTitle(name, 'course', counts),
     },
     {
       id: 'tests',
@@ -55,7 +57,7 @@ export function coursePagesFor(script: KanaScriptConfig): readonly CoursePage[] 
       navLabel: 'Check',
       heading: 'Check your progress',
       description: 'Use short unit checks, test out if you already know it, then take the final test.',
-      documentTitle: `Check · ${name} · FoxSensei`,
+      documentTitle: kanaPageTitle(name, 'tests', counts),
     },
     {
       id: 'downloads',
@@ -63,7 +65,7 @@ export function coursePagesFor(script: KanaScriptConfig): readonly CoursePage[] 
       navLabel: 'Print',
       heading: 'Print & practise',
       description: 'Take chart posters and unit worksheets offline for focused revision.',
-      documentTitle: `Print · ${name} · FoxSensei`,
+      documentTitle: kanaPageTitle(name, 'downloads', counts),
     },
   ]
   cache.set(script, pages)

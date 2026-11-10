@@ -8,6 +8,8 @@ import { ClassesFilterBar } from '@/components/classes/ClassesFilterBar'
 import { CourseGrid, CourseGridSkeleton } from '@/components/classes/CourseGrid'
 import { LINK_BUTTON } from '@/components/classes/linkStyles'
 import { useClasses } from '@/hooks/useClasses'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
+import { CLASSES_TITLE } from '@/lib/seo/titles'
 import { cn } from '@/lib/cn'
 import { resolveErrorMessage } from '@/api/errors'
 import { CLASS_PLATFORMS } from '@/lib/classes/platformMeta'
@@ -34,6 +36,7 @@ function readFilters(params: URLSearchParams): Required<Pick<ClassesFilters, 'le
 }
 
 export function ClassesPage() {
+  useDocumentTitle(CLASSES_TITLE)
   const [params, setParams] = useSearchParams()
   const { level, platform, freeOnly } = readFilters(params)
   const filters = useMemo<ClassesFilters>(

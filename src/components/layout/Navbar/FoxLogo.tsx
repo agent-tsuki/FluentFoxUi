@@ -36,7 +36,9 @@ export const FoxLogo = forwardRef<FoxLogoHandle, FoxLogoProps>((props, ref) => {
       width={size}
       height={size}
       decoding="async"
-      className={cn('inline-block object-contain', props.className)}
+      // Padded so the static fox matches the animation's fox, which fills ~87%
+      // of its frame: no visible jump when the animation replaces it.
+      className={cn('inline-block object-contain p-[6.5%]', props.className)}
       style={{ width: size, height: size }}
     />
   )

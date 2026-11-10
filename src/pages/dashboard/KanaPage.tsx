@@ -6,6 +6,7 @@ import { useDashboardTitle } from '@/hooks/useDashboardTitle'
 import { BarList } from '@/components/charts/BarList'
 import { DashboardPageHeader, Panel, Segmented } from '@/components/dashboard/DashboardBits'
 import { TrackDetail } from '@/components/dashboard/TrackDetail'
+import { CourseBridge } from '@/components/dashboard/CourseBridge'
 import { TRACK_FILL } from '@/lib/dashboard/trackSeries'
 import { TRACK_LABEL } from '@/lib/learn/paths'
 import { formatShare } from '@/lib/learn/progressShape'
@@ -81,6 +82,7 @@ export function KanaPage() {
         description="Every character by level, what's coming up for review, and the ones that trip you up."
         actions={<Segmented label="Script" value={script} options={KANA_TRACKS.map((t) => ({ value: t, label: TRACK_LABEL[t] }))} onChange={setScript} />}
       />
+      <CourseBridge key={`bridge-${script}`} track={script} />
       <ScriptComparison />
       <TrackDetail key={script} track={script} />
     </div>

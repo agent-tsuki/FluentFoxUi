@@ -60,7 +60,7 @@ export function TrackDetail({ track, children }: TrackDetailProps) {
               <StatTile icon="workspace_premium" label="Mastered" value={`${data.items_per_level.mastered}/${data.total_items}`} hint={`${Math.round(data.mastered_pct)}% of ${label}`} />
               <StatTile icon="school" label="Started" value={startedCount(data.items_per_level)} hint={`${data.items_per_level.new} still new`} />
               <StatTile icon="verified" label="30-day recall" value={formatShare(data.retention_30d)} hint="Reviews remembered" />
-              <StatTile icon="timer" label="Avg answer" value={formatSeconds(data.avg_answer_ms)} hint={`${upcomingTotal} reviews in 30 days`} />
+              <StatTile icon="timer" label="Avg answer" value={formatSeconds(data.avg_answer_ms)} hint="Correct answers, last 30 days" />
             </div>
           ) : (
             <EmptyState icon="school" title={`${label} not started`} description="Start the first lesson and your progress shows here." className="rounded-md bg-surface-sunken" />

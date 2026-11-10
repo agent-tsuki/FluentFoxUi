@@ -24,6 +24,7 @@ import { KanjiTestRedirect, KanjiUnitRedirect } from '@/components/kanji/KanjiUn
 import { LEGACY_HASH_SECTION } from '@/lib/dashboard/sections'
 import { LoginLocationPrompt } from '@/components/profile/LoginLocationPrompt'
 import { Toaster } from '@/components/ui/Toaster'
+import { TutorialGate } from '@/components/tutorial/TutorialGate'
 
 // ─── Lazy routes ──────────────────────────────────────────────────────────────
 // Each page is its own chunk, fetched on first navigation.
@@ -196,6 +197,7 @@ function Shell() {
         <Footer />
         <LazyAuthModal />
         <LoginLocationPrompt />
+        <TutorialGate />
         <Toaster />
       </div>
     </div>

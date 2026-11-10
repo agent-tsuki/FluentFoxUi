@@ -24,6 +24,7 @@ import { KanjiDataCredit } from '@/components/kanji/KanjiCourseHeader'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { cn } from '@/lib/cn'
 import { TextLink } from '@/components/ui/TextLink'
+import { kanjiTitle } from '@/lib/seo/titles'
 
 /**
  * The kanji page (/kanji/日, shareable): stroke order and tracing, meanings,
@@ -43,7 +44,7 @@ function KanjiDetail({ char }: { char: string }) {
   const indexes = useAllKanjiIndexes()
 
   useEffect(() => {
-    document.title = entry ? `${char} · ${entry.meanings[0]} · Kanji · FoxSensei` : `${char} · Kanji · FoxSensei`
+    document.title = kanjiTitle(char, entry?.meanings[0])
   }, [char, entry])
 
   return (

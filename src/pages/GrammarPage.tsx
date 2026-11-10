@@ -26,6 +26,7 @@ import { CHAPTER_TABS, chapterPath, isChapterTab, type ChapterTab } from '@/lib/
 import { readCompletedChapters } from '@/lib/grammar/completion'
 import { useRecordLesson } from '@/store/lessonStore'
 import { showToast } from '@/store/toastStore'
+import { grammarTitle } from '@/lib/seo/titles'
 
 // Column on phones (sticky MobileGrammarNav on top), row on desktop (fixed sidebar + content).
 const PAGE_LAYOUT = 'lesson-solid min-h-dvh pt-nav flex flex-col lg:flex-row'
@@ -109,8 +110,8 @@ export function GrammarPage() {
 
   const title = summary?.title
   useEffect(() => {
-    if (title) document.title = `${title} · ${levelKey.toUpperCase()} Grammar · FoxSensei`
-  }, [title, levelKey])
+    if (title) document.title = grammarTitle(levelKey.toUpperCase(), selectedChapterId, title)
+  }, [title, levelKey, selectedChapterId])
 
   if (!level || !isValidLevel) return <Navigate to="/grammar/n5/1" replace />
   // An unknown tab (or /grammar/n5/3/grammar) opens the chapter's notes.

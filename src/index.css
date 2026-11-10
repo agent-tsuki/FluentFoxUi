@@ -88,10 +88,19 @@
   --scene-blossom:    247 192 208; /* #f7c0d0 */
   --scene-blossom-deep: 232 146 174; /* #e892ae */
   --scene-wood:       187 77 44;   /* #bb4d2c */
+
+  /* Wordmark gradient: the fox's colours, deep orange → terracotta → ear-tip
+     plum. Dark enough on light surfaces for large bold text (3:1+). */
+  --brand-from: 212 51 0;      /* #d43300 */
+  --brand-via:  187 77 44;     /* #bb4d2c */
+  --brand-to:   122 63 134;    /* #7a3f86 */
 }
 
 html.dark {
   /* ── FoxSensei design system (Yoru) ── */
+  --brand-from: 255 159 92;    /* #ff9f5c */
+  --brand-via:  240 138 93;    /* #f08a5d */
+  --brand-to:   206 160 222;   /* #cea0de */
   --surface:        15 21 40;    /* #0f1528 */
   --surface-raised: 24 32 56;    /* #182038 always lighter than surface */
   --surface-sunken: 11 16 32;    /* #0b1020 */
@@ -516,6 +525,25 @@ canvas {
 
 /* In the components layer so Tailwind utilities on the same element (text-2xl, px-0…) win. */
 @layer components {
+  /* The navbar wordmark: gradient text in the fox's colours. The gradient is
+     twice the text's width: the visible half runs orange → terracotta → plum,
+     the other half mirrors it, so hovering the logo slides the colours along.
+     Plain link colour where the OS forces its own colours. */
+  .brand-wordmark {
+    background-image: linear-gradient(100deg, rgb(var(--brand-from)) 0%, rgb(var(--brand-via)) 22%, rgb(var(--brand-to)) 50%, rgb(var(--brand-via)) 78%, rgb(var(--brand-from)) 100%);
+    background-size: 200% 100%;
+    background-position: 0% 50%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    transition: background-position var(--duration-slow) ease-out;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .group:hover .brand-wordmark { background-position: 100% 50%; }
+  }
+  @media (forced-colors: active) {
+    .brand-wordmark { background: none; color: LinkText; }
+  }
   /* Section and step headings share one scale across the home page. */
   .concept-section-title {
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;

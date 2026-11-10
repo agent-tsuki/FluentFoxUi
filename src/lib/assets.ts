@@ -14,3 +14,8 @@ export function asset(path: string): string {
   const key = hashedKeys[path]
   return CDN_BASE && key ? `${CDN_BASE}/${key}` : path
 }
+
+/** Whether a `public/` path has been uploaded (it is in the manifest and a CDN is configured). */
+export function hasAsset(path: string): boolean {
+  return Boolean(CDN_BASE && hashedKeys[path])
+}
