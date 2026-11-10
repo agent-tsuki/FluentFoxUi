@@ -25,7 +25,7 @@ subtle. If a screen feels busy, templated, or random, say so and prescribe what 
 
 ## Review dimensions (report every issue with file:line + a token-based fix)
 1. **Color & contrast:** tokens used consistently? any hardcoded hex/`rgb()` inline styles? WCAG AA
-   contrast for body text, muted text (`on-surface-variant`), and placeholders? dark-mode parity
+   contrast for body text, muted text (`ink-muted`), and placeholders? dark-mode parity
    (no `bg-white`/black, no washed-out `/5` rings)?
 2. **Elevation & shading:** one consistent shadow/border language, or ad-hoc `shadow-lg`/`shadow-md`/
    custom box-shadows? Are surfaces separated the same way everywhere?

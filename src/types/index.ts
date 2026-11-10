@@ -1,18 +1,5 @@
 // ─── Navigation ───────────────────────────────────────────────────────────────
 
-export interface DropdownItem {
-  label: string
-  href: string
-}
-
-export interface NavItem {
-  label: string
-  href?: string
-  dropdown?: DropdownItem[]
-  /** A wide menu instead of a list: 'jlpt' shows every level with its parts. */
-  mega?: 'jlpt'
-}
-
 // ─── Flashcard ────────────────────────────────────────────────────────────────
 
 export interface FlashCardData {

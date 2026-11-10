@@ -51,7 +51,7 @@ export function AdminLayout() {
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 pb-24 pt-nav sm:px-6 md:px-10">
-      <nav aria-label="Admin" className="-mx-4 mb-8 mt-6 overflow-x-auto border-b border-outline-variant/60 px-4 sm:mx-0 sm:px-0">
+      <nav aria-label="Admin" className="-mx-4 mb-8 mt-6 overflow-x-auto border-b border-line px-4 sm:mx-0 sm:px-0">
         <ul className="flex min-w-max gap-1">
           {items.map(item => (
             <li key={item.to}>
@@ -60,7 +60,7 @@ export function AdminLayout() {
                 className={({ isActive }) =>
                   cn(
                     '-mb-px flex min-h-11 items-center gap-2 border-b-2 px-3 py-2 text-sm font-semibold transition-colors',
-                    isActive ? 'border-primary text-primary' : 'border-transparent text-on-surface-variant hover:text-on-surface',
+                    isActive ? 'border-primary text-primary' : 'border-transparent text-ink-muted hover:text-ink',
                   )
                 }
               >

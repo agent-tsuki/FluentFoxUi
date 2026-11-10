@@ -63,7 +63,7 @@ export function TrackDetail({ track, children }: TrackDetailProps) {
               <StatTile icon="timer" label="Avg answer" value={formatSeconds(data.avg_answer_ms)} hint={`${upcomingTotal} reviews in 30 days`} />
             </div>
           ) : (
-            <EmptyState icon="school" title={`${label} not started`} description="Start the first lesson and your progress shows here." className="rounded-xl bg-surface-container-low" />
+            <EmptyState icon="school" title={`${label} not started`} description="Start the first lesson and your progress shows here." className="rounded-md bg-surface-sunken" />
           )
         }
       </AsyncBlock>
@@ -72,7 +72,7 @@ export function TrackDetail({ track, children }: TrackDetailProps) {
         <Link to={lessonPath(track)} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-on-primary transition-colors hover:bg-primary/90">
           <Icon name="play_circle" className="text-lg" /> Learn new {label}
         </Link>
-        <Link to={reviewPath(track)} onClick={gateReview(track)} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-outline-variant px-5 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container">
+        <Link to={reviewPath(track)} onClick={gateReview(track)} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line px-5 text-sm font-semibold text-ink transition-colors hover:bg-surface-hover">
           <Icon name="reviews" className="text-lg" /> Review {label}
         </Link>
       </div>

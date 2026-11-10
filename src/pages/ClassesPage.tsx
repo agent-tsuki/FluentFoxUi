@@ -79,8 +79,8 @@ export function ClassesPage() {
       ) : (
         !error && (
           <div aria-hidden="true" className="mx-auto max-w-7xl px-6 md:px-10">
-            <div className="flex h-12 items-center border-y border-outline-variant/40">
-              <SkeletonBlock className="h-8 w-60 rounded-xl" />
+            <div className="flex h-12 items-center border-y border-line">
+              <SkeletonBlock className="h-8 w-60 rounded-md" />
             </div>
           </div>
         )
@@ -121,9 +121,9 @@ function ClassesHero({ meta }: { meta: ClassesMeta | undefined }) {
   const stats = meta?.stats
   return (
     <section className="mx-auto max-w-7xl space-y-1.5 px-6 pb-5 pt-8 md:px-10">
-      <h1 className="font-headline text-2xl font-extrabold tracking-tight text-on-surface md:text-3xl">Learn Japanese from great teachers</h1>
+      <h1 className="font-display text-2xl font-extrabold tracking-tight text-ink md:text-3xl">Learn Japanese from great teachers</h1>
       {/* A div, not a <p>: the stats skeleton is a block element. */}
-      <div className="text-sm text-on-surface-variant">
+      <div className="text-sm text-ink-muted">
         Hand-picked YouTube playlists and courses, sorted by JLPT level
         {stats ? (
           <>
@@ -133,7 +133,7 @@ function ClassesHero({ meta }: { meta: ClassesMeta | undefined }) {
             {stats.channelCount} {stats.channelCount === 1 ? 'teacher' : 'teachers'}
           </>
         ) : (
-          <SkeletonBlock className="ml-2 inline-block h-3 w-32 rounded-xl align-middle" />
+          <SkeletonBlock className="ml-2 inline-block h-3 w-32 rounded-md align-middle" />
         )}
       </div>
     </section>
@@ -143,9 +143,9 @@ function ClassesHero({ meta }: { meta: ClassesMeta | undefined }) {
 function SuggestResource() {
   return (
     <section aria-label="Suggest a resource" className="mx-auto mt-12 max-w-7xl px-6 md:px-10">
-      <div className="flex flex-col items-start gap-4 rounded-xl border border-outline-variant/40 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-on-surface-variant">
-          <span className="font-semibold text-on-surface">Know a resource we missed?</span> Tell us about a channel or course that helped you.
+      <div className="flex flex-col items-start gap-4 rounded-md border border-line px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-ink-muted">
+          <span className="font-semibold text-ink">Know a resource we missed?</span> Tell us about a channel or course that helped you.
         </p>
         <a href="mailto:hello@foxsensei.app" className={cn(LINK_BUTTON.outline, 'shrink-0')}>
           <Icon name="mail" className="text-base" />

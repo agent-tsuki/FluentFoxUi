@@ -1,175 +1,101 @@
-import { memo, useMemo, useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { LearnerOnly } from '@/components/auth/SignInPrompt'
-import { PracticeShellBack, PracticeShellFill } from '@/components/practice/PracticeShell'
-import { TestWorksheet } from '@/components/testCenter/TestWorksheet'
+import { PracticeShellBack } from '@/components/practice/PracticeShell'
+import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
-import { EmptyState } from '@/components/ui/EmptyState'
-import { ErrorState } from '@/components/ui/ErrorState'
 import { Icon } from '@/components/ui/Icon'
-import { LoadingState } from '@/components/ui/LoadingState'
-import { useChapterContent } from '@/hooks/useChapterContent'
-import { chapterPracticeSets, type PracticeGroup, type PracticeSet } from '@/lib/learn/chapterPractice'
+import { ProgressBar } from '@/components/ui/ProgressBar'
 import { CHAPTER_GRAMMAR_TRACK } from '@/lib/learn/paths'
-import type { TestQuestion } from '@/lib/testCenter/types'
 import { ChapterQuiz } from './ChapterQuiz'
 
 interface ChapterExerciseProps {
-  level: string
   chapterId: number
   /** Best score so far, 0–100. */
   best?: number
+  isCompleted: boolean
   /** After an attempt is recorded (refresh the chapter's progress). */
-  onRecorded?: () => void
+  onRecorded?: (passed: boolean) => void
+  /** The step's ContinueBar, shown before and after an attempt. */
+  footer?: ReactNode
 }
 
-const GROUPS: { id: PracticeGroup; line: string }[] = [
-  { id: 'Vocabulary', line: 'Know the words.' },
-  { id: 'Confirm', line: 'Check you understood the grammar.' },
-  { id: 'Construct', line: 'Make sentences yourself.' },
-  { id: 'Review', line: 'A bit of everything.' },
+const EXERCISE_TYPES = [
+  { icon: 'unfold_more', label: 'Choose the word' },
+  { icon: 'translate', label: 'What it means' },
+  { icon: 'checklist', label: 'True or false' },
+  { icon: 'tune', label: 'Change the form' },
+  { icon: 'edit_note', label: 'Word in a sentence' },
+  { icon: 'visibility', label: 'Look at a picture' },
+  { icon: 'swap_horiz', label: 'Put in order' },
+  { icon: 'headphones', label: 'Listen and choose' },
+  { icon: 'forum', label: 'Choose the reply' },
+  { icon: 'menu_book', label: 'Read and answer' },
 ]
 
-const PracticeCard = memo(function PracticeCard({ set, onStart }: { set: PracticeSet; onStart: (set: PracticeSet) => void }) {
-  return (
-    <li>
-      <button
-        type="button"
-        onClick={() => onStart(set)}
-        className="group flex min-h-16 w-full items-center gap-3 rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-3 text-left transition-colors hover:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-outline/60 dark:bg-surface-container-low"
-      >
-        <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-          <Icon name={set.icon} className="text-xl" />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-sm font-semibold text-on-surface">{set.title}</span>
-          <span className="block text-xs text-on-surface-variant">{set.summary}</span>
-        </span>
-        <Icon name="arrow_forward" className="shrink-0 text-lg text-on-surface-variant transition-colors group-hover:text-primary" />
-      </button>
-    </li>
-  )
-})
-
-interface Run {
-  set: PracticeSet
-  questions: TestQuestion[]
-  /** The size chosen for exercises that offer one. */
-  count?: number
-  /** Remounts the worksheet for each new attempt. */
-  attempt: number
-}
+const PERCENT = 100
 
 /**
- * A chapter's Exercise tab: every exercise can be started directly, in any
- * order, and none is locked behind another. Each lists all its questions on
- * one page, checked together. These run in the browser and aren't saved. The chapter test at the end is the one the server marks: its
- * answers are saved, its sentences join reviews, and passing can complete the
- * chapter (Settings → Learning).
+ * A chapter's Exercise step: one session mixing 10 kinds of exercise, up to 20
+ * questions chosen and marked by the server, shown together on one sheet.
+ * Answers are sent when the sheet is checked; the best score is kept, and passing completes the chapter.
  */
-export function ChapterExercise({ level, chapterId, best, onRecorded }: ChapterExerciseProps) {
-  const content = useChapterContent(level, chapterId)
-  const sets = useMemo(() => (content.data ? chapterPracticeSets(content.data) : []), [content.data])
-  const [run, setRun] = useState<Run | null>(null)
-  const [testing, setTesting] = useState(false)
-  const start = useMemo(() => (set: PracticeSet) => setRun({ set, questions: set.build(), count: set.sizes?.[0], attempt: 0 }), [])
+export function ChapterExercise({ chapterId, best, isCompleted, onRecorded, footer }: ChapterExerciseProps) {
+  const [running, setRunning] = useState(false)
 
-  if (testing) {
+  if (running) {
     return (
       <PracticeShellBack.Provider value="Back">
         <ChapterQuiz
           track={CHAPTER_GRAMMAR_TRACK}
           chapterSlug={`ch${chapterId}`}
-          title={`Chapter ${chapterId} test`}
-          onExit={() => setTesting(false)}
+          title={`Chapter ${chapterId} exercise`}
+          onExit={() => setRunning(false)}
           onRecorded={onRecorded}
+          sheet
         />
       </PracticeShellBack.Provider>
     )
   }
 
-  if (run) {
-    const again = (questions: TestQuestion[]) => setRun({ ...run, questions, attempt: run.attempt + 1 })
-    return (
-      <PracticeShellFill.Provider value={false}>
-        <PracticeShellBack.Provider value="Back">
-          <div className="py-4">
-            <TestWorksheet
-              key={run.attempt}
-              title={`${run.set.title} · Chapter ${chapterId}`}
-              questions={run.questions}
-              onExit={() => setRun(null)}
-              onRetryMissed={again}
-              onAgain={() => again(run.set.build(undefined, run.count))}
-              doneLabel="All exercises"
-              wordBank={run.set.wordBank}
-              sizes={run.set.sizes}
-              count={run.count}
-              onCount={(count) => setRun({ ...run, count, questions: run.set.build(undefined, count), attempt: run.attempt + 1 })}
-            />
-          </div>
-        </PracticeShellBack.Provider>
-      </PracticeShellFill.Provider>
-    )
-  }
-
-  if (content.isLoading || (!content.data && !content.error)) return <LoadingState label="Loading exercises…" className="px-6 py-8 xl:px-10" />
-  if (content.error) {
-    return (
-      <div className="px-6 py-10 xl:px-10">
-        <ErrorState message="We couldn't load these exercises." onRetry={content.refetch} />
-      </div>
-    )
-  }
-  if (sets.length === 0) {
-    return (
-      <div className="px-6 py-10 xl:px-10">
-        <EmptyState icon="checklist" title="No exercises here yet" description="Exercises for this chapter are being added." />
-      </div>
-    )
-  }
-
   return (
-    <div className="px-6 pb-4 pt-8 xl:px-10">
-      <h1 className="font-headline text-2xl font-bold text-on-surface sm:text-3xl">Practise this chapter</h1>
-      <p className="mt-1 max-w-prose text-sm text-on-surface-variant">Start with whichever you like; nothing is locked.</p>
+    <div className="grid gap-12">
+      <div>
+        <h1 className="font-display text-2xl font-bold text-ink sm:text-3xl">Practise this chapter</h1>
+        <p className="mt-1 max-w-reading text-body text-ink-muted">20 questions in 10 kinds of exercise, all on one page. Answer them in any order, then check them together. Passing completes the chapter.</p>
 
-      <div className="mt-6 space-y-7">
-        {GROUPS.map((group) => {
-          const inGroup = sets.filter((s) => s.group === group.id)
-          if (inGroup.length === 0) return null
-          return (
-            <section key={group.id} aria-labelledby={`practice-${group.id}`}>
-              <h2 id={`practice-${group.id}`} className="font-headline text-lg font-bold text-on-surface">
-                {group.id}
-              </h2>
-              <p className="text-sm text-on-surface-variant">{group.line}</p>
-              <ul className="mt-3 grid gap-2.5 sm:grid-cols-2 2xl:grid-cols-3">
-                {inGroup.map((set) => (
-                  <PracticeCard key={set.id} set={set} onStart={start} />
-                ))}
-              </ul>
-            </section>
-          )
-        })}
+        <section aria-label="Chapter exercise" className="mt-6 rounded-lg bg-surface-raised p-5 shadow-elevation-1 sm:p-6">
+          <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {EXERCISE_TYPES.map((item) => (
+              <li key={item.label} className="flex items-center gap-3 text-body text-ink">
+                <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-md bg-primary-soft text-primary-ink">
+                  <Icon name={item.icon} className="text-xl" />
+                </span>
+                {item.label}
+              </li>
+            ))}
+          </ul>
 
-        <section aria-labelledby="practice-test" className="rounded-2xl bg-surface-container-low p-4 sm:p-5">
-          <h2 id="practice-test" className="font-headline text-lg font-bold text-on-surface">
-            Chapter test
-          </h2>
-          <p className="mt-0.5 max-w-prose text-sm text-on-surface-variant">
-            Your answers are saved, the sentences join your reviews, and passing can complete the chapter.
-            {best !== undefined && ` Your best so far: ${best}%.`}
-          </p>
-          <div className="mt-3">
+          {(best !== undefined || isCompleted) && (
+            <div className="mt-5 grid gap-1.5 border-t border-line pt-5">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-label text-ink">{best !== undefined ? `Your best: ${best}%` : 'Chapter complete'}</p>
+                {isCompleted && <Badge tone="done">Passed</Badge>}
+              </div>
+              {best !== undefined && <ProgressBar value={best} max={PERCENT} label="Best exercise score" valueText={`${best}%`} tone={isCompleted ? 'success' : 'primary'} size="md" />}
+            </div>
+          )}
+
+          <div className="mt-5">
             <LearnerOnly prompt="inline">
-              <Button onClick={() => setTesting(true)} className="flex min-h-11 items-center gap-2 !px-4 !py-2 text-sm">
-                {level.toLowerCase() === 'n5' && best !== undefined ? 'Try again' : 'Start the test'}
-                <Icon name="arrow_forward" className="text-lg" />
+              <Button size="lg" onClick={() => setRunning(true)}>
+                {best !== undefined ? 'Try again' : 'Start exercise'}
+                <Icon name="arrow_forward" className="text-xl" />
               </Button>
             </LearnerOnly>
           </div>
         </section>
       </div>
+      {footer}
     </div>
   )
 }

@@ -26,21 +26,21 @@ function ScriptComparison() {
     <Panel title="Hiragana vs katakana" description="The same measures side by side, to see which script needs time.">
       <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-on-surface-variant">Mastered</h3>
+          <h3 className="text-sm font-semibold text-ink-muted">Mastered</h3>
           <BarList
             label="Mastered share by script"
             rows={tracks.map((t) => ({ key: t.track, label: TRACK_LABEL[t.track], share: t.mastered_pct / PERCENT, display: `${Math.round(t.mastered_pct)}%`, fill: TRACK_FILL[t.track] }))}
           />
         </div>
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-on-surface-variant">30-day recall</h3>
+          <h3 className="text-sm font-semibold text-ink-muted">30-day recall</h3>
           <BarList
             label="Recall by script"
             rows={tracks.map((t) => ({ key: t.track, label: TRACK_LABEL[t.track], share: t.retention_30d, display: formatShare(t.retention_30d), fill: TRACK_FILL[t.track] }))}
           />
         </div>
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-on-surface-variant">Answer time (shorter is better)</h3>
+          <h3 className="text-sm font-semibold text-ink-muted">Answer time (shorter is better)</h3>
           <BarList
             label="Average answer time by script"
             rows={tracks.map((t) => ({

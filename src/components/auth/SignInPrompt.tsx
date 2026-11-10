@@ -11,7 +11,7 @@ type Variant = 'page' | 'panel' | 'inline'
 
 const VARIANTS: Record<Variant, string> = {
   page: 'mx-auto max-w-md px-6 py-16 md:py-24',
-  panel: 'rounded-2xl bg-surface-container-low p-5',
+  panel: 'rounded-xl bg-surface-sunken p-5',
   inline: '',
 }
 
@@ -37,12 +37,12 @@ export function SignInPrompt({ variant = 'panel', className }: SignInPromptProps
     return (
       <section
         aria-label="Sign in to practise"
-        className={cn('flex flex-wrap items-center gap-x-4 gap-y-3 rounded-xl bg-surface-container-low px-4 py-3', className)}
+        className={cn('flex flex-wrap items-center gap-x-4 gap-y-3 rounded-md bg-surface-sunken px-4 py-3', className)}
       >
         <span aria-hidden className="flex">
           <Icon name="lock" className="text-xl text-primary" />
         </span>
-        <p className="min-w-0 flex-1 basis-48 text-sm text-on-surface-variant">
+        <p className="min-w-0 flex-1 basis-48 text-sm text-ink-muted">
           {unverified ? 'Verify your email to practise and save progress.' : 'Sign in to practise and save your progress.'}
         </p>
         {unverified ? (
@@ -51,7 +51,7 @@ export function SignInPrompt({ variant = 'panel', className }: SignInPromptProps
           </Link>
         ) : (
           <div className="flex gap-2">
-            <Button onClick={() => openModal('login', { returnTo })} className="min-h-10 !px-4 !py-1.5 text-sm" {...authModalPrefetchHandlers}>
+            <Button variant="secondary" onClick={() => openModal('login', { returnTo })} className="min-h-10 !px-4 !py-1.5 text-sm" {...authModalPrefetchHandlers}>
               Log in
             </Button>
             <Button variant="outline" onClick={() => openModal('signup', { returnTo })} className="min-h-10 !px-4 !py-1.5 text-sm" {...authModalPrefetchHandlers}>
@@ -70,10 +70,10 @@ export function SignInPrompt({ variant = 'panel', className }: SignInPromptProps
       <span aria-hidden className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
         <Icon name="lock" className="text-2xl text-primary" />
       </span>
-      <h2 className="font-headline text-lg font-bold text-on-surface">
+      <h2 className="font-display text-lg font-bold text-ink">
         {unverified ? 'Verify your email to practise' : 'Sign in to practise and save progress'}
       </h2>
-      <p className="max-w-sm text-sm text-on-surface-variant">
+      <p className="max-w-sm text-sm text-ink-muted">
         {unverified
           ? 'Quizzes, practice and reviews are saved to your account once your email is verified.'
           : 'Reading lessons and charts is free. Quizzes, practice and reviews are graded and saved to your account.'}

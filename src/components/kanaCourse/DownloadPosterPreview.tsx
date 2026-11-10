@@ -27,18 +27,18 @@ export const DownloadPosterPreview = memo(function DownloadPosterPreview({ varia
   return (
     <div
       aria-hidden="true"
-      className="mx-auto w-full max-w-44 rounded-md border border-outline-variant/60 bg-surface-container-lowest p-2 shadow-elevation-1 dark:border-outline/60"
+      className="mx-auto w-full max-w-44 rounded-md bg-surface-raised shadow-elevation-1 p-2 shadow-elevation-1"
     >
       <div
         className={cn(
           'mb-1.5 flex items-center justify-between rounded-sm px-1.5 py-1',
           colour && 'bg-primary text-on-primary',
-          outline && 'border border-primary/70 text-on-surface',
-          print && 'border-b border-on-surface/40 text-on-surface',
+          outline && 'border border-primary/70 text-ink',
+          print && 'border-b border-ink/40 text-ink',
         )}
       >
-        <span className="font-headline text-2xs font-bold">{label}</span>
-        <span lang="ja" className="font-jp text-2xs font-bold">
+        <span className="font-display text-2xs font-bold">{label}</span>
+        <span lang="ja" className="font-ja-display text-2xs font-bold">
           {nativeLabel}
         </span>
       </div>
@@ -48,7 +48,7 @@ export const DownloadPosterPreview = memo(function DownloadPosterPreview({ varia
             key={row[0]}
             className={cn(
               'grid grid-cols-5 gap-1 rounded-sm p-0.5',
-              outline && 'border border-on-surface-variant/40',
+              outline && 'border border-ink-muted/40',
               colour && ROW_TINTS[r],
             )}
           >
@@ -57,10 +57,10 @@ export const DownloadPosterPreview = memo(function DownloadPosterPreview({ varia
                 key={ch}
                 lang="ja"
                 className={cn(
-                  'flex aspect-square items-center justify-center rounded-sm bg-surface-container-lowest font-jp text-sm font-bold leading-none text-on-surface',
+                  'flex aspect-square items-center justify-center rounded-sm bg-surface-raised font-ja-display text-sm font-bold leading-none text-ink',
                   outline &&
-                    'border border-on-surface-variant/40 text-transparent [-webkit-text-stroke-color:rgb(var(--on-surface))] [-webkit-text-stroke-width:0.6px]',
-                  print && 'border border-on-surface/30',
+                    'border border-ink-muted/40 text-transparent [-webkit-text-stroke-color:rgb(var(--ink))] [-webkit-text-stroke-width:0.6px]',
+                  print && 'border border-ink/30',
                 )}
               >
                 {ch}

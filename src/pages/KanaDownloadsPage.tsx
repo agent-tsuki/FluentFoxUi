@@ -28,16 +28,16 @@ export function KanaDownloadsPage() {
   return (
     <div className="space-y-10 md:space-y-12">
       {recommended && (
-        <section aria-labelledby="print-next-title" className="rounded-2xl border border-primary/25 bg-primary/5 p-5 sm:p-6">
+        <section aria-labelledby="print-next-title" className="rounded-xl border border-primary/25 bg-primary/5 p-5 sm:p-6">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Recommended for your next study session</p>
           <div className="mt-2 flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-5">
             <div>
-              <h2 id="print-next-title" className="font-headline text-xl font-bold text-on-surface sm:text-2xl">
+              <h2 id="print-next-title" className="font-display text-xl font-bold text-ink sm:text-2xl">
                 Print Unit {recommended.number}: {recommended.unit.title}
               </h2>
-              <p className="mt-1 text-sm text-on-surface-variant">Trace the row, then use the mini check when you are offline.</p>
+              <p className="mt-1 text-sm text-ink-muted">Trace the row, then use the mini check when you are offline.</p>
             </div>
-            <p className="shrink-0 text-sm tabular-nums text-on-surface-variant">{printedCount} / {courseUnits.length} worksheets saved</p>
+            <p className="shrink-0 text-sm tabular-nums text-ink-muted">{printedCount} / {courseUnits.length} worksheets saved</p>
           </div>
           <ul className="mt-4 max-w-2xl">
             <DownloadWorksheetRow
@@ -79,9 +79,9 @@ export function KanaDownloadsPage() {
             const groupUnits = unitsOfGroup(script, group.id)
             return (
               <section key={group.id} aria-labelledby={headingId}>
-                <h3 id={headingId} className="mb-2 flex items-baseline gap-2 text-sm font-semibold text-on-surface">
+                <h3 id={headingId} className="mb-2 flex items-baseline gap-2 text-sm font-semibold text-ink">
                   {group.title}
-                  <span className="text-xs font-normal tabular-nums text-on-surface-variant">
+                  <span className="text-xs font-normal tabular-nums text-ink-muted">
                     {groupUnits.length} {groupUnits.length === 1 ? 'worksheet' : 'worksheets'}
                   </span>
                 </h3>
@@ -102,7 +102,7 @@ export function KanaDownloadsPage() {
         </div>
       </TestsSection>
 
-      <p className="flex max-w-prose items-start gap-2 border-t border-outline-variant/60 pt-4 text-xs leading-relaxed text-on-surface-variant dark:border-outline/40">
+      <p className="flex max-w-prose items-start gap-2 border-t border-line pt-4 text-xs leading-relaxed text-ink-muted">
         <span aria-hidden className="flex">
           <Icon name="info" className="text-base" />
         </span>
@@ -112,7 +112,7 @@ export function KanaDownloadsPage() {
             href="https://kanjivg.tagaini.net"
             target="_blank"
             rel="noreferrer"
-            className="font-semibold text-on-surface underline underline-offset-2 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="font-semibold text-ink underline underline-offset-2 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             KanjiVG
           </a>

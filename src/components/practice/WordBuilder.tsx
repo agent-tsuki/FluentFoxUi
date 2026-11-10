@@ -342,16 +342,16 @@ function WordBuilderSession({ kana, all, isSubset, script, onAnswer, onExit, onC
     >
       <div className="flex flex-1 flex-col justify-center">
       {/* Prompt */}
-      <section aria-label="Word to build" className="relative flex flex-col items-center rounded-2xl bg-surface-container-low px-4 pb-4 pt-5 text-center">
+      <section aria-label="Word to build" className="relative flex flex-col items-center rounded-xl bg-surface-sunken px-4 pb-4 pt-5 text-center">
         <span role="img" aria-label={word.meaning} className="select-none text-6xl leading-none sm:text-7xl">
           {word.picture}
         </span>
-        <p className="mt-3 font-headline text-xl font-bold text-on-surface">{word.meaning}</p>
-        <p className="text-on-surface-variant">
-          Build <span className="font-bold text-on-surface">“{word.romaji}”</span>
+        <p className="mt-3 font-display text-xl font-bold text-ink">{word.meaning}</p>
+        <p className="text-ink-muted">
+          Build <span className="font-bold text-ink">“{word.romaji}”</span>
         </p>
         {tip && (
-          <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-on-surface-variant">
+          <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-ink-muted">
             <Icon name="lightbulb" className="text-base text-primary" />
             {tip}
           </p>
@@ -361,7 +361,7 @@ function WordBuilderSession({ kana, all, isSubset, script, onAnswer, onExit, onC
             type="button"
             onClick={() => speak(word.word)}
             aria-label={`Hear ${word.romaji}`}
-            className="absolute right-2 top-2 flex h-12 w-12 items-center justify-center rounded-full bg-surface-container-high text-primary transition-colors hover:bg-surface-container-highest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="absolute right-2 top-2 flex h-12 w-12 items-center justify-center rounded-full bg-surface-hover text-primary transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <Icon name="volume_up" className="text-2xl" />
           </button>
@@ -404,7 +404,7 @@ function WordBuilderSession({ kana, all, isSubset, script, onAnswer, onExit, onC
                   : `Letter ${i + 1}, empty${isWrong ? ', was wrong' : ''}`
               }
               className={cn(
-                'flex items-center justify-center whitespace-nowrap rounded-2xl border-2 font-bold text-on-surface transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                'flex items-center justify-center whitespace-nowrap rounded-xl border-2 font-bold text-ink transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
                 compact ? 'aspect-square w-full' : 'h-16 w-16 sm:h-[4.5rem] sm:w-[4.5rem]',
                 // Two-character slots (シャ, フォ) and compact slots get smaller type.
                 Array.from(expected).length > 1
@@ -415,9 +415,9 @@ function WordBuilderSession({ kana, all, isSubset, script, onAnswer, onExit, onC
                   : isWrong
                     ? 'border-warning bg-warning/10'
                     : shown
-                      ? 'border-outline-variant bg-surface-container-lowest shadow-elevation-1'
-                      : 'border-dashed bg-surface-container-low',
-                !shown && !isWrong && (isNext ? 'border-primary' : 'border-outline-variant'),
+                      ? 'border-line bg-surface-raised shadow-elevation-1'
+                      : 'border-dashed bg-surface-sunken',
+                !shown && !isWrong && (isNext ? 'border-primary' : 'border-line'),
                 drag.ghost?.overSlot === i && 'ring-2 ring-primary',
               )}
             >
@@ -433,7 +433,7 @@ function WordBuilderSession({ kana, all, isSubset, script, onAnswer, onExit, onC
         <p
           className={cn(
             'text-sm font-semibold',
-            phase === 'correct' ? 'text-success' : phase === 'building' ? 'text-on-surface-variant' : 'text-on-surface',
+            phase === 'correct' ? 'text-success' : phase === 'building' ? 'text-ink-muted' : 'text-ink',
           )}
         >
           {feedback || (finePointer ? 'Click the kana in order, or drag them into place.' : 'Tap the kana in order.')}
@@ -459,11 +459,11 @@ function WordBuilderSession({ kana, all, isSubset, script, onAnswer, onExit, onC
                   if (!drag.consumeClick()) placeTile(tile.key)
                 }}
                 className={cn(
-                  'flex h-14 select-none items-center justify-center whitespace-nowrap rounded-2xl font-bold transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                  'flex h-14 select-none items-center justify-center whitespace-nowrap rounded-xl font-bold transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
                   Array.from(tile.char).length > 1 ? 'min-w-14 px-1.5 text-2xl' : 'w-14 text-3xl',
                   used
-                    ? 'border-2 border-dashed border-outline-variant/60 text-transparent'
-                    : 'border border-outline-variant/60 bg-surface-container-lowest text-on-surface shadow-elevation-1 hover:bg-surface-container-low active:bg-surface-container disabled:opacity-60',
+                    ? 'border-2 border-dashed border-line text-transparent'
+                    : 'border border-line bg-surface-raised text-ink shadow-elevation-1 hover:bg-surface-hover active:bg-surface-sunken disabled:opacity-60',
                   finePointer && !used && !done && 'cursor-grab',
                 )}
               >
@@ -494,7 +494,7 @@ function WordBuilderSession({ kana, all, isSubset, script, onAnswer, onExit, onC
           aria-hidden="true"
           lang="ja"
           className={cn(
-            'pointer-events-none fixed z-50 flex h-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center whitespace-nowrap rounded-2xl border border-primary bg-surface-container-lowest font-bold text-on-surface shadow-elevation-3',
+            'pointer-events-none fixed z-50 flex h-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center whitespace-nowrap rounded-xl border border-primary bg-surface-raised font-bold text-ink shadow-elevation-3',
             Array.from(drag.ghost.char).length > 1 ? 'min-w-14 px-1.5 text-2xl' : 'w-14 text-3xl',
           )}
           style={{ left: drag.ghost.x, top: drag.ghost.y }}

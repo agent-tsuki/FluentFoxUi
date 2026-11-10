@@ -62,10 +62,10 @@ export function KanaTestsPage() {
         title="Test out"
         description={`Already know some ${lower}? Units you score ${formatPercent(script.skipPassMark)} or more on are marked done. Undo any time on the unit page.`}
       >
-        <details className="group rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-4 dark:border-outline/60 dark:bg-surface-container-low sm:p-5">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+        <details className="group rounded-xl bg-surface-raised shadow-elevation-1 p-4 sm:p-5">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
             <span>Already comfortable? Test out of a group or the whole course.</span>
-            <Icon name="expand_more" className="text-xl text-on-surface-variant transition-transform group-open:rotate-180" />
+            <Icon name="expand_more" className="text-xl text-ink-muted transition-transform group-open:rotate-180" />
           </summary>
           <div className="mt-5">
             <TestOutCard
@@ -73,7 +73,7 @@ export function KanaTestsPage() {
               emphasis={unitsDone === 0 && skipTests?.all === undefined}
               certificateUnlocked={certificateUnlocked}
             />
-            <h3 className="mb-2 mt-6 text-sm font-semibold text-on-surface">Or test out one group</h3>
+            <h3 className="mb-2 mt-6 text-sm font-semibold text-ink">Or test out one group</h3>
             <ul className={TESTS_LIST}>
               {script.groups.map((group) => {
                 const units = unitsForScope(script, group.id)
@@ -111,7 +111,7 @@ export function KanaTestsPage() {
           {certificateUnlocked ? (
             <CertificatePanel className="mt-4" />
           ) : (
-            <p className="mt-3 flex items-center gap-2 text-sm text-on-surface-variant">
+            <p className="mt-3 flex items-center gap-2 text-sm text-ink-muted">
               <span aria-hidden className="flex">
                 <Icon name="workspace_premium" className="text-lg text-primary" />
               </span>
@@ -149,16 +149,16 @@ function RecommendedCheck({ nextUnit, unitsDone }: { nextUnit: ReturnType<typeof
   return (
     <section
       aria-labelledby="recommended-check-title"
-      className="order-1 overflow-hidden rounded-2xl border border-primary/25 bg-primary/5 p-5 sm:p-6"
+      className="order-1 overflow-hidden rounded-xl border border-primary/25 bg-primary/5 p-5 sm:p-6"
     >
       <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Recommended next</p>
       {/* Side by side on tablets; stacked again in the narrow ≥ lg rail. */}
       <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between lg:flex-col lg:items-stretch">
         <div className="max-w-xl">
-          <h2 id="recommended-check-title" className="font-headline text-xl font-bold text-on-surface sm:text-2xl lg:text-xl">
+          <h2 id="recommended-check-title" className="font-display text-xl font-bold text-ink sm:text-2xl lg:text-xl">
             {title}
           </h2>
-          <p className="mt-1 text-sm leading-relaxed text-on-surface-variant">{body}</p>
+          <p className="mt-1 text-sm leading-relaxed text-ink-muted">{body}</p>
         </div>
         <ActionLink to={target} className="shrink-0 px-4 text-sm lg:w-full">
           {action} <Icon name="arrow_forward" className="text-lg" />

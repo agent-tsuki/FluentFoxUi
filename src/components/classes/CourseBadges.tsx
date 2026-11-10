@@ -3,7 +3,7 @@ import { cn } from '@/lib/cn'
 import { PLATFORM_META } from '@/lib/classes/platformMeta'
 import type { ClassPlatform } from '@/types/classes'
 
-const BADGE = 'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-2xs font-bold uppercase tracking-wide'
+const BADGE = 'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-2xs font-bold uppercase tracking-[0.12em]'
 
 /** PlatformBadge — YouTube / Udemy / Website pill. */
 export function PlatformBadge({ platform, className }: { platform: ClassPlatform; className?: string }) {
@@ -39,7 +39,7 @@ export function TagList({ tags, max, className }: { tags: string[]; max?: number
       {shown.map(tag => (
         <li
           key={tag}
-          className="rounded-full border border-outline-variant/40 bg-surface-container px-2.5 py-0.5 text-xs font-semibold text-on-surface-variant"
+          className="rounded-full border border-line bg-surface-sunken px-2.5 py-0.5 text-xs font-semibold text-ink-muted"
         >
           {tag}
         </li>

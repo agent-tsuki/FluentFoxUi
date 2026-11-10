@@ -25,9 +25,8 @@ interface ContinueCardProps {
   className?: string
 }
 
-const CARD =
-  'rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-4 dark:border-outline/60 dark:bg-surface-container-low sm:p-6'
-const CTA = 'mt-4 w-full sm:w-auto dark:bg-primary-container'
+const CARD = 'rounded-lg bg-primary-soft p-4 sm:p-6'
+const CTA = 'mt-4 w-full sm:w-auto'
 
 export function ContinueCard({ next, isFresh, finalTest, kanaCount, className }: ContinueCardProps) {
   const script = useKanaScript()
@@ -35,7 +34,7 @@ export function ContinueCard({ next, isFresh, finalTest, kanaCount, className }:
   if (finalTest?.passedAt) {
     return (
       <Shell eyebrow="Course complete" title="You passed the final test" className={className}>
-        <p className="mt-1 text-sm tabular-nums text-on-surface-variant">
+        <p className="mt-1 text-sm tabular-nums text-ink-muted">
           Best score {percent(finalTest.best)}. Your certificate is ready to view and print.
         </p>
         <ActionLink to={`${base}/tests#certificate`} className={CTA}>
@@ -49,7 +48,7 @@ export function ContinueCard({ next, isFresh, finalTest, kanaCount, className }:
   if (!next) {
     return (
       <Shell eyebrow={`All ${script.units.length} units done`} title="Final test" className={className}>
-        <p className="mt-1 text-sm tabular-nums text-on-surface-variant">
+        <p className="mt-1 text-sm tabular-nums text-ink-muted">
           {finalTestMeta(script, kanaCount)}
           {finalTest ? ` · best ${percent(finalTest.best)}` : ''}
         </p>
@@ -76,7 +75,7 @@ function NextUnit({ next, isFresh, className }: { next: CourseUnitView; isFresh:
       kana={next.preview.text + (next.preview.truncated ? '…' : '')}
       className={className}
     >
-      <p className="mt-1 text-sm text-on-surface-variant">
+      <p className="mt-1 text-sm text-ink-muted">
         <JaText text={next.unit.summary} />
       </p>
       <StepProgress steps={steps} done={done} completed={completed} className="mt-3 max-w-sm" />
@@ -101,11 +100,11 @@ function Shell({ eyebrow, title, kana, className, children }: ShellProps) {
     <section aria-labelledby="continue-heading" className={cn(CARD, className)}>
       <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary tabular-nums">{eyebrow}</p>
       <div className="mt-1.5 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-        <h2 id="continue-heading" className="font-headline text-xl font-bold text-on-surface md:text-2xl">
+        <h2 id="continue-heading" className="font-display text-xl font-bold text-ink md:text-2xl">
           <JaText text={title} />
         </h2>
         {kana && (
-          <span lang="ja" className="whitespace-nowrap font-jp text-xl text-on-surface-variant md:text-2xl">
+          <span lang="ja" className="whitespace-nowrap font-ja-display text-xl text-ink-muted md:text-2xl">
             {kana}
           </span>
         )}

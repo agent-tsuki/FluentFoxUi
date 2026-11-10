@@ -1,7 +1,5 @@
 import type { GrammarChapterSummary } from '@/types/grammar'
-import { Button } from '@/components/ui/Button'
 import { FixedSidebar } from '@/components/layout/FixedSidebar'
-import { useStartLearning } from '@/hooks/useStartLearning'
 import { LevelSwitcher } from '@/components/grammar/LevelSwitcher'
 import { ChapterProgress } from '@/components/grammar/ChapterProgress'
 import { ChapterList } from '@/components/grammar/ChapterList'
@@ -18,14 +16,12 @@ interface GrammarSidebarProps {
  * and chapter list. Phones get the same pieces via MobileGrammarNav.
  */
 export function GrammarSidebar({ level, chapters, completedChapters, activeChapterId }: GrammarSidebarProps) {
-  const { startLearning } = useStartLearning()
-
   return (
     <FixedSidebar>
 
       {/* Level Switcher */}
-      <div className="px-4 pt-5 pb-4 border-b border-outline-variant/20 flex-shrink-0">
-        <div className="text-xs uppercase tracking-widest text-on-surface-variant font-bold mb-3">Grammar Course</div>
+      <div className="px-4 pt-5 pb-4 border-b border-line flex-shrink-0">
+        <div className="mb-3 text-eyebrow uppercase text-ink-muted">Grammar Course</div>
         <LevelSwitcher level={level} />
       </div>
 
@@ -33,7 +29,7 @@ export function GrammarSidebar({ level, chapters, completedChapters, activeChapt
       <ChapterProgress
         chapters={chapters}
         completedChapters={completedChapters}
-        className="border-b border-outline-variant/20 flex-shrink-0"
+        className="border-b border-line flex-shrink-0"
       />
 
       {/* Chapter List */}
@@ -45,16 +41,6 @@ export function GrammarSidebar({ level, chapters, completedChapters, activeChapt
           activeChapterId={activeChapterId}
         />
       </nav>
-
-      {level.toLowerCase() !== 'n5' && (
-        <div className="flex-shrink-0 p-4 border-t border-outline-variant/20">
-          {/* Pro isn't built yet: for now this opens signup (or goes to the
-              dashboard when signed in) so the button isn't a dead control. */}
-          <Button variant="primary" className="w-full py-3 rounded-xl shadow-none" onClick={startLearning}>
-            Unlock Pro Deck
-          </Button>
-        </div>
-      )}
     </FixedSidebar>
   )
 }

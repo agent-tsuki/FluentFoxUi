@@ -100,11 +100,11 @@ export function ChapterSheet({ open, onClose, level, chapters, completedChapters
             animate={reducedMotion ? { opacity: 1 } : { y: 0 }}
             exit={reducedMotion ? { opacity: 0 } : { y: '100%', transition: { duration: durations.resize, ease: easings.out } }}
             transition={reducedMotion ? fade : springs.sheet}
-            className="absolute inset-x-0 bottom-0 max-h-[80dvh] flex flex-col bg-surface-container-lowest text-on-surface rounded-t-3xl border-t border-outline-variant/40 shadow-elevation-3 pb-[env(safe-area-inset-bottom)]"
+            className="absolute inset-x-0 bottom-0 max-h-[80dvh] flex flex-col bg-surface-raised text-ink rounded-t-3xl border-t border-line shadow-elevation-3 pb-[env(safe-area-inset-bottom)]"
           >
-            <div aria-hidden className="mx-auto mt-2 h-1 w-10 rounded-full bg-outline-variant/60" />
+            <div aria-hidden className="mx-auto mt-2 h-1 w-10 rounded-full bg-line/60" />
             <div className="flex items-center justify-between gap-3 pl-5 pr-2 pt-1">
-              <h2 id={TITLE_ID} className="text-xs uppercase tracking-widest text-on-surface-variant font-bold">
+              <h2 id={TITLE_ID} className="text-xs uppercase tracking-[0.12em] text-ink-muted font-bold">
                 {level.toUpperCase()} Chapters
               </h2>
               <CloseButton onClick={onClose} aria-label="Close chapter list" />
@@ -112,7 +112,7 @@ export function ChapterSheet({ open, onClose, level, chapters, completedChapters
             <ChapterProgress
               chapters={chapters}
               completedChapters={completedChapters}
-              className="px-5 pt-1 border-b border-outline-variant/20 flex-shrink-0"
+              className="px-5 pt-1 border-b border-line flex-shrink-0"
             />
             <nav aria-label={`${level.toUpperCase()} chapters`} className="flex-1 overflow-y-auto overscroll-contain py-2 custom-scrollbar">
               <ChapterList

@@ -11,17 +11,17 @@ export function CurriculumEditor({ sections, onChange }: { sections: CurriculumS
 
   return (
     <fieldset className="space-y-4">
-      <legend className="mb-2 font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant">Curriculum</legend>
+      <legend className="mb-2 font-sans text-xs font-bold uppercase tracking-[0.12em] text-ink-muted">Curriculum</legend>
       {sections.map((section, index) => (
         // Index keys: sections have no id and are only appended/removed.
-        <div key={index} className="space-y-3 rounded-xl border border-outline-variant/50 p-4">
+        <div key={index} className="space-y-3 rounded-md border border-line p-4">
           <div className="flex items-center gap-2">
             <TextInput aria-label={`Section ${index + 1} title`} placeholder="Section title" value={section.title} onChange={e => update(index, { title: e.target.value })} />
             <button
               type="button"
               aria-label={`Remove section ${index + 1}`}
               onClick={() => onChange(sections.filter((_, i) => i !== index))}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container hover:text-error"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink-muted hover:bg-surface-hover hover:text-error"
             >
               <Icon name="delete_forever" className="text-xl" />
             </button>

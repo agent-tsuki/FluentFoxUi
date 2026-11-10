@@ -28,22 +28,22 @@ export const DownloadWorksheetRow = memo(function DownloadWorksheetRow({
 }: DownloadWorksheetRowProps) {
   const preview = kanaPreview(kana)
   return (
-    <li className="flex flex-col gap-3 rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-3 sm:flex-row sm:items-center sm:gap-4 sm:p-4 dark:border-outline/60 dark:bg-surface-container-low">
+    <li className="flex flex-col gap-3 rounded-xl bg-surface-raised shadow-elevation-1 p-3 sm:flex-row sm:items-center sm:gap-4 sm:p-4">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <span
           aria-hidden
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-container text-sm font-bold tabular-nums text-on-surface-variant dark:bg-surface-container-high"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-surface-sunken text-sm font-bold tabular-nums text-ink-muted dark:bg-surface-hover"
         >
           {number}
         </span>
         <div className="min-w-0">
-          <h4 className="text-base font-bold leading-snug text-on-surface">
+          <h4 className="text-base font-bold leading-snug text-ink">
             <span className="sr-only">Unit {number}: </span>
             <JaText text={unit.title} />
           </h4>
-          <p className="flex flex-wrap items-center gap-x-2 text-xs text-on-surface-variant">
+          <p className="flex flex-wrap items-center gap-x-2 text-xs text-ink-muted">
             <span>
-              <span lang="ja" className="font-jp">
+              <span lang="ja" className="font-ja-display">
                 {preview.text}
                 {preview.truncated && '…'}
               </span>

@@ -18,7 +18,7 @@ export function ProfileHero({ profile, onChangeAvatar }: ProfileHeroProps) {
   const lastLogin = profile.lastLogin
 
   return (
-    <div className="bg-surface-container-low rounded-xl p-8 flex flex-col sm:flex-row items-center sm:items-start gap-8">
+    <div className="bg-surface-sunken rounded-md p-8 flex flex-col sm:flex-row items-center sm:items-start gap-8">
       <div className="flex flex-col items-center gap-3 shrink-0">
         <button
           type="button"
@@ -26,7 +26,7 @@ export function ProfileHero({ profile, onChangeAvatar }: ProfileHeroProps) {
           className="relative cursor-pointer group/hero-avatar"
           onClick={onChangeAvatar}
         >
-          <div className="w-28 h-28 rounded-full border-4 border-primary/10 group-hover/hero-avatar:border-primary transition-all shadow-elevation-2 overflow-hidden bg-surface-container-highest">
+          <div className="w-28 h-28 rounded-full border-4 border-primary/10 group-hover/hero-avatar:border-primary transition-all shadow-elevation-2 overflow-hidden bg-surface-hover">
             <img
               src={asset(profile.avatar.url)}
               alt={fullName}
@@ -35,7 +35,7 @@ export function ProfileHero({ profile, onChangeAvatar }: ProfileHeroProps) {
             />
           </div>
         </button>
-        <TextButton onClick={onChangeAvatar} size="xs" leadingIcon="photo_camera" className="font-bold uppercase tracking-wider">
+        <TextButton onClick={onChangeAvatar} size="xs" leadingIcon="photo_camera" className="font-bold uppercase tracking-[0.12em]">
           Change photo
         </TextButton>
       </div>
@@ -45,8 +45,8 @@ export function ProfileHero({ profile, onChangeAvatar }: ProfileHeroProps) {
           Learner Profile
         </Eyebrow>
         <div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-on-surface font-headline">{fullName}</h1>
-          <p className="text-sm font-semibold text-on-surface-variant mt-1">@{profile.username}</p>
+          <h1 className="text-4xl font-extrabold tracking-tight text-ink font-display">{fullName}</h1>
+          <p className="text-sm font-semibold text-ink-muted mt-1">@{profile.username}</p>
         </div>
 
         <div className="flex flex-wrap justify-center sm:justify-start gap-3 pt-1">
@@ -58,7 +58,7 @@ export function ProfileHero({ profile, onChangeAvatar }: ProfileHeroProps) {
         </div>
 
         {lastLogin && (
-          <p className="flex flex-wrap items-center justify-center sm:justify-start gap-x-2 gap-y-1 text-xs text-on-surface-variant pt-1">
+          <p className="flex flex-wrap items-center justify-center sm:justify-start gap-x-2 gap-y-1 text-xs text-ink-muted pt-1">
             <Icon name="history_edu" className="text-sm" />
             <span>
               Last login {timeAgo(lastLogin.createdAt)} · {deviceName(lastLogin)}
@@ -84,9 +84,9 @@ interface ChipProps {
   children:   React.ReactNode
 }
 
-function Chip({ icon, iconClass = 'text-on-surface-variant', filled, children }: ChipProps) {
+function Chip({ icon, iconClass = 'text-ink-muted', filled, children }: ChipProps) {
   return (
-    <div className="flex items-center gap-1.5 px-3 py-1 bg-surface-container-highest rounded-full text-sm font-semibold text-on-surface">
+    <div className="flex items-center gap-1.5 px-3 py-1 bg-surface-hover rounded-full text-sm font-semibold text-ink">
       <Icon name={icon} className={`text-base ${iconClass}`} filled={filled} />
       {children}
     </div>

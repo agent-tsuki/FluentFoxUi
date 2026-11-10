@@ -21,10 +21,10 @@ interface OverrideFieldRowProps {
 export function OverrideFieldRow({ label, value, preview, canEdit, resetting, onReset, children }: OverrideFieldRowProps) {
   const isCustom = value.custom !== null
   return (
-    <div className="space-y-3 border-b border-outline-variant/40 py-5 last:border-b-0">
+    <div className="space-y-3 border-b border-line py-5 last:border-b-0">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-bold text-on-surface">{label}</h3>
+          <h3 className="text-sm font-bold text-ink">{label}</h3>
           <Chip tone={isCustom ? 'primary' : 'neutral'} icon={isCustom ? 'edit' : 'smart_display'}>
             {isCustom ? 'CUSTOM' : 'YOUTUBE'}
           </Chip>
@@ -34,7 +34,7 @@ export function OverrideFieldRow({ label, value, preview, canEdit, resetting, on
             type="button"
             onClick={onReset}
             disabled={resetting}
-            className="-my-2 inline-flex min-h-11 items-center gap-1 py-2 text-sm font-semibold text-on-surface-variant hover:text-on-surface disabled:opacity-60"
+            className="-my-2 inline-flex min-h-11 items-center gap-1 py-2 text-sm font-semibold text-ink-muted hover:text-ink disabled:opacity-60"
           >
             <Icon name={resetting ? 'progress_activity' : 'replay'} className={resetting ? 'animate-spin text-base' : 'text-base'} />
             Reset to YouTube
@@ -43,7 +43,7 @@ export function OverrideFieldRow({ label, value, preview, canEdit, resetting, on
       </div>
       <div>{preview}</div>
       {isCustom && value.youtube && (
-        <p className="text-xs text-on-surface-variant">
+        <p className="text-xs text-ink-muted">
           YouTube value: <span className="break-words">{value.youtube}</span>
         </p>
       )}

@@ -12,8 +12,8 @@ const LABEL_MEANING: Record<GradeLabel, string> = {
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="space-y-2">
-      <h2 className="font-headline text-xl font-bold text-on-surface">{title}</h2>
-      <div className="space-y-2 leading-relaxed text-on-surface-variant">{children}</div>
+      <h2 className="font-display text-xl font-bold text-ink">{title}</h2>
+      <div className="space-y-2 leading-relaxed text-ink-muted">{children}</div>
     </section>
   )
 }
@@ -24,9 +24,9 @@ export function HowGradingWorksPage() {
     <main className="mx-auto max-w-3xl px-6 pb-20 pt-nav">
       <div className="space-y-8 pt-8">
         <div className="space-y-3">
-          <p className="text-xs font-bold uppercase tracking-widest text-primary">Learning</p>
-          <h1 className="font-headline text-4xl font-extrabold tracking-tighter text-on-surface md:text-5xl">How grading works</h1>
-          <p className="text-on-surface-variant">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-primary">Learning</p>
+          <h1 className="font-display text-4xl font-extrabold tracking-tighter text-ink md:text-5xl">How grading works</h1>
+          <p className="text-ink-muted">
             You only answer. We grade each answer and decide when you see the card again.
           </p>
         </div>
@@ -59,7 +59,7 @@ export function HowGradingWorksPage() {
           <ul className="space-y-2">
             {(Object.keys(LABEL_MEANING) as GradeLabel[]).map((label) => (
               <li key={label}>
-                <strong className="text-on-surface">{GRADE_LABEL_TEXT[label]}</strong>: {LABEL_MEANING[label]}
+                <strong className="text-ink">{GRADE_LABEL_TEXT[label]}</strong>: {LABEL_MEANING[label]}
               </li>
             ))}
           </ul>

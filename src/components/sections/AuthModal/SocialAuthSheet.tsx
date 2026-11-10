@@ -66,9 +66,9 @@ export function SocialAuthSheet({ onGoogle, onX, tall = false }: SocialAuthSheet
       animate={{ y: 0 }}
       transition={{ ...springs.sheet, delay: 0.1 }}
       // Solid in dark too: the theme's see-through glass would let the orange sidebar show under the (solid) arc.
-      className={`relative -mx-10 -mb-10 mt-10 bg-surface-container-lowest px-8 text-on-surface dark:bg-surface-container-lowest dark:backdrop-filter-none ${tall ? `${LABEL_TOP_SPACE_TALL} ${SHEET_BOTTOM_SPACE_TALL}` : `${LABEL_TOP_SPACE} ${SHEET_BOTTOM_SPACE}`}`}
+      className={`relative -mx-10 -mb-10 mt-10 bg-surface-raised px-8 text-ink dark:bg-surface-raised dark:backdrop-filter-none ${tall ? `${LABEL_TOP_SPACE_TALL} ${SHEET_BOTTOM_SPACE_TALL}` : `${LABEL_TOP_SPACE} ${SHEET_BOTTOM_SPACE}`}`}
     >
-      <ArcEdge fillClassName="fill-surface-container-lowest" className={ARC_HEIGHT} />
+      <ArcEdge fillClassName="fill-surface-raised" className={ARC_HEIGHT} />
 
       <motion.div
         variants={contentVariants}
@@ -77,7 +77,7 @@ export function SocialAuthSheet({ onGoogle, onX, tall = false }: SocialAuthSheet
       >
         <motion.p
           variants={fadeUp}
-          className={`relative z-10 ${LABEL_LIFT} ${LABEL_BOTTOM_SPACE} text-center text-2xs font-bold uppercase tracking-widest text-on-surface-variant`}
+          className={`relative z-10 ${LABEL_LIFT} ${LABEL_BOTTOM_SPACE} text-center text-2xs font-bold uppercase tracking-[0.12em] text-ink-muted`}
         >
           {LABEL_TEXT}
         </motion.p>

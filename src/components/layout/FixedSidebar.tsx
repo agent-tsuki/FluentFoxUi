@@ -18,7 +18,7 @@ export function FixedSidebar({ className, children }: { className?: string; chil
   return (
     <aside
       className={cn(
-        'fixed left-4 top-[calc(theme(spacing.nav)+0.75rem)] z-10 hidden w-72 flex-col overflow-hidden rounded-2xl border border-outline-variant/40 bg-surface-container-lowest shadow-elevation-1 lg:flex',
+        'fixed left-4 top-[calc(theme(spacing.nav)+0.75rem)] z-10 hidden w-72 flex-col overflow-hidden rounded-xl border border-line bg-surface-raised shadow-elevation-1 lg:flex',
         className,
       )}
       style={{ bottom: '1rem', transform: footerOverlap > 0 ? `translateY(-${footerOverlap}px)` : undefined }}

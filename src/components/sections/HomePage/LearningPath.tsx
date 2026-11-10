@@ -40,7 +40,7 @@ export function LearningPath() {
       <div className="mx-auto flex max-w-7xl flex-col gap-10 px-6 py-20 md:px-10 md:py-24">
         <FadeIn className="flex max-w-3xl flex-col gap-3.5">
           <Eyebrow className="!mb-0 !text-primary-fixed-dim">{PATH_COPY.eyebrow}</Eyebrow>
-          <h2 className="font-headline text-display-md font-extrabold tracking-tight text-on-surface-inverse">
+          <h2 className="font-display text-display-md font-extrabold tracking-tight text-on-surface-inverse">
             {PATH_COPY.title}
           </h2>
           <p className="text-lg leading-relaxed text-on-surface-inverse-variant">
@@ -73,7 +73,7 @@ function StopDetails({ stop }: { stop: PathStop }) {
   return (
     <div className="flex flex-col gap-4 px-1 py-2">
       <Eyebrow className="!mb-0 !text-primary-fixed-dim">{stop.stage}</Eyebrow>
-      <h3 className="font-headline text-2xl font-extrabold leading-tight tracking-tight text-on-surface-inverse md:text-3xl">
+      <h3 className="font-display text-2xl font-extrabold leading-tight tracking-tight text-on-surface-inverse md:text-3xl">
         {stop.title}
       </h3>
       <p className="text-base font-bold text-on-surface-inverse-variant">

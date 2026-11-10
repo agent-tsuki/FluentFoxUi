@@ -19,9 +19,9 @@ interface MobileGrammarNavProps {
 
 // Hover styles only on hover-capable devices so a tap doesn't leave a stuck state.
 const ICON_BUTTON =
-  'size-11 shrink-0 inline-flex items-center justify-center rounded-full text-on-surface-variant ' +
+  'size-11 shrink-0 inline-flex items-center justify-center rounded-full text-ink-muted ' +
   'outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors ' +
-  '[@media(hover:hover)]:enabled:hover:bg-surface-container-high [@media(hover:hover)]:enabled:hover:text-on-surface ' +
+  '[@media(hover:hover)]:enabled:hover:bg-surface-hover [@media(hover:hover)]:enabled:hover:text-ink ' +
   'disabled:opacity-35 disabled:cursor-not-allowed'
 
 /**
@@ -56,7 +56,7 @@ export function MobileGrammarNav({
     <div className="lg:hidden flex-shrink-0" style={{ height: barHeight }}>
       <div
         ref={barRef}
-        className="fixed inset-x-0 top-nav z-30 flex flex-col sm:flex-row sm:items-center gap-2 px-4 py-2 bg-surface-container-lowest/95 backdrop-blur-xl border-b border-outline-variant/40 shadow-elevation-1"
+        className="fixed inset-x-0 top-nav z-30 flex flex-col sm:flex-row sm:items-center gap-2 px-4 py-2 bg-surface-raised/95 backdrop-blur-xl border-b border-line shadow-elevation-1"
       >
         <LevelSwitcher level={level} size="md" className="sm:w-64 sm:flex-shrink-0" />
 
@@ -80,15 +80,15 @@ export function MobileGrammarNav({
               aria-expanded={sheetOpen}
               className={cn(
                 'flex-1 sm:flex-none min-h-11 min-w-0 inline-flex items-center justify-center gap-1 px-4 rounded-full',
-                'bg-surface-container-high text-sm font-bold text-on-surface',
+                'bg-surface-hover text-sm font-bold text-ink',
                 'outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors',
-                '[@media(hover:hover)]:hover:bg-surface-container-highest',
+                '[@media(hover:hover)]:hover:bg-surface-hover',
               )}
             >
               <span className="truncate">
                 Chapter {position > 0 ? position : 1} of {chapters.length}
               </span>
-              <Icon name="expand_more" className="text-xl text-on-surface-variant" />
+              <Icon name="expand_more" className="text-xl text-ink-muted" />
             </button>
 
             <button

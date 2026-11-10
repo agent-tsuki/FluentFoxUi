@@ -28,29 +28,29 @@ export function UnitStepItem({ id, number, title, description, done, isLast, chi
           className={cn(
             'flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold',
             done
-              ? 'bg-primary text-on-primary dark:bg-primary-container'
-              : 'border-2 border-outline-variant text-on-surface-variant bg-surface',
+              ? 'bg-primary text-on-primary '
+              : 'border-2 border-line text-ink-muted bg-surface',
           )}
         >
           {done ? <Icon name="check" className="text-xl" /> : number}
         </span>
-        {!isLast && <span className="mt-2 w-0.5 flex-1 rounded-full bg-outline-variant/50" />}
+        {!isLast && <span className="mt-2 w-0.5 flex-1 rounded-full bg-line/50" />}
       </div>
 
       <section aria-labelledby={headingId} className={cn('min-w-0 flex-1', isLast ? 'pb-2' : 'pb-10 sm:pb-12')}>
-        <h2 id={headingId} className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 font-headline text-xl font-bold text-on-surface">
+        <h2 id={headingId} className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 font-display text-xl font-bold text-ink">
           {title}
           <span
             className={cn(
               'rounded-full px-2.5 py-0.5 text-xs font-semibold',
-              done ? 'bg-primary/10 text-primary' : 'text-on-surface-variant',
+              done ? 'bg-primary/10 text-primary' : 'text-ink-muted',
             )}
           >
             <span className="sr-only">: </span>
             {done ? 'Done' : 'To do'}
           </span>
         </h2>
-        {description && <p className="mt-1 text-sm leading-relaxed text-on-surface-variant">{description}</p>}
+        {description && <p className="mt-1 text-sm leading-relaxed text-ink-muted">{description}</p>}
         <div className="mt-4">{children}</div>
       </section>
     </li>

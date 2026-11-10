@@ -37,21 +37,21 @@ export function SkipTestIntro({ test, questionCount, unitCount, best, speech, on
     <div className="flex flex-1 flex-col gap-6">
       <div className="flex flex-col items-center gap-2 pt-4 text-center">
         <Icon name="school" className="text-5xl text-primary" />
-        <h1 className="font-headline text-2xl font-extrabold text-on-surface sm:text-3xl">{test.title}</h1>
-        <p className="text-on-surface-variant">
+        <h1 className="font-display text-2xl font-extrabold text-ink sm:text-3xl">{test.title}</h1>
+        <p className="text-ink-muted">
           {best === undefined ? 'Already know these? Prove it and skip ahead.' : `Best score so far: ${Math.round(best * 100)}%`}
         </p>
       </div>
       <ul className="flex flex-col gap-3">
         {rules.map((r) => (
-          <li key={r.icon} className="flex items-start gap-3 text-on-surface">
+          <li key={r.icon} className="flex items-start gap-3 text-ink">
             <Icon name={r.icon} className="mt-0.5 text-xl text-primary" />
             <span className="leading-relaxed">{r.text}</span>
           </li>
         ))}
       </ul>
       {speech && (
-        <p className="flex items-center gap-2 text-sm text-on-surface-variant">
+        <p className="flex items-center gap-2 text-sm text-ink-muted">
           <Icon name="volume_up" className="text-lg" /> Turn your sound on for the listening questions.
         </p>
       )}

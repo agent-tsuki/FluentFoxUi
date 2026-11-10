@@ -165,7 +165,7 @@ export function ForgotPasswordFlow({ initialEmail, autoSend, onExit, exitLabel }
               error={emailError || undefined}
             />
             <Button type="submit" variant="primary" disabled={sending}
-              className="w-full py-3.5 font-headline disabled:opacity-60 disabled:cursor-wait disabled:scale-100">
+              className="w-full py-3.5 font-display disabled:opacity-60 disabled:cursor-wait disabled:scale-100">
               {sending ? 'Sending…' : 'Send code'}
             </Button>
             <ExitLink label={exitLabel} onClick={onExit} />
@@ -177,7 +177,7 @@ export function ForgotPasswordFlow({ initialEmail, autoSend, onExit, exitLabel }
         <motion.div key="code" {...motionProps}>
           <Header icon="pin" title="Enter the code">
             {sending && !cooldown.isRunning ? 'Sending an 8-character code to ' : 'If an account exists, we sent an 8-character code to '}
-            <span className="font-bold text-on-surface break-all">{shownEmail}</span>.
+            <span className="font-bold text-ink break-all">{shownEmail}</span>.
           </Header>
           <form onSubmit={submitCode} className="space-y-5" noValidate>
             <AuthField
@@ -195,22 +195,22 @@ export function ForgotPasswordFlow({ initialEmail, autoSend, onExit, exitLabel }
               onChange={e => { setCode(cleanCode(e.target.value)); setCodeError('') }}
               onPaste={onPasteCode}
               error={codeError || undefined}
-              className="text-center font-headline text-lg font-bold uppercase tracking-[0.35em] placeholder:tracking-[0.35em]"
+              className="text-center font-display text-lg font-bold uppercase tracking-[0.35em] placeholder:tracking-[0.35em]"
             />
             {notice && <p role="status" className="px-1 text-xs text-success font-medium">{notice}</p>}
             <Button type="submit" variant="primary" disabled={verifying}
-              className="w-full py-3.5 font-headline disabled:opacity-60 disabled:cursor-wait disabled:scale-100">
+              className="w-full py-3.5 font-display disabled:opacity-60 disabled:cursor-wait disabled:scale-100">
               {verifying ? 'Checking…' : 'Continue'}
             </Button>
             <div className="flex items-center justify-between gap-3 text-sm">
-              <button type="button" onClick={useDifferentEmail} className="text-on-surface-variant hover:text-on-surface transition-colors">
+              <button type="button" onClick={useDifferentEmail} className="text-ink-muted hover:text-ink transition-colors">
                 Use a different email
               </button>
               <button
                 type="button"
                 onClick={() => void resendCode()}
                 disabled={sending || cooldown.isRunning}
-                className="font-bold text-primary hover:underline disabled:text-on-surface-variant disabled:no-underline disabled:cursor-not-allowed"
+                className="font-bold text-primary hover:underline disabled:text-ink-muted disabled:no-underline disabled:cursor-not-allowed"
               >
                 {sending ? 'Sending…' : cooldown.isRunning ? `Send a new code in ${cooldown.remaining}s` : 'Send a new code'}
               </button>
@@ -223,10 +223,10 @@ export function ForgotPasswordFlow({ initialEmail, autoSend, onExit, exitLabel }
         <motion.div key="sent" {...motionProps} role="status" aria-live="polite">
           <Header icon="mark_email_read" title="Check your email">
             If the code was valid, we sent a password reset link to{' '}
-            <span className="font-bold text-on-surface break-all">{shownEmail}</span>.
+            <span className="font-bold text-ink break-all">{shownEmail}</span>.
             The link expires in 1 hour and can be used once.
           </Header>
-          <Button type="button" variant="primary" onClick={onExit} className="w-full py-3.5 font-headline">
+          <Button type="button" variant="primary" onClick={onExit} className="w-full py-3.5 font-display">
             {exitLabel}
           </Button>
         </motion.div>
@@ -243,8 +243,8 @@ function Header({ icon, title, children }: { icon: string; title: string; childr
       <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-6">
         <Icon name={icon} className="text-3xl" />
       </div>
-      <h2 className="text-2xl font-headline font-bold text-on-surface tracking-tight mb-3">{title}</h2>
-      <p className="text-sm text-on-surface-variant leading-relaxed">{children}</p>
+      <h2 className="text-2xl font-display font-bold text-ink tracking-tight mb-3">{title}</h2>
+      <p className="text-sm text-ink-muted leading-relaxed">{children}</p>
     </div>
   )
 }
@@ -252,7 +252,7 @@ function Header({ icon, title, children }: { icon: string; title: string; childr
 function ExitLink({ label, onClick }: { label: string; onClick: () => void }) {
   return (
     <div className="text-center">
-      <button type="button" onClick={onClick} className="text-sm text-on-surface-variant hover:text-on-surface transition-colors py-2">
+      <button type="button" onClick={onClick} className="text-sm text-ink-muted hover:text-ink transition-colors py-2">
         {label}
       </button>
     </div>

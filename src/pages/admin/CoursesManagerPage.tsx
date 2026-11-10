@@ -68,7 +68,7 @@ export function CoursesManagerPage() {
         title="Courses"
         description="Publish, feature and sync courses. Hidden courses are only visible here."
         actions={canCreate && (
-          <Link to="/admin/classes/courses/new" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 py-2 text-sm font-bold text-on-primary">
+          <Link to="/admin/classes/courses/new" className="inline-flex min-h-11 items-center gap-2 rounded-md bg-primary px-5 py-2 text-sm font-bold text-on-primary">
             <Icon name="add" className="text-base" /> New course
           </Link>
         )}
@@ -88,11 +88,11 @@ export function CoursesManagerPage() {
         ) : !visible.length ? (
           <EmptyState icon="filter_alt_off" title="No courses match" description="Try a different search or clear the filters." actionLabel="Clear filters" onAction={() => setFilters(EMPTY_COURSE_FILTERS)} />
         ) : (
-          <div className="overflow-x-auto rounded-2xl border border-outline-variant/50 bg-surface-container-low px-4">
+          <div className="overflow-x-auto rounded-xl border border-line bg-surface-sunken px-4">
             <table className="w-full min-w-[56rem] text-left">
               <caption className="sr-only">Courses ({visible.length})</caption>
               <thead>
-                <tr className="border-b border-outline-variant/60 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+                <tr className="border-b border-line text-xs font-bold uppercase tracking-[0.12em] text-ink-muted">
                   {COLUMNS.map(col => <th key={col} scope="col" className="py-3 pr-4 font-bold">{col}</th>)}
                   <th scope="col" className="py-3"><span className="sr-only">Actions</span></th>
                 </tr>

@@ -11,7 +11,7 @@ import type { KanaChar } from '@/types'
  * (a 2 px pill), rather than a full-width rule.
  */
 export const DIVIDER_TOP =
-  "relative before:absolute before:inset-x-5 before:top-0 before:h-0.5 before:rounded-full before:bg-outline-variant/40 before:content-['']"
+  "relative before:absolute before:inset-x-5 before:top-0 before:h-0.5 before:rounded-full before:bg-line/40 before:content-['']"
 
 /** One titled block of the kana dialog's side column. */
 export function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -47,13 +47,13 @@ export function KanaStrokeHero({ char, slow, onSlowChange }: KanaStrokeHeroProps
     case 'loading':
       return (
         <LoadingState label="Loading strokes…">
-          <SkeletonBlock className={`mx-auto aspect-square w-full rounded-2xl ${HERO_SIZE}`} />
+          <SkeletonBlock className={`mx-auto aspect-square w-full rounded-xl ${HERO_SIZE}`} />
         </LoadingState>
       )
     case 'error':
       return <ErrorState title="Couldn't load strokes" message="Check your connection and try again." onRetry={strokes.retry} className="py-6" />
     case 'missing':
-      return <p className="py-10 text-center text-sm text-on-surface-variant">Stroke data isn't available for this character yet.</p>
+      return <p className="py-10 text-center text-sm text-ink-muted">Stroke data isn't available for this character yet.</p>
     case 'ready':
       return (
         // No backdrop blur under the drawing: it sits on the dialog's solid panel, and a blur would be recomputed while strokes animate.

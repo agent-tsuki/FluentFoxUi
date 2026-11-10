@@ -84,7 +84,7 @@ const PLACED = '[grid-row:var(--r)] [grid-column:var(--c)] lg:[grid-row:var(--lr
 
 const PHONE_COLS: Record<number, string> = { 3: 'grid-cols-3', 5: 'grid-cols-5' }
 
-const AXIS = 'self-end text-center text-xs font-semibold tracking-wide text-on-surface-variant tabular-nums'
+const AXIS = 'self-end text-center text-xs font-semibold tracking-wide text-ink-muted tabular-nums'
 
 /** One chart set: h2, axis labels and the cells. */
 export const ChartGrid = memo(function ChartGrid({ section, title, mastery, showRomaji, onSelect, aside }: ChartGridProps) {
@@ -98,7 +98,7 @@ export const ChartGrid = memo(function ChartGrid({ section, title, mastery, show
     // Plain grid in data order (four across on phones, wider from sm).
     return (
       <section aria-labelledby={headingId} className="scroll-mt-40">
-        <h2 id={headingId} className="mb-4 font-headline text-xl font-bold tracking-tight text-on-surface md:text-2xl">
+        <h2 id={headingId} className="mb-4 font-display text-xl font-bold tracking-tight text-ink md:text-2xl">
           {title}
         </h2>
         <div data-chart-grid={section.id} className="grid grid-cols-4 gap-1.5 sm:grid-cols-7 md:max-w-xl lg:max-w-none lg:grid-cols-11 lg:gap-2">
@@ -117,7 +117,7 @@ export const ChartGrid = memo(function ChartGrid({ section, title, mastery, show
 
   return (
     <section aria-labelledby={headingId} className="scroll-mt-40">
-      <h2 id={headingId} className="mb-4 font-headline text-xl font-bold tracking-tight text-on-surface md:text-2xl">
+      <h2 id={headingId} className="mb-4 font-display text-xl font-bold tracking-tight text-ink md:text-2xl">
         {title}
       </h2>
 

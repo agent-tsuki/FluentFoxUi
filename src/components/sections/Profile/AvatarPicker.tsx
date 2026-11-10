@@ -53,15 +53,15 @@ export function AvatarPicker({ avatar, onChange, onClose }: AvatarPickerProps) {
   const isOwnChoice = avatar.kind === 'upload' || avatar.kind === 'preset'
 
   return (
-    <section aria-label="Change profile photo" className="bg-surface-container-low rounded-xl p-6 sm:p-8 space-y-6">
+    <section aria-label="Change profile photo" className="bg-surface-sunken rounded-md p-6 sm:p-8 space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-on-surface font-headline">Profile photo</h2>
-          <p className="text-xs text-on-surface-variant mt-0.5">
+          <h2 className="text-lg font-bold text-ink font-display">Profile photo</h2>
+          <p className="text-xs text-ink-muted mt-0.5">
             Pick an avatar or upload your own. If you sign in with Google or X and haven&apos;t chosen one, we use that picture.
           </p>
         </div>
-        <button type="button" onClick={onClose} aria-label="Close" className="p-2 rounded-full hover:bg-surface-container text-on-surface-variant">
+        <button type="button" onClick={onClose} aria-label="Close" className="p-2 rounded-full hover:bg-surface-hover text-ink-muted">
           <Icon name="close" />
         </button>
       </div>
@@ -122,7 +122,7 @@ export function AvatarPicker({ avatar, onChange, onClose }: AvatarPickerProps) {
             Remove my choice
           </Button>
         )}
-        <span className="text-xs text-on-surface-variant">JPEG or PNG, at least 128 × 128 px.</span>
+        <span className="text-xs text-ink-muted">JPEG or PNG, at least 128 × 128 px.</span>
       </div>
 
       {error && <p role="alert" className="text-error text-xs font-medium">{error}</p>}

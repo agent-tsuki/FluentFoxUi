@@ -26,20 +26,20 @@ export function KanaMnemonic({ char, onSpeak, loadingText }: KanaMnemonicProps) 
   return (
     <div className="space-y-3">
       {hint && (
-        <p className="flex gap-3 text-base leading-relaxed text-on-surface">
+        <p className="flex gap-3 text-base leading-relaxed text-ink">
           <Icon name="lightbulb" className="mt-0.5 shrink-0 text-xl text-primary" />
           <span>{hint}</span>
         </p>
       )}
       {sample && kana && (
-        <div className="flex items-center gap-3 rounded-2xl border border-outline-variant/50 bg-surface-container-low p-3 pl-4">
+        <div className="flex items-center gap-3 rounded-xl border border-line bg-surface-sunken p-3 pl-4">
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-on-surface-variant">Example</p>
-            <p className="mt-0.5 text-lg text-on-surface">
-              <span lang="ja" className="font-jp font-bold">{kana}</span>
-              {reading && <span className="ml-2 text-sm text-on-surface-variant">{reading}</span>}
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">Example</p>
+            <p className="mt-0.5 text-lg text-ink">
+              <span lang="ja" className="font-ja-display font-bold">{kana}</span>
+              {reading && <span className="ml-2 text-sm text-ink-muted">{reading}</span>}
             </p>
-            <p className="text-sm text-on-surface-variant">{sample.meaning}</p>
+            <p className="text-sm text-ink-muted">{sample.meaning}</p>
           </div>
           {onSpeak && <SpeakerButton onClick={() => onSpeak(kana)} label={`Play ${reading ?? kana}`} loading={loadingText === kana} />}
         </div>

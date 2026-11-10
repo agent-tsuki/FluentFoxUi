@@ -55,13 +55,13 @@ export function LearningBalance({ balance }: LearningBalanceProps) {
   const dataPolygon = dataPoints.map(p => `${p.x},${p.y}`).join(' ')
 
   return (
-    <section className="bg-surface-container-low p-8 rounded-xl space-y-6">
+    <section className="bg-surface-sunken p-8 rounded-md space-y-6">
       <div className="space-y-1">
         <Eyebrow variant="plain">Skill Radar</Eyebrow>
-        <h2 className="text-2xl font-extrabold tracking-tight text-on-surface font-headline">
+        <h2 className="text-2xl font-extrabold tracking-tight text-ink font-display">
           Learning Balance
         </h2>
-        <p className="text-xs text-on-surface-variant font-body">Share of answers right per skill</p>
+        <p className="text-xs text-ink-muted font-sans">Share of answers right per skill</p>
       </div>
 
       <div className="flex justify-center">
@@ -71,7 +71,7 @@ export function LearningBalance({ balance }: LearningBalanceProps) {
             <polygon
               key={frac}
               points={ringPoints(frac * MAX_R)}
-              className="stroke-outline-variant"
+              className="stroke-line"
               fill="none"
               strokeWidth={0.5}
               opacity={0.5}
@@ -88,7 +88,7 @@ export function LearningBalance({ balance }: LearningBalanceProps) {
                 y1={CENTER}
                 x2={outer.x}
                 y2={outer.y}
-                className="stroke-outline-variant"
+                className="stroke-line"
                 strokeWidth={0.5}
                 opacity={0.5}
               />
@@ -124,7 +124,7 @@ export function LearningBalance({ balance }: LearningBalanceProps) {
                 y={lp.y}
                 textAnchor={getTextAnchor(angle)}
                 dominantBaseline={getDominantBaseline(angle)}
-                className="fill-on-surface-variant"
+                className="fill-ink-muted"
                 fontSize={11}
                 fontWeight={700}
                 fontFamily="inherit"
@@ -142,8 +142,8 @@ export function LearningBalance({ balance }: LearningBalanceProps) {
           <div key={key} className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
             <div className="min-w-0">
-              <p className="text-xs font-label font-semibold text-on-surface truncate">{label}</p>
-              <p className="text-xs text-on-surface-variant font-body">{Math.round(balance[key])}% right</p>
+              <p className="text-xs font-sans font-semibold text-ink truncate">{label}</p>
+              <p className="text-xs text-ink-muted font-sans">{Math.round(balance[key])}% right</p>
             </div>
           </div>
         ))}

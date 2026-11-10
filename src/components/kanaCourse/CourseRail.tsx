@@ -29,7 +29,7 @@ export function CourseRail({ byId, className }: CourseRailProps) {
     <aside
       aria-label="Course tools"
       className={cn(
-        'hidden lg:sticky lg:block lg:self-start lg:rounded-2xl lg:border lg:border-outline-variant/60 lg:bg-surface-container-lowest lg:dark:border-outline/60 lg:dark:bg-surface-container-low',
+        'hidden lg:sticky lg:block lg:self-start lg:rounded-xl lg:border lg:border-line lg:bg-surface-raised lg:dark:border-line-strong/60 lg:dark:bg-surface-sunken',
         STICKY_RAIL_TOP,
         className,
       )}
@@ -42,8 +42,8 @@ export function CourseRail({ byId, className }: CourseRailProps) {
             return (
               <li key={group.id}>
                 <div className="mb-1 flex items-baseline justify-between gap-2 text-sm">
-                  <span className="font-semibold text-on-surface">{group.title}</span>
-                  <span className="tabular-nums text-on-surface-variant">
+                  <span className="font-semibold text-ink">{group.title}</span>
+                  <span className="tabular-nums text-ink-muted">
                     {done} / {units.length}
                   </span>
                 </div>
@@ -60,20 +60,20 @@ export function CourseRail({ byId, className }: CourseRailProps) {
         </ul>
       </RailBlock>
 
-      <nav aria-label="More in this course" className="border-t border-outline-variant/60 p-2 dark:border-outline/40">
+      <nav aria-label="More in this course" className="border-t border-line p-2">
         <ul>
           {QUICK_LINKS.map((link) => (
             <li key={link.to}>
               <Link
                 to={script.basePath + link.to}
-                className="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold text-on-surface hover:bg-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary dark:hover:bg-surface-container"
+                className="flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-semibold text-ink hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary dark:hover:bg-surface-hover"
               >
                 <span aria-hidden className="flex">
-                  <Icon name={link.icon} className="text-xl text-on-surface-variant" />
+                  <Icon name={link.icon} className="text-xl text-ink-muted" />
                 </span>
                 <span className="flex-1">{link.label}</span>
                 <span aria-hidden className="flex">
-                  <Icon name="chevron_right" className="text-xl text-on-surface-variant" />
+                  <Icon name="chevron_right" className="text-xl text-ink-muted" />
                 </span>
               </Link>
             </li>
@@ -87,7 +87,7 @@ export function CourseRail({ byId, className }: CourseRailProps) {
 function RailBlock({ title, className, children }: { title: string; className?: string; children: ReactNode }) {
   return (
     <section aria-label={title} className={cn('p-5', className)}>
-      <h2 className="mb-3 font-headline text-base font-bold text-on-surface">{title}</h2>
+      <h2 className="mb-3 font-display text-base font-bold text-ink">{title}</h2>
       {children}
     </section>
   )

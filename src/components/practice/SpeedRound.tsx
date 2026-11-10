@@ -221,19 +221,19 @@ function SpeedRoundSession({ kana: rawKana, all: rawAll, script, onAnswer, onExi
     return (
       <PracticeShell title="Speed round" status={formatClock(ROUND_MS)} onExit={onExit}>
         <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-container-high">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-hover">
             <Icon name="timer" className="text-3xl text-primary" />
           </div>
           <div>
-            <h1 className="font-headline text-2xl font-extrabold text-on-surface">60 seconds. How many?</h1>
-            <p className="mx-auto mt-2 max-w-sm text-on-surface-variant">
+            <h1 className="font-display text-2xl font-extrabold text-ink">60 seconds. How many?</h1>
+            <p className="mx-auto mt-2 max-w-sm text-ink-muted">
               {hasKeyboard ? 'Type the romaji for each kana. No need to press Enter.' : 'Tap the romaji for each kana.'}{' '}
               New rows join as your score climbs.
             </p>
           </div>
           {best > 0 && (
-            <p className="font-label text-sm font-bold text-on-surface-variant">
-              Your best: <span className="tabular-nums text-on-surface">{best}</span>
+            <p className="font-sans text-sm font-bold text-ink-muted">
+              Your best: <span className="tabular-nums text-ink">{best}</span>
             </p>
           )}
         </div>
@@ -285,13 +285,13 @@ function SpeedRoundSession({ kana: rawKana, all: rawAll, script, onAnswer, onExi
 
       {/* Score + combo (fixed height so nothing jumps) */}
       <div className="flex h-10 items-center justify-between">
-        <p className="font-label text-sm font-bold text-on-surface-variant">
-          Score <span className="ml-1 font-headline text-xl tabular-nums text-on-surface">{score}</span>
+        <p className="font-sans text-sm font-bold text-ink-muted">
+          Score <span className="ml-1 font-display text-xl tabular-nums text-ink">{score}</span>
         </p>
         <p
           aria-hidden={streak < 2}
           className={cn(
-            'inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 font-label text-sm font-bold text-primary transition-opacity motion-reduce:transition-none',
+            'inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 font-sans text-sm font-bold text-primary transition-opacity motion-reduce:transition-none',
             streak >= 2 ? 'opacity-100' : 'opacity-0',
           )}
         >
@@ -313,15 +313,15 @@ function SpeedRoundSession({ kana: rawKana, all: rawAll, script, onAnswer, onExi
               : { scale: 1, opacity: 1, transition: { duration: 0.12 } }
         }
         className={cn(
-          'mt-2 flex h-48 flex-col items-center justify-center rounded-2xl border-2 bg-surface-container-low sm:h-56',
+          'mt-2 flex h-48 flex-col items-center justify-center rounded-xl border-2 bg-surface-sunken sm:h-56',
           wrong ? 'border-warning' : 'border-transparent',
         )}
       >
-        <span lang="ja" className="text-8xl font-bold leading-none text-on-surface sm:text-9xl">
+        <span lang="ja" className="text-8xl font-bold leading-none text-ink sm:text-9xl">
           {current?.character}
         </span>
         <span
-          className={cn('mt-3 h-7 font-headline text-xl font-bold text-warning', wrong ? 'visible' : 'invisible')}
+          className={cn('mt-3 h-7 font-display text-xl font-bold text-warning', wrong ? 'visible' : 'invisible')}
           aria-hidden={!wrong}
         >
           = {feedback?.answer ?? '—'}
@@ -332,7 +332,7 @@ function SpeedRoundSession({ kana: rawKana, all: rawAll, script, onAnswer, onExi
       <div className={hasKeyboard ? 'pt-6' : 'mt-auto pt-6'}>
         {hasKeyboard ? (
           <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-on-surface-variant">Type the romaji</span>
+            <span className="mb-2 block text-sm font-semibold text-ink-muted">Type the romaji</span>
             <input
               ref={inputRef}
               value={typed}
@@ -346,8 +346,8 @@ function SpeedRoundSession({ kana: rawKana, all: rawAll, script, onAnswer, onExi
               enterKeyHint="next"
               aria-invalid={wrong}
               className={cn(
-                'h-16 w-full rounded-2xl border-2 bg-surface-container-lowest px-4 text-center font-headline text-3xl font-bold lowercase text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-                wrong ? 'border-warning' : 'border-outline-variant',
+                'h-16 w-full rounded-xl border-2 bg-surface-raised px-4 text-center font-display text-3xl font-bold lowercase text-ink placeholder:text-ink-subtle focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                wrong ? 'border-warning' : 'border-line',
               )}
               placeholder="romaji"
             />
@@ -364,12 +364,12 @@ function SpeedRoundSession({ kana: rawKana, all: rawAll, script, onAnswer, onExi
                   disabled={wrong}
                   onClick={() => answer(option === current?.romaji, { chosen: option })}
                   className={cn(
-                    'h-20 rounded-2xl border-2 font-headline text-2xl font-bold transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                    'h-20 rounded-xl border-2 font-display text-2xl font-bold transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
                     isAnswer
-                      ? 'border-success bg-success/10 text-on-surface'
+                      ? 'border-success bg-success/10 text-ink'
                       : isChosenWrong
-                        ? 'border-warning bg-warning/10 text-on-surface'
-                        : 'border-outline-variant/60 bg-surface-container-lowest text-on-surface shadow-elevation-1 active:bg-surface-container',
+                        ? 'border-warning bg-warning/10 text-ink'
+                        : 'border-line bg-surface-raised text-ink shadow-elevation-1 active:bg-surface-sunken',
                   )}
                 >
                   {option}

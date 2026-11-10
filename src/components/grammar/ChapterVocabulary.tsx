@@ -1,4 +1,4 @@
-import { memo, useId, useState } from 'react'
+import { memo, useId, useState, type ReactNode } from 'react'
 import type { ChapterWordContent, GrammarChapter } from '@/types/grammar'
 import { useChapterContent } from '@/hooks/useChapterContent'
 import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
@@ -21,15 +21,16 @@ interface ChapterVocabularyProps {
   best?: number
   /** After a vocab quiz attempt is recorded (refresh the chapter's progress). */
   onRecorded?: () => void
+  /** The step's ContinueBar, shown with the word list. */
+  footer?: ReactNode
 }
 
 /**
- * A chapter's Vocabulary tab: its words from the content API in a table (as
- * written, kana, romaji, meaning, a memory hint behind a button where one
- * helps, audio on the right), and the chapter's vocab quiz. Taking the quiz
+ * A chapter's Vocabulary step: its words from the content API in one table, with
+ * the meaning always visible, and the chapter's vocab quiz. Taking the quiz
  * puts the words into reviews.
  */
-export function ChapterVocabulary({ chapter, best, onRecorded }: ChapterVocabularyProps) {
+export function ChapterVocabulary({ chapter, best, onRecorded, footer }: ChapterVocabularyProps) {
   const { speak, supported, loadingText } = useJapaneseSpeech()
   const content = useChapterContent(chapter.level, chapter.id)
   const [quiz, setQuiz] = useState(false)
@@ -49,83 +50,70 @@ export function ChapterVocabulary({ chapter, best, onRecorded }: ChapterVocabula
 
   if (content.isLoading || (!content.data && !content.error)) {
     return (
-      <LoadingState label="Loading words…" className="space-y-2 px-6 py-8 xl:px-10">
+      <LoadingState label="Loading words…" className="space-y-2 py-2">
         {Array.from({ length: 8 }, (_, i) => (
-          <SkeletonBlock key={i} className="h-12 rounded-xl" />
+          <SkeletonBlock key={i} className="h-12 rounded-md" />
         ))}
       </LoadingState>
     )
   }
   if (content.error) {
     return (
-      <div className="px-6 py-10 xl:px-10">
+      <div className="py-2">
         <ErrorState message="We couldn't load this chapter's words." onRetry={content.refetch} />
       </div>
     )
   }
   if (words.length === 0) {
     return (
-      <div className="px-6 py-10 xl:px-10">
+      <div className="py-2">
         <EmptyState icon="translate" title="No new words in this chapter" description="This chapter builds on words you already know. Try its exercise." />
       </div>
     )
   }
 
   return (
-    <div className="px-6 py-8 xl:px-10">
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-headline text-2xl font-bold text-on-surface sm:text-3xl">Words in this chapter</h1>
-          <p className="mt-1 text-sm text-on-surface-variant">
-            {words.length} words. Tap the speaker to hear one{best !== undefined ? ` · vocab quiz best ${best}%` : ''}.
-          </p>
+    <div className="grid gap-12">
+      <div>
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 className="font-display text-2xl font-bold text-ink sm:text-3xl">Words in this chapter</h1>
+            <p className="mt-1 text-body text-ink-muted">
+              {words.length} words{best !== undefined ? ` · vocab quiz best ${best}%` : ''}
+            </p>
+          </div>
+          <LearnerOnly prompt="inline">
+            <Button variant="secondary" onClick={() => setQuiz(true)}>
+              <Icon name="quiz" className="text-lg" />
+              {best !== undefined ? 'Retake vocab quiz' : 'Take the vocab quiz'}
+            </Button>
+          </LearnerOnly>
         </div>
-        <LearnerOnly prompt="inline">
-          <Button onClick={() => setQuiz(true)} className="flex items-center gap-2">
-            <Icon name="quiz" className="text-lg" />
-            {best !== undefined ? 'Retake vocab quiz' : 'Take the vocab quiz'}
-          </Button>
-        </LearnerOnly>
+        <div className="overflow-hidden rounded-lg bg-surface-raised shadow-elevation-1">
+          <table className="w-full border-collapse text-left">
+            <caption className="sr-only">Words in chapter {chapter.id}</caption>
+            <thead className="bg-surface-sunken text-eyebrow uppercase text-ink-muted">
+              <tr>
+                <th scope="col" className="px-3 py-3 sm:px-4">Word</th>
+                <th scope="col" className="hidden px-4 py-3 sm:table-cell">Kana</th>
+                <th scope="col" className="hidden px-4 py-3 sm:table-cell">Romaji</th>
+                <th scope="col" className="px-3 py-3 sm:px-4">Meaning</th>
+                <th scope="col" className="w-12 px-1 py-3 text-center">Hint</th>
+                <th scope="col" className="w-14 px-1 py-3"><span className="sr-only">Audio</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {words.map((w, i) => (
+                <WordRow key={`${w.word}-${i}`} word={w} canSpeak={supported} loading={loadingText === (w.say ?? w.kana)} onSpeak={speak} />
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-      {/* Narrow screens scroll the table sideways inside this box; the Word column stays put. */}
-      <div className="overflow-x-auto rounded-2xl border border-outline-variant/60 dark:border-outline/60">
-        <table className="w-full min-w-[40rem] border-collapse text-left text-sm">
-          <caption className="sr-only">Words in chapter {chapter.id}</caption>
-          <thead className="bg-surface-container-low text-xs font-bold uppercase tracking-wide text-on-surface-variant dark:bg-surface-container">
-            <tr>
-              <th scope="col" className={cn(STICKY, 'bg-surface-container-low px-4 py-3 dark:bg-surface-container')}>
-                Word
-              </th>
-              <th scope="col" className="px-4 py-3">
-                Kana
-              </th>
-              <th scope="col" className="px-4 py-3">
-                Romaji
-              </th>
-              <th scope="col" className="px-4 py-3">
-                Meaning
-              </th>
-              <th scope="col" className="w-16 px-2 py-3 text-center">
-                Hint
-              </th>
-              <th scope="col" className="w-16 px-2 py-3">
-                <span className="sr-only">Audio</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {words.map((w, i) => (
-              <WordRow key={`${w.word}-${i}`} word={w} canSpeak={supported} loading={loadingText === (w.say ?? w.kana)} onSpeak={speak} />
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {footer}
     </div>
   )
 }
-
-/** The Word column stays visible while the table scrolls sideways. */
-const STICKY = 'sticky left-0 z-[1]'
 
 interface WordRowProps {
   word: ChapterWord
@@ -134,28 +122,35 @@ interface WordRowProps {
   onSpeak: (text: string) => void
 }
 
-/** Columns in a row: word, kana, romaji, meaning, hint, audio (the hint row spans them all). */
+/** Columns in a row, including the two that phones fold under Word and Meaning. */
 const COLUMNS = 6
 
+/** One word. Below `sm` the kana sits under the word and the romaji under the meaning, so nothing scrolls sideways. */
 const WordRow = memo(function WordRow({ word, canSpeak, loading, onSpeak }: WordRowProps) {
   const [hintOpen, setHintOpen] = useState(false)
   const hintId = useId()
-  const rowBg =
-    'bg-surface-container-lowest transition-colors group-hover:bg-surface-container-low dark:bg-surface-container-low dark:group-hover:bg-surface-container'
   return (
     <>
-      <tr className="group border-t border-outline-variant/40 align-middle">
-        <th scope="row" className={cn(STICKY, rowBg, 'px-4 py-3 font-normal')}>
-          <span lang="ja" className="whitespace-nowrap font-jp text-lg font-bold text-on-surface">
+      <tr className="border-t border-line align-middle transition-colors duration-fast hover:bg-surface-hover">
+        <th scope="row" className="px-3 py-2.5 font-normal sm:px-4">
+          <span lang="ja" className="block font-ja text-ja-sm font-bold text-ink">
             {word.word}
           </span>
+          {word.kana !== word.word && (
+            <span lang="ja" className="block font-ja text-caption text-primary-ink sm:hidden">
+              {word.kana}
+            </span>
+          )}
         </th>
-        <td lang="ja" className={cn(rowBg, 'whitespace-nowrap px-4 py-3 font-jp text-base text-primary')}>
+        <td lang="ja" className="hidden whitespace-nowrap px-4 py-2.5 font-ja text-body text-primary-ink sm:table-cell">
           {word.kana}
         </td>
-        <td className={cn(rowBg, 'whitespace-nowrap px-4 py-3 text-on-surface-variant')}>{word.romaji}</td>
-        <td className={cn(rowBg, 'px-4 py-3 text-on-surface')}>{word.meaning}</td>
-        <td className={cn(rowBg, 'px-2 py-2 text-center')}>
+        <td className="hidden whitespace-nowrap px-4 py-2.5 text-body text-ink-muted sm:table-cell">{word.romaji}</td>
+        <td className="px-3 py-2.5 sm:px-4">
+          <span className="block text-body text-ink">{word.meaning}</span>
+          <span className="block text-caption text-ink-subtle sm:hidden">{word.romaji}</span>
+        </td>
+        <td className="px-1 py-1 text-center">
           {word.hint ? (
             <button
               type="button"
@@ -164,29 +159,26 @@ const WordRow = memo(function WordRow({ word, canSpeak, loading, onSpeak }: Word
               aria-label={`${hintOpen ? 'Hide' : 'Show'} hint for ${word.word}`}
               onClick={() => setHintOpen((o) => !o)}
               className={cn(
-                'inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-                hintOpen ? 'bg-primary text-on-primary' : 'bg-primary/10 text-primary hover:bg-primary/15',
+                'inline-grid size-touch-target place-items-center rounded-full transition-colors duration-fast',
+                hintOpen ? 'bg-primary-soft text-primary-ink' : 'text-ink-muted hover:bg-surface-sunken',
               )}
             >
-              <Icon name="lightbulb" filled={hintOpen} className="text-lg" />
+              <Icon name="lightbulb" filled={hintOpen} className="text-xl" />
             </button>
           ) : (
-            <span aria-hidden className="text-on-surface-variant/40">
+            <span aria-hidden className="text-ink-subtle">
               —
             </span>
           )}
         </td>
-        <td className={cn(rowBg, 'px-2 py-2')}>
-          {canSpeak && <SpeakerButton onClick={() => onSpeak(word.say ?? word.kana)} label={`Play ${word.word}`} loading={loading} className="h-9 w-9" />}
+        <td className="px-1 py-1">
+          {canSpeak && <SpeakerButton onClick={() => onSpeak(word.say ?? word.kana)} label={`Play ${word.word}`} loading={loading} className="bg-surface-sunken text-ink-muted hover:bg-surface-hover hover:text-primary" />}
         </td>
       </tr>
       {word.hint && (
         <tr id={hintId} hidden={!hintOpen}>
-          <td colSpan={COLUMNS} className="bg-primary/5 px-4 pb-3 pt-1">
-            <p className="flex gap-2 text-sm leading-snug text-on-surface">
-              <Icon name="lightbulb" className="mt-0.5 shrink-0 text-base text-primary" />
-              <span>{word.hint}</span>
-            </p>
+          <td colSpan={COLUMNS} className="bg-primary-soft px-4 py-2 text-caption text-primary-ink">
+            {word.hint}
           </td>
         </tr>
       )}

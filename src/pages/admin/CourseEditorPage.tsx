@@ -85,14 +85,14 @@ export function CourseEditorPage() {
         <StatusMessage tone="success" message={action.notice} />
       </div>
       {current && canPublish && (
-        <section aria-label="Visibility" className="flex flex-wrap gap-x-8 rounded-2xl border border-outline-variant/50 bg-surface-container-low px-5 py-2">
+        <section aria-label="Visibility" className="flex flex-wrap gap-x-8 rounded-xl border border-line bg-surface-sunken px-5 py-2">
           <Switch label="Published" checked={current.isPublished} busy={action.busy === 'vis'}
             onChange={v => void apply('vis', () => adminService.setCourseVisibility(current.id, { isPublished: v, isFeatured: current.isFeatured }), v ? 'Course is live.' : 'Course hidden.')} />
           <Switch label="Featured" checked={current.isFeatured} busy={action.busy === 'vis'}
             onChange={v => void apply('vis', () => adminService.setCourseVisibility(current.id, { isPublished: current.isPublished, isFeatured: v }), 'Saved.')} />
         </section>
       )}
-      <section aria-label="Course details" className="rounded-2xl border border-outline-variant/50 bg-surface-container-low p-5 sm:p-6">
+      <section aria-label="Course details" className="rounded-xl border border-line bg-surface-sunken p-5 sm:p-6">
         <CourseForm
           key={current?.id ?? 'new'}
           initial={courseInputFrom(current, params.get('channel_id') ?? '')}

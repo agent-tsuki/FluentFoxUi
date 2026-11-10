@@ -29,26 +29,26 @@ export function ListenPrompt({ target, speechSupported, result, onReplay }: List
           >
             <Icon name="volume_up" className="text-5xl" />
           </button>
-          <p className="text-sm text-on-surface-variant">
+          <p className="text-sm text-ink-muted">
             Which kana did you hear? <span className="hidden sm:inline">Press R to replay.</span>
           </p>
         </>
       ) : (
         <>
-          <p data-round-focus tabIndex={-1} className="font-headline text-6xl font-extrabold text-primary focus:outline-none">
+          <p data-round-focus tabIndex={-1} className="font-display text-6xl font-extrabold text-primary focus:outline-none">
             <span className="sr-only">Which kana is </span>
             {target.romaji}
           </p>
-          <p className="max-w-xs text-xs text-on-surface-variant">
+          <p className="max-w-xs text-xs text-ink-muted">
             Audio isn’t available in this browser, so the reading is shown instead.
           </p>
         </>
       )}
-      <p aria-hidden="true" className={cn('h-7 font-bold', result === 'correct' ? 'text-success' : 'text-on-surface')}>
+      <p aria-hidden="true" className={cn('h-7 font-bold', result === 'correct' ? 'text-success' : 'text-ink')}>
         {result === 'correct' && 'Correct!'}
         {result === 'wrong' && (
           <>
-            It was <span lang="ja" className="font-jp">{target.character}</span> ({target.romaji})
+            It was <span lang="ja" className="font-ja">{target.character}</span> ({target.romaji})
           </>
         )}
       </p>

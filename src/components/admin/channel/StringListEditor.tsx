@@ -27,7 +27,7 @@ export function StringListEditor({ label, items, onChange, placeholder = 'Add an
 
   return (
     <fieldset className="space-y-2" disabled={disabled}>
-      <legend className="mb-2 font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant">{label}</legend>
+      <legend className="mb-2 font-sans text-xs font-bold uppercase tracking-[0.12em] text-ink-muted">{label}</legend>
       {items.length > 0 && (
         <ul className="space-y-2">
           {items.map((item, index) => (
@@ -42,7 +42,7 @@ export function StringListEditor({ label, items, onChange, placeholder = 'Add an
                 type="button"
                 aria-label={`Remove ${label.toLowerCase()} item ${index + 1}`}
                 onClick={() => onChange(items.filter((_, i) => i !== index))}
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container hover:text-error"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink-muted hover:bg-surface-hover hover:text-error"
               >
                 <Icon name="delete_forever" className="text-xl" />
               </button>

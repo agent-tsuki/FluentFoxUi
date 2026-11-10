@@ -46,7 +46,7 @@ export function ChartTooltip({ index, count, children }: { index: number; count:
     <div
       role="status"
       className={cn(
-        'pointer-events-none absolute top-0 z-10 min-w-32 rounded-lg bg-surface-inverse px-3 py-2 text-xs text-on-surface-inverse shadow-elevation-3',
+        'pointer-events-none absolute top-0 z-10 min-w-32 rounded-sm bg-surface-inverse px-3 py-2 text-xs text-on-surface-inverse shadow-elevation-3',
         align,
       )}
       style={{ left: `${x * 100}%` }}
@@ -72,7 +72,7 @@ export function TooltipRow({ fill, label, value }: { fill?: string; label: strin
 /** The key for two or more series; colour is never the only cue. */
 export function ChartLegend({ series, className }: { series: readonly ChartSeries[]; className?: string }) {
   return (
-    <ul aria-label="Legend" className={cn('flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-on-surface-variant', className)}>
+    <ul aria-label="Legend" className={cn('flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-ink-muted', className)}>
       {series.map((s) => (
         <li key={s.key} className="flex items-center gap-1.5">
           <span aria-hidden className={cn('h-2.5 w-2.5 rounded-sm', s.fill)} />
@@ -111,8 +111,8 @@ export function Gridlines({ ticks, top, min = 0, format }: { ticks: readonly num
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0">
       {ticks.map((t) => (
-        <div key={t} className="absolute inset-x-0 border-t border-outline-variant/40" style={{ bottom: `${((t - min) / (top - min)) * 100}%` }}>
-          <span className="absolute right-full mr-2 -translate-y-1/2 text-2xs tabular-nums text-on-surface-variant">{format(t)}</span>
+        <div key={t} className="absolute inset-x-0 border-t border-line" style={{ bottom: `${((t - min) / (top - min)) * 100}%` }}>
+          <span className="absolute right-full mr-2 -translate-y-1/2 text-2xs tabular-nums text-ink-muted">{format(t)}</span>
         </div>
       ))}
     </div>
@@ -123,7 +123,7 @@ export function Gridlines({ ticks, top, min = 0, format }: { ticks: readonly num
 export function XLabels({ labels, every, highlight }: { labels: readonly string[]; every: number; highlight?: number }) {
   const last = labels.length - 1
   return (
-    <div aria-hidden className="mt-1.5 flex text-2xs tabular-nums text-on-surface-variant">
+    <div aria-hidden className="mt-1.5 flex text-2xs tabular-nums text-ink-muted">
       {labels.map((label, i) => (
         <span key={i} className={cn('min-w-0 flex-1 overflow-visible whitespace-nowrap text-center', i === highlight && 'font-bold text-primary')}>
           {(last - i) % every === 0 ? label : ''}

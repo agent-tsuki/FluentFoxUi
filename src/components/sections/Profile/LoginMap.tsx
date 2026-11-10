@@ -33,7 +33,7 @@ export function LoginMap({ latitude, longitude, precise, label }: LoginMapProps)
       src={src}
       loading="lazy"
       referrerPolicy="strict-origin-when-cross-origin"
-      className="w-full h-44 rounded-lg border-0"
+      className="w-full h-44 rounded-sm border-0"
     />
   )
 }

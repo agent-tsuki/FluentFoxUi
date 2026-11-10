@@ -142,7 +142,7 @@ function SkipTest({ test, all }: { test: KanaSkipTestDef; all: KanaChar[] }) {
         passMark={skipPassMark}
         detail={
           <>
-            <p className="font-semibold text-on-surface">{headline}</p>
+            <p className="font-semibold text-ink">{headline}</p>
             {scope === 'all' && (
               <p>
                 {outcome.score >= passMark

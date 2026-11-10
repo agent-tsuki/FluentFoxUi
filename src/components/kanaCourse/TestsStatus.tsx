@@ -21,12 +21,12 @@ export function TestsStatus({ best, passed, className }: TestsStatusProps) {
           <Icon name="check_circle" filled className="text-lg text-success" />
         </span>
         <span className="font-semibold text-success">Passed</span>
-        {best !== undefined && <span className="tabular-nums text-on-surface-variant">· {formatPercent(best)}</span>}
+        {best !== undefined && <span className="tabular-nums text-ink-muted">· {formatPercent(best)}</span>}
       </span>
     )
   }
   return (
-    <span className={cn('whitespace-nowrap text-sm tabular-nums text-on-surface-variant', className)}>
+    <span className={cn('whitespace-nowrap text-sm tabular-nums text-ink-muted', className)}>
       {best !== undefined ? `Best ${formatPercent(best)}` : 'Not taken'}
     </span>
   )

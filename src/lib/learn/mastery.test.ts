@@ -6,7 +6,7 @@ const per = (p: Partial<ItemsPerLevel>): ItemsPerLevel => ({ new: 0, learning: 0
 
 describe('MASTERY_TONE', () => {
   const cases = [
-    { level: 'new', fill: 'bg-outline-variant' },
+    { level: 'new', fill: 'bg-line' },
     { level: 'learning', fill: 'bg-error' },
     { level: 'familiar', fill: 'bg-warning' },
     { level: 'strong', fill: 'bg-info' },

@@ -58,7 +58,7 @@ export function CertificateNameForm({ initialName, onSaveName, onDownload, downl
 
   return (
     <form onSubmit={submit} noValidate className="mt-4 flex flex-col gap-3">
-      <label htmlFor={inputId} className="text-sm font-semibold text-on-surface">Your name, as it should appear</label>
+      <label htmlFor={inputId} className="text-sm font-semibold text-ink">Your name, as it should appear</label>
       <input
         id={inputId}
         value={name}
@@ -72,8 +72,8 @@ export function CertificateNameForm({ initialName, onSaveName, onDownload, downl
         aria-invalid={invalid || undefined}
         aria-describedby={invalid ? errorId : undefined}
         className={cn(
-          'min-h-12 w-full rounded-xl border-2 bg-surface-container-lowest px-4 text-base text-on-surface placeholder:text-on-surface-variant focus:border-primary focus:outline-none',
-          invalid ? 'border-error' : 'border-outline-variant/60',
+          'min-h-12 w-full rounded-md border-2 bg-surface-raised px-4 text-base text-ink placeholder:text-ink-muted focus:border-primary focus:outline-none',
+          invalid ? 'border-error' : 'border-line',
         )}
       />
       {invalid && <p id={errorId} className="text-sm font-semibold text-error">Please enter your name.</p>}
@@ -88,7 +88,7 @@ export function CertificateNameForm({ initialName, onSaveName, onDownload, downl
         {status === 'saved' && <span className="text-success">Name saved.</span>}
         {status === 'error' && <span className="text-error">Couldn’t create the PDF. Please try again.</span>}
       </p>
-      <p className="text-xs text-on-surface-variant">Saved on this device. Account-verified certificates are coming later.</p>
+      <p className="text-xs text-ink-muted">Saved on this device. Account-verified certificates are coming later.</p>
     </form>
   )
 }

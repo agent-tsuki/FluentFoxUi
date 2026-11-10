@@ -15,11 +15,11 @@ export function PermissionCheckboxes({ options, selected, onChange, disabled }: 
 
   return (
     <fieldset className="space-y-1" disabled={disabled}>
-      <legend className="mb-2 font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant">Permissions</legend>
+      <legend className="mb-2 font-sans text-xs font-bold uppercase tracking-[0.12em] text-ink-muted">Permissions</legend>
       {options.map(permission => (
         <label
           key={permission}
-          className="flex min-h-11 cursor-pointer items-start gap-3 rounded-xl px-3 py-2 hover:bg-surface-container"
+          className="flex min-h-11 cursor-pointer items-start gap-3 rounded-md px-3 py-2 hover:bg-surface-hover"
         >
           <input
             type="checkbox"
@@ -28,8 +28,8 @@ export function PermissionCheckboxes({ options, selected, onChange, disabled }: 
             className="mt-1 h-4 w-4 shrink-0 accent-primary"
           />
           <span>
-            <span className="block text-sm font-semibold text-on-surface">{PERMISSION_LABELS[permission].label}</span>
-            <span className="block text-xs text-on-surface-variant">{PERMISSION_LABELS[permission].description}</span>
+            <span className="block text-sm font-semibold text-ink">{PERMISSION_LABELS[permission].label}</span>
+            <span className="block text-xs text-ink-muted">{PERMISSION_LABELS[permission].description}</span>
           </span>
         </label>
       ))}

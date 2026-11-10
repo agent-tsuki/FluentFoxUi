@@ -48,7 +48,7 @@ export function SignUpForm({ onSuccess, onRegisteredOnly, onGoToLogin, values, o
       return (
         <span>
           Did you mean{' '}
-          <button type="button" onClick={() => update('email', suggestion)} className="font-bold underline hover:text-on-surface">
+          <button type="button" onClick={() => update('email', suggestion)} className="font-bold underline hover:text-ink">
             {suggestion}
           </button>
           ?
@@ -59,7 +59,7 @@ export function SignUpForm({ onSuccess, onRegisteredOnly, onGoToLogin, values, o
       return (
         <span>
           {resolveErrorMessage(err)}{' '}
-          <button type="button" onClick={onGoToLogin} className="font-bold underline hover:text-on-surface">
+          <button type="button" onClick={onGoToLogin} className="font-bold underline hover:text-ink">
             Log in instead
           </button>
         </span>
@@ -207,13 +207,13 @@ export function SignUpForm({ onSuccess, onRegisteredOnly, onGoToLogin, values, o
           type="submit"
           variant="primary"
           disabled={loading}
-          className="w-full py-3.5 font-headline disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full py-3.5 font-display disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {loading ? 'Creating Account…' : 'Create Account'}
         </Button>
       </div>
 
-      <p className="text-center text-xs text-on-surface-variant/70 leading-relaxed max-w-[280px] mx-auto">
+      <p className="text-center text-xs text-ink-subtle leading-relaxed max-w-[280px] mx-auto">
         By signing up, you agree to our{' '}
         <a href="/terms" className="underline hover:text-primary">Terms of Service</a>
         {' '}and{' '}

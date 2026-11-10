@@ -12,7 +12,7 @@ export function UnitStatusLine({ status, className }: { status: UnitStatusSummar
   const icon = state === 'in-progress' ? 'schedule' : state === 'done' ? 'check_circle' : state === 'skipped' ? 'verified' : null
   const tone = state === 'in-progress' ? 'text-primary' : 'text-success'
   return (
-    <span className={cn('flex items-center gap-1 text-xs tabular-nums text-on-surface-variant', className)}>
+    <span className={cn('flex items-center gap-1 text-xs tabular-nums text-ink-muted', className)}>
       {icon && (
         <span aria-hidden className="flex">
           <Icon name={icon} filled={state !== 'in-progress'} className={cn('text-base', tone)} />

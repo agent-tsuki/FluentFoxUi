@@ -12,12 +12,12 @@ export function PasswordStrengthMeter({ password }: { password: string }) {
           <div
             key={bar}
             className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-              bar <= meta.bars ? meta.color : 'bg-surface-container-highest'
+              bar <= meta.bars ? meta.color : 'bg-surface-hover'
             }`}
           />
         ))}
       </div>
-      <p className="text-xs text-on-surface-variant font-medium">
+      <p className="text-xs text-ink-muted font-medium">
         Strength: <span className="font-bold">{meta.label}</span>
       </p>
     </div>

@@ -145,7 +145,7 @@ export function parseInlineMarkdown(text: string, vocab: VocabItem[] = []): stri
     .replace(/(<[a-z][^>]*?)\sclassName=/g, '$1 class=')
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-    .replace(/`(.*?)`/g, '<code class="bg-surface-container-high px-1 rounded text-primary text-sm">$1</code>');
+    .replace(/`(.*?)`/g, '<code class="bg-surface-hover px-1 rounded text-primary text-sm">$1</code>');
 
   return out.replace(TOKEN_RE, (_, i: string) => stash[Number(i)]);
 }
@@ -183,7 +183,7 @@ export function parseMarkdownBlock(lines: string[], vocab: VocabItem[] = []): st
 
     if (t.startsWith('|') && t.endsWith('|')) {
       if (!inTable) {
-        html += '<div class="overflow-x-auto my-6"><table class="w-full text-left border-collapse border border-outline-variant/30 rounded-lg shadow-sm bg-surface-container-low text-sm"><tbody class="divide-y divide-outline-variant/20">';
+        html += '<div class="overflow-x-auto my-6"><table class="w-full text-left border-collapse border border-line rounded-sm shadow-sm bg-surface-sunken text-sm"><tbody class="divide-y divide-line">';
         inTable = true;
       }
       if (t.includes(':---')) continue; // Skip header separator
@@ -194,8 +194,8 @@ export function parseMarkdownBlock(lines: string[], vocab: VocabItem[] = []): st
       cells.forEach(c => {
         const tag = isHeader ? 'th' : 'td';
         const classes = isHeader
-          ? 'py-2 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-widest text-on-surface-variant bg-surface-container-highest/30 leading-tight'
-          : 'py-2 px-3 text-on-surface text-xs sm:text-sm font-medium border-r border-outline-variant/10 last:border-0 leading-snug';
+          ? 'py-2 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-[0.12em] text-ink-muted bg-surface-hover/30 leading-tight'
+          : 'py-2 px-3 text-ink text-xs sm:text-sm font-medium border-r border-line last:border-0 leading-snug';
         html += `<${tag} class="${classes}">${inline(c)}</${tag}>`;
       });
       html += '</tr>';

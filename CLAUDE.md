@@ -18,7 +18,7 @@ React Router 6 + Zustand + framer-motion.
 
 ## Golden rules (summary — full version in FRONTEND_STANDARDS.md)
 1. **Reuse first.** Never re-implement what's in `src/components/ui/`. Use or extend the primitive; never fork it inline with raw Tailwind.
-2. **Tokens only.** No hardcoded hex/px colors, radii, or fonts. Style through the Tailwind design tokens (`bg-surface`, `text-on-surface`, `text-primary`, `border-outline-variant`, …).
+2. **Tokens only.** No hardcoded hex/px colors, radii, or fonts. Style through the Tailwind design tokens (`bg-surface`, `text-ink`, `text-primary`, `border-line`, …).
 3. **Every async view handles loading + error + empty** via the shared state components. Never `service.getX().then(setState)` with no `.catch`.
 4. **Lazy-load heavy code** (routes, globe, lottie, confetti, MDX). Keep the initial bundle small.
 5. **Memoize** context values (`useMemo`) and callbacks (`useCallback`); `React.memo` pure list items.

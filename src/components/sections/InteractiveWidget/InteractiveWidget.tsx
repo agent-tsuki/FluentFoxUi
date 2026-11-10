@@ -12,7 +12,7 @@ export function InteractiveWidget() {
   }, [])
 
   return (
-    <section className="bg-surface-container-low py-24">
+    <section className="bg-surface-sunken py-24">
       <div className="max-w-7xl mx-auto px-8">
         <div className="grid lg:grid-cols-2 gap-20 items-center">
           {/* Widget — order-2 on mobile, order-1 on desktop */}
@@ -22,13 +22,13 @@ export function InteractiveWidget() {
 
           {/* Copy — order-1 on mobile, order-2 on desktop */}
           <div className="order-1 lg:order-2 space-y-6">
-            <p className="text-primary font-label font-bold tracking-[0.3em] uppercase">
+            <p className="text-primary font-sans font-bold tracking-[0.12em] uppercase">
               Interactive Focus
             </p>
-            <h2 className="font-headline text-4xl font-extrabold tracking-tight leading-tight">
+            <h2 className="font-display text-4xl font-extrabold tracking-tight leading-tight">
               Build confidence block by block.
             </h2>
-            <p className="text-on-surface-variant text-lg leading-relaxed">
+            <p className="text-ink-muted text-lg leading-relaxed">
               Our proprietary "Tactile Logic" engine makes complex grammar feel like physical
               puzzles. Engage your muscle memory to internalize Japanese sentence structures 4x
               faster than traditional rote memorization.

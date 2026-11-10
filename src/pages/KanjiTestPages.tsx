@@ -34,8 +34,8 @@ function Intro({ title, lines, onStart, onExit }: { title: string; lines: string
       <div className="flex flex-1 flex-col justify-center gap-6">
         <div>
           <Icon name="quiz" className="text-5xl text-primary" />
-          <h1 className="mt-3 font-headline text-3xl font-extrabold text-on-surface">{title}</h1>
-          <ul className="mt-4 space-y-2 text-on-surface-variant">
+          <h1 className="mt-3 font-display text-3xl font-extrabold text-ink">{title}</h1>
+          <ul className="mt-4 space-y-2 text-ink-muted">
             {lines.map((l) => (
               <li key={l} className="flex gap-2">
                 <Icon name="check" className="shrink-0 text-lg text-primary" />
@@ -152,14 +152,14 @@ export function SkipTest({ scope, title, track, index, unitIds, byChar, pool, on
         score={outcome}
         detail={outcome.passed ? `You tested out of ${units.length === 1 ? 'this unit' : `all ${units.length} units`}.` : 'Not tested out this time. Your score per unit shows where to start.'}
         breakdown={
-          <ul className="divide-y divide-outline-variant/40 rounded-2xl border border-outline-variant/40 bg-surface-container-low">
+          <ul className="divide-y divide-line rounded-xl border border-line bg-surface-sunken">
             {perUnit.map(({ unit, score }) => {
               const ok = score >= level.skipPassMark
               return (
                 <li key={unit.id} className="flex items-center gap-3 px-4 py-2 text-sm">
-                  <Icon name={ok ? 'check_circle' : 'radio_button_unchecked'} filled={ok} className={ok ? 'text-lg text-success' : 'text-lg text-on-surface-variant'} />
-                  <span className="min-w-0 flex-1 font-semibold text-on-surface">{unit.title}</span>
-                  <span className="tabular-nums text-on-surface-variant">
+                  <Icon name={ok ? 'check_circle' : 'radio_button_unchecked'} filled={ok} className={ok ? 'text-lg text-success' : 'text-lg text-ink-muted'} />
+                  <span className="min-w-0 flex-1 font-semibold text-ink">{unit.title}</span>
+                  <span className="tabular-nums text-ink-muted">
                     {formatPercent(score)} · {ok ? 'Known' : 'Keep learning'}
                   </span>
                 </li>

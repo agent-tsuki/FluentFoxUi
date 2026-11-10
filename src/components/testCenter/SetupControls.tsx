@@ -8,8 +8,8 @@ import type { TestFormatId, TestSubjectId } from '@/lib/testCenter/types'
 
 const FOCUS =
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface'
-const CARD = 'rounded-2xl border bg-surface-container-lowest transition-colors dark:bg-surface-container-low'
-const CARD_IDLE = 'border-outline-variant/60 hover:border-outline dark:border-outline/60'
+const CARD = 'rounded-xl border bg-surface-raised transition-colors'
+const CARD_IDLE = 'border-line hover:border-line-strong'
 const CARD_ON = 'border-primary bg-primary/5 dark:bg-primary/10'
 
 /** One part of the setup card: a small icon, a title with a hint, an optional action on the right. */
@@ -32,10 +32,10 @@ export function SetupSection({
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2.5">
           <Icon name={icon} className="shrink-0 text-xl text-primary" />
-          <h2 id={id} className="font-headline text-base font-bold text-on-surface">
+          <h2 id={id} className="font-display text-base font-bold text-ink">
             {title}
           </h2>
-          {hint && <p className="hidden truncate text-sm text-on-surface-variant sm:block">· {hint}</p>}
+          {hint && <p className="hidden truncate text-sm text-ink-muted sm:block">· {hint}</p>}
         </div>
         {action}
       </div>
@@ -68,12 +68,12 @@ export function SubjectPicker({ value, onChange }: { value: TestSubjectId; onCha
               <span
                 aria-hidden
                 lang="ja"
-                className={cn('font-jp text-3xl font-bold leading-none', on ? 'text-primary' : 'text-on-surface')}
+                className={cn('font-ja text-3xl font-bold leading-none', on ? 'text-primary' : 'text-ink')}
               >
                 {s.glyph}
               </span>
-              <span className="mt-2 text-sm font-bold text-on-surface">{s.title}</span>
-              <span className="text-xs text-on-surface-variant">{s.tagline}</span>
+              <span className="mt-2 text-sm font-bold text-ink">{s.title}</span>
+              <span className="text-xs text-ink-muted">{s.tagline}</span>
               {on && <Icon name="check_circle" filled className="absolute right-2 top-2 text-lg text-primary" />}
             </label>
           )
@@ -119,10 +119,10 @@ export function PillGroup({
               className={cn(
                 'inline-flex min-h-10 items-center gap-1.5 rounded-full border px-3.5 text-sm font-semibold transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary',
                 o.disabled
-                  ? 'cursor-not-allowed border-outline-variant/40 text-on-surface-variant/60'
+                  ? 'cursor-not-allowed border-line text-ink-subtle'
                   : on
                     ? 'cursor-pointer border-primary bg-primary text-on-primary'
-                    : 'cursor-pointer border-outline-variant/60 text-on-surface-variant hover:border-outline hover:text-on-surface',
+                    : 'cursor-pointer border-line text-ink-muted hover:border-line-strong hover:text-ink',
               )}
             >
               <input
@@ -183,16 +183,16 @@ export function ScopePicker({ groups, selected, onChange, noun, numbered }: Scop
         return (
           <div key={g.id} role="group" aria-label={g.title}>
             <div className="mb-2 flex items-center justify-between gap-3">
-              <p className="text-sm font-semibold text-on-surface">
+              <p className="text-sm font-semibold text-ink">
                 {g.title}
-                <span className="ml-2 font-normal text-on-surface-variant">
+                <span className="ml-2 font-normal text-ink-muted">
                   {count} of {g.items.length}
                 </span>
               </p>
               <button
                 type="button"
                 onClick={() => setGroup(g, !whole)}
-                className={cn('min-h-9 rounded-lg px-2 text-sm font-semibold text-primary underline-offset-2 hover:underline', FOCUS)}
+                className={cn('min-h-9 rounded-sm px-2 text-sm font-semibold text-primary underline-offset-2 hover:underline', FOCUS)}
               >
                 {whole ? 'Clear' : `All ${g.items.length}`}
                 <span className="sr-only">
@@ -237,24 +237,24 @@ const ScopeChip = memo(function ScopeChip({ id, title, preview, number, on, onTo
       aria-pressed={on}
       onClick={() => onToggle(id)}
       className={cn(
-        'inline-flex min-h-10 max-w-full items-center gap-2 rounded-xl border px-3 py-1.5 text-left text-sm transition-colors',
+        'inline-flex min-h-10 max-w-full items-center gap-2 rounded-md border px-3 py-1.5 text-left text-sm transition-colors',
         FOCUS,
         on
-          ? 'border-primary bg-primary/10 text-on-surface'
-          : 'border-outline-variant/60 text-on-surface-variant hover:border-outline hover:text-on-surface',
+          ? 'border-primary bg-primary/10 text-ink'
+          : 'border-line text-ink-muted hover:border-line-strong hover:text-ink',
       )}
     >
       <Icon
         name={on ? 'check_circle' : 'radio_button_unchecked'}
         filled={on}
-        className={cn('shrink-0 text-lg', on ? 'text-primary' : 'text-on-surface-variant/70')}
+        className={cn('shrink-0 text-lg', on ? 'text-primary' : 'text-ink-subtle')}
       />
       {number && <span className="shrink-0 font-bold tabular-nums">{number}</span>}
       <span lang={hasJapanese(title) ? 'ja' : undefined} className="min-w-0 truncate font-medium">
         {title}
       </span>
       {preview && (
-        <span aria-hidden lang="ja" className="hidden shrink-0 font-jp text-xs text-on-surface-variant sm:inline">
+        <span aria-hidden lang="ja" className="hidden shrink-0 font-ja text-xs text-ink-muted sm:inline">
           {preview}
         </span>
       )}
@@ -315,13 +315,13 @@ const FormatCard = memo(function FormatCard({
         aria-hidden
         className={cn(
           'flex h-9 w-9 items-center justify-center rounded-full',
-          on ? 'bg-primary/15 text-primary' : 'bg-surface-container-high text-on-surface-variant',
+          on ? 'bg-primary/15 text-primary' : 'bg-surface-hover text-ink-muted',
         )}
       >
         <Icon name={kind.icon} className="text-xl" />
       </span>
-      <span className="mt-2 text-sm font-bold leading-tight text-on-surface">{format.title}</span>
-      <span className="mt-0.5 text-xs text-on-surface-variant">{kind.label}</span>
+      <span className="mt-2 text-sm font-bold leading-tight text-ink">{format.title}</span>
+      <span className="mt-0.5 text-xs text-ink-muted">{kind.label}</span>
       <span className="sr-only">. {format.summary}</span>
       {on && <Icon name="check_circle" filled className="absolute right-2 top-2 text-lg text-primary" />}
     </label>

@@ -141,8 +141,8 @@ export function AudioPage() {
         ) : !engine.data.reachable ? (
           <StatusMessage tone="error" message="The voice engine is not answering. Voices can't be previewed or changed until it is back." />
         ) : (
-          <p className="text-sm text-on-surface-variant">
-            <span className="font-semibold text-on-surface">{engine.data.engine}</span> {engine.data.version} · {speakers.length} voices installed
+          <p className="text-sm text-ink-muted">
+            <span className="font-semibold text-ink">{engine.data.engine}</span> {engine.data.version} · {speakers.length} voices installed
           </p>
         )}
         <FormField label="Sample text for previews" htmlFor={sampleId} hint="Previews are spoken on the spot and not saved. The engine takes a few seconds per sentence, so keep it short.">
@@ -158,7 +158,7 @@ export function AudioPage() {
         ) : !voices.data?.length ? (
           <EmptyState icon="headphones" title="No voices yet" description="Voices appear once the course has spoken content." className="py-8" />
         ) : (
-          <ul className="divide-y divide-outline-variant/40">
+          <ul className="divide-y divide-line">
             {voices.data.map((v) => (
               <VoiceRow key={`${v.key}:${v.styleId ?? ''}`} voice={v} speakers={speakers} busy={action.busy} onPreview={onPreview} onSave={onSave} onGenerate={onGenerate} />
             ))}
@@ -176,7 +176,7 @@ export function AudioPage() {
         ) : (
           <JobList jobs={jobs.data} busy={action.busy} onCancel={onCancel} />
         )}
-        <form onSubmit={installModel} className="flex flex-wrap items-end gap-2 border-t border-outline-variant/40 pt-4">
+        <form onSubmit={installModel} className="flex flex-wrap items-end gap-2 border-t border-line pt-4">
           <FormField label="Install an AivisHub model" htmlFor={modelId} hint="The model's UUID from hub.aivis-project.com. Check its licence allows commercial use." className="min-w-0 flex-1 basis-72">
             <TextInput id={modelId} value={model} placeholder="e.g. a59cb814-0083-4369-8542-f51a29e72af7" onChange={(e) => setModel(e.target.value)} />
           </FormField>

@@ -66,8 +66,8 @@ export function PracticeModeList({ unitId, hints, layout = 'wide', variant = 'ca
 
   if (variant === 'compact') {
     const tile = cn(
-      'flex h-full min-h-12 w-full items-center gap-2 rounded-xl border border-outline-variant/60 bg-surface-container-lowest px-2.5 py-2 text-left transition-colors duration-150',
-      'hover:border-primary/40 hover:bg-surface-container-low dark:border-outline/60 dark:bg-surface-container-low dark:hover:bg-surface-container',
+      'flex h-full min-h-12 w-full items-center gap-2 rounded-md border border-line bg-surface-raised px-2.5 py-2 text-left transition-colors duration-150',
+      'hover:border-primary/40 hover:bg-surface-hover dark:bg-surface-sunken dark:hover:bg-surface-hover',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
     )
     return (
@@ -79,8 +79,8 @@ export function PracticeModeList({ unitId, hints, layout = 'wide', variant = 'ca
                 <Icon name={mode.icon} className="text-xl text-primary" />
               </span>
               <span className="min-w-0">
-                <span className="block text-sm font-semibold leading-tight text-on-surface">{mode.title}</span>
-                <span className="block text-xs tabular-nums text-on-surface-variant">{hints?.[mode.id] ?? `${mode.minutes} min`}</span>
+                <span className="block text-sm font-semibold leading-tight text-ink">{mode.title}</span>
+                <span className="block text-xs tabular-nums text-ink-muted">{hints?.[mode.id] ?? `${mode.minutes} min`}</span>
               </span>
             </>
           )
@@ -115,7 +115,7 @@ export function PracticeModeList({ unitId, hints, layout = 'wide', variant = 'ca
           <Link
             to={`${practiceBase}/${mode.id}${query}`}
             className={cn(
-              'group flex h-full min-h-20 items-center gap-4 rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-4 shadow-elevation-1 transition duration-200 ease-out',
+              'group flex h-full min-h-20 items-center gap-4 rounded-xl border border-line bg-surface-raised p-4 shadow-elevation-1 transition duration-200 ease-out',
               'sm:flex-col sm:items-start sm:p-5',
               'hover:border-primary/40 hover:shadow-elevation-2 motion-safe:hover:-translate-y-0.5',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
@@ -126,22 +126,22 @@ export function PracticeModeList({ unitId, hints, layout = 'wide', variant = 'ca
             </span>
             <span className="min-w-0 flex-1">
               <span className="flex items-center justify-between gap-2">
-                <span className="font-headline font-bold text-on-surface">{mode.title}</span>
-                <span className="inline-flex items-center gap-1 text-xs font-medium text-on-surface-variant">
+                <span className="font-display font-bold text-ink">{mode.title}</span>
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-ink-muted">
                   <Icon name="schedule" className="text-sm" />
                   {mode.minutes} min
                 </span>
               </span>
-              <span className="mt-1 block text-sm leading-snug text-on-surface-variant">{mode.description}</span>
+              <span className="mt-1 block text-sm leading-snug text-ink-muted">{mode.description}</span>
               {hints?.[mode.id] && (
-                <span className="mt-1.5 block text-xs font-medium text-on-surface-variant">
+                <span className="mt-1.5 block text-xs font-medium text-ink-muted">
                   {hints[mode.id]}
                 </span>
               )}
             </span>
             <Icon
               name="chevron_right"
-              className="text-xl text-on-surface-variant transition-transform group-hover:translate-x-0.5 sm:hidden"
+              className="text-xl text-ink-muted transition-transform group-hover:translate-x-0.5 sm:hidden"
             />
           </Link>
         </li>

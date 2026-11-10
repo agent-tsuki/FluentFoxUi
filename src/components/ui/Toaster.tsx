@@ -59,7 +59,7 @@ const ToastCard = memo(function ToastCard({ toast, paused, tucked, style, onHeig
       role={toast.tone === 'error' ? 'alert' : 'status'}
       aria-hidden={tucked || undefined}
       style={style}
-      className="pointer-events-auto absolute inset-x-0 bottom-0 overflow-hidden rounded-2xl border border-outline-variant/40 bg-surface-container-lowest shadow-elevation-3 transition-[transform,height,opacity] duration-300 ease-out motion-reduce:transition-none"
+      className="pointer-events-auto absolute inset-x-0 bottom-0 overflow-hidden rounded-xl border border-line bg-surface-raised shadow-elevation-3 transition-[transform,height,opacity] duration-300 ease-out motion-reduce:transition-none"
     >
       <div
         ref={inner}
@@ -69,8 +69,8 @@ const ToastCard = memo(function ToastCard({ toast, paused, tucked, style, onHeig
       >
         <Icon name={tone.icon} className={cn('mt-px text-lg', tone.iconClass)} />
         <div className="min-w-0 flex-1 space-y-1">
-          <p className="text-sm font-bold text-on-surface">{toast.title}</p>
-          {toast.message && <p className="text-xs leading-relaxed text-on-surface-variant">{toast.message}</p>}
+          <p className="text-sm font-bold text-ink">{toast.title}</p>
+          {toast.message && <p className="text-xs leading-relaxed text-ink-muted">{toast.message}</p>}
           {toast.actions && toast.actions.length > 0 && (
             <div className="flex flex-wrap gap-1.5 pt-2">
               {toast.actions.map((a, i) => (
@@ -80,7 +80,7 @@ const ToastCard = memo(function ToastCard({ toast, paused, tucked, style, onHeig
                   onClick={() => dismiss(toast.id)}
                   className={cn(
                     'inline-flex h-8 items-center rounded-full px-3.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-                    i === 0 ? 'bg-primary text-on-primary hover:bg-primary/90' : 'border border-outline-variant text-on-surface hover:bg-surface-container',
+                    i === 0 ? 'bg-primary text-on-primary hover:bg-primary/90' : 'border border-line text-ink hover:bg-surface-hover',
                   )}
                 >
                   {a.label}

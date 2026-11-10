@@ -8,28 +8,46 @@
    ─────────────────────────────────────────────────────────────────────────── */
 
 :root {
-  /* Surface scale */
-  --surface:                   248 249 250;
-  --background:                248 249 250;
-  --surface-dim:               217 218 219;
-  --surface-bright:            248 249 250;
-  --surface-container-lowest:  255 255 255;
-  --surface-container-low:     243 244 245;
-  --surface-container:         237 238 239;
-  --surface-container-high:    231 232 233;
-  --surface-container-highest: 225 227 228;
+  /* ── FoxSensei design system (Washi) ── */
+  --surface:        247 246 240; /* #f7f6f0 page ground */
+  --surface-raised: 255 253 247; /* #fffdf7 cards, sheets, sidebar, menus */
+  --surface-sunken: 239 237 228; /* #efede4 example wells, inputs, tracks */
+  --surface-hover:  230 227 215; /* #e6e3d7 hover / pressed / selected rows */
+  --ink:            34 32 28;    /* #22201c */
+  --ink-muted:      87 83 74;    /* #57534a descriptions, translations */
+  --ink-subtle:     101 96 90;   /* #65605a romaji, counters, placeholders */
+  --line:           222 219 207; /* #dedbcf hairline dividers */
+  --line-strong:    138 132 120; /* #8a8478 control borders, 3:1 */
+  --primary:        187 77 44;   /* #bb4d2c */
+  --primary-hover:  159 65 38;   /* #9f4126 */
+  --on-primary:     255 255 255;
+  --primary-soft:   248 230 220; /* #f8e6dc */
+  --primary-ink:    138 53 25;   /* #8a3519 */
+  --leaf:           72 112 90;   /* #48705a */
+  --leaf-soft:      230 236 224; /* #e6ece0 */
+  --leaf-ink:       58 92 73;    /* #3a5c49 */
+  --success-soft:   227 239 229; /* #e3efe5 */
+  --success-ink:    36 96 62;    /* #24603e */
+  --warning-soft:   246 234 214; /* #f6ead6 */
+  --warning-ink:    122 66 7;    /* #7a4207 */
+  --info-soft:      226 238 244; /* #e2eef4 */
+  --info-ink:       26 88 120;   /* #1a5878 */
+  --danger:         179 38 30;   /* #b3261e */
+  --danger-soft:    249 227 224; /* #f9e3e0 */
+  --danger-ink:     140 29 22;   /* #8c1d16 */
+  --focus:          31 106 147;  /* #1f6a93 */
 
-  /* Text */
-  --on-surface:         25 28 29;
-  --on-surface-variant: 93 63 61;
+  /* Type that steps down below 1024px (consumed by text-display / h1 / ja-lg). */
+  --text-display: 2.25rem;  --leading-display: 2.5rem;
+  --text-h1:      1.875rem; --leading-h1:      2.25rem;
+  --text-ja-lg:   1.5rem;   --leading-ja-lg:   2.875rem;
 
-  /* Outline */
-  --outline:         146 110 108;
-  --outline-variant: 231 188 186;
+  /* Motion */
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
 
-  /* Primary — fox orange, deepened for WCAG AA (was #EA6B44, 3.1:1).
-     ≥4.5:1 for white text on it and as text on surface / lowest / low / background. */
-  --primary: 187 77 44; /* #BB4D2C */
+
   /* Streak fire (StreakFire): the same flame in both themes. */
   --fire-core:   212 51 0;   /* #D43300 */
   --fire-body:   239 90 0;   /* #EF5A00 */
@@ -40,10 +58,10 @@
   /* Secondary — terracotta, deepened for AA text (was #C45A2A, 3.9:1 on surface-container-low) */
   --secondary: 177 81 38; /* #B15126 */
 
-  /* Semantic status — darker shades read on the light surface */
-  --success: 21 128 61;  /* green-700 */
-  --warning: 180 83 9;   /* amber-700 */
-  --info:    3 105 161;   /* sky-700 */
+  /* Semantic status */
+  --success: 47 122 79;  /* #2f7a4f */
+  --warning: 166 90 11;  /* #a65a0b */
+  --info:    31 106 147; /* #1f6a93 */
   /* Chart series, one per learning track (fixed order: hiragana, katakana, kanji).
      Validated as a categorical set on each mode's surface (CVD and normal-vision). */
   --chart-1: 42 120 214;  /* #2a78d6 blue */
@@ -53,29 +71,10 @@
   --chart-5: 232 123 164; /* #e87ba4 magenta */
 
   /* Elevation shadows */
-  --shadow-elevation-1: 0 4px 20px rgba(25, 28, 29, 0.04), 0 2px 8px rgba(25, 28, 29, 0.02);
+  --shadow-elevation-1: 0 1px 2px rgba(34, 32, 28, 0.06), 0 2px 8px rgba(34, 32, 28, 0.04);
   --shadow-elevation-2: 0 12px 32px rgba(25, 28, 29, 0.06), 0 4px 12px rgba(25, 28, 29, 0.03);
   --shadow-elevation-3: 0 24px 48px rgba(25, 28, 29, 0.1), 0 8px 24px rgba(25, 28, 29, 0.05);
 
-  /* Concept home (sage + paper palette) */
-  --home-canvas:      247 246 240; /* #f7f6f0 */
-  --home-hero:        203 220 201; /* #cbdcc9 */
-  --home-wash:        248 247 237;
-  --home-ink:         37 62 53;    /* #253e35 */
-  --home-muted:       83 102 90;   /* #53665a */
-  --home-subtle:      116 124 114; /* #747c72 */
-  --home-line:        223 227 216; /* #dfe3d8 */
-  --home-line-strong: 215 216 202; /* #d7d8ca */
-  --home-accent:      187 77 44;   /* #BB4D2C, brand primary: 5.0:1 with white text */
-  --home-accent-hover:159 65 38;   /* #9F4126 */
-  --home-on-accent:   255 255 255;
-  --home-tile:        255 253 247; /* #fffdf7 */
-  --home-sage:        237 238 223; /* #edeedf */
-  --home-mint:        230 239 236; /* #e6efec */
-  --home-peach:       240 231 223; /* #f0e7df */
-  --home-sand:        238 232 220; /* #eee8dc */
-  --home-panel:       232 237 223; /* #e8eddf */
-  --home-leaf:        72 112 90;   /* #48705a */
 
   /* Scene — the practice tests header illustration (dawn) */
   --scene-sky-top:    252 232 222; /* #fce8de */
@@ -92,32 +91,40 @@
 }
 
 html.dark {
-  /* Surface scale — Yoru (night indigo): matches the moonlit hero illustration */
-  --surface:                   15 21 40;  /* #0F1528 */
-  --background:                11 16 32;  /* #0B1020 */
-  --surface-dim:               8 12 24;   /* #080C18 */
-  --surface-bright:            46 57 88;  /* #2E3958 */
-  --surface-container-lowest:  11 16 32;  /* #0B1020 */
-  --surface-container-low:     19 26 48;  /* #131A30 */
-  --surface-container:         24 32 56;  /* #182038 */
-  --surface-container-high:    30 39 66;  /* #1E2742 */
-  --surface-container-highest: 38 48 78;  /* #26304E */
+  /* ── FoxSensei design system (Yoru) ── */
+  --surface:        15 21 40;    /* #0f1528 */
+  --surface-raised: 24 32 56;    /* #182038 always lighter than surface */
+  --surface-sunken: 11 16 32;    /* #0b1020 */
+  --surface-hover:  38 48 78;    /* #26304e */
+  --ink:            236 234 242; /* #eceaf2 */
+  --ink-muted:      176 183 204; /* #b0b7cc */
+  --ink-subtle:     144 152 178; /* #9098b2 */
+  --line:           42 51 82;    /* #2a3352 */
+  --line-strong:    107 118 153; /* #6b7699 */
+  --primary:        240 138 93;  /* #f08a5d */
+  --primary-hover:  246 160 122; /* #f6a07a */
+  --on-primary:     26 15 10;    /* #1a0f0a: white on this orange is only 2.47:1 */
+  --primary-soft:   58 36 33;    /* #3a2421 */
+  --primary-ink:    246 179 148; /* #f6b394 */
+  --leaf:           134 200 170; /* #86c8aa */
+  --leaf-soft:      24 48 42;    /* #18302a */
+  --leaf-ink:       169 220 195; /* #a9dcc3 */
+  --success-soft:   22 48 42;    /* #16302a */
+  --success-ink:    143 227 189; /* #8fe3bd */
+  --warning-soft:   51 41 26;    /* #33291a */
+  --warning-ink:    245 213 149; /* #f5d595 */
+  --info-soft:      23 42 61;    /* #172a3d */
+  --info-ink:       168 216 245; /* #a8d8f5 */
+  --danger:         255 180 171; /* #ffb4ab */
+  --danger-soft:    59 29 34;    /* #3b1d22 */
+  --danger-ink:     255 205 198; /* #ffcdc6 */
+  --focus:          124 196 240; /* #7cc4f0 */
 
-  /* Text — moonlight */
-  --on-surface:         236 234 242; /* #ECEAF2 */
-  --on-surface-variant: 169 176 199; /* #A9B0C7 */
-
-  /* Outline */
-  --outline:         74 85 120; /* #4A5578 */
-  --outline-variant: 37 46 74;  /* #252E4A */
-
-  /* Primary — lantern coral */
-  --primary: 240 138 93; /* #F08A5D */
 
   /* Secondary — sakura */
   --secondary: 233 166 198; /* #E9A6C6 */
 
-  /* Semantic status — soft, night-tuned */
+  /* Semantic status */
   --success: 95 211 160;  /* #5FD3A0 */
   --warning: 242 196 109; /* #F2C46D */
   --info:    124 196 240; /* #7CC4F0 */
@@ -128,29 +135,10 @@ html.dark {
   --chart-5: 213 81 129;  /* #d55181 */
 
   /* Elevation shadows — deep navy-black */
-  --shadow-elevation-1: 0 4px 20px rgba(3, 6, 16, 0.35), 0 2px 8px rgba(3, 6, 16, 0.25);
+  --shadow-elevation-1: 0 1px 2px rgba(3, 6, 16, 0.4), 0 2px 8px rgba(3, 6, 16, 0.3);
   --shadow-elevation-2: 0 12px 32px rgba(3, 6, 16, 0.45), 0 4px 12px rgba(3, 6, 16, 0.3);
   --shadow-elevation-3: 0 24px 48px rgba(3, 6, 16, 0.55), 0 8px 24px rgba(3, 6, 16, 0.45);
 
-  /* Concept home — Yoru night */
-  --home-canvas:      11 16 32;    /* #0B1020 */
-  --home-hero:        15 21 40;    /* #0F1528 */
-  --home-wash:        8 12 24;     /* #080C18 */
-  --home-ink:         236 234 242; /* #ECEAF2 */
-  --home-muted:       169 176 199; /* #A9B0C7 */
-  --home-subtle:      130 139 166; /* #828BA6 */
-  --home-line:        37 46 74;    /* #252E4A */
-  --home-line-strong: 52 63 96;    /* #343F60 */
-  --home-accent:      240 138 93;  /* #F08A5D */
-  --home-accent-hover:246 160 122; /* #F6A07A */
-  --home-on-accent:   26 15 10;    /* #1A0F0A */
-  --home-tile:        19 26 48;    /* #131A30 */
-  --home-sage:        22 32 58;    /* #16203A */
-  --home-mint:        19 36 51;    /* #132433 */
-  --home-peach:       42 30 42;    /* #2A1E2A — sakura tint */
-  --home-sand:        31 34 54;    /* #1F2236 */
-  --home-panel:       21 29 51;    /* #151D33 */
-  --home-leaf:        134 200 170; /* #86C8AA */
 
   /* Scene — the practice tests header illustration (moonlit) */
   --scene-sky-top:    13 18 38;    /* #0d1226 */
@@ -166,28 +154,37 @@ html.dark {
   --scene-wood:       240 138 93;  /* #f08a5d */
 }
 
+/* From 1024px the responsive type steps up to its full size. */
+@media (min-width: 1024px) {
+  :root {
+    --text-display: 3rem;   --leading-display: 3.25rem;
+    --text-h1:      2.5rem; --leading-h1:      3rem;
+    --text-ja-lg:   1.75rem; --leading-ja-lg:  3.25rem;
+  }
+}
+
 /* ─── Scrollbars ─────────────────────────────────────────────────────────────
    color-scheme makes native controls (scrollbars, inputs) follow the theme;
    the thumb/track below use tokens so they blend with the surfaces.
    ─────────────────────────────────────────────────────────────────────────── */
 /* The page canvas wears the footer's colour: scrolling past either end (the
    trackpad bounce) shows it instead of a white band under the footer. */
-html { color-scheme: light; background-color: rgb(var(--surface-container-low)); }
+html { color-scheme: light; background-color: rgb(var(--surface-sunken)); }
 html.dark { color-scheme: dark; }
 
 * {
-  scrollbar-color: rgb(var(--outline) / 0.55) transparent;
+  scrollbar-color: rgb(var(--line-strong) / 0.55) transparent;
 }
 
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgb(var(--outline) / 0.55);
+  background: rgb(var(--line-strong) / 0.55);
   border: 2px solid transparent;
   border-radius: 9999px;
   background-clip: padding-box;
 }
-::-webkit-scrollbar-thumb:hover { background-color: rgb(var(--outline) / 0.85); }
+::-webkit-scrollbar-thumb:hover { background-color: rgb(var(--line-strong) / 0.85); }
 ::-webkit-scrollbar-corner { background: transparent; }
 
 /* Thin variant for side panels and drawers. */
@@ -202,7 +199,13 @@ html.dark { color-scheme: dark; }
 }
 
 .japanese-text {
-  font-family: 'Hiragino Kaku Gothic Pro', 'Yu Gothic', 'Meiryo', sans-serif;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', Meiryo, sans-serif;
+}
+
+/* One keyboard focus ring, everywhere. */
+:focus-visible {
+  outline: 2px solid rgb(var(--focus));
+  outline-offset: 2px;
 }
 
 /* Learning content stays selectable — learners must be able to copy Japanese text,
@@ -322,9 +325,9 @@ canvas {
 .animate-shimmer {
   background-image: linear-gradient(
     100deg,
-    rgb(var(--surface-container-high)) 40%,
-    rgb(var(--surface-container-highest)) 50%,
-    rgb(var(--surface-container-high)) 60%
+    rgb(var(--surface-sunken)) 40%,
+    rgb(var(--surface-hover)) 50%,
+    rgb(var(--surface-sunken)) 60%
   );
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.8s ease-in-out infinite;
@@ -462,12 +465,12 @@ canvas {
 /* ─── Concept-led home page ─────────────────────────────────────────────── */
 
 .concept-home {
-  font-family: 'DM Sans', Inter, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
 }
 
 .concept-display {
-  font-family: 'DM Serif Display', Georgia, serif;
-  font-weight: 400;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 700;
 }
 
 .concept-eyebrow {
@@ -478,14 +481,14 @@ canvas {
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgb(var(--home-muted));
+  color: rgb(var(--ink-muted));
 }
 
 .concept-eyebrow::before {
   width: 0.375rem;
   height: 0.375rem;
   border-radius: 9999px;
-  background: rgb(var(--home-accent));
+  background: rgb(var(--primary));
   content: '';
 }
 
@@ -498,33 +501,33 @@ canvas {
   gap: 0.375rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: rgb(var(--home-ink));
+  color: rgb(var(--ink));
   transition: color 160ms ease;
 }
 
 .concept-text-link-text {
-  border-bottom: 1px solid rgb(var(--home-subtle) / 0.6);
+  border-bottom: 1px solid rgb(var(--ink-subtle) / 0.6);
   padding-bottom: 0.125rem;
   transition: border-color 160ms ease;
 }
 
-.concept-text-link:hover { color: rgb(var(--home-accent)); }
-.concept-text-link:hover .concept-text-link-text { border-color: rgb(var(--home-accent)); }
+.concept-text-link:hover { color: rgb(var(--primary)); }
+.concept-text-link:hover .concept-text-link-text { border-color: rgb(var(--primary)); }
 
 /* In the components layer so Tailwind utilities on the same element (text-2xl, px-0…) win. */
 @layer components {
   /* Section and step headings share one scale across the home page. */
   .concept-section-title {
-    font-family: 'DM Serif Display', Georgia, serif;
-    font-weight: 400;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-weight: 700;
     font-size: clamp(2.25rem, 4vw, 3.25rem);
     line-height: 1.05;
     letter-spacing: -0.03em;
   }
 
   .concept-step-title {
-    font-family: 'DM Serif Display', Georgia, serif;
-    font-weight: 400;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-weight: 700;
     font-size: clamp(1.75rem, 2.6vw, 2.25rem);
     line-height: 1.1;
     letter-spacing: -0.025em;
@@ -536,7 +539,7 @@ canvas {
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: rgb(var(--home-muted));
+    color: rgb(var(--ink-muted));
   }
 
   /* Step links: a 44px-tall target with a quiet underline on the text. */
@@ -547,26 +550,26 @@ canvas {
     gap: 0.375rem;
     font-size: 0.875rem;
     font-weight: 600;
-    color: rgb(var(--home-ink));
+    color: rgb(var(--ink));
     transition: color 160ms ease;
   }
 
   /* Only the words are underlined, not the arrow. */
   .concept-step-link-text {
     text-decoration: underline;
-    text-decoration-color: rgb(var(--home-line-strong));
+    text-decoration-color: rgb(var(--line-strong));
     text-underline-offset: 0.375rem;
     transition: text-decoration-color 160ms ease;
   }
 
-  .concept-step-link:hover { color: rgb(var(--home-accent-hover)); }
+  .concept-step-link:hover { color: rgb(var(--primary-hover)); }
   .concept-step-link:hover .concept-step-link-text { text-decoration-color: currentColor; }
 
   /* "Try it" panel: one hairline, no shadow, so it reads as part of the page. */
   .concept-demo {
-    border: 1px solid rgb(var(--home-line));
+    border: 1px solid rgb(var(--line));
     border-radius: 1rem;
-    background: rgb(var(--home-tile));
+    background: rgb(var(--surface-raised));
     padding: 1.5rem;
   }
 
@@ -581,18 +584,18 @@ canvas {
     align-items: center;
     justify-content: center;
     gap: 0.375rem;
-    border: 1px solid rgb(var(--home-line-strong));
+    border: 1px solid rgb(var(--line-strong));
     border-radius: 0.75rem;
-    background: rgb(var(--home-tile));
+    background: rgb(var(--surface-raised));
     padding: 0 1.25rem;
     font-size: 0.875rem;
     font-weight: 600;
-    color: rgb(var(--home-ink));
+    color: rgb(var(--ink));
     transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
   }
 
-  .concept-demo-btn:enabled:hover { border-color: rgb(var(--home-accent)); }
-  .concept-demo-btn:focus-visible { outline: 3px solid rgb(var(--home-accent)); outline-offset: 2px; }
+  .concept-demo-btn:enabled:hover { border-color: rgb(var(--primary)); }
+  .concept-demo-btn:focus-visible { outline: 3px solid rgb(var(--primary)); outline-offset: 2px; }
   .concept-demo-btn:disabled { cursor: default; }
 
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
@@ -605,31 +608,31 @@ canvas {
     width: 3.25rem;
     height: 3.25rem;
     place-items: center;
-    border: 1px solid rgb(var(--home-line-strong));
+    border: 1px solid rgb(var(--line-strong));
     border-radius: 0.875rem;
-    background: rgb(var(--home-canvas));
+    background: rgb(var(--surface));
     font-size: 1.5rem;
-    color: rgb(var(--home-ink));
+    color: rgb(var(--ink));
     transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease, transform 160ms ease;
   }
 
-  .concept-kana-tile:hover { border-color: rgb(var(--home-ink) / 0.5); }
-  .concept-kana-tile:focus-visible { outline: 3px solid rgb(var(--home-accent)); outline-offset: 2px; }
+  .concept-kana-tile:hover { border-color: rgb(var(--ink) / 0.5); }
+  .concept-kana-tile:focus-visible { outline: 3px solid rgb(var(--primary)); outline-offset: 2px; }
 
   .concept-kana-tile-on,
   .concept-kana-tile-on:hover {
-    border-color: rgb(var(--home-ink));
-    background: rgb(var(--home-ink));
-    color: rgb(var(--home-canvas));
+    border-color: rgb(var(--ink));
+    background: rgb(var(--ink));
+    color: rgb(var(--surface));
   }
 
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
     .concept-kana-tile:hover { transform: translateY(-1px); }
   }
 
-  .concept-demo-btn-on { border-color: rgb(var(--home-accent)); background: rgb(var(--home-sand)); }
-  .concept-demo-btn-right { border-color: rgb(var(--home-leaf)); background: rgb(var(--home-leaf) / 0.12); }
-  .concept-demo-btn-wrong { border-color: rgb(var(--home-accent)); background: rgb(var(--home-accent) / 0.1); }
+  .concept-demo-btn-on { border-color: rgb(var(--primary)); background: rgb(var(--surface-sunken)); }
+  .concept-demo-btn-right { border-color: rgb(var(--leaf)); background: rgb(var(--leaf) / 0.12); }
+  .concept-demo-btn-wrong { border-color: rgb(var(--primary)); background: rgb(var(--primary) / 0.1); }
 }
 
 @keyframes concept-fade {
@@ -649,15 +652,28 @@ canvas {
 .concept-hero-wash {
   background:
     /* Bottom: dissolve the photo into the page canvas so the next section continues seamlessly. */
-    linear-gradient(0deg, rgb(var(--home-canvas)) 0%, rgb(var(--home-canvas) / 0.85) 8%, rgb(var(--home-canvas) / 0.4) 20%, transparent 38%),
+    linear-gradient(0deg, rgb(var(--surface)) 0%, rgb(var(--surface) / 0.85) 8%, rgb(var(--surface) / 0.4) 20%, transparent 38%),
     /* Top: soft shade behind the floating glass navbar. */
-    linear-gradient(180deg, rgb(var(--home-wash) / 0.55) 0%, transparent 18%),
+    linear-gradient(180deg, rgb(var(--surface) / 0.55) 0%, transparent 18%),
     /* Left: readability for the headline column. */
-    linear-gradient(90deg, rgb(var(--home-wash) / 0.9) 0%, rgb(var(--home-wash) / 0.65) 30%, rgb(var(--home-wash) / 0.05) 68%);
+    linear-gradient(90deg, rgb(var(--surface) / 0.9) 0%, rgb(var(--surface) / 0.65) 30%, rgb(var(--surface) / 0.05) 68%);
 }
 
 @keyframes concept-drift {
   to { transform: scale(1.09) translateX(-1%); }
+}
+
+/* Hero scroll cue: the wheel dot slides down the mouse and fades; the touch arrow nudges down. */
+@keyframes scroll-wheel {
+  0% { transform: translateY(0); opacity: 0; }
+  15% { opacity: 1; }
+  70% { transform: translateY(0.625rem); opacity: 0; }
+  100% { transform: translateY(0.625rem); opacity: 0; }
+}
+
+@keyframes scroll-nudge {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(0.375rem); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -757,36 +773,60 @@ html:where(.dark) .min-h-dvh.bg-surface {
 }
 
 /* Cards, panels, sidebars, popups, toasts. */
-html:where(.dark) .bg-surface-container-lowest,
-html:where(.dark) .bg-surface-container-low,
-html:where(.dark) .bg-surface-container {
+html:where(.dark) .bg-surface-raised,
+html:where(.dark) .bg-surface-sunken {
   -webkit-backdrop-filter: blur(16px) saturate(150%);
   backdrop-filter: blur(16px) saturate(150%);
 }
-html:where(.dark) .bg-surface-container-lowest { background-color: rgb(var(--surface-container-lowest) / 0.62); }
-html:where(.dark) .bg-surface-container-low    { background-color: rgb(var(--surface-container-low) / 0.55); }
-html:where(.dark) .bg-surface-container        { background-color: rgb(var(--surface-container) / 0.55); }
+html:where(.dark) .bg-surface-raised { background-color: rgb(var(--surface-raised) / 0.62); }
+html:where(.dark) .bg-surface-sunken { background-color: rgb(var(--surface-sunken) / 0.55); }
+/* Chips and tracks sit on glass already: tint only, no second blur. */
+html:where(.dark) .bg-surface-hover { background-color: rgb(var(--surface-hover) / 0.65); }
 
-/* Chips, tracks and skeletons sit on glass already: tint only, no second blur. */
-html:where(.dark) .bg-surface-container-high    { background-color: rgb(var(--surface-container-high) / 0.6); }
-html:where(.dark) .bg-surface-container-highest { background-color: rgb(var(--surface-container-highest) / 0.65); }
+/* Lesson shells are reading surfaces: solid, with no glow or petals behind the text.
+   :where() keeps specificity level with the glass rules so these win by source order. */
+html:where(.dark) .lesson-solid { background-color: rgb(var(--surface)); background-image: none; }
+html:where(.dark) :where(.lesson-solid) .bg-surface-raised,
+html:where(.dark) :where(.lesson-solid) .bg-surface-sunken {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+html:where(.dark) :where(.lesson-solid) .bg-surface-raised { background-color: rgb(var(--surface-raised)); }
+html:where(.dark) :where(.lesson-solid) .bg-surface-sunken { background-color: rgb(var(--surface-sunken)); }
+html:where(.dark) :where(.lesson-solid) .bg-surface-hover  { background-color: rgb(var(--surface-hover)); }
 
 /* Without backdrop blur, or for people who ask for less transparency: solid again. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  html:where(.dark) .bg-surface-container-lowest { background-color: rgb(var(--surface-container-lowest) / 0.95); }
-  html:where(.dark) .bg-surface-container-low    { background-color: rgb(var(--surface-container-low) / 0.95); }
-  html:where(.dark) .bg-surface-container        { background-color: rgb(var(--surface-container) / 0.95); }
+  html:where(.dark) .bg-surface-raised { background-color: rgb(var(--surface-raised) / 0.95); }
+  html:where(.dark) .bg-surface-sunken { background-color: rgb(var(--surface-sunken) / 0.95); }
 }
 @media (prefers-reduced-transparency: reduce) {
-  html:where(.dark) .bg-surface-container-lowest,
-  html:where(.dark) .bg-surface-container-low,
-  html:where(.dark) .bg-surface-container {
+  html:where(.dark) .bg-surface-raised,
+  html:where(.dark) .bg-surface-sunken {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
-  html:where(.dark) .bg-surface-container-lowest { background-color: rgb(var(--surface-container-lowest)); }
-  html:where(.dark) .bg-surface-container-low    { background-color: rgb(var(--surface-container-low)); }
-  html:where(.dark) .bg-surface-container        { background-color: rgb(var(--surface-container)); }
-  html:where(.dark) .bg-surface-container-high    { background-color: rgb(var(--surface-container-high)); }
-  html:where(.dark) .bg-surface-container-highest { background-color: rgb(var(--surface-container-highest)); }
+  html:where(.dark) .bg-surface-raised { background-color: rgb(var(--surface-raised)); }
+  html:where(.dark) .bg-surface-sunken { background-color: rgb(var(--surface-sunken)); }
+  html:where(.dark) .bg-surface-hover  { background-color: rgb(var(--surface-hover)); }
 }
+
+/* ─── Lesson reading ──────────────────────────────────────────────────────── */
+
+ruby { ruby-position: over; }
+rt {
+  font-family: 'Noto Sans JP', 'Hiragino Sans', sans-serif;
+  font-size: 0.6875rem;
+  line-height: 0.875rem;
+  font-weight: 500;
+  color: rgb(var(--ink-subtle));
+  letter-spacing: 0.02em;
+}
+/* Hidden, not removed, so lines don't jump when furigana is toggled. */
+[data-furigana="off"] .lesson-example rt { visibility: hidden; }
+[data-romaji="off"] .lesson-romaji { display: none; }
+[data-english="off"] .lesson-english { display: none; }
+
+/* A sentence is bold in the source for the old layout; emphasis here comes from size. */
+.lesson-example strong { font-weight: inherit; }
+.lesson-prose strong { font-weight: 700; }

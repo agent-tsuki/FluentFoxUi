@@ -42,8 +42,8 @@ interface UnitStepTabsProps<S extends string> {
 
 /** A pill in the step row that acts at once (quiz popup, PDF download) rather than switching the content. */
 const ACTION_PILL = cn(
-  'inline-flex min-h-10 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full border border-outline-variant/60 px-2 text-xs font-semibold text-on-surface-variant transition-colors sm:flex-none sm:px-3.5 sm:text-sm',
-  'hover:border-outline hover:text-on-surface disabled:cursor-wait',
+  'inline-flex min-h-10 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full border border-line px-2 text-xs font-semibold text-ink-muted transition-colors sm:flex-none sm:px-3.5 sm:text-sm',
+  'hover:border-line-strong hover:text-ink disabled:cursor-wait',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-surface',
 )
 
@@ -111,7 +111,7 @@ export function UnitStepTabs<S extends string>({ idPrefix, label, tabs, initial,
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-surface',
                   selected
                     ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-outline-variant/60 text-on-surface-variant hover:border-outline hover:text-on-surface',
+                    : 'border-line text-ink-muted hover:border-line-strong hover:text-ink',
                 )}
               >
                 <Icon
@@ -172,7 +172,7 @@ export function UnitStepTabs<S extends string>({ idPrefix, label, tabs, initial,
       </div>
 
       <div role="tabpanel" id={panelId} aria-labelledby={tabId(current.id)} className="min-h-[7.5rem]">
-        <p className="mb-3 text-sm text-on-surface-variant">{current.hint}</p>
+        <p className="mb-3 text-sm text-ink-muted">{current.hint}</p>
         {current.render(setActive)}
       </div>
     </>

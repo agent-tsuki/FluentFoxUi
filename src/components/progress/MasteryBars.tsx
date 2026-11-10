@@ -8,7 +8,7 @@ import { formatShare } from '@/lib/learn/progressShape'
 /** Key for the five mastery colours; shared by every mastery bar. */
 export function MasteryLegend({ className }: { className?: string }) {
   return (
-    <ul aria-label="Mastery levels" className={cn('flex flex-wrap gap-x-4 gap-y-2 text-xs text-on-surface-variant', className)}>
+    <ul aria-label="Mastery levels" className={cn('flex flex-wrap gap-x-4 gap-y-2 text-xs text-ink-muted', className)}>
       {MASTERY_LEVELS.map((level) => (
         <li key={level} className="flex items-center gap-1.5" title={MASTERY_HINT[level]}>
           <span aria-hidden className={cn('h-2.5 w-2.5 rounded-full', MASTERY_TONE[level].fill)} />
@@ -26,26 +26,26 @@ export const TrackMasteryBar = memo(function TrackMasteryBar({ track }: { track:
   return (
     <div className="space-y-2">
       <div className="flex items-baseline justify-between gap-3">
-        <h3 className="font-headline text-base font-bold text-on-surface">{TRACK_LABEL[track.track]}</h3>
-        <p className="text-xs text-on-surface-variant tabular-nums">
-          <span className="font-semibold text-on-surface">{track.items_per_level.mastered}</span> of {track.total_items} mastered
+        <h3 className="font-display text-base font-bold text-ink">{TRACK_LABEL[track.track]}</h3>
+        <p className="text-xs text-ink-muted tabular-nums">
+          <span className="font-semibold text-ink">{track.items_per_level.mastered}</span> of {track.total_items} mastered
         </p>
       </div>
-      <div role="img" aria-label={`${TRACK_LABEL[track.track]}: ${summary}`} className="flex h-3 w-full overflow-hidden rounded-full bg-surface-container-high">
+      <div role="img" aria-label={`${TRACK_LABEL[track.track]}: ${summary}`} className="flex h-3 w-full overflow-hidden rounded-full bg-surface-hover">
         {segments.map((s) => (
           <span key={s.level} className={cn('h-full', MASTERY_TONE[s.level].fill)} style={{ width: `${s.pct}%` }} />
         ))}
       </div>
-      <dl className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-on-surface-variant tabular-nums">
+      <dl className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-muted tabular-nums">
         {MASTERY_LEVELS.map((level) => (
           <div key={level} className="flex gap-1">
             <dt className={MASTERY_TONE[level].text}>{MASTERY_LABEL[level]}</dt>
-            <dd className="font-semibold text-on-surface">{track.items_per_level[level]}</dd>
+            <dd className="font-semibold text-ink">{track.items_per_level[level]}</dd>
           </div>
         ))}
         <div className="flex gap-1">
           <dt>30-day recall</dt>
-          <dd className="font-semibold text-on-surface">{formatShare(track.retention_30d)}</dd>
+          <dd className="font-semibold text-ink">{formatShare(track.retention_30d)}</dd>
         </div>
       </dl>
     </div>

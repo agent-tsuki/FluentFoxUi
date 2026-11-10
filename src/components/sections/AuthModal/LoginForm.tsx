@@ -68,7 +68,7 @@ export function LoginForm({ onSuccess, onForgotPassword, values, onChange }: Log
         <p
           role={notice.tone === 'error' ? 'alert' : 'status'}
           className={cn(
-            'flex items-start gap-2 text-xs font-medium px-3 py-2.5 rounded-xl',
+            'flex items-start gap-2 text-xs font-medium px-3 py-2.5 rounded-md',
             notice.tone === 'error' ? 'text-error bg-error/10' : 'text-success bg-success/10',
           )}
         >
@@ -109,7 +109,7 @@ export function LoginForm({ onSuccess, onForgotPassword, values, onChange }: Log
         <button
           type="button"
           onClick={() => onForgotPassword(email.trim())}
-          className="text-xs text-primary font-bold uppercase tracking-wider hover:underline"
+          className="text-xs text-primary font-bold uppercase tracking-[0.12em] hover:underline"
         >
           Forgot password?
         </button>
@@ -124,7 +124,7 @@ export function LoginForm({ onSuccess, onForgotPassword, values, onChange }: Log
           type="submit"
           variant="primary"
           disabled={loading}
-          className="w-full py-4 font-headline disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
+          className="w-full py-4 font-display disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
         >
           {loading ? 'Signing In…' : 'Sign In'}
         </Button>

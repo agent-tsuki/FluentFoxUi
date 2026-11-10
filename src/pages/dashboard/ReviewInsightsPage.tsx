@@ -39,7 +39,7 @@ function ForecastBody({ forecast, windowDays }: { forecast: ProgressForecast; wi
     [forecast.days],
   )
   if (summary.total === 0) {
-    return <EmptyState icon="event_available" title="No reviews scheduled" description="Learn something new and its reviews appear here." className="rounded-xl bg-surface-container-low" />
+    return <EmptyState icon="event_available" title="No reviews scheduled" description="Learn something new and its reviews appear here." className="rounded-md bg-surface-sunken" />
   }
   return (
     <div className="space-y-6">
@@ -139,10 +139,10 @@ export function ReviewInsightsPage() {
       <Link
         to={reviewPath()}
         onClick={gateReview()}
-        className="flex items-center justify-between gap-4 rounded-xl bg-primary p-5 text-on-primary transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        className="flex items-center justify-between gap-4 rounded-md bg-primary p-5 text-on-primary transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       >
         <span>
-          <span className="block font-headline text-2xl font-extrabold tabular-nums">{dueNow} due now</span>
+          <span className="block font-display text-2xl font-extrabold tabular-nums">{dueNow} due now</span>
           <span className="block text-sm opacity-90">{dueNow > 0 ? 'Clear them to keep recall on target.' : 'All caught up. Nice!'}</span>
         </span>
         <span className="flex items-center gap-1 text-sm font-semibold">

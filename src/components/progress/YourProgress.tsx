@@ -21,7 +21,7 @@ export function YourProgress({ itemType, id, track }: YourProgressProps) {
   if (isLoading) {
     return (
       <LoadingState label="Loading your progress…">
-        <SkeletonBlock className="h-20 w-full rounded-xl" />
+        <SkeletonBlock className="h-20 w-full rounded-md" />
       </LoadingState>
     )
   }

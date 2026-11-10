@@ -17,7 +17,7 @@ interface ChipProps {
 }
 
 const TONES: Record<ChipTone, string> = {
-  neutral: 'bg-surface-container-high text-on-surface-variant',
+  neutral: 'bg-surface-hover text-ink-muted',
   primary: 'bg-primary/10 text-primary',
   success: 'bg-success/10 text-success',
   warning: 'bg-warning/10 text-warning',

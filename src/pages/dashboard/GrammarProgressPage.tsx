@@ -44,11 +44,11 @@ function GrammarBody({ chapters }: { chapters: GrammarChapterSummary[] }) {
       {next && (
         <Link
           to={chapterPath(OPEN_LEVEL, next.id)}
-          className="flex items-center justify-between gap-4 rounded-xl bg-primary/10 p-5 text-on-surface transition-colors hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="flex items-center justify-between gap-4 rounded-md bg-primary/10 p-5 text-ink transition-colors hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           <span>
-            <span className="block text-xs font-bold uppercase tracking-widest text-primary">{doneCount === 0 ? 'Start here' : 'Continue'}</span>
-            <span className="block font-headline text-lg font-bold">
+            <span className="block text-xs font-bold uppercase tracking-[0.12em] text-primary">{doneCount === 0 ? 'Start here' : 'Continue'}</span>
+            <span className="block font-display text-lg font-bold">
               Chapter {next.id} · {next.title}
             </span>
           </span>
@@ -82,22 +82,22 @@ function GrammarBody({ chapters }: { chapters: GrammarChapterSummary[] }) {
                 <Link
                   to={chapterPath(OPEN_LEVEL, c.id)}
                   className={cn(
-                    'flex min-h-14 items-center gap-3 rounded-lg border px-3 py-2 text-sm transition-colors hover:bg-surface-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-                    complete ? 'border-success/50 bg-success/10' : 'border-outline-variant/60',
+                    'flex min-h-14 items-center gap-3 rounded-sm border px-3 py-2 text-sm transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                    complete ? 'border-success/50 bg-success/10' : 'border-line',
                   )}
                 >
                   <span
                     className={cn(
                       'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold tabular-nums',
-                      complete ? 'bg-success text-surface' : 'bg-surface-container-high text-on-surface-variant',
+                      complete ? 'bg-success text-surface' : 'bg-surface-hover text-ink-muted',
                     )}
                   >
                     {complete ? <Icon name="check" className="text-base" /> : c.id}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block font-semibold text-on-surface">{c.title}</span>
+                    <span className="block font-semibold text-ink">{c.title}</span>
                     {(scores?.exerciseBest !== undefined || scores?.vocabBest !== undefined) && (
-                      <span className="block text-xs text-on-surface-variant">
+                      <span className="block text-xs text-ink-muted">
                         {[
                           scores.exerciseBest !== undefined && `Exercise ${scores.exerciseBest}%`,
                           scores.vocabBest !== undefined && `Vocab ${scores.vocabBest}%`,
@@ -116,7 +116,7 @@ function GrammarBody({ chapters }: { chapters: GrammarChapterSummary[] }) {
       </Panel>
 
       {!progress.enabled && (
-        <p className="flex items-center gap-2 text-xs text-on-surface-variant">
+        <p className="flex items-center gap-2 text-xs text-ink-muted">
           <Icon name="info" className="text-base" />
           Grammar progress is saved on this device until you sign in and verify your email.
         </p>

@@ -62,7 +62,7 @@ export function VideoEmbed({ youtubeId, playlistId, posterUrl, title, credit, on
 
   return (
     <figure className="w-full">
-      <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-surface-container-high shadow-elevation-1">
+      <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-surface-hover shadow-elevation-1">
         {playing ? (
           <iframe
             src={src}
@@ -93,7 +93,7 @@ export function VideoEmbed({ youtubeId, playlistId, posterUrl, title, credit, on
           </button>
         )}
       </div>
-      {credit && <figcaption className="mt-2 text-xs text-on-surface-variant">{credit}</figcaption>}
+      {credit && <figcaption className="mt-2 text-xs text-ink-muted">{credit}</figcaption>}
     </figure>
   )
 }

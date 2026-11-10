@@ -60,8 +60,8 @@ export function TypedAnswerInput({ id, typesKana, label, placeholder, correct, o
           enterKeyHint="done"
           placeholder={placeholder}
           className={cn(
-            'min-h-14 w-full min-w-0 flex-1 rounded-xl border-2 bg-surface-container-lowest px-4 text-lg text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-            !answered ? 'border-outline-variant/60' : correct ? 'border-success' : 'border-error',
+            'min-h-14 w-full min-w-0 flex-1 rounded-md border-2 bg-surface-raised px-4 text-lg text-ink placeholder:text-ink-subtle focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+            !answered ? 'border-line' : correct ? 'border-success' : 'border-error',
           )}
         />
         {!answered && (
@@ -70,7 +70,7 @@ export function TypedAnswerInput({ id, typesKana, label, placeholder, correct, o
           </Button>
         )}
       </div>
-      <p aria-live="polite" lang="ja" className="min-h-6 px-1 font-jp text-base text-on-surface-variant">
+      <p aria-live="polite" lang="ja" className="min-h-6 px-1 font-ja text-base text-ink-muted">
         {typesKana && preview && preview !== value ? preview : ''}
       </p>
     </form>

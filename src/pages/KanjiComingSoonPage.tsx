@@ -28,7 +28,7 @@ export function KanjiComingSoonPage({ level }: { level: KanjiLevelId }) {
         <header className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3 pb-5 pt-6 md:pt-10">
           <div>
             <Eyebrow>Kanji course</Eyebrow>
-            <h1 className="font-headline text-display-sm font-extrabold tracking-tight text-on-surface">{meta.title}</h1>
+            <h1 className="font-display text-display-sm font-extrabold tracking-tight text-ink">{meta.title}</h1>
           </div>
           <KanjiLevelSwitcher />
         </header>

@@ -20,7 +20,7 @@ export function SettingNumberField({ label, hint, value, min, max, step = 1, uni
   const describedBy = `${id}-hint`
   return (
     <div className="space-y-1.5">
-      <label htmlFor={id} className="block text-sm font-semibold text-on-surface font-body">
+      <label htmlFor={id} className="block text-sm font-semibold text-ink font-sans">
         {label}
       </label>
       <div className="flex items-center gap-2">
@@ -36,14 +36,14 @@ export function SettingNumberField({ label, hint, value, min, max, step = 1, uni
           aria-describedby={describedBy}
           onChange={(e) => onChange(e.target.value === '' ? Number.NaN : Number(e.target.value))}
           className={cn(
-            'w-28 min-h-11 rounded-xl border bg-surface-container-lowest px-3 py-2 text-base tabular-nums text-on-surface',
+            'w-28 min-h-11 rounded-md border bg-surface-raised px-3 py-2 text-base tabular-nums text-ink',
             'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-            error ? 'border-error' : 'border-outline-variant',
+            error ? 'border-error' : 'border-line',
           )}
         />
-        {unit && <span className="text-sm text-on-surface-variant font-body">{unit}</span>}
+        {unit && <span className="text-sm text-ink-muted font-sans">{unit}</span>}
       </div>
-      <p id={describedBy} className={cn('text-xs font-body', error ? 'text-error' : 'text-on-surface-variant')}>
+      <p id={describedBy} className={cn('text-xs font-sans', error ? 'text-error' : 'text-ink-muted')}>
         {error ?? `${hint} (${min}–${max})`}
       </p>
     </div>

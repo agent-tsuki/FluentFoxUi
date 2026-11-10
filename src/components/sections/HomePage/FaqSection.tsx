@@ -16,7 +16,7 @@ export function FaqSection() {
       <FadeIn>
         <h2
           id="faq-title"
-          className="text-center font-headline text-display-md font-extrabold leading-[1.08] tracking-[-0.035em] text-on-surface"
+          className="text-center font-display text-display-md font-extrabold leading-[1.08] tracking-[-0.035em] text-ink"
         >
           {FAQ_COPY.title}
         </h2>
@@ -26,9 +26,9 @@ export function FaqSection() {
         {FAQ_COPY.items.map((item) => (
           <details
             key={item.id}
-            className="group rounded-2xl border border-outline-variant bg-surface-container-lowest px-6"
+            className="group rounded-xl border border-line bg-surface-raised px-6"
           >
-            <summary className="-mx-6 flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 rounded-2xl px-6 py-3 font-headline text-lg font-bold text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary [&::-webkit-details-marker]:hidden">
+            <summary className="-mx-6 flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 rounded-xl px-6 py-3 font-display text-lg font-bold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary [&::-webkit-details-marker]:hidden">
               {item.question}
               <span
                 aria-hidden="true"
@@ -37,7 +37,7 @@ export function FaqSection() {
                 +
               </span>
             </summary>
-            <p className="mb-5 max-w-prose font-body text-base leading-relaxed text-on-surface-variant">
+            <p className="mb-5 max-w-prose font-sans text-base leading-relaxed text-ink-muted">
               {item.answer}
             </p>
           </details>

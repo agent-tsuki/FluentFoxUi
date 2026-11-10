@@ -130,18 +130,18 @@ const Prompt = forwardRef<HTMLHeadingElement, PromptProps>(function Prompt({ que
   const { kind, target } = question
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-3 py-4 text-center">
-      <h2 ref={ref} tabIndex={-1} className="text-sm font-semibold text-on-surface-variant focus:outline-none">
+      <h2 ref={ref} tabIndex={-1} className="text-sm font-semibold text-ink-muted focus:outline-none">
         <span className="sr-only">Question {number} of {total}. </span>
         {ASK[kind]}
         {(kind === 'meaning' || kind === 'reading') && <span className="sr-only"> {target.char}</span>}
       </h2>
       {(kind === 'meaning' || kind === 'reading') && (
-        <p lang="ja" aria-hidden="true" className="font-jp text-8xl font-bold leading-none text-on-surface sm:text-9xl">
+        <p lang="ja" aria-hidden="true" className="font-ja text-8xl font-bold leading-none text-ink sm:text-9xl">
           {target.char}
         </p>
       )}
       {kind === 'kanji' && (
-        <p className="font-headline text-4xl font-extrabold text-primary sm:text-5xl">“{target.meanings[0]}”</p>
+        <p className="font-display text-4xl font-extrabold text-primary sm:text-5xl">“{target.meanings[0]}”</p>
       )}
       {kind === 'listen' && (
         <>
@@ -153,7 +153,7 @@ const Prompt = forwardRef<HTMLHeadingElement, PromptProps>(function Prompt({ que
           >
             <Icon name="volume_up" className="text-5xl" />
           </button>
-          <p className="text-xs text-on-surface-variant">
+          <p className="text-xs text-ink-muted">
             Tap to hear it again<span className="hidden sm:inline"> · press R</span>
           </p>
         </>
@@ -164,7 +164,7 @@ const Prompt = forwardRef<HTMLHeadingElement, PromptProps>(function Prompt({ que
 
 function AnswerModeToggle({ mode, onChange }: { mode: KanjiAnswerMode; onChange: (mode: KanjiAnswerMode) => void }) {
   return (
-    <div role="radiogroup" aria-label="Answer by" className="mx-auto mb-3 inline-flex self-center rounded-full border border-outline-variant/60 p-0.5">
+    <div role="radiogroup" aria-label="Answer by" className="mx-auto mb-3 inline-flex self-center rounded-full border border-line p-0.5">
       {(['typed', 'choice'] as const).map((m) => (
         <button
           key={m}
@@ -174,7 +174,7 @@ function AnswerModeToggle({ mode, onChange }: { mode: KanjiAnswerMode; onChange:
           onClick={() => onChange(m)}
           className={cn(
             'min-h-9 rounded-full px-4 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-            mode === m ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:text-on-surface',
+            mode === m ? 'bg-primary/10 text-primary' : 'text-ink-muted hover:text-ink',
           )}
         >
           {m === 'typed' ? 'Type it' : 'Choose'}
@@ -192,16 +192,16 @@ function Feedback({ answer }: { answer?: KanjiAnswer }) {
   const key = target.vocab.find((v) => v.isKey) ?? target.vocab[0]
   return (
     <div role="status" className="mb-3 text-center">
-      <p className={cn('flex items-center justify-center gap-1.5 font-bold', correct ? 'text-success' : 'text-on-surface')}>
+      <p className={cn('flex items-center justify-center gap-1.5 font-bold', correct ? 'text-success' : 'text-ink')}>
         <Icon name={correct ? 'check_circle' : 'close'} filled={correct} className="text-xl" />
         {correct ? (alternative ? 'Correct — we were after ' : 'Correct! ') : 'Not quite. It’s '}
-        <span lang={question.kind === 'reading' ? 'ja' : undefined} className={question.kind === 'reading' ? 'font-jp' : undefined}>
+        <span lang={question.kind === 'reading' ? 'ja' : undefined} className={question.kind === 'reading' ? 'font-ja' : undefined}>
           {question.kind === 'kanji' || question.kind === 'listen' ? target.char : question.answer}
         </span>
       </p>
       {key && (
-        <p className="mt-0.5 text-sm text-on-surface-variant">
-          <span lang="ja" className="font-jp">
+        <p className="mt-0.5 text-sm text-ink-muted">
+          <span lang="ja" className="font-ja">
             {key.word}（{key.reading}）
           </span>{' '}
           {key.meaning}
@@ -212,10 +212,10 @@ function Feedback({ answer }: { answer?: KanjiAnswer }) {
 }
 
 const OPTION_STATE = {
-  idle: 'border-outline-variant/60 bg-surface-container-lowest text-on-surface hover:border-primary/60 hover:bg-surface-container-low',
-  correct: 'border-success bg-success/15 text-on-surface',
+  idle: 'border-line bg-surface-raised text-ink hover:border-primary/60 hover:bg-surface-hover',
+  correct: 'border-success bg-success/15 text-ink',
   wrong: 'border-error bg-error-container text-on-error-container',
-  muted: 'border-outline-variant/40 bg-surface-container-lowest text-on-surface opacity-50',
+  muted: 'border-line bg-surface-raised text-ink opacity-50',
 } as const
 
 function ChoiceGrid({ question, answer, onPick }: { question: KanjiQuestion; answer?: KanjiAnswer; onPick: (o: string) => void }) {
@@ -237,18 +237,18 @@ function ChoiceGrid({ question, answer, onPick }: { question: KanjiQuestion; ans
             aria-disabled={answer ? true : undefined}
             onClick={() => !answer && onPick(o)}
             className={cn(
-              'relative flex min-h-20 w-full items-center justify-center rounded-2xl border-2 px-3 py-2 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface motion-reduce:transition-none sm:min-h-24',
+              'relative flex min-h-20 w-full items-center justify-center rounded-xl border-2 px-3 py-2 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface motion-reduce:transition-none sm:min-h-24',
               OPTION_STATE[state],
               answer && 'cursor-default',
             )}
           >
-            <span className="absolute left-3 top-2 hidden font-label text-xs font-bold text-on-surface-variant sm:block" aria-hidden>
+            <span className="absolute left-3 top-2 hidden font-sans text-xs font-bold text-ink-muted sm:block" aria-hidden>
               {i + 1}
             </span>
             <span
               lang={isKanji || isReading ? 'ja' : undefined}
               className={cn(
-                isKanji ? 'font-jp text-5xl font-bold leading-none' : isReading ? 'font-jp text-2xl font-bold sm:text-3xl' : 'text-base font-bold sm:text-lg',
+                isKanji ? 'font-ja text-5xl font-bold leading-none' : isReading ? 'font-ja text-2xl font-bold sm:text-3xl' : 'text-base font-bold sm:text-lg',
               )}
             >
               {o}
@@ -310,8 +310,8 @@ function TypedAnswer({ question, answer, onInput, onSubmit }: TypedAnswerProps) 
           enterKeyHint="done"
           placeholder={isReading ? 'Type a reading (romaji is fine)' : 'Type the meaning'}
           className={cn(
-            'min-h-14 w-full min-w-0 flex-1 rounded-xl border-2 bg-surface-container-lowest px-4 text-lg text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-            !answer ? 'border-outline-variant/60' : answer.correct ? 'border-success' : 'border-error',
+            'min-h-14 w-full min-w-0 flex-1 rounded-md border-2 bg-surface-raised px-4 text-lg text-ink placeholder:text-ink-subtle focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+            !answer ? 'border-line' : answer.correct ? 'border-success' : 'border-error',
           )}
         />
         {!answer && (
@@ -320,7 +320,7 @@ function TypedAnswer({ question, answer, onInput, onSubmit }: TypedAnswerProps) 
           </Button>
         )}
       </div>
-      <p aria-live="polite" lang="ja" className="min-h-6 px-1 font-jp text-base text-on-surface-variant">
+      <p aria-live="polite" lang="ja" className="min-h-6 px-1 font-ja text-base text-ink-muted">
         {isReading && preview && preview !== value ? preview : ''}
       </p>
     </form>

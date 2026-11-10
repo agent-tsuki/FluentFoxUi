@@ -71,8 +71,8 @@ export function InvitePage() {
         <span aria-hidden className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
           <Icon name="mail" className="text-2xl text-primary" />
         </span>
-        <h1 className="font-headline text-2xl font-extrabold text-on-surface">You&apos;re invited to teach on FoxSensei</h1>
-        <p className="text-sm text-on-surface-variant">Accept to manage your channel&apos;s profile and courses.</p>
+        <h1 className="font-display text-2xl font-extrabold text-ink">You&apos;re invited to teach on FoxSensei</h1>
+        <p className="text-sm text-ink-muted">Accept to manage your channel&apos;s profile and courses.</p>
       </header>
       <InviteSummary preview={invite} />
 
@@ -90,7 +90,7 @@ export function InvitePage() {
       ) : (
         <div className="space-y-3">
           {failure?.kind === 'other' && <StatusMessage tone="error" message={failure.message} />}
-          <p className="text-sm text-on-surface-variant">Signed in as <span className="font-semibold text-on-surface">{user.email}</span></p>
+          <p className="text-sm text-ink-muted">Signed in as <span className="font-semibold text-ink">{user.email}</span></p>
           <Button type="button" className="min-h-11 w-full text-sm" disabled={accepting} onClick={() => void accept()}>
             {accepting ? 'Accepting…' : 'Accept invite'}
           </Button>

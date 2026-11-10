@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useId, useState, type FormEvent } from 'react'
 import { PracticeShell } from '@/components/practice/PracticeShell'
+import { AnswerOption } from '@/components/ui/AnswerOption'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { TextInput } from '@/components/ui/FormField'
@@ -21,14 +22,16 @@ interface TestRunnerProps {
   onAnswer?: (question: TestQuestion, given: string, timer: AnswerTimerControls) => void
   /** The leave prompt's last line. */
   leaveNote?: string
+  /** Stop after a right answer too, so its explanation can be read. */
+  pauseOnRight?: boolean
 }
 
 /**
  * Asks a practice test one question at a time, in whatever form each question
- * takes: options (keys 1–4), a dropdown inside the sentence, a text box, or
+ * takes: full-width options (keys 1–4), a dropdown inside the sentence, a text box, or
  * word tiles to put in order. After each answer it says right or wrong with a one-line why.
  */
-export function TestRunner({ title, questions, onFinish, onExit, onAnswer, leaveNote = 'Practice tests aren’t saved.' }: TestRunnerProps) {
+export function TestRunner({ title, questions, onFinish, onExit, onAnswer, leaveNote = 'Practice tests aren’t saved.', pauseOnRight = false }: TestRunnerProps) {
   const [answers, setAnswers] = useState<TestAnswer[]>([])
   const [current, setCurrent] = useState<TestAnswer | null>(null)
   const [leaving, setLeaving] = useState(false)
@@ -46,10 +49,10 @@ export function TestRunner({ title, questions, onFinish, onExit, onAnswer, leave
 
   // A right answer moves on by itself.
   useEffect(() => {
-    if (!current?.correct || leaving) return
+    if (!current?.correct || leaving || pauseOnRight) return
     const timer = window.setTimeout(next, NEXT_AFTER_RIGHT_MS)
     return () => window.clearTimeout(timer)
-  }, [current, next, leaving])
+  }, [current, next, leaving, pauseOnRight])
 
   const answer = (given: string) => {
     if (current || !question) return
@@ -65,7 +68,7 @@ export function TestRunner({ title, questions, onFinish, onExit, onAnswer, leave
   return (
     <PracticeShell title={title} progress={(index + (current ? 1 : 0)) / questions.length} status={`${index + 1} / ${questions.length}`} onExit={exit}>
       <div className="relative flex flex-1 flex-col pt-6 sm:pt-10">
-        <p className="text-center text-sm font-medium text-on-surface-variant">{question.instruction}</p>
+        <p className="text-center text-sm font-medium text-ink-muted">{question.instruction}</p>
 
         {question.kind === 'choice' && <ChoiceView key={question.id} question={question} result={current} onAnswer={answer} />}
         {question.kind === 'select' && <SelectView key={question.id} question={question} result={current} onAnswer={answer} />}
@@ -73,7 +76,7 @@ export function TestRunner({ title, questions, onFinish, onExit, onAnswer, leave
         {question.kind === 'tiles' && <TilesView key={question.id} question={question} result={current} onAnswer={answer} />}
 
         <div className="mt-auto pt-6" aria-live="polite">
-          {current && <Feedback result={current} onContinue={next} last={index + 1 >= questions.length} />}
+          {current && <Feedback result={current} onContinue={next} last={index + 1 >= questions.length} waits={!current.correct || pauseOnRight} />}
         </div>
 
         {leaving && (
@@ -81,12 +84,12 @@ export function TestRunner({ title, questions, onFinish, onExit, onAnswer, leave
             <div
               role="alertdialog"
               aria-labelledby="leave-test-title"
-              className="w-full max-w-sm rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-5 text-center shadow-elevation-2 dark:bg-surface-container-low"
+              className="w-full max-w-sm rounded-xl border border-line bg-surface-raised p-5 text-center shadow-elevation-2"
             >
-              <h2 id="leave-test-title" className="font-headline text-lg font-bold text-on-surface">
+              <h2 id="leave-test-title" className="font-display text-lg font-bold text-ink">
                 Leave this test?
               </h2>
-              <p className="mt-1 text-sm text-on-surface-variant">
+              <p className="mt-1 text-sm text-ink-muted">
                 You’ve answered {answers.length + (current ? 1 : 0)} of {questions.length}. {leaveNote}
               </p>
               <div className="mt-5 flex flex-col gap-2 sm:flex-row-reverse">
@@ -120,53 +123,22 @@ function ChoiceView({ question, result, onAnswer }: { question: ChoiceQuestion; 
     return () => window.removeEventListener('keydown', onKey)
   }, [question.options, result, onAnswer])
 
-  const long = question.options.some((o) => o.length > 18)
   return (
     <>
       <Prompt question={question} />
-      <div className={cn('grid gap-3', long ? 'grid-cols-1' : 'grid-cols-2')}>
-        {question.options.map((option, i) => {
-          const state = !result ? 'idle' : option === question.answer ? 'right' : option === result.given ? 'wrong' : 'muted'
-          return (
-            <button
-              key={option}
-              type="button"
-              aria-disabled={result ? true : undefined}
-              onClick={() => !result && onAnswer(option)}
-              className={cn(
-                'relative flex min-h-16 items-center justify-center rounded-2xl border-2 px-4 py-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface sm:min-h-20',
-                state === 'idle' &&
-                  'border-outline-variant/60 bg-surface-container-lowest text-on-surface hover:border-primary/60 hover:bg-surface-container-low',
-                state === 'right' && 'border-success bg-success/15 text-on-surface',
-                state === 'wrong' && 'border-error bg-error-container text-on-error-container',
-                state === 'muted' && 'border-outline-variant/40 bg-surface-container-lowest text-on-surface opacity-50',
-                result && 'cursor-default',
-              )}
-            >
-              <span aria-hidden className="absolute left-3 top-2 hidden text-xs font-bold text-on-surface-variant sm:block">
-                {i + 1}
-              </span>
-              <span
-                lang={question.optionsJa ? 'ja' : undefined}
-                className={cn(
-                  'font-semibold',
-                  question.optionsJa
-                    ? cn('font-jp', option.length <= 2 ? 'text-3xl sm:text-4xl' : 'text-xl sm:text-2xl')
-                    : long
-                      ? 'text-base'
-                      : 'text-lg sm:text-xl',
-                )}
-              >
-                {option}
-              </span>
-              {state === 'right' && <Icon name="check_circle" filled className="absolute right-2 top-2 text-xl text-success" />}
-              {state === 'wrong' && <Icon name="close" className="absolute right-2 top-2 text-xl" />}
-              {state === 'right' && <span className="sr-only">, correct answer</span>}
-              {state === 'wrong' && <span className="sr-only">, your answer, wrong</span>}
-            </button>
-          )
-        })}
-      </div>
+      <ul className="mx-auto grid w-full max-w-xl gap-2">
+        {question.options.map((option, i) => (
+          <li key={option}>
+            <AnswerOption
+              index={i}
+              label={option}
+              ja={question.optionsJa}
+              state={!result ? 'idle' : option === question.answer ? 'correct' : option === result.given ? 'wrong' : 'muted'}
+              onSelect={() => onAnswer(option)}
+            />
+          </li>
+        ))}
+      </ul>
     </>
   )
 }
@@ -184,8 +156,8 @@ function SelectView({ question, result, onAnswer }: { question: SelectQuestion; 
   const slot = result ? (
     <span
       className={cn(
-        'mx-1 inline-block rounded-lg border-2 px-2 align-baseline leading-normal',
-        result.correct ? 'border-success bg-success/15 text-on-surface' : 'border-error bg-error-container text-on-error-container line-through',
+        'mx-1 inline-block rounded-sm border-2 px-2 align-baseline leading-normal',
+        result.correct ? 'border-success bg-success-soft text-success-ink' : 'border-danger bg-danger-soft text-danger-ink line-through',
       )}
     >
       {result.given}
@@ -200,7 +172,7 @@ function SelectView({ question, result, onAnswer }: { question: SelectQuestion; 
         value={picked}
         onChange={(e) => setPicked(e.target.value)}
         autoFocus
-        className="cursor-pointer appearance-none rounded-lg border-2 border-primary/60 bg-primary/5 py-0 pl-3 pr-8 font-jp text-[0.85em] font-semibold leading-normal text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+        className="cursor-pointer appearance-none rounded-sm border-2 border-primary/60 bg-primary/5 py-0 pl-3 pr-8 font-ja text-[0.85em] font-semibold leading-normal text-primary focus:outline-none focus:ring-2 focus:ring-primary"
       >
         <option value="" disabled>
           ？
@@ -259,7 +231,7 @@ function TextView({ question, result, onAnswer }: { question: TextQuestion; resu
           autoCorrect="off"
           spellCheck={false}
           enterKeyHint="done"
-          className={cn('text-center text-lg', result && (result.correct ? 'ring-2 ring-success' : 'ring-2 ring-error'))}
+          className={cn('text-center text-lg', result && (result.correct ? 'ring-2 ring-success' : 'ring-2 ring-danger'))}
         />
         {!result && (
           <Button type="submit" disabled={!typed.trim()} className="flex items-center justify-center gap-2 disabled:pointer-events-none disabled:opacity-50">
@@ -273,7 +245,7 @@ function TextView({ question, result, onAnswer }: { question: TextQuestion; resu
 
 // ─── Word tiles ──────────────────────────────────────────────────────────────
 
-const TILE = 'min-h-11 rounded-xl border-2 px-3 py-1.5 font-jp text-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
+const TILE = 'min-h-11 rounded-md border-2 px-3 py-1.5 font-ja text-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
 
 function TilesView({ question, result, onAnswer }: { question: TilesQuestion; result: TestAnswer | null; onAnswer: (given: string) => void }) {
   /** Positions in `question.tiles`, in the order tapped (the same word can appear twice). */
@@ -288,9 +260,9 @@ function TilesView({ question, result, onAnswer }: { question: TilesQuestion; re
         lang="ja"
         aria-label="Your sentence"
         className={cn(
-          'mx-auto flex min-h-16 max-w-md flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-3',
-          !result && 'border-outline-variant/60',
-          result && (result.correct ? 'border-success bg-success/10' : 'border-error bg-error/10'),
+          'mx-auto flex min-h-16 max-w-md flex-wrap items-center justify-center gap-2 rounded-xl border-2 border-dashed p-3',
+          !result && 'border-line',
+          result && (result.correct ? 'border-success bg-success-soft' : 'border-danger bg-danger-soft'),
         )}
       >
         {order.map((tile, at) => (
@@ -302,7 +274,7 @@ function TilesView({ question, result, onAnswer }: { question: TilesQuestion; re
       <div lang="ja" className="mx-auto mt-4 flex max-w-md flex-wrap justify-center gap-2">
         {question.tiles.map((word, tile) =>
           order.includes(tile) ? null : (
-            <button key={tile} type="button" aria-disabled={result ? true : undefined} onClick={() => add(tile)} className={cn(TILE, 'border-outline-variant/60 bg-surface-container-lowest text-on-surface hover:border-primary/60')}>
+            <button key={tile} type="button" aria-disabled={result ? true : undefined} onClick={() => add(tile)} className={cn(TILE, 'border-line bg-surface-raised text-ink hover:border-primary/60')}>
               {word}
             </button>
           ),
@@ -323,33 +295,33 @@ function TilesView({ question, result, onAnswer }: { question: TilesQuestion; re
 
 // ─── Feedback ────────────────────────────────────────────────────────────────
 
-function Feedback({ result, onContinue, last }: { result: TestAnswer; onContinue: () => void; last: boolean }) {
+function Feedback({ result, onContinue, last, waits }: { result: TestAnswer; onContinue: () => void; last: boolean; waits: boolean }) {
   const { question } = result
   const showAnswer = !result.correct || question.kind === 'text' || question.kind === 'tiles'
   return (
-    <div className={cn('rounded-2xl border p-4', result.correct ? 'border-success/40 bg-success/10' : 'border-error/40 bg-error/10')}>
+    <div className={cn('rounded-lg p-4', result.correct ? 'bg-success-soft' : 'bg-danger-soft')}>
       <div className="flex items-start gap-3">
         <Icon
           name={result.correct ? 'check_circle' : 'error'}
           filled
-          className={cn('mt-0.5 shrink-0 text-2xl', result.correct ? 'text-success' : 'text-error')}
+          className={cn('mt-0.5 shrink-0 text-2xl', result.correct ? 'text-success' : 'text-danger')}
         />
         <div className="min-w-0 flex-1 text-sm">
-          <p className="font-bold text-on-surface">{result.correct ? 'Correct' : 'Not quite'}</p>
+          <p className="font-bold text-ink">{result.correct ? 'Correct' : 'Not quite'}</p>
           {showAnswer && (
-            <p className="mt-0.5 text-on-surface">
+            <p className="mt-0.5 text-ink">
               Answer:{' '}
-              <span lang={hasJapanese(question.answer) ? 'ja' : undefined} className={cn('font-semibold', hasJapanese(question.answer) && 'font-jp')}>
+              <span lang={hasJapanese(question.answer) ? 'ja' : undefined} className={cn('font-semibold', hasJapanese(question.answer) && 'font-ja')}>
                 {question.answer}
               </span>
             </p>
           )}
-          {question.explanation && <p className="mt-1 text-on-surface-variant">{question.explanation}</p>}
+          {question.explanation && <p className="mt-1 text-ink-muted">{question.explanation}</p>}
         </div>
       </div>
-      {!result.correct && (
+      {waits && (
         <Button autoFocus onClick={onContinue} className="mt-4 flex w-full items-center justify-center gap-2">
-          {last ? 'See results' : 'Continue'}
+          {last ? 'See results' : 'Next question'}
           <Icon name="arrow_forward" className="text-lg" />
         </Button>
       )}

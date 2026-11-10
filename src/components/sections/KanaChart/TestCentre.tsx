@@ -28,9 +28,9 @@ export function TestCentre({ kanaById, className }: TestCentreProps) {
         const headingId = `quizzes-${group.id}`
         return (
           <section key={group.id} aria-labelledby={headingId}>
-            <h3 id={headingId} className="mb-2 flex items-baseline gap-2 text-sm font-semibold text-on-surface">
+            <h3 id={headingId} className="mb-2 flex items-baseline gap-2 text-sm font-semibold text-ink">
               {group.title}
-              <span className="text-xs font-normal tabular-nums text-on-surface-variant">
+              <span className="text-xs font-normal tabular-nums text-ink-muted">
                 {groupUnits.length} {groupUnits.length === 1 ? 'unit' : 'units'}
               </span>
             </h3>
@@ -52,7 +52,7 @@ export function TestCentre({ kanaById, className }: TestCentreProps) {
                       }
                       detail={
                         <>
-                          <span lang="ja" className="font-jp">
+                          <span lang="ja" className="font-ja-display">
                             {preview.text}
                             {preview.truncated && '…'}
                           </span>

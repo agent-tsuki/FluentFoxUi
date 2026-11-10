@@ -62,7 +62,7 @@ export function NewChannelPage() {
       <div aria-live="polite">
         <StatusMessage tone="error" message={action.error} />
       </div>
-      <form noValidate onSubmit={e => void onSubmit(e)} className="max-w-2xl space-y-5 rounded-2xl border border-outline-variant/50 bg-surface-container-low p-5 sm:p-6">
+      <form noValidate onSubmit={e => void onSubmit(e)} className="max-w-2xl space-y-5 rounded-xl border border-line bg-surface-sunken p-5 sm:p-6">
         <FormField label="YouTube channel link" htmlFor="channel-link" hint={linkError || 'A link to the channel, not to a video or playlist.'}>
           <TextInput
             id="channel-link"

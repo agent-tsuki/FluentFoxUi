@@ -22,7 +22,7 @@ export function JaText({ text, jaClassName }: JaTextProps) {
       {parts.map((part, i) =>
         // split() with a capture group puts the matches at odd indexes.
         i % 2 === 1 ? (
-          <span key={i} lang="ja" className={cn('font-jp', jaClassName)}>
+          <span key={i} lang="ja" className={cn('font-ja', jaClassName)}>
             {part}
           </span>
         ) : (

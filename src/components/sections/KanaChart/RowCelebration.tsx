@@ -48,7 +48,7 @@ export function RowCelebration({ message, onDismiss }: RowCelebrationProps) {
           <motion.div
             key="row-celebration"
             onClick={onDismiss}
-            className="fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-50 mx-auto flex max-w-sm cursor-pointer items-center gap-3 rounded-2xl border border-primary/30 bg-surface-container-lowest p-3 pr-2 text-left shadow-elevation-3"
+            className="fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-50 mx-auto flex max-w-sm cursor-pointer items-center gap-3 rounded-xl border border-primary/30 bg-surface-raised p-3 pr-2 text-left shadow-elevation-3"
             initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0, transition: { duration: durations.enter, ease: easings.out } }}
             exit={{ opacity: 0, transition: { duration: durations.exit } }}
@@ -64,7 +64,7 @@ export function RowCelebration({ message, onDismiss }: RowCelebrationProps) {
                 </Suspense>
               </span>
             )}
-            <p aria-hidden className="flex-1 font-headline text-base font-bold text-on-surface">{message}</p>
+            <p aria-hidden className="flex-1 font-display text-base font-bold text-ink">{message}</p>
             <CloseButton onClick={onDismiss} aria-label="Dismiss celebration" />
           </motion.div>
         )}

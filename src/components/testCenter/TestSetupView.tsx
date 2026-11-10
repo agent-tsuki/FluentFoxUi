@@ -78,7 +78,7 @@ export function TestSetupView({ onStart }: TestSetupViewProps) {
             {kinds.map((k) => (
               <span
                 key={k}
-                className="inline-flex items-center gap-1 rounded-full bg-surface-container-high px-2 py-0.5 text-xs font-semibold text-on-surface-variant"
+                className="inline-flex items-center gap-1 rounded-full bg-surface-hover px-2 py-0.5 text-xs font-semibold text-ink-muted"
               >
                 <Icon name={ANSWER_LABEL[k].icon} className="text-sm" />
                 {ANSWER_LABEL[k].label}
@@ -92,7 +92,7 @@ export function TestSetupView({ onStart }: TestSetupViewProps) {
       <SummaryRow label="Questions">
         {preview.length}
         {preview.length > 0 && preview.length < setup.count && (
-          <span className="font-normal text-on-surface-variant"> (all there are)</span>
+          <span className="font-normal text-ink-muted"> (all there are)</span>
         )}
       </SummaryRow>
       <SummaryRow label="Time">{preview.length ? `about ${minutes} min` : '—'}</SummaryRow>
@@ -118,8 +118,8 @@ export function TestSetupView({ onStart }: TestSetupViewProps) {
             <Icon name="bolt" className="text-base" />
             Practice tests
           </span>
-          <h1 className="mt-3 font-headline text-3xl font-extrabold tracking-tight text-on-surface sm:text-5xl">Test yourself</h1>
-          <p className="mt-2 text-sm text-on-surface-variant sm:text-base">
+          <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-5xl">Test yourself</h1>
+          <p className="mt-2 text-sm text-ink-muted sm:text-base">
             Choose a subject and how to answer, then start. Ungraded and just for practice.
           </p>
         </header>
@@ -127,7 +127,7 @@ export function TestSetupView({ onStart }: TestSetupViewProps) {
         <ReviewsStrip className="mb-6" />
 
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_19rem] xl:grid-cols-[minmax(0,1fr)_21rem]">
-          <div className="min-w-0 space-y-6 rounded-3xl border border-outline-variant/60 bg-surface-container-lowest/90 p-4 shadow-elevation-2 backdrop-blur-md dark:border-outline/60 dark:bg-surface-container-low/90 sm:p-6">
+          <div className="min-w-0 space-y-6 rounded-3xl border border-line bg-surface-raised/90 p-4 shadow-elevation-2 backdrop-blur-md/90 sm:p-6">
             <SetupSection icon="grid_view" title="Subject" hint="What you want to practise">
               <SubjectPicker value={setup.subject} onChange={setSubject} />
             </SetupSection>
@@ -147,7 +147,7 @@ export function TestSetupView({ onStart }: TestSetupViewProps) {
                     label: l.native ? (
                       <>
                         {l.label}
-                        <span lang="ja" className="font-jp text-xs font-medium opacity-80">
+                        <span lang="ja" className="font-ja text-xs font-medium opacity-80">
                           {l.native}
                         </span>
                       </>
@@ -182,7 +182,7 @@ export function TestSetupView({ onStart }: TestSetupViewProps) {
                     aria-expanded={scopeOpen}
                     aria-controls="test-scope"
                     onClick={() => setScopeOpen((o) => !o)}
-                    className="inline-flex min-h-9 shrink-0 items-center gap-1 rounded-lg px-2 text-sm font-semibold text-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    className="inline-flex min-h-9 shrink-0 items-center gap-1 rounded-sm px-2 text-sm font-semibold text-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   >
                     {scopeOpen ? 'Done' : 'Change'}
                     <Icon name={scopeOpen ? 'expand_less' : 'expand_more'} className="text-lg" />
@@ -192,7 +192,7 @@ export function TestSetupView({ onStart }: TestSetupViewProps) {
             >
               {source.isLoading || (!source.data && !source.error) ? (
                 <LoadingState label="Loading…">
-                  <SkeletonBlock className="h-11 w-full rounded-xl" />
+                  <SkeletonBlock className="h-11 w-full rounded-md" />
                 </LoadingState>
               ) : source.error || !source.data ? (
                 <ErrorState message="We couldn't load this subject." onRetry={source.refetch} />
@@ -202,12 +202,12 @@ export function TestSetupView({ onStart }: TestSetupViewProps) {
                     <button
                       type="button"
                       onClick={() => setScopeOpen(true)}
-                      className="flex w-full items-center gap-3 rounded-xl bg-surface-container-low px-3 py-2.5 text-left text-sm hover:bg-surface-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:bg-surface-container"
+                      className="flex w-full items-center gap-3 rounded-md bg-surface-sunken px-3 py-2.5 text-left text-sm hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:bg-surface-sunken"
                     >
-                      <span className="shrink-0 font-semibold text-on-surface">
+                      <span className="shrink-0 font-semibold text-ink">
                         {covered.length} {covered.length === 1 ? subject.scopeNoun.one : subject.scopeNoun.many}
                       </span>
-                      <span lang={setup.subject === 'kana' ? 'ja' : undefined} className="min-w-0 flex-1 truncate text-on-surface-variant">
+                      <span lang={setup.subject === 'kana' ? 'ja' : undefined} className="min-w-0 flex-1 truncate text-ink-muted">
                         {scopeLine}
                       </span>
                       <span className="sr-only">, change</span>
@@ -230,16 +230,16 @@ export function TestSetupView({ onStart }: TestSetupViewProps) {
           {/* Desktop: a summary that stays in view. */}
           <aside aria-label="Your test" className="hidden lg:block">
             <div className="sticky top-[calc(theme(spacing.nav)+1.5rem)] space-y-4">
-              <div className="rounded-3xl border border-outline-variant/60 bg-surface-container-lowest/90 p-5 shadow-elevation-2 backdrop-blur-md dark:border-outline/60 dark:bg-surface-container-low/90">
+              <div className="rounded-3xl border border-line bg-surface-raised/90 p-5 shadow-elevation-2 backdrop-blur-md/90">
                 <div className="mb-4 flex items-center gap-3">
                   <span
                     aria-hidden
                     lang="ja"
-                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 font-jp text-xl font-bold text-primary"
+                    className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 font-ja text-xl font-bold text-primary"
                   >
                     {subject.glyph}
                   </span>
-                  <h2 className="font-headline text-lg font-bold text-on-surface">Your test</h2>
+                  <h2 className="font-display text-lg font-bold text-ink">Your test</h2>
                 </div>
                 {summary}
                 <Button
@@ -250,9 +250,9 @@ export function TestSetupView({ onStart }: TestSetupViewProps) {
                   Start test
                   <Icon name="arrow_forward" className="text-xl" />
                 </Button>
-                {blocked && <p className="mt-2 text-center text-xs text-on-surface-variant">{blocked}</p>}
+                {blocked && <p className="mt-2 text-center text-xs text-ink-muted">{blocked}</p>}
               </div>
-              <p className="flex gap-2 rounded-2xl bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant dark:bg-surface-container">
+              <p className="flex gap-2 rounded-xl bg-surface-sunken px-4 py-3 text-sm text-ink-muted dark:bg-surface-sunken">
                 <Icon name="tips_and_updates" className="shrink-0 text-lg text-primary" />
                 Short tests often beat one long one. Retry what you missed straight after.
               </p>
@@ -262,13 +262,13 @@ export function TestSetupView({ onStart }: TestSetupViewProps) {
       </div>
 
       {/* Phones and tablets: the essentials and Start, pinned to the bottom. */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-outline-variant/60 bg-surface/95 px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3 backdrop-blur lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/95 px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3 backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-xl items-center gap-3">
           <p className="min-w-0 flex-1 text-sm">
-            <span className="block truncate font-semibold text-on-surface">
+            <span className="block truncate font-semibold text-ink">
               {subject.title} · {levelLabel}
             </span>
-            <span className="block truncate text-on-surface-variant">
+            <span className="block truncate text-ink-muted">
               {blocked ?? `${preview.length} questions · about ${minutes} min`}
             </span>
           </p>
@@ -288,9 +288,9 @@ export function TestSetupView({ onStart }: TestSetupViewProps) {
 
 function SummaryRow({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-outline-variant/40 pb-3 last:border-0 last:pb-0">
-      <dt className="shrink-0 text-on-surface-variant">{label}</dt>
-      <dd className="text-right font-semibold text-on-surface">{children}</dd>
+    <div className="flex items-start justify-between gap-4 border-b border-line pb-3 last:border-0 last:pb-0">
+      <dt className="shrink-0 text-ink-muted">{label}</dt>
+      <dd className="text-right font-semibold text-ink">{children}</dd>
     </div>
   )
 }

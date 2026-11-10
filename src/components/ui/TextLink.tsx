@@ -39,7 +39,7 @@ const SIZE: Record<Size, { text: string; icon: string; gap: string }> = {
 
 const TONE: Record<Tone, string> = {
   primary: 'text-primary hover:text-primary/85',
-  neutral: 'text-on-surface hover:text-primary',
+  neutral: 'text-ink hover:text-primary',
 }
 
 const UNDERLINE = {
@@ -49,7 +49,7 @@ const UNDERLINE = {
 
 function linkClasses({ size = 'sm', tone = 'primary', className }: Pick<TextLinkStyle, 'size' | 'tone' | 'className'>) {
   return cn(
-    'group inline-flex min-h-11 items-center rounded-lg font-semibold transition-colors',
+    'group inline-flex min-h-11 items-center rounded-sm font-semibold transition-colors',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
     SIZE[size].text,
     SIZE[size].gap,

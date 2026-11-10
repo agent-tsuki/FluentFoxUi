@@ -36,7 +36,7 @@ export interface MasteryTone {
 
 // Literal class names so Tailwind keeps them. Semantic tokens switch for dark mode.
 export const MASTERY_TONE: Record<MasteryLevel, MasteryTone> = {
-  new: { fill: 'bg-outline-variant', text: 'text-on-surface-variant', soft: 'bg-surface-container-high border-outline-variant' },
+  new: { fill: 'bg-line', text: 'text-ink-muted', soft: 'bg-surface-hover border-line' },
   learning: { fill: 'bg-error', text: 'text-error', soft: 'bg-error/10 border-error/50' },
   familiar: { fill: 'bg-warning', text: 'text-warning', soft: 'bg-warning/10 border-warning/50' },
   strong: { fill: 'bg-info', text: 'text-info', soft: 'bg-info/10 border-info/50' },

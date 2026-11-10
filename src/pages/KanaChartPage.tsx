@@ -81,15 +81,15 @@ function PairList({ pairs }: { pairs: readonly KanaMarkPair[] }) {
     <ul className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1.5 sm:grid-cols-2">
       {pairs.map((p) => (
         <li key={p.to} className="flex items-baseline gap-3">
-          <span className="whitespace-nowrap font-jp text-2xl font-bold text-on-surface lg:text-3xl" lang="ja">
+          <span className="whitespace-nowrap font-ja-display text-2xl font-bold text-ink lg:text-3xl" lang="ja">
             {p.from}
-            <span aria-hidden className="mx-1.5 font-body text-base font-normal text-on-surface-variant">
+            <span aria-hidden className="mx-1.5 font-sans text-base font-normal text-ink-muted">
               →
             </span>
             <span className="sr-only"> becomes </span>
             {p.to}
           </span>
-          <span className="whitespace-nowrap text-xs font-semibold tabular-nums text-on-surface-variant">{p.sound}</span>
+          <span className="whitespace-nowrap text-xs font-semibold tabular-nums text-ink-muted">{p.sound}</span>
         </li>
       ))}
     </ul>
@@ -103,32 +103,32 @@ function MarksAside({ marks, basePath }: { marks: KanaChartMarks; basePath: stri
     <aside
       aria-labelledby="chart-marks-title"
       data-chart-aside
-      className="flex self-start flex-col gap-4 rounded-2xl border border-outline-variant bg-surface-container-lowest p-4 dark:border-outline/60 dark:bg-surface-container-low"
+      className="flex self-start flex-col gap-4 rounded-xl bg-surface-raised shadow-elevation-1 p-4"
     >
-      <h3 id="chart-marks-title" className="font-headline text-base font-bold text-on-surface">
+      <h3 id="chart-marks-title" className="font-display text-base font-bold text-ink">
         How the marks work
       </h3>
       <div>
-        <p className="text-sm text-on-surface-variant">
-          <span className="font-semibold text-on-surface">Dakuten</span>, two short strokes at the top right, voices
+        <p className="text-sm text-ink-muted">
+          <span className="font-semibold text-ink">Dakuten</span>, two short strokes at the top right, voices
           the sound.
         </p>
         <PairList pairs={marks.dakutenPairs} />
       </div>
       <div>
-        <p className="text-sm text-on-surface-variant">
-          <span className="font-semibold text-on-surface">Handakuten</span>, a small circle, only goes on the h row
+        <p className="text-sm text-ink-muted">
+          <span className="font-semibold text-ink">Handakuten</span>, a small circle, only goes on the h row
           and turns it into p.
         </p>
         <PairList pairs={marks.handakutenPairs} />
       </div>
-      <p className="flex items-start gap-2 text-sm text-on-surface-variant">
+      <p className="flex items-start gap-2 text-sm text-ink-muted">
         <span aria-hidden className="flex text-primary">
           <Icon name="info" className="text-lg" />
         </span>
         <span>
-          <span lang="ja" className="font-jp">{rareA}</span> and <span lang="ja" className="font-jp">{rareB}</span> are rare.
-          Most words use <span lang="ja" className="font-jp">{commonA}</span> and <span lang="ja" className="font-jp">{commonB}</span>,
+          <span lang="ja" className="font-ja-display">{rareA}</span> and <span lang="ja" className="font-ja-display">{rareB}</span> are rare.
+          Most words use <span lang="ja" className="font-ja-display">{commonA}</span> and <span lang="ja" className="font-ja-display">{commonB}</span>,
           which sound the same.
         </span>
       </p>
@@ -242,7 +242,7 @@ export function KanaChartPage() {
 
   return (
     <section aria-label={`${script.label} chart`}>
-      <p className="max-w-2xl text-base leading-relaxed text-on-surface-variant">
+      <p className="max-w-2xl text-base leading-relaxed text-ink-muted">
         Start with one row, tap a kana to hear it and see its strokes, then continue into a short Learn unit.
       </p>
 

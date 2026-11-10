@@ -40,15 +40,15 @@ export function PracticeShell({ title, progress, status, onExit, children, fill,
           onClick={onExit}
           aria-label={backLabel ? undefined : 'Exit practice'}
           className={cn(
-            'flex h-11 shrink-0 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-            backLabel ? 'gap-1 pl-2 pr-3 text-sm font-semibold hover:text-on-surface' : 'w-11',
+            'flex h-11 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+            backLabel ? 'gap-1 pl-2 pr-3 text-sm font-semibold hover:text-ink' : 'w-11',
           )}
         >
           <Icon name={backLabel ? 'arrow_back' : 'close'} className={backLabel ? 'text-xl' : 'text-2xl'} />
           {backLabel}
         </button>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-headline text-base font-bold text-on-surface">{title}</p>
+          <p className="truncate font-display text-base font-bold text-ink">{title}</p>
           {progress !== undefined && (
             <div
               role="progressbar"
@@ -56,7 +56,7 @@ export function PracticeShell({ title, progress, status, onExit, children, fill,
               aria-valuemin={0}
               aria-valuemax={100}
               aria-valuenow={Math.round(progress * 100)}
-              className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-surface-container-high"
+              className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-surface-hover"
             >
               <div
                 className="h-full rounded-full bg-primary transition-[width] duration-300 motion-reduce:transition-none"
@@ -66,7 +66,7 @@ export function PracticeShell({ title, progress, status, onExit, children, fill,
           )}
         </div>
         {status !== undefined && (
-          <div className="shrink-0 font-label text-sm font-bold tabular-nums text-on-surface-variant">{status}</div>
+          <div className="shrink-0 font-sans text-sm font-bold tabular-nums text-ink-muted">{status}</div>
         )}
       </header>
       <div className="flex flex-1 flex-col pt-4 sm:pt-6">{children}</div>
@@ -89,13 +89,13 @@ export function PracticeResults({ headline, detail, missed, onAgain, onExit }: P
     <div className="flex flex-1 flex-col items-center justify-center gap-5 text-center" role="status">
       <Icon name="celebration" className="text-5xl text-primary" />
       <div>
-        <p className="font-headline text-2xl font-extrabold text-on-surface">{headline}</p>
-        {detail && <p className="mt-1 text-on-surface-variant">{detail}</p>}
+        <p className="font-display text-2xl font-extrabold text-ink">{headline}</p>
+        {detail && <p className="mt-1 text-ink-muted">{detail}</p>}
       </div>
       {missed && missed.length > 0 && (
-        <div className="w-full rounded-2xl bg-surface-container-low p-4">
-          <p className="mb-2 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Keep practising</p>
-          <p lang="ja" className="text-3xl font-bold tracking-wider text-on-surface">{missed.join(' ')}</p>
+        <div className="w-full rounded-xl bg-surface-sunken p-4">
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-ink-muted">Keep practising</p>
+          <p lang="ja" className="text-3xl font-bold tracking-wider text-ink">{missed.join(' ')}</p>
         </div>
       )}
       <div className="mt-auto flex w-full flex-col gap-2 sm:mt-0 sm:flex-row sm:justify-center">

@@ -39,22 +39,22 @@ export function SessionResultView({ result, answersByCard, actions }: SessionRes
     <div className="flex flex-1 flex-col gap-6" role="status">
       <div className="text-center">
         <Icon name="celebration" className="text-5xl text-primary" />
-        <p className="mt-2 font-headline text-2xl font-extrabold text-on-surface">Session complete</p>
-        <p className="mt-1 text-sm text-on-surface-variant">
+        <p className="mt-2 font-display text-2xl font-extrabold text-ink">Session complete</p>
+        <p className="mt-1 text-sm text-ink-muted">
           {result.correct_count} of {result.answer_count} answers right
           {result.test && ` · score ${result.test.score} / ${result.test.total}${result.test.passed ? ', passed' : ''}`}
         </p>
       </div>
       <ul className="grid grid-cols-4 gap-2" aria-label="Grades">
         {GRADE_LABELS.map((label) => (
-          <li key={label} className={cn('flex flex-col items-center rounded-2xl px-1 py-3', LABEL_TONE[label])}>
-            <span className="font-headline text-2xl font-extrabold tabular-nums">{view.counts[label]}</span>
+          <li key={label} className={cn('flex flex-col items-center rounded-xl px-1 py-3', LABEL_TONE[label])}>
+            <span className="font-display text-2xl font-extrabold tabular-nums">{view.counts[label]}</span>
             <span className="text-xs font-bold">{GRADE_LABEL_TEXT[label]}</span>
           </li>
         ))}
       </ul>
       {view.rows.length > 0 && (
-        <ul className="divide-y divide-outline-variant/40 rounded-2xl border border-outline-variant/60" aria-label="Cards">
+        <ul className="divide-y divide-line rounded-xl border border-line" aria-label="Cards">
           {view.rows.map((row) => (
             <ResultRowItem key={row.card_id} row={row} />
           ))}
@@ -83,28 +83,28 @@ function ResultRowItem({ row }: { row: ResultRow }) {
         type="button"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+        className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
       >
-        <span lang="ja" className="w-12 shrink-0 text-center font-jp text-2xl font-bold text-on-surface">
+        <span lang="ja" className="w-12 shrink-0 text-center font-ja text-2xl font-bold text-ink">
           {row.char}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-sm text-on-surface">
+          <span className="block text-sm text-ink">
             {row.item_type === 'kanji' ? FACET_TEXT[row.facet] : 'kana'}
             {row.activeMs !== null && (
-              <span className="text-on-surface-variant">
+              <span className="text-ink-muted">
                 {' · '}
                 {formatSeconds(row.activeMs)}
                 {row.usualMs !== null && ` (usual ${formatSeconds(row.usualMs)})`}
               </span>
             )}
           </span>
-          <span className="block text-xs text-on-surface-variant">Next review {formatNextDue(row.next_due)}</span>
+          <span className="block text-xs text-ink-muted">Next review {formatNextDue(row.next_due)}</span>
         </span>
         <span className={cn('shrink-0 rounded-full px-2.5 py-1 text-xs font-bold', LABEL_TONE[row.label])}>{GRADE_LABEL_TEXT[row.label]}</span>
-        <Icon name={open ? 'expand_less' : 'expand_more'} className="shrink-0 text-xl text-on-surface-variant" />
+        <Icon name={open ? 'expand_less' : 'expand_more'} className="shrink-0 text-xl text-ink-muted" />
       </button>
-      {open && <p className="px-4 pb-3 pl-[4.75rem] text-sm text-on-surface-variant">{GRADE_REASON_TEXT[row.reason]}</p>}
+      {open && <p className="px-4 pb-3 pl-[4.75rem] text-sm text-ink-muted">{GRADE_REASON_TEXT[row.reason]}</p>}
     </li>
   )
 }

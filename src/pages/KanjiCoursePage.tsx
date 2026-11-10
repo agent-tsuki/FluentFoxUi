@@ -58,7 +58,7 @@ export function KanjiCoursePage() {
         </div>
         <PracticeRail />
       </div>
-      <p className="mt-10 text-xs text-on-surface-variant">Progress is saved to your account when you are signed in; print marks stay on this device.</p>
+      <p className="mt-10 text-xs text-ink-muted">Progress is saved to your account when you are signed in; print marks stay on this device.</p>
       <UnitOverlays accordion={accordion} />
     </UnitAccordionContext.Provider>
   )
@@ -166,23 +166,23 @@ function PracticeRail() {
   const level = useKanjiLevel()
   return (
     <aside aria-labelledby="practice-heading" className={cn('mt-10 lg:sticky lg:mt-0', STICKY_RAIL_TOP)}>
-      <h2 id="practice-heading" className="font-headline text-lg font-bold text-on-surface">
+      <h2 id="practice-heading" className="font-display text-lg font-bold text-ink">
         Practice
       </h2>
-      <p className="mt-1 text-sm text-on-surface-variant">Short rounds over the kanji you have opened.</p>
+      <p className="mt-1 text-sm text-ink-muted">Short rounds over the kanji you have opened.</p>
       <ul className="mt-3 space-y-1">
         {KANJI_PRACTICE_MODES.map((mode) => (
           <li key={mode.id}>
             <Link
               to={kanjiPracticePath(level.id, mode.id)}
-              className="group -mx-2 flex min-h-12 items-center gap-3 rounded-xl px-2 hover:bg-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="group -mx-2 flex min-h-12 items-center gap-3 rounded-md px-2 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10">
                 <Icon name={mode.icon} className="text-xl text-primary" />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold text-on-surface">{mode.title}</span>
-                <span className="block text-xs text-on-surface-variant">{mode.summary}</span>
+                <span className="block text-sm font-semibold text-ink">{mode.title}</span>
+                <span className="block text-xs text-ink-muted">{mode.summary}</span>
               </span>
             </Link>
           </li>

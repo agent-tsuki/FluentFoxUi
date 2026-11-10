@@ -74,7 +74,7 @@ export function TeachersPage() {
         ) : !invites.data?.length ? (
           <EmptyState icon="mail" title="No invites yet" description="Invites you send appear here with their status." className="py-8" />
         ) : (
-          <ul className="divide-y divide-outline-variant/40">
+          <ul className="divide-y divide-line">
             {invites.data.map(invite => (
               <InviteItem key={invite.id} invite={invite} channelNames={channelNames} busy={action.busy} onResend={onResend} onRevoke={onRevoke} />
             ))}

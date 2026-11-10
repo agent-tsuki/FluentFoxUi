@@ -19,14 +19,14 @@ export function WhyItWorks() {
     <section
       id="why"
       aria-labelledby="why-title"
-      className="scroll-mt-nav border-y border-outline-variant/60 bg-surface-container-lowest"
+      className="scroll-mt-nav border-y border-line bg-surface-raised"
     >
       <div className="mx-auto flex max-w-7xl flex-col gap-10 px-6 py-20 md:py-[5.5rem]">
         <FadeIn className="flex max-w-[720px] flex-col gap-3.5">
           <Eyebrow className="!mb-0">{COPY.eyebrow}</Eyebrow>
           <h2
             id="why-title"
-            className="font-headline text-display-md font-extrabold leading-[1.08] tracking-[-0.035em] text-on-surface"
+            className="font-display text-display-md font-extrabold leading-[1.08] tracking-[-0.035em] text-ink"
           >
             {COPY.title}
           </h2>
@@ -38,12 +38,12 @@ export function WhyItWorks() {
               <FadeIn delay={i * 80} className="flex flex-col gap-3">
                 <span
                   aria-hidden="true"
-                  className={cn('flex h-12 w-12 items-center justify-center rounded-2xl', TILE_TONE[point.tone])}
+                  className={cn('flex h-12 w-12 items-center justify-center rounded-xl', TILE_TONE[point.tone])}
                 >
                   <Icon name={point.icon} className="text-2xl" />
                 </span>
-                <h3 className="font-headline text-xl font-extrabold text-on-surface">{point.title}</h3>
-                <p className="max-w-prose text-base leading-relaxed text-on-surface-variant">{point.body}</p>
+                <h3 className="font-display text-xl font-extrabold text-ink">{point.title}</h3>
+                <p className="max-w-prose text-base leading-relaxed text-ink-muted">{point.body}</p>
               </FadeIn>
             </li>
           ))}

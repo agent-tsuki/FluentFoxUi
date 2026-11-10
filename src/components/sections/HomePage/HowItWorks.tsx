@@ -1,100 +1,150 @@
-import { memo, type ReactNode } from 'react'
+import { memo, useMemo, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { CourseCard } from '@/components/classes/CourseCard'
+import { CourseGridSkeleton } from '@/components/classes/CourseGrid'
+import { Carousel } from '@/components/ui/Carousel'
 import { Icon } from '@/components/ui/Icon'
+import { useClasses } from '@/hooks/useClasses'
 import {
-  CLASS_DIRECTORY,
+  HOME_CLASSES,
+  HOME_STATS,
   HOW_IT_WORKS_CLOSING,
   HOW_IT_WORKS_INTRO,
   HOW_IT_WORKS_STEPS,
   type HowItWorksStep,
 } from '@/lib/content/home/howItWorks'
-import { GrammarDemo, KanaDemo, KanjiDemo, ReviewDemo } from './howItWorksDemos'
+import type { ClassesFilters } from '@/types/classes'
 
 /**
- * "How FoxSensei works": the four steps a learner actually takes (kana → kanji →
- * N5 grammar → review), each with a tiny local demo. Demos are illustrative only
- * and never touch learner progress.
+ * Everything under the hero: the numbers band, "How FoxSensei works" as one
+ * path of four steps (kana → kanji → N5 grammar → review), a few hand-picked
+ * video courses, then the closing call to start.
  */
 export function HowItWorks() {
   return (
-    <section id="journey" aria-labelledby="how-title" className="scroll-mt-nav mx-auto max-w-6xl px-6 py-20 sm:px-10 lg:py-28">
-      <header className="max-w-2xl">
-        <p className="concept-eyebrow">{HOW_IT_WORKS_INTRO.eyebrow}</p>
-        <h2 id="how-title" className="concept-section-title mt-4">
-          {HOW_IT_WORKS_INTRO.title}
+    <>
+      <StatsBand />
+
+      <section id="journey" aria-labelledby="how-title" className="scroll-mt-nav bg-surface-sunken">
+        <div className="mx-auto max-w-6xl px-6 py-20 sm:px-10 lg:py-24">
+          <p className="concept-eyebrow">{HOW_IT_WORKS_INTRO.eyebrow}</p>
+          <h2 id="how-title" className="concept-section-title mt-4 max-w-4xl">
+            {HOW_IT_WORKS_INTRO.title}
+          </h2>
+
+          <ol className="mt-12 grid gap-10 sm:grid-cols-2 sm:gap-x-8 lg:mt-14 lg:grid-cols-4 lg:gap-x-6">
+            {HOW_IT_WORKS_STEPS.map((step, index) => (
+              <StepColumn key={step.number} step={step} last={index === HOW_IT_WORKS_STEPS.length - 1} />
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <HomeClasses />
+
+      <section aria-labelledby="closing-title" className="mx-auto max-w-6xl px-6 py-20 text-center sm:px-10 lg:py-24">
+        <h2 id="closing-title" className="concept-section-title">
+          {HOW_IT_WORKS_CLOSING.title}
         </h2>
-        <p className="mt-5 max-w-prose text-base leading-7 text-home-muted">{HOW_IT_WORKS_INTRO.body}</p>
-      </header>
-
-      <ol className="ml-[1.125rem] mt-14 space-y-16 border-l border-home-line pl-8 md:ml-0 md:border-l-0 md:pl-0 lg:space-y-24">
-        {HOW_IT_WORKS_STEPS.map((step, index) => (
-          <StepRow key={step.number} step={step} demo={DEMOS[index]} />
-        ))}
-      </ol>
-
-      <p className="mt-20 flex flex-wrap items-center gap-x-3 border-t border-home-line pt-8 text-base text-home-muted">
-        {CLASS_DIRECTORY.lead}
-        <ArrowLink to={CLASS_DIRECTORY.link.to}>{CLASS_DIRECTORY.link.label}</ArrowLink>
-      </p>
-
-      <div className="mt-20 text-center">
-        <h2 className="concept-section-title">{HOW_IT_WORKS_CLOSING.title}</h2>
-        <p className="mx-auto mt-3 max-w-xl text-base leading-7 text-home-muted">{HOW_IT_WORKS_CLOSING.body}</p>
+        <p className="mx-auto mt-3 max-w-xl text-base leading-7 text-ink-muted">{HOW_IT_WORKS_CLOSING.body}</p>
         <Link
           to={HOW_IT_WORKS_CLOSING.cta.to}
-          className="group mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-home-accent px-7 py-3 text-sm font-bold text-home-on-accent shadow-elevation-2 transition duration-200 hover:bg-home-accent-hover motion-safe:hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-home-accent"
+          className="group mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-primary px-7 py-3 text-sm font-bold text-on-primary shadow-elevation-2 transition duration-200 hover:bg-primary-hover motion-safe:hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-primary"
         >
           {HOW_IT_WORKS_CLOSING.cta.label}
           <Icon name="arrow_forward" className="text-lg transition-transform duration-200 motion-safe:group-hover:translate-x-0.5" />
         </Link>
-      </div>
+      </section>
+    </>
+  )
+}
+
+function StatsBand() {
+  return (
+    <section aria-label="FoxSensei in numbers" className="border-y border-line bg-surface-raised">
+      <dl className="mx-auto grid max-w-6xl grid-cols-2 gap-x-6 gap-y-8 px-6 py-10 text-center sm:grid-cols-3 sm:px-10 lg:grid-cols-5">
+        {HOME_STATS.map((stat, index) => (
+          // On two columns the fifth stat would sit alone, so it takes the whole row.
+          <div key={stat.label} className={index === HOME_STATS.length - 1 ? 'col-span-2 sm:col-span-1' : undefined}>
+            <dt className="sr-only">{stat.label}</dt>
+            <dd className="concept-display text-[clamp(2rem,3.5vw,2.75rem)] leading-none tracking-[-0.02em] text-ink">{stat.value}</dd>
+            <dd className="mt-2 text-sm text-ink-muted">{stat.label}</dd>
+          </div>
+        ))}
+      </dl>
     </section>
   )
 }
 
-const StepRow = memo(function StepRow({ step, demo }: { step: HowItWorksStep; demo: ReactNode }) {
+const StepColumn = memo(function StepColumn({ step, last }: { step: HowItWorksStep; last: boolean }) {
   const titleId = `how-step-${step.number}`
   return (
-    <li aria-labelledby={titleId} className="relative md:grid md:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] md:items-center md:gap-12">
-      <div>
-        {/* The number sits on the hairline on mobile and leads the label from md up. */}
-        <div className="flex items-center gap-3">
-          <span
-            aria-hidden="true"
-            className="-ml-[3.25rem] grid size-9 shrink-0 place-items-center rounded-full border border-home-line-strong bg-home-canvas text-sm font-semibold text-home-ink md:ml-0"
-          >
-            {step.number}
-          </span>
-          <p className="concept-label">{step.label}</p>
-        </div>
-        <h3 id={titleId} className="concept-step-title mt-4">
-          {step.title}
-        </h3>
-        <p className="mt-4 max-w-prose text-base leading-7 text-home-muted">{step.body}</p>
-        {step.meta && <p className="mt-2 text-sm text-home-muted">{step.meta}</p>}
-        <div className="mt-3 flex flex-wrap gap-x-6">
-          {step.links.map((link) => (
-            <ArrowLink key={link.to} to={link.to}>{link.label}</ArrowLink>
-          ))}
-        </div>
+    <li aria-labelledby={titleId} className="flex flex-col">
+      {/* The circles sit on one line across the four steps on wide screens. */}
+      <div className="flex items-center" aria-hidden="true">
+        <span className="grid size-14 shrink-0 place-items-center rounded-full border-2 border-primary bg-surface font-ja text-2xl font-bold text-primary-ink">
+          {step.glyph}
+        </span>
+        {!last && <span className="hidden h-0.5 flex-1 bg-line-strong lg:-mr-6 lg:block" />}
       </div>
-
-      {/* On mobile the panel steps out of the timeline indent so the demo gets the full width. */}
-      <div className="concept-demo -ml-8 mt-8 md:ml-0 md:mt-0">
-        <p className="concept-label">{step.demoLabel}</p>
-        <div className="mt-6 text-center">{demo}</div>
+      <h3 id={titleId} className="mt-6 font-display text-h3 font-bold text-ink">
+        {step.number} · {step.title}
+      </h3>
+      <p className="mt-2 max-w-prose text-base leading-7 text-ink-muted lg:pr-4">{step.body}</p>
+      {/* mt-auto keeps the four links on one line even when a title wraps. */}
+      <div className="mt-auto pt-3">
+        <ArrowLink to={step.link.to}>{step.link.label}</ArrowLink>
       </div>
     </li>
   )
 })
 
+/** A few N5 video courses from the /classes directory. If the list can't load, only the link to it shows. */
+function HomeClasses() {
+  const filters = useMemo<ClassesFilters>(() => ({ level: HOME_CLASSES.level }), [])
+  const { data, isLoading } = useClasses(filters)
+  const courses = data?.items.slice(0, HOME_CLASSES.count) ?? []
+
+  const header = (
+    <div className="max-w-2xl">
+      <p className="concept-eyebrow">{HOME_CLASSES.eyebrow}</p>
+      <h2 className="concept-section-title mt-4">{HOME_CLASSES.title}</h2>
+      <p className="mt-4 text-base leading-7 text-ink-muted">{HOME_CLASSES.body}</p>
+      <ArrowLink to={HOME_CLASSES.link.to} className="mt-2">
+        {HOME_CLASSES.link.label}
+      </ArrowLink>
+    </div>
+  )
+
+  return (
+    <div className="mx-auto max-w-6xl px-6 pt-20 sm:px-10 lg:pt-24">
+      {isLoading && !data ? (
+        <>
+          {header}
+          <div className="mt-6">
+            <CourseGridSkeleton count={4} maxCols={4} />
+          </div>
+        </>
+      ) : courses.length > 0 ? (
+        <Carousel
+          label="video courses"
+          header={header}
+          items={courses}
+          itemKey={(course) => course.slug}
+          renderItem={(course) => <CourseCard course={course} className="h-full" />}
+        />
+      ) : (
+        header
+      )}
+    </div>
+  )
+}
+
 function ArrowLink({ to, children, className = '' }: { to: string; children: ReactNode; className?: string }) {
   return (
-    <Link to={to} className={`concept-step-link group ${className}`}>
+    <Link to={to} className={`concept-step-link group text-primary-ink ${className}`}>
       <span className="concept-step-link-text">{children}</span>
       <Icon name="arrow_forward" className="text-base transition-transform duration-200 motion-safe:group-hover:translate-x-0.5" />
     </Link>
   )
 }
-
-const DEMOS: readonly ReactNode[] = [<KanaDemo key="kana" />, <KanjiDemo key="kanji" />, <GrammarDemo key="grammar" />, <ReviewDemo key="review" />]

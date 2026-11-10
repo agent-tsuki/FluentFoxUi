@@ -21,16 +21,16 @@ export function KanaSheetHeader({ char, titleId, onClose, onSpeak, speakLoading 
   return (
     <header className="flex items-center gap-3 px-5 pb-3 pt-4">
       <h2 id={titleId} className="flex min-w-0 items-baseline gap-3">
-        <span lang="ja" className="font-jp text-5xl font-bold leading-none text-on-surface">
+        <span lang="ja" className="font-ja-display text-5xl font-bold leading-none text-ink">
           {char.character}
         </span>
         {isKanaMark(char) ? (
-          <span className="font-headline text-lg font-semibold text-on-surface-variant">
+          <span className="font-display text-lg font-semibold text-ink-muted">
             <span className="sr-only">, </span>
             {kanaReadingLabel(char)}
           </span>
         ) : (
-          <span className="font-headline text-2xl font-semibold text-on-surface-variant">
+          <span className="font-display text-2xl font-semibold text-ink-muted">
             <span className="sr-only">, romaji </span>
             {char.romaji}
           </span>

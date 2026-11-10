@@ -18,21 +18,21 @@ export function StudyLog({ entries }: StudyLogProps) {
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="space-y-1">
           <Eyebrow variant="plain">Activity</Eyebrow>
-          <h2 className="text-2xl font-extrabold tracking-tight text-on-surface font-headline">
+          <h2 className="text-2xl font-extrabold tracking-tight text-ink font-display">
             Study Log
           </h2>
         </div>
 
         {/* Filter toggle */}
-        <div className="flex items-center gap-1 p-1 bg-surface-container rounded-full">
+        <div className="flex items-center gap-1 p-1 bg-surface-sunken rounded-full">
           {FILTERS.map((f) => (
             <button
               key={f}
               onClick={() => setActiveFilter(f)}
-              className={`px-5 py-2 rounded-full text-sm font-semibold font-label transition-all ${
+              className={`px-5 py-2 rounded-full text-sm font-semibold font-sans transition-all ${
                 activeFilter === f
-                  ? 'bg-on-surface text-surface'
-                  : 'bg-transparent text-on-surface-variant hover:text-on-surface'
+                  ? 'bg-ink text-surface'
+                  : 'bg-transparent text-ink-muted hover:text-ink'
               }`}
             >
               {f}
@@ -41,22 +41,22 @@ export function StudyLog({ entries }: StudyLogProps) {
         </div>
       </div>
 
-      <div className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-elevation-1">
+      <div className="bg-surface-raised rounded-md overflow-hidden shadow-elevation-1">
         {/* Table header */}
-        <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-6 py-3 border-b border-outline-variant/55">
-          <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label">
+        <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-6 py-3 border-b border-line">
+          <span className="text-xs font-bold uppercase tracking-[0.12em] text-ink-muted font-sans">
             Course / Session
           </span>
-          <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label w-28 text-right">
+          <span className="text-xs font-bold uppercase tracking-[0.12em] text-ink-muted font-sans w-28 text-right">
             Date
           </span>
-          <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label w-20 text-right">
+          <span className="text-xs font-bold uppercase tracking-[0.12em] text-ink-muted font-sans w-20 text-right">
             Duration
           </span>
-          <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label w-24 text-center">
+          <span className="text-xs font-bold uppercase tracking-[0.12em] text-ink-muted font-sans w-24 text-center">
             Status
           </span>
-          <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label w-16 text-right">
+          <span className="text-xs font-bold uppercase tracking-[0.12em] text-ink-muted font-sans w-16 text-right">
             XP
           </span>
         </div>
@@ -65,8 +65,8 @@ export function StudyLog({ entries }: StudyLogProps) {
         {entries.map((entry, idx) => (
           <div
             key={entry.id}
-            className={`grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-6 py-4 items-center transition-colors hover:bg-surface-container-low ${
-              idx < entries.length - 1 ? 'border-b border-outline-variant/20' : ''
+            className={`grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-6 py-4 items-center transition-colors hover:bg-surface-hover ${
+              idx < entries.length - 1 ? 'border-b border-line' : ''
             }`}
           >
             {/* Title + icon */}
@@ -77,29 +77,29 @@ export function StudyLog({ entries }: StudyLogProps) {
                 <Icon name={entry.icon} className="text-xl" />
               </div>
               <div className="min-w-0">
-                <p className="font-semibold text-on-surface font-label text-sm truncate">
+                <p className="font-semibold text-ink font-sans text-sm truncate">
                   {entry.title}
                 </p>
-                <p className="text-xs text-on-surface-variant font-body truncate">
+                <p className="text-xs text-ink-muted font-sans truncate">
                   {entry.subtitle}
                 </p>
               </div>
             </div>
 
             {/* Date */}
-            <span className="text-sm text-on-surface-variant font-body w-28 text-right whitespace-nowrap">
+            <span className="text-sm text-ink-muted font-sans w-28 text-right whitespace-nowrap">
               {entry.date}
             </span>
 
             {/* Duration */}
-            <span className="text-sm text-on-surface font-label font-semibold w-20 text-right whitespace-nowrap">
+            <span className="text-sm text-ink font-sans font-semibold w-20 text-right whitespace-nowrap">
               {entry.duration}
             </span>
 
             {/* Status pill */}
             <div className="w-24 flex justify-center">
               <span
-                className={`px-3 py-1 rounded-full text-xs font-bold font-label whitespace-nowrap ${
+                className={`px-3 py-1 rounded-full text-xs font-bold font-sans whitespace-nowrap ${
                   entry.status === 'completed'
                     ? 'bg-success/15 text-success'
                     : 'bg-warning/15 text-warning'
@@ -112,9 +112,9 @@ export function StudyLog({ entries }: StudyLogProps) {
             {/* XP */}
             <div className="w-16 text-right">
               {entry.xp !== null ? (
-                <span className="text-sm font-bold text-primary font-label">+{entry.xp} XP</span>
+                <span className="text-sm font-bold text-primary font-sans">+{entry.xp} XP</span>
               ) : (
-                <span className="text-sm text-on-surface-variant font-body">—</span>
+                <span className="text-sm text-ink-muted font-sans">—</span>
               )}
             </div>
           </div>

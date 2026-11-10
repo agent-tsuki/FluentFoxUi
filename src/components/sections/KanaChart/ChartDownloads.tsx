@@ -76,26 +76,26 @@ function PosterCard({ info, kana, previewRows }: PosterCardProps) {
     <li>
       <article
         aria-labelledby={titleId}
-        className="flex h-full flex-col overflow-hidden rounded-2xl border border-outline-variant/60 bg-surface-container-lowest dark:border-outline/60 dark:bg-surface-container-low"
+        className="flex h-full flex-col overflow-hidden rounded-xl border border-line bg-surface-raised"
       >
-        <div className="flex h-44 items-center border-b border-outline-variant/60 bg-surface-container-low px-6 dark:border-outline/40 dark:bg-surface-container">
+        <div className="flex h-44 items-center border-b border-line bg-surface-sunken px-6 dark:bg-surface-sunken">
           <DownloadPosterPreview variant={info.id} label={script.label} nativeLabel={script.nativeLabel} rows={previewRows} />
         </div>
         <div className="flex flex-1 flex-col gap-3 p-4">
           <div className="flex-1">
-            <h3 id={titleId} className="text-base font-bold text-on-surface">
+            <h3 id={titleId} className="text-base font-bold text-ink">
               {info.title}
             </h3>
             <p className="mt-1 inline-flex rounded-full bg-primary/10 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-[0.1em] text-primary">
               {info.bestFor}
             </p>
-            <p className="mt-0.5 flex items-center gap-1 text-xs font-semibold tabular-nums text-on-surface-variant">
+            <p className="mt-0.5 flex items-center gap-1 text-xs font-semibold tabular-nums text-ink-muted">
               <span aria-hidden className="flex">
                 <Icon name="picture_as_pdf" className="text-base" />
               </span>
               {info.size} · PDF
             </p>
-            <p className="mt-2 text-sm leading-snug text-on-surface-variant">{info.description}</p>
+            <p className="mt-2 text-sm leading-snug text-ink-muted">{info.description}</p>
           </div>
           <Button
             type="button"

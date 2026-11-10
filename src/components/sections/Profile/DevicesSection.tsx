@@ -52,11 +52,11 @@ export function DevicesSection() {
   const others = sessions.filter(s => !s.isCurrent).length
 
   return (
-    <div className="bg-surface-container-low rounded-xl overflow-hidden">
-      <div className="px-8 py-6 border-b border-outline-variant flex items-start justify-between gap-4 flex-wrap">
+    <div className="bg-surface-sunken rounded-md overflow-hidden">
+      <div className="px-8 py-6 border-b border-line flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h2 className="text-lg font-bold text-on-surface font-headline">Devices &amp; login locations</h2>
-          <p className="text-xs text-on-surface-variant font-body mt-0.5">
+          <h2 className="text-lg font-bold text-ink font-display">Devices &amp; login locations</h2>
+          <p className="text-xs text-ink-muted font-sans mt-0.5">
             Every device signed in to your account, and where it logged in from
           </p>
         </div>
@@ -71,12 +71,12 @@ export function DevicesSection() {
         <LocationAccess onSaved={load} />
 
         {message && (
-          <p role={message.tone === 'error' ? 'alert' : 'status'} className={`text-xs font-body ${message.tone === 'error' ? 'text-error' : 'text-tertiary'}`}>
+          <p role={message.tone === 'error' ? 'alert' : 'status'} className={`text-xs font-sans ${message.tone === 'error' ? 'text-error' : 'text-tertiary'}`}>
             {message.text}
           </p>
         )}
 
-        {status === 'loading' && <p className="text-sm text-on-surface-variant">Loading devices…</p>}
+        {status === 'loading' && <p className="text-sm text-ink-muted">Loading devices…</p>}
         {status === 'error' && (
           <p className="text-sm text-error">
             We couldn&apos;t load your devices. <button type="button" onClick={load} className="font-semibold underline">Try again</button>
@@ -103,21 +103,21 @@ function DeviceRow({ session, busy, disabled, onRevoke }: DeviceRowProps) {
   const precise = source === 'gps'
 
   return (
-    <div className="rounded-xl border border-outline-variant/50 p-4 space-y-3">
+    <div className="rounded-md border border-line p-4 space-y-3">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 bg-surface-container rounded-lg flex items-center justify-center text-on-surface-variant shrink-0">
+          <div className="w-10 h-10 bg-surface-sunken rounded-sm flex items-center justify-center text-ink-muted shrink-0">
             <Icon name={deviceIcon(session)} className="text-xl" />
           </div>
           <div className="space-y-0.5">
-            <p className="text-sm font-semibold text-on-surface">
+            <p className="text-sm font-semibold text-ink">
               {deviceName(session)}
               {session.isCurrent && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-2xs font-bold uppercase text-primary">This device</span>}
             </p>
-            <p className="text-xs text-on-surface-variant">
+            <p className="text-xs text-ink-muted">
               Logged in {timeAgo(session.createdAt)} · active {timeAgo(session.lastUsedAt)}
             </p>
-            <p className="text-xs text-on-surface-variant">
+            <p className="text-xs text-ink-muted">
               {place || 'Location unknown'}
               {place && <> · {precise ? `GPS, within ${session.location.accuracyM ?? '?'} m` : 'approximate (from IP)'}</>}
               {session.ipApprox && <> · IP {session.ipApprox}</>}
@@ -132,7 +132,7 @@ function DeviceRow({ session, busy, disabled, onRevoke }: DeviceRowProps) {
       </div>
 
       {session.isVpn && (
-        <p className="flex items-start gap-2 rounded-lg bg-error/10 px-3 py-2 text-xs text-error">
+        <p className="flex items-start gap-2 rounded-sm bg-error/10 px-3 py-2 text-xs text-error">
           <Icon name="warning" className="text-base shrink-0" />
           <span>
             This login came through a VPN or proxy, so {precise

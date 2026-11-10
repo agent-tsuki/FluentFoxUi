@@ -6,10 +6,10 @@ import { Icon } from '@/components/ui/Icon'
 export type OptionState = 'idle' | 'correct' | 'wrong' | 'muted'
 
 const STATE_CLASSES: Record<OptionState, string> = {
-  idle: 'border-outline-variant/60 bg-surface-container-lowest text-on-surface hover:border-primary/60 hover:bg-surface-container-low',
-  correct: 'border-success bg-success/15 text-on-surface',
+  idle: 'border-line bg-surface-raised text-ink hover:border-primary/60 hover:bg-surface-hover',
+  correct: 'border-success bg-success/15 text-ink',
   wrong: 'border-error bg-error-container text-on-error-container',
-  muted: 'border-outline-variant/40 bg-surface-container-lowest text-on-surface opacity-50',
+  muted: 'border-line bg-surface-raised text-ink opacity-50',
 }
 
 const STATE_LABEL: Partial<Record<OptionState, string>> = { correct: ', correct answer', wrong: ', your answer, wrong' }
@@ -31,16 +31,16 @@ const OptionButton = memo(function OptionButton({ kana, asRomaji, index, state, 
       aria-disabled={locked || undefined}
       onClick={() => !locked && onPick(kana)}
       className={cn(
-        'relative flex h-20 w-full items-center justify-center rounded-2xl border-2 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface motion-reduce:transition-none sm:h-24',
+        'relative flex h-20 w-full items-center justify-center rounded-xl border-2 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface motion-reduce:transition-none sm:h-24',
         STATE_CLASSES[state],
         locked && 'cursor-default',
       )}
     >
-      <span className="absolute left-3 top-2 hidden font-label text-xs font-bold text-on-surface-variant sm:block" aria-hidden="true">
+      <span className="absolute left-3 top-2 hidden font-sans text-xs font-bold text-ink-muted sm:block" aria-hidden="true">
         {index}
       </span>
       {asRomaji ? (
-        <span className={cn('font-headline font-bold', kana.romaji.length <= 6 ? 'text-2xl sm:text-3xl' : 'text-xl sm:text-2xl')}>
+        <span className={cn('font-display font-bold', kana.romaji.length <= 6 ? 'text-2xl sm:text-3xl' : 'text-xl sm:text-2xl')}>
           {kana.romaji}
         </span>
       ) : (
@@ -48,7 +48,7 @@ const OptionButton = memo(function OptionButton({ kana, asRomaji, index, state, 
         <span
           lang="ja"
           className={cn(
-            'font-jp font-bold leading-none',
+            'font-ja-display font-bold leading-none',
             Array.from(kana.character).length <= 2 ? 'text-4xl sm:text-5xl' : 'text-2xl sm:text-3xl',
           )}
         >

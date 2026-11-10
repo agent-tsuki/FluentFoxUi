@@ -57,7 +57,7 @@ export function ChartSetSwitcher({ options, value, onChange }: ChartSetSwitcherP
       role="radiogroup"
       aria-label="Kana set"
       className={cn(
-        'grid h-11 w-full rounded-xl border border-outline-variant bg-surface-container-lowest p-1 dark:border-outline/60 dark:bg-surface-container-low sm:inline-grid sm:w-auto',
+        'grid h-11 w-full rounded-md border border-line bg-surface-raised p-1 sm:inline-grid sm:w-auto',
         columns,
       )}
     >
@@ -76,14 +76,14 @@ export function ChartSetSwitcher({ options, value, onChange }: ChartSetSwitcherP
             onClick={() => onChange(option.value)}
             onKeyDown={(e) => onKeyDown(e, index)}
             className={cn(
-              'flex min-w-0 items-center justify-center gap-1 whitespace-nowrap rounded-lg px-2 text-sm font-semibold transition-colors sm:px-3.5',
+              'flex min-w-0 items-center justify-center gap-1 whitespace-nowrap rounded-sm px-2 text-sm font-semibold transition-colors sm:px-3.5',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-surface',
-              checked ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:bg-on-surface/5 hover:text-on-surface',
+              checked ? 'bg-primary text-on-primary' : 'text-ink-muted hover:bg-ink/5 hover:text-ink',
             )}
           >
             {option.label}
             {option.count !== undefined && (
-              <span className={cn('hidden tabular-nums sm:inline', checked ? 'text-on-primary/85' : 'text-on-surface-variant')}>
+              <span className={cn('hidden tabular-nums sm:inline', checked ? 'text-on-primary/85' : 'text-ink-muted')}>
                 {option.count}
               </span>
             )}
@@ -98,14 +98,14 @@ export function ChartSetSwitcher({ options, value, onChange }: ChartSetSwitcherP
 /** Key for the cell states, with counts for the visible set. Swatches reuse the cell classes. */
 export function MasteryLegend({ counts }: { counts: Record<KanaMastery, number> }) {
   return (
-    <ul aria-label="Progress key" className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-on-surface-variant">
+    <ul aria-label="Progress key" className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-ink-muted">
       {MASTERY_LEVELS.map((mastery) => (
         <li key={mastery} className="flex items-center gap-1.5">
           <span aria-hidden className={cn('relative block h-5 w-5 shrink-0 overflow-hidden rounded-md border', MASTERY_SURFACE[mastery])}>
             <MasteryMarks mastery={mastery} className="left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" dotClassName="size-1" />
           </span>
           <span>
-            {MASTERY_LABEL[mastery]} <span className="font-semibold tabular-nums text-on-surface">{counts[mastery]}</span>
+            {MASTERY_LABEL[mastery]} <span className="font-semibold tabular-nums text-ink">{counts[mastery]}</span>
           </span>
         </li>
       ))}
@@ -134,11 +134,11 @@ export function ChartToolbar({ counts, hideRomaji, onToggleRomaji, downloadsTo, 
           aria-pressed={hideRomaji}
           onClick={onToggleRomaji}
           className={cn(
-            'inline-flex h-11 items-center gap-2 rounded-xl border px-3.5 text-sm font-semibold transition-colors',
+            'inline-flex h-11 items-center gap-2 rounded-md border px-3.5 text-sm font-semibold transition-colors',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
             hideRomaji
-              ? 'border-primary/60 bg-primary/10 text-on-surface'
-              : 'border-outline-variant text-on-surface-variant hover:text-on-surface dark:border-outline/60',
+              ? 'border-primary/60 bg-primary/10 text-ink'
+              : 'border-line text-ink-muted hover:text-ink',
           )}
         >
           <span aria-hidden className="flex">

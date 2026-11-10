@@ -119,14 +119,14 @@ export function QuizRunner({ title, session, status, notice, onAnswer, onExit, p
         role="status"
         className={cn(
           'mb-3 flex min-h-7 items-center justify-center gap-1.5 text-center font-bold',
-          answer?.correct ? 'text-success' : 'text-on-surface',
+          answer?.correct ? 'text-success' : 'text-ink',
         )}
       >
         {answer && (
           <>
             <Icon name={answer.correct ? 'check_circle' : 'close'} filled={answer.correct} className="text-xl" />
             {answer.correct ? 'Correct! ' : 'Not quite. It’s '}
-            <span lang="ja" className="font-jp">{target.character}</span>
+            <span lang="ja" className="font-ja-display">{target.character}</span>
             <span>({target.romaji})</span>
           </>
         )}

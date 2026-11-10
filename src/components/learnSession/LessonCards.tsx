@@ -48,21 +48,21 @@ function LessonCard({ item }: { item: LessonItem }) {
   const { data: info, isLoading } = useCardInfo(item.item_type, item.char)
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-3 py-6 text-center">
-      <p lang="ja" className="font-jp text-8xl font-bold leading-none text-on-surface sm:text-9xl">
+      <p lang="ja" className="font-ja text-8xl font-bold leading-none text-ink sm:text-9xl">
         {item.char}
       </p>
       {isLoading ? (
-        <SkeletonBlock className="h-8 w-32 rounded-lg" />
+        <SkeletonBlock className="h-8 w-32 rounded-sm" />
       ) : info ? (
         <>
-          <p className="font-headline text-3xl font-extrabold text-primary">{info.title}</p>
+          <p className="font-display text-3xl font-extrabold text-primary">{info.title}</p>
           {info.details.map((d) => (
-            <p key={d} className="text-on-surface-variant">
+            <p key={d} className="text-ink-muted">
               {d}
             </p>
           ))}
           {info.mnemonic && (
-            <p className="mt-2 max-w-md rounded-2xl bg-surface-container-low p-4 text-sm text-on-surface-variant">
+            <p className="mt-2 max-w-md rounded-xl bg-surface-sunken p-4 text-sm text-ink-muted">
               <Icon name="lightbulb" className="mr-1 align-middle text-base text-tertiary" />
               {info.mnemonic}
             </p>
@@ -70,15 +70,15 @@ function LessonCard({ item }: { item: LessonItem }) {
         </>
       ) : item.romaji || item.meanings?.length ? (
         <>
-          <p className="font-headline text-3xl font-extrabold text-primary">{item.romaji ?? item.meanings?.[0]}</p>
+          <p className="font-display text-3xl font-extrabold text-primary">{item.romaji ?? item.meanings?.[0]}</p>
           {item.key_reading && (
-            <p lang="ja" className="font-jp text-on-surface-variant">
+            <p lang="ja" className="font-ja text-ink-muted">
               {item.key_reading}
             </p>
           )}
         </>
       ) : (
-        <p className="text-sm text-on-surface-variant">Details for this one are not available right now.</p>
+        <p className="text-sm text-ink-muted">Details for this one are not available right now.</p>
       )}
     </div>
   )

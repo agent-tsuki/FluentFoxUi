@@ -59,7 +59,7 @@ export function OverviewPage() {
         description={
           jlpt ? (
             <>
-              You are <span className="font-semibold text-on-surface">{Math.round(jlpt.jlptProgress)}%</span> of the way to JLPT {jlpt.targetLevel}. Here is how today and the last month went.
+              You are <span className="font-semibold text-ink">{Math.round(jlpt.jlptProgress)}%</span> of the way to JLPT {jlpt.targetLevel}. Here is how today and the last month went.
             </>
           ) : (
             'Here is how today and the last month went.'
@@ -109,7 +109,7 @@ export function OverviewPage() {
               <RetentionCard retention={o.retention} />
             ) : (
               <Panel title="Retention" description="Hidden in your settings.">
-                <p className="text-sm text-on-surface-variant">Turn it on under Profile → Learning to compare recall with your target.</p>
+                <p className="text-sm text-ink-muted">Turn it on under Profile → Learning to compare recall with your target.</p>
               </Panel>
             )
           }

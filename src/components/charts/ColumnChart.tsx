@@ -81,7 +81,7 @@ export function ColumnChart<K extends string>({
                 <div
                   key={d.key}
                   onPointerEnter={() => setActive(i)}
-                  className={cn('relative min-w-0 flex-1 rounded-t-[4px]', active === i && 'bg-on-surface/5')}
+                  className={cn('relative min-w-0 flex-1 rounded-t-[4px]', active === i && 'bg-ink/5')}
                 >
                   {series.map((s, si) => {
                     const value = d.values[s.key] ?? 0

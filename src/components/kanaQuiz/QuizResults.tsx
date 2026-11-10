@@ -34,30 +34,30 @@ export function QuizResults({ correct, total, passed, detail, passMark: passMark
   return (
     <div className="flex flex-1 flex-col gap-6">
       <div role="status" className="flex flex-col items-center gap-3 pt-4 text-center">
-        <Icon name={passed ? 'emoji_events' : 'school'} className={cn('text-5xl', passed ? 'text-primary' : 'text-on-surface-variant')} />
-        <p className="font-headline text-5xl font-extrabold tabular-nums text-on-surface">{percent}%</p>
-        <p className="text-on-surface-variant">
+        <Icon name={passed ? 'emoji_events' : 'school'} className={cn('text-5xl', passed ? 'text-primary' : 'text-ink-muted')} />
+        <p className="font-display text-5xl font-extrabold tabular-nums text-ink">{percent}%</p>
+        <p className="text-ink-muted">
           {correct} of {total} correct
         </p>
-        <p className={cn('inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-bold', passed ? 'bg-success/15 text-success' : 'bg-surface-container-high text-on-surface')}>
+        <p className={cn('inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-bold', passed ? 'bg-success/15 text-success' : 'bg-surface-hover text-ink')}>
           <Icon name={passed ? 'check_circle' : 'refresh'} filled={passed} className="text-lg" />
           {passed ? 'Passed' : `Not yet — ${Math.round(passMark * 100)}% to pass`}
         </p>
-        {detail && <div className="text-sm text-on-surface-variant">{detail}</div>}
+        {detail && <div className="text-sm text-ink-muted">{detail}</div>}
       </div>
 
       {breakdown}
 
       {unique.length > 0 && (
-        <section aria-labelledby="quiz-missed" className="rounded-2xl border border-outline-variant/40 bg-surface-container-low p-4">
-          <h3 id="quiz-missed" className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
+        <section aria-labelledby="quiz-missed" className="rounded-xl border border-line bg-surface-sunken p-4">
+          <h3 id="quiz-missed" className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
             {missedTitle}
           </h3>
           <ul className="flex flex-wrap gap-2">
             {unique.map((k) => (
-              <li key={k.id} className="flex min-w-14 flex-col items-center rounded-xl bg-surface-container-lowest px-3 py-2">
-                <span lang="ja" className="font-jp text-2xl font-bold text-on-surface">{k.character}</span>
-                <span className="text-xs text-on-surface-variant">{k.romaji}</span>
+              <li key={k.id} className="flex min-w-14 flex-col items-center rounded-md bg-surface-raised px-3 py-2">
+                <span lang="ja" className="font-ja-display text-2xl font-bold text-ink">{k.character}</span>
+                <span className="text-xs text-ink-muted">{k.romaji}</span>
               </li>
             ))}
           </ul>

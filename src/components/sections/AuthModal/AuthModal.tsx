@@ -203,8 +203,8 @@ export function AuthModal() {
         animate={{ height: isDesktop && contentHeight !== undefined ? contentHeight : '100%' }}
         transition={isDesktop && !reducedMotion ? resizeTransition : { duration: 0 }}
         className={cn(
-          'relative w-full overflow-y-auto overscroll-contain bg-surface-container-lowest',
-          'md:overflow-hidden md:rounded-2xl md:ring-1 md:ring-outline-variant/50 md:shadow-elevation-3',
+          'relative w-full overflow-y-auto overscroll-contain bg-surface-raised',
+          'md:overflow-hidden md:rounded-xl md:ring-1 md:ring-line/50 md:shadow-elevation-3',
           // One width for both tabs, so switching never resizes sideways.
           isFullWidth ? 'md:max-w-2xl' : 'md:max-w-3xl',
         )}
@@ -221,7 +221,7 @@ export function AuthModal() {
           {/* Form panel — on phones it rises over the header with an arc top */}
           <div
             className={cn(
-              'relative flex-1 bg-surface-container-lowest md:max-h-[90vh] md:overflow-y-auto',
+              'relative flex-1 bg-surface-raised md:max-h-[90vh] md:overflow-y-auto',
               isFullWidth
                 ? 'px-6 pb-10 pt-16 md:p-10'
                 : 'px-6 pb-10 pt-2 max-md:animate-sheet-rise md:p-12',
@@ -231,7 +231,7 @@ export function AuthModal() {
               {activeTab === 'signup' ? 'Create your FoxSensei account' : 'Log in to FoxSensei'}
             </h2>
             {!isFullWidth && (
-              <ArcEdge fillClassName="fill-surface-container-lowest" className="h-8 md:hidden" />
+              <ArcEdge fillClassName="fill-surface-raised" className="h-8 md:hidden" />
             )}
 
             {isForgotStep ? (
@@ -254,16 +254,16 @@ export function AuthModal() {
             ) : (
               <>
                 {/* Tab nav */}
-                <div className="flex gap-8 mb-8 md:mb-10 border-b border-surface-container-high">
+                <div className="flex gap-8 mb-8 md:mb-10 border-b border-surface-hover">
                   {tabs.map(tab => (
                     <button
                       key={tab.id}
                       type="button"
                       onClick={() => setActiveTab(tab.id)}
-                      className={`pb-4 text-sm font-headline font-bold tracking-tight transition-colors ${
+                      className={`pb-4 text-sm font-display font-bold tracking-tight transition-colors ${
                         activeTab === tab.id
                           ? 'text-primary border-b-2 border-primary'
-                          : 'text-on-surface-variant hover:text-on-surface'
+                          : 'text-ink-muted hover:text-ink'
                       }`}
                     >
                       {tab.label}
@@ -275,11 +275,11 @@ export function AuthModal() {
                 <div className="md:hidden mb-6 space-y-6">
                   <SocialAuthButtons onGoogle={handleGoogle} onX={handleX} />
                   <div className="relative flex items-center">
-                    <div className="flex-grow border-t border-surface-container-high" />
-                    <span className="flex-shrink mx-4 text-2xs text-outline font-bold uppercase tracking-widest">
+                    <div className="flex-grow border-t border-surface-hover" />
+                    <span className="flex-shrink mx-4 text-2xs text-line-strong font-bold uppercase tracking-[0.12em]">
                       or use email
                     </span>
-                    <div className="flex-grow border-t border-surface-container-high" />
+                    <div className="flex-grow border-t border-surface-hover" />
                   </div>
                 </div>
 
@@ -332,10 +332,10 @@ function MobileHeader({ tab }: { tab: AuthTab }) {
   const copy = AUTH_PANEL_COPY[tab]
   return (
     <div className="md:hidden shrink-0 bg-primary px-6 pb-14 pt-[max(1.5rem,env(safe-area-inset-top))] text-on-primary">
-      <div className="text-xl font-headline font-extrabold tracking-tighter mb-6">
+      <div className="text-xl font-display font-extrabold tracking-tighter mb-6">
         FoxSensei
       </div>
-      <h2 className="text-2xl font-headline font-bold leading-tight italic mb-2">
+      <h2 className="text-2xl font-display font-bold leading-tight italic mb-2">
         {copy.headline}
       </h2>
       <p className="text-on-primary/80 text-sm leading-relaxed">{copy.shortBody}</p>
@@ -360,12 +360,12 @@ function RegisteredStep({ email, onClose, onLogin }: RegisteredStepProps) {
       </div>
 
       <div className="space-y-2">
-        <h2 className="text-2xl font-headline font-bold text-on-surface tracking-tight">
+        <h2 className="text-2xl font-display font-bold text-ink tracking-tight">
           Check your inbox
         </h2>
-        <p className="text-sm text-on-surface-variant leading-relaxed max-w-xs">
+        <p className="text-sm text-ink-muted leading-relaxed max-w-xs">
           We sent a verification link to{' '}
-          <span className="font-bold text-on-surface break-all">{email || 'your email'}</span>.
+          <span className="font-bold text-ink break-all">{email || 'your email'}</span>.
           Click it, then log in to continue.
         </p>
       </div>
@@ -375,14 +375,14 @@ function RegisteredStep({ email, onClose, onLogin }: RegisteredStepProps) {
           type="button"
           variant="primary"
           onClick={onLogin}
-          className="w-full py-3.5 font-headline"
+          className="w-full py-3.5 font-display"
         >
           Go to Login
         </Button>
         <button
           type="button"
           onClick={onClose}
-          className="w-full text-sm text-on-surface-variant hover:text-on-surface transition-colors py-2"
+          className="w-full text-sm text-ink-muted hover:text-ink transition-colors py-2"
         >
           Close
         </button>

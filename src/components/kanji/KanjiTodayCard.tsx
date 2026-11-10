@@ -26,7 +26,7 @@ interface KanjiTodayCardProps {
 }
 
 const CARD =
-  'rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-4 dark:border-outline/60 dark:bg-surface-container-low sm:p-6'
+  'rounded-xl bg-surface-raised shadow-elevation-1 p-4 sm:p-6'
 
 export function KanjiTodayCard({ next, isFresh, unitCount, levelTest }: KanjiTodayCardProps) {
   const level = useKanjiLevel()
@@ -57,10 +57,10 @@ export function KanjiTodayCard({ next, isFresh, unitCount, levelTest }: KanjiTod
   return (
     <section aria-labelledby="today-heading" className={CARD}>
       <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Today</p>
-      <h2 id="today-heading" className="mt-1.5 font-headline text-xl font-bold text-on-surface md:text-2xl">
+      <h2 id="today-heading" className="mt-1.5 font-display text-xl font-bold text-ink md:text-2xl">
         {hasReviews ? `${reviewCount} review${reviewCount === 1 ? '' : 's'} due` : next ? `Unit ${next.number}: ${next.unit.title}` : 'All units done'}
       </h2>
-      <p className="mt-1 text-sm tabular-nums text-on-surface-variant">
+      <p className="mt-1 text-sm tabular-nums text-ink-muted">
         {summary && `${summary.new_left_today} new kanji left today · `}
         {!next && levelTest && `level test best ${percent(levelTest.best)}`}
         {next && `${next.completed} of ${next.total} steps in Unit ${next.number} of ${unitCount}`}

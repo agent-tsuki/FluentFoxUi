@@ -20,20 +20,20 @@ export function ForecastChart({ days, track, className }: ForecastChartProps) {
   const total = forecastTotal(bars)
   return (
     <figure className={cn('space-y-3', className)}>
-      <figcaption className="text-sm text-on-surface-variant">
-        <span className="font-semibold text-on-surface tabular-nums">{total}</span> reviews over the next {bars.length} days · today in orange, overdue included
+      <figcaption className="text-sm text-ink-muted">
+        <span className="font-semibold text-ink tabular-nums">{total}</span> reviews over the next {bars.length} days · today in orange, overdue included
       </figcaption>
       <ol className="grid h-40 items-end gap-1 sm:gap-1.5" style={{ gridTemplateColumns: `repeat(${bars.length}, minmax(0, 1fr))` }}>
         {bars.map((b, i) => (
           <li key={b.date} className="flex h-full flex-col items-center justify-end gap-1" aria-label={`${b.label} ${b.dayOfMonth}: ${b.count} reviews`}>
-            <span aria-hidden className="text-2xs font-semibold tabular-nums text-on-surface-variant">{b.count > 0 ? b.count : ''}</span>
+            <span aria-hidden className="text-2xs font-semibold tabular-nums text-ink-muted">{b.count > 0 ? b.count : ''}</span>
             <span aria-hidden className="flex w-full flex-1 items-end">
               <span
-                className={cn('block w-full rounded-t-md', b.count === 0 ? 'bg-outline-variant/50' : i === 0 ? 'bg-primary' : 'bg-primary/45')}
+                className={cn('block w-full rounded-t-md', b.count === 0 ? 'bg-line/50' : i === 0 ? 'bg-primary' : 'bg-primary/45')}
                 style={{ height: b.count === 0 ? '2px' : `${Math.max(b.pct, MIN_BAR_PCT)}%` }}
               />
             </span>
-            <span aria-hidden className={cn('text-2xs tabular-nums', i === 0 ? 'font-bold text-primary' : 'text-on-surface-variant')}>{b.dayOfMonth}</span>
+            <span aria-hidden className={cn('text-2xs tabular-nums', i === 0 ? 'font-bold text-primary' : 'text-ink-muted')}>{b.dayOfMonth}</span>
           </li>
         ))}
       </ol>

@@ -16,7 +16,7 @@ export function AdminPageHeader({ title, description, back, actions }: AdminPage
       {back && (
         <Link
           to={back.to}
-          className="-my-2 inline-flex min-h-11 items-center gap-1 py-2 text-sm font-semibold text-on-surface-variant hover:text-on-surface"
+          className="-my-2 inline-flex min-h-11 items-center gap-1 py-2 text-sm font-semibold text-ink-muted hover:text-ink"
         >
           <Icon name="arrow_back" className="text-base" />
           {back.label}
@@ -24,8 +24,8 @@ export function AdminPageHeader({ title, description, back, actions }: AdminPage
       )}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 space-y-1">
-          <h1 className="font-headline text-2xl font-extrabold tracking-tight text-on-surface md:text-3xl">{title}</h1>
-          {description && <p className="max-w-2xl text-sm text-on-surface-variant">{description}</p>}
+          <h1 className="font-display text-2xl font-extrabold tracking-tight text-ink md:text-3xl">{title}</h1>
+          {description && <p className="max-w-2xl text-sm text-ink-muted">{description}</p>}
         </div>
         {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
       </div>

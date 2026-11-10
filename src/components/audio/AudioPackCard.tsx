@@ -91,17 +91,17 @@ export function AudioPackCard({ texts, courseLabel, section }: AudioPackCardProp
 
   return (
     <TestsSection id={section.id} title={section.title} description={section.description}>
-      <div className="flex flex-col gap-4 rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-5 dark:border-outline/60 dark:bg-surface-container-low sm:flex-row sm:items-center sm:p-6">
-        <span aria-hidden className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+      <div className="flex flex-col gap-4 rounded-xl border border-line bg-surface-raised p-5 sm:flex-row sm:items-center sm:p-6">
+        <span aria-hidden className="flex size-12 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
           <Icon name={complete ? 'check_circle' : 'headphones'} className="text-2xl" filled={complete} />
         </span>
         <div className="min-w-0 flex-1 space-y-1">
-          <h3 id="audio-pack-title" className="font-headline text-lg font-bold text-on-surface">
+          <h3 id="audio-pack-title" className="font-display text-lg font-bold text-ink">
             {courseLabel} audio
           </h3>
           {state.kind === 'downloading' ? (
             <>
-              <p className="text-sm tabular-nums text-on-surface-variant" aria-live="polite">
+              <p className="text-sm tabular-nums text-ink-muted" aria-live="polite">
                 Saving {state.progress.saved} of {state.progress.total || '…'} sounds…
               </p>
               <ProgressBar
@@ -113,11 +113,11 @@ export function AudioPackCard({ texts, courseLabel, section }: AudioPackCardProp
               />
             </>
           ) : complete ? (
-            <p className="text-sm text-on-surface-variant">
+            <p className="text-sm text-ink-muted">
               Saved on this device: all {total} sounds play instantly, even offline.
             </p>
           ) : (
-            <p className="text-sm text-on-surface-variant">
+            <p className="text-sm text-ink-muted">
               {partial
                 ? `${saved} of ${total} sounds saved. `
                 : `Every sound and example word in the course (${total} sounds, ${sizeLabel(total, ext)}), saved for instant, offline playback. `}
@@ -130,7 +130,7 @@ export function AudioPackCard({ texts, courseLabel, section }: AudioPackCardProp
               )}
             </p>
           )}
-          {credit && <p className="pt-1 text-xs text-on-surface-variant">Voice: {credit}</p>}
+          {credit && <p className="pt-1 text-xs text-ink-muted">Voice: {credit}</p>}
         </div>
         <div className="flex shrink-0 items-center gap-4 sm:flex-col sm:items-end sm:gap-1">
           {state.kind === 'downloading' ? (

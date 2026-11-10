@@ -9,11 +9,11 @@ import { Icon } from '@/components/ui/Icon'
 
 /** Live feedback line under each demo; a fixed height keeps the panel from jumping. */
 function Feedback({ children }: { children: ReactNode }) {
-  return <p className="mt-5 min-h-12 text-base leading-6 text-home-muted" aria-live="polite">{children}</p>
+  return <p className="mt-5 min-h-12 text-base leading-6 text-ink-muted" aria-live="polite">{children}</p>
 }
 
 function Ja({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <span lang="ja" className={`font-jp ${className}`}>{children}</span>
+  return <span lang="ja" className={`font-ja-display ${className}`}>{children}</span>
 }
 
 /** Focus a control on the next frame, once React has rendered it. */
@@ -41,13 +41,13 @@ export const KanaDemo = memo(function KanaDemo() {
       {/* Flashcard: the character, how it sounds, and a real word made from it. */}
       <div aria-live="polite" className="flex flex-col items-center">
         <div key={current.kana} className="flex items-end justify-center gap-4 motion-safe:animate-[concept-fade_220ms_ease-out]">
-          <Ja className="text-7xl leading-none text-home-ink sm:text-8xl">{current.kana}</Ja>
-          <span className="concept-section-title pb-1 text-home-accent-hover">{current.romaji}</span>
+          <Ja className="text-7xl leading-none text-ink sm:text-8xl">{current.kana}</Ja>
+          <span className="concept-section-title pb-1 text-primary-hover">{current.romaji}</span>
         </div>
-        <p className="mt-4 text-base text-home-muted">{current.hint}</p>
-        <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-home-line bg-home-canvas px-4 py-1.5 text-sm text-home-muted">
+        <p className="mt-4 text-base text-ink-muted">{current.hint}</p>
+        <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-line bg-surface px-4 py-1.5 text-sm text-ink-muted">
           <span className="concept-label">In a word</span>
-          <Ja className="text-base text-home-ink">{current.word}</Ja>
+          <Ja className="text-base text-ink">{current.word}</Ja>
           <span>{current.wordRomaji} · {current.meaning}</span>
         </p>
       </div>
@@ -84,16 +84,16 @@ export const KanjiDemo = memo(function KanjiDemo() {
 
   return (
     <>
-      <p className="text-6xl leading-none text-home-leaf" aria-hidden="true">
+      <p className="text-6xl leading-none text-leaf" aria-hidden="true">
         <Ja key={current.kanji} className="inline-block motion-safe:animate-[concept-fade_220ms_ease-out]">{current.kanji}</Ja>
       </p>
       <div className="mt-4 flex justify-center gap-1.5" aria-hidden="true">
         {FOREST.map((item, index) => (
-          <span key={item.kanji} className={`size-1.5 rounded-full ${index <= step ? 'bg-home-leaf' : 'bg-home-line-strong'}`} />
+          <span key={item.kanji} className={`size-1.5 rounded-full ${index <= step ? 'bg-leaf' : 'bg-line-strong'}`} />
         ))}
       </div>
       <Feedback>
-        <Ja className="text-home-ink">{current.kanji}</Ja> · {current.reading}
+        <Ja className="text-ink">{current.kanji}</Ja> · {current.reading}
       </Feedback>
       {/* Same button throughout, so focus never moves. */}
       <button type="button" onClick={() => setStep(atEnd ? 0 : step + 1)} className="concept-demo-btn">
@@ -130,15 +130,15 @@ export const GrammarDemo = memo(function GrammarDemo() {
   }
 
   function slotClass(index: number): string {
-    if (done) return correct ? 'border-home-leaf bg-home-tile text-home-ink' : 'border-home-accent bg-home-tile text-home-ink'
-    return order[index] ? 'border-home-line-strong bg-home-tile text-home-ink' : 'border-dashed border-home-line-strong text-home-muted'
+    if (done) return correct ? 'border-leaf bg-surface-raised text-ink' : 'border-primary bg-surface-raised text-ink'
+    return order[index] ? 'border-line-strong bg-surface-raised text-ink' : 'border-dashed border-line-strong text-ink-muted'
   }
 
   return (
     <>
       <div className="flex justify-center gap-2" aria-hidden="true">
         {SENTENCE_PARTS.map((_, index) => (
-          <Ja key={index} className={`grid min-h-11 min-w-24 place-items-center rounded-xl border px-3 text-lg ${slotClass(index)}`}>
+          <Ja key={index} className={`grid min-h-11 min-w-24 place-items-center rounded-md border px-3 text-lg ${slotClass(index)}`}>
             {order[index] ?? '…'}
           </Ja>
         ))}
@@ -152,7 +152,7 @@ export const GrammarDemo = memo(function GrammarDemo() {
       </div>
       <Feedback>
         {!done && (order.length ? <>Good start: <Ja>{order[0]}</Ja> is placed. Now the other part.</> : 'Tap the two parts in order.')}
-        {done && correct && <><Ja className="text-home-ink">私は学生です。</Ja> I am a student. <Ja>は</Ja> marks the topic.</>}
+        {done && correct && <><Ja className="text-ink">私は学生です。</Ja> I am a student. <Ja>は</Ja> marks the topic.</>}
         {done && !correct && <>Almost. Put <Ja>私は</Ja> first — <Ja>は</Ja> marks the topic.</>}
       </Feedback>
       <button
@@ -205,8 +205,8 @@ export const ReviewDemo = memo(function ReviewDemo() {
 
   return (
     <>
-      <p className="text-6xl leading-none text-home-ink"><Ja>{card.kanji}</Ja></p>
-      <p className="mt-3 text-sm text-home-muted">What does it mean?</p>
+      <p className="text-6xl leading-none text-ink"><Ja>{card.kanji}</Ja></p>
+      <p className="mt-3 text-sm text-ink-muted">What does it mean?</p>
       <div ref={choicesRef} className="mx-auto mt-4 grid max-w-sm grid-cols-3 gap-2">
         {card.choices.map((choice) => (
           <button key={choice} type="button" disabled={picked !== null} onClick={() => pick(choice)} className={`concept-demo-btn px-2 ${choiceClass(choice)}`}>
@@ -217,8 +217,8 @@ export const ReviewDemo = memo(function ReviewDemo() {
       <Feedback>
         {picked === null && 'Pick an answer. FoxSensei grades it for you.'}
         {picked !== null && (right
-          ? <><strong className="text-home-ink">Good.</strong> It comes back after a longer gap.</>
-          : <><strong className="text-home-ink">Missed.</strong> It comes back soon, so you get another go.</>)}
+          ? <><strong className="text-ink">Good.</strong> It comes back after a longer gap.</>
+          : <><strong className="text-ink">Missed.</strong> It comes back soon, so you get another go.</>)}
       </Feedback>
       <button ref={nextRef} type="button" onClick={next} disabled={picked === null} className="concept-demo-btn disabled:invisible">
         Next card <Icon name="arrow_forward" className="text-base" />

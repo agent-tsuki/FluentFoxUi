@@ -1,35 +1,52 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import { cn } from '@/lib/cn'
 
-type Variant = 'primary' | 'outline' | 'ghost' | 'white' | 'inverse'
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'outline' | 'white' | 'inverse'
+export type ButtonSize = 'sm' | 'md' | 'lg'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: Variant
+  /** `primary` is the one next step on a screen; `secondary` a real alternative; `ghost` skip, back or cancel. */
+  variant?: ButtonVariant
+  size?: ButtonSize
   children: ReactNode
 }
 
-const variantClasses: Record<Variant, string> = {
-  primary:
-    'bg-primary text-on-primary shadow-lg shadow-primary/20 hover:shadow-primary/30 dark:shadow-primary/10 dark:hover:shadow-primary/15',
-  outline:
-    'border-2 border-outline-variant/40 hover:bg-surface-container-low text-on-surface',
-  ghost: 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low',
-  white: 'bg-white text-primary hover:bg-on-primary-container shadow-md',
-  // Header call-to-action: brand coral in light, a moonlight pill on navy in dark.
-  // On hover it lifts and glows in its own colour.
-  inverse: [
-    'bg-primary text-on-primary shadow-elevation-1',
-    'hover:-translate-y-0.5 hover:shadow-[0_0.5rem_2rem_-0.25rem_rgb(var(--primary)/0.7)]',
-    'motion-reduce:hover:translate-y-0',
-    'dark:bg-on-surface dark:text-surface dark:hover:shadow-[0_0.5rem_2rem_-0.25rem_rgb(var(--on-surface)/0.5)]',
-  ].join(' '),
+const SECONDARY = 'border-line-strong bg-surface-raised text-ink hover:bg-surface-hover'
+const PRIMARY = 'border-transparent bg-primary text-on-primary hover:bg-primary-hover'
+
+const VARIANTS: Record<ButtonVariant, string> = {
+  primary: PRIMARY,
+  secondary: SECONDARY,
+  ghost: 'border-transparent text-ink hover:bg-surface-hover',
+  // Older names for the two above, kept so existing call sites read the same.
+  outline: SECONDARY,
+  inverse: PRIMARY,
+  // For use on a surface-inverse band.
+  white: 'border-transparent bg-surface-raised text-primary-ink hover:bg-surface-hover',
 }
 
-export function Button({ variant = 'primary', className = '', children, ...props }: ButtonProps) {
+const SIZES: Record<ButtonSize, string> = {
+  sm: 'min-h-9 px-3 text-caption',
+  md: 'min-h-touch-target px-[1.125rem] text-label',
+  lg: 'min-h-[3.25rem] px-6 text-body font-semibold',
+}
+
+/** The Button recipe, for anything that must look like one (see ButtonLink). */
+export function buttonClasses(variant: ButtonVariant = 'primary', size: ButtonSize = 'md', className?: string) {
+  return cn(
+    // A caller's `flex` (for centring with mx-auto, or full width) must win over the inline default.
+    /(^|\s)flex(\s|$)/.test(className ?? '') ? undefined : 'inline-flex',
+    'items-center justify-center gap-2 rounded-md border font-sans font-semibold transition-colors duration-fast',
+    'disabled:cursor-not-allowed disabled:border-transparent disabled:bg-surface-sunken disabled:text-ink-subtle',
+    VARIANTS[variant],
+    SIZES[size],
+    className,
+  )
+}
+
+export function Button({ variant = 'primary', size = 'md', className, children, ...props }: ButtonProps) {
   return (
-    <button
-      className={`transition duration-200 ease-out hover:scale-[1.02] active:scale-[0.98] px-6 py-2.5 rounded-xl font-bold ${variantClasses[variant]} ${className}`}
-      {...props}
-    >
+    <button className={buttonClasses(variant, size, className)} {...props}>
       {children}
     </button>
   )

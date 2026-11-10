@@ -32,7 +32,7 @@ export function ProgressSection<T>({ id, eyebrow, title, description, state, isE
   else if (isLoading || data === undefined) {
     body = (
       <LoadingState label={`Loading ${title.toLowerCase()}…`}>
-        <SkeletonBlock className="h-32 w-full rounded-xl" />
+        <SkeletonBlock className="h-32 w-full rounded-md" />
       </LoadingState>
     )
   } else if (isEmpty(data)) body = <EmptyState {...empty} className="py-10" />
@@ -43,10 +43,10 @@ export function ProgressSection<T>({ id, eyebrow, title, description, state, isE
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-1">
           <Eyebrow variant="plain">{eyebrow}</Eyebrow>
-          <h2 id={`${id}-title`} className="font-headline text-2xl font-extrabold tracking-tight text-on-surface">
+          <h2 id={`${id}-title`} className="font-display text-2xl font-extrabold tracking-tight text-ink">
             {title}
           </h2>
-          {description && <p className="max-w-prose text-sm text-on-surface-variant">{description}</p>}
+          {description && <p className="max-w-prose text-sm text-ink-muted">{description}</p>}
         </div>
         {actions}
       </div>

@@ -53,11 +53,11 @@ function KanjiDetail({ char }: { char: string }) {
         {isLoading ? (
           <LoadingState label={`Loading ${char}…`}>
             <div className="mt-6 grid gap-8 lg:grid-cols-[20rem_minmax(0,1fr)]">
-              <SkeletonBlock className="aspect-square w-full rounded-2xl" />
+              <SkeletonBlock className="aspect-square w-full rounded-xl" />
               <div className="space-y-3">
-                <SkeletonBlock className="h-10 w-2/3 rounded-xl" />
-                <SkeletonBlock className="h-24 w-full rounded-2xl" />
-                <SkeletonBlock className="h-40 w-full rounded-2xl" />
+                <SkeletonBlock className="h-10 w-2/3 rounded-md" />
+                <SkeletonBlock className="h-24 w-full rounded-xl" />
+                <SkeletonBlock className="h-40 w-full rounded-xl" />
               </div>
             </div>
           </LoadingState>
@@ -100,7 +100,7 @@ function ContextNav({ char, indexes }: { char: string; indexes?: KanjiLevelIndex
 
   return (
     <nav aria-label="Kanji navigation" className="flex items-center justify-between gap-2">
-      <Link to={back.to} className="-ml-2 inline-flex min-h-11 items-center gap-1 rounded-xl px-2 text-sm font-semibold text-on-surface-variant hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+      <Link to={back.to} className="-ml-2 inline-flex min-h-11 items-center gap-1 rounded-md px-2 text-sm font-semibold text-ink-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
         <Icon name="arrow_back" className="text-lg" />
         {back.label}
       </Link>
@@ -118,10 +118,10 @@ function StepLink({ row, dir, from }: { row?: KanjiIndexRow; dir: 'prev' | 'next
     <Link
       to={kanjiCharPath(row.char, from)}
       aria-label={`${dir === 'prev' ? 'Previous' : 'Next'} kanji: ${row.char}, ${row.meaning}`}
-      className="inline-flex min-h-11 items-center gap-1 rounded-xl px-2 text-sm text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      className="inline-flex min-h-11 items-center gap-1 rounded-md px-2 text-sm text-ink-muted hover:bg-surface-hover hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
     >
       {dir === 'prev' && <Icon name="chevron_left" className="text-xl" />}
-      <span lang="ja" className="font-jp text-lg">
+      <span lang="ja" className="font-ja text-lg">
         {row.char}
       </span>
       {dir === 'next' && <Icon name="chevron_right" className="text-xl" />}
@@ -129,7 +129,7 @@ function StepLink({ row, dir, from }: { row?: KanjiIndexRow; dir: 'prev' | 'next
   )
 }
 
-const PANEL = 'rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-4 dark:border-outline/60 dark:bg-surface-container-low sm:p-5'
+const PANEL = 'rounded-xl bg-surface-raised shadow-elevation-1 p-4 sm:p-5'
 
 function Section({ id, title, children, className }: { id: string; title: string; children: ReactNode; className?: string }) {
   return (
@@ -157,19 +157,19 @@ function EntryView({ entry, indexes }: { entry: KanjiEntry; indexes: KanjiLevelI
 
       <div className="min-w-0 space-y-8">
         <header>
-          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-on-surface-variant">
+          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-ink-muted">
             <span className="rounded-full bg-primary/10 px-2.5 py-1 text-primary">{level.label}</span>
-            {entry.grade && <span className="rounded-full bg-surface-container-high px-2.5 py-1">{entry.grade <= 6 ? `Grade ${entry.grade}` : 'Secondary school'}</span>}
-            <span className="rounded-full bg-surface-container-high px-2.5 py-1 tabular-nums">{entry.strokes} strokes</span>
-            {entry.freq && <span className="rounded-full bg-surface-container-high px-2.5 py-1 tabular-nums">#{entry.freq} most common</span>}
+            {entry.grade && <span className="rounded-full bg-surface-hover px-2.5 py-1">{entry.grade <= 6 ? `Grade ${entry.grade}` : 'Secondary school'}</span>}
+            <span className="rounded-full bg-surface-hover px-2.5 py-1 tabular-nums">{entry.strokes} strokes</span>
+            {entry.freq && <span className="rounded-full bg-surface-hover px-2.5 py-1 tabular-nums">#{entry.freq} most common</span>}
           </div>
-          <h1 className="mt-3 flex flex-wrap items-baseline gap-x-4 gap-y-1 font-headline text-display-sm font-extrabold tracking-tight text-on-surface">
-            <span lang="ja" className="font-jp lg:hidden">
+          <h1 className="mt-3 flex flex-wrap items-baseline gap-x-4 gap-y-1 font-display text-display-sm font-extrabold tracking-tight text-ink">
+            <span lang="ja" className="font-ja lg:hidden">
               {entry.char}
             </span>
             <span>{entry.meanings[0]}</span>
           </h1>
-          {entry.meanings.length > 1 && <p className="mt-1 text-on-surface-variant">{entry.meanings.slice(1).join(', ')}</p>}
+          {entry.meanings.length > 1 && <p className="mt-1 text-ink-muted">{entry.meanings.slice(1).join(', ')}</p>}
           {unit && (
             <TextLink to={kanjiUnitPath(entry.jlpt, unit.id)} leadingIcon="school" className="mt-2">
               {level.title} · Unit {unitNumber}: {unit.title}
@@ -181,15 +181,15 @@ function EntryView({ entry, indexes }: { entry: KanjiEntry; indexes: KanjiLevelI
         <Parts entry={entry} indexes={indexes} />
         <MemoryHint entry={entry} />
         <Section id="words-heading" title="Words">
-          <ul className={cn(PANEL, 'divide-y divide-outline-variant/40 p-0 sm:p-0')}>
+          <ul className={cn(PANEL, 'divide-y divide-line p-0 sm:p-0')}>
             {entry.vocab.map((v) => (
               <li key={v.word} className="flex items-center gap-3 px-4 py-3">
                 <div className="min-w-0 flex-1">
                   <p className="flex flex-wrap items-baseline gap-x-2">
-                    <span lang="ja" className="font-jp text-xl font-bold text-on-surface">
+                    <span lang="ja" className="font-ja text-xl font-bold text-ink">
                       {v.word}
                     </span>
-                    <span lang="ja" className="font-jp text-on-surface-variant">
+                    <span lang="ja" className="font-ja text-ink-muted">
                       {v.reading}
                     </span>
                     {v.isKey && (
@@ -199,7 +199,7 @@ function EntryView({ entry, indexes }: { entry: KanjiEntry; indexes: KanjiLevelI
                       </span>
                     )}
                   </p>
-                  <p className="text-sm text-on-surface-variant">{v.meaning}</p>
+                  <p className="text-sm text-ink-muted">{v.meaning}</p>
                 </div>
                 {supported && <SpeakerButton onClick={() => speak(v.reading)} label={`Play ${v.word}`} loading={loadingText === v.reading} />}
               </li>
@@ -224,7 +224,7 @@ function StrokePanel({ char }: { char: string }) {
   const [mode, setMode] = useState<'watch' | 'trace'>('watch')
   return (
     <div className="lg:sticky lg:top-[calc(theme(spacing.nav)+theme(spacing.6))] lg:self-start">
-      <p lang="ja" aria-hidden className="hidden text-center font-jp text-8xl font-bold leading-none text-on-surface lg:block">
+      <p lang="ja" aria-hidden className="hidden text-center font-ja text-8xl font-bold leading-none text-ink lg:block">
         {char}
       </p>
       <div className={cn(PANEL, 'mt-4')}>
@@ -237,8 +237,8 @@ function StrokePanel({ char }: { char: string }) {
               aria-selected={mode === m}
               onClick={() => setMode(m)}
               className={cn(
-                'min-h-11 flex-1 rounded-xl text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-                mode === m ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container-low',
+                'min-h-11 flex-1 rounded-md text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                mode === m ? 'bg-primary/10 text-primary' : 'text-ink-muted hover:bg-surface-hover',
               )}
             >
               {m === 'watch' ? 'Stroke order' : 'Trace it'}
@@ -247,11 +247,11 @@ function StrokePanel({ char }: { char: string }) {
         </div>
         {strokes.status === 'loading' && (
           <LoadingState label="Loading strokes…">
-            <SkeletonBlock className="mx-auto aspect-square w-full max-w-[15rem] rounded-2xl" />
+            <SkeletonBlock className="mx-auto aspect-square w-full max-w-[15rem] rounded-xl" />
           </LoadingState>
         )}
         {strokes.status === 'error' && <ErrorState title="Couldn't load strokes" message="Check your connection and try again." onRetry={strokes.retry} className="py-6" />}
-        {strokes.status === 'missing' && <p className="text-sm text-on-surface-variant">Stroke data isn't available for this kanji yet.</p>}
+        {strokes.status === 'missing' && <p className="text-sm text-ink-muted">Stroke data isn't available for this kanji yet.</p>}
         {strokes.status === 'ready' &&
           (mode === 'watch' ? (
             <StrokeOrder glyph={kanjiGlyph(strokes.data)} character={char} />
@@ -275,23 +275,23 @@ function Readings({ entry }: { entry: KanjiEntry }) {
     <Section id="readings-heading" title="Readings">
       <div className={cn(PANEL, 'grid gap-4 sm:grid-cols-2')}>
         <div>
-          <h3 className="text-sm font-semibold text-on-surface">
-            On’yomi <span className="font-normal text-on-surface-variant">· from Chinese, mostly in compounds</span>
+          <h3 className="text-sm font-semibold text-ink">
+            On’yomi <span className="font-normal text-ink-muted">· from Chinese, mostly in compounds</span>
           </h3>
-          <p lang="ja" className="mt-1 flex flex-wrap gap-x-3 gap-y-1 font-jp text-xl text-on-surface">
+          <p lang="ja" className="mt-1 flex flex-wrap gap-x-3 gap-y-1 font-ja text-xl text-ink">
             {entry.on.length ? entry.on.map((r) => (
               <span key={r} className={cn('inline-flex items-center gap-0.5', key.type === 'on' && key.kana === r && 'font-bold')}>
                 {r}
                 {key.type === 'on' && key.kana === r && star}
               </span>
-            )) : <span className="font-body text-sm text-on-surface-variant">None</span>}
+            )) : <span className="font-sans text-sm text-ink-muted">None</span>}
           </p>
         </div>
         <div>
-          <h3 className="text-sm font-semibold text-on-surface">
-            Kun’yomi <span className="font-normal text-on-surface-variant">· native Japanese</span>
+          <h3 className="text-sm font-semibold text-ink">
+            Kun’yomi <span className="font-normal text-ink-muted">· native Japanese</span>
           </h3>
-          <p lang="ja" className="mt-1 flex flex-wrap gap-x-3 gap-y-1 font-jp text-xl text-on-surface">
+          <p lang="ja" className="mt-1 flex flex-wrap gap-x-3 gap-y-1 font-ja text-xl text-ink">
             {entry.kun.length ? entry.kun.map((k) => {
               const isKey = key.type === 'kun' && key.kana === k.kana && !k.affix
               return (
@@ -300,11 +300,11 @@ function Readings({ entry }: { entry: KanjiEntry }) {
                   {isKey && star}
                 </span>
               )
-            }) : <span className="font-body text-sm text-on-surface-variant">None</span>}
+            }) : <span className="font-sans text-sm text-ink-muted">None</span>}
           </p>
         </div>
         {entry.readingTip && (
-          <p className="flex gap-2 rounded-xl bg-surface-container-low p-3 text-sm text-on-surface sm:col-span-2">
+          <p className="flex gap-2 rounded-md bg-surface-sunken p-3 text-sm text-ink sm:col-span-2">
             <Icon name="lightbulb" className="shrink-0 text-lg text-primary" />
             <span lang="en">{entry.readingTip}</span>
           </p>
@@ -326,13 +326,13 @@ function Parts({ entry, indexes }: { entry: KanjiEntry; indexes: KanjiLevelIndex
           return (
             <li key={p.char} className={cn(PANEL, 'flex flex-wrap items-center gap-x-4 gap-y-2 p-3 sm:p-3')}>
               <span className="flex items-center gap-2">
-                <span lang="ja" className="flex h-11 w-11 items-center justify-center rounded-xl bg-surface-container-high font-jp text-2xl text-on-surface">
+                <span lang="ja" className="flex h-11 w-11 items-center justify-center rounded-md bg-surface-hover font-ja text-2xl text-ink">
                   {p.char}
                 </span>
-                <span className="font-semibold text-on-surface">{p.name}</span>
+                <span className="font-semibold text-ink">{p.name}</span>
               </span>
               {alsoIn.length > 0 && (
-                <span className="flex flex-wrap items-center gap-1 text-sm text-on-surface-variant">
+                <span className="flex flex-wrap items-center gap-1 text-sm text-ink-muted">
                   also in
                   {alsoIn.map((r) => (
                     <Link
@@ -340,7 +340,7 @@ function Parts({ entry, indexes }: { entry: KanjiEntry; indexes: KanjiLevelIndex
                       to={kanjiCharPath(r.char, r.level)}
                       lang="ja"
                       aria-label={`${r.char}, ${r.meaning}`}
-                      className="inline-flex h-11 w-9 items-center justify-center rounded-lg font-jp text-lg text-on-surface hover:bg-surface-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      className="inline-flex h-11 w-9 items-center justify-center rounded-sm font-ja text-lg text-ink hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                     >
                       {r.char}
                     </Link>
@@ -360,10 +360,10 @@ function MemoryHint({ entry }: { entry: KanjiEntry }) {
     <Section id="hint-heading" title="Remember it">
       <div className={cn(PANEL, 'space-y-4')}>
         {entry.mnemonic && (
-          <p className="text-on-surface">
+          <p className="text-ink">
             {entry.mnemonic.text}
             {entry.mnemonic.draft && (
-              <span className="ml-2 rounded-full bg-surface-container-high px-2 py-0.5 align-middle text-2xs font-semibold uppercase tracking-wide text-on-surface-variant">
+              <span className="ml-2 rounded-full bg-surface-hover px-2 py-0.5 align-middle text-2xs font-semibold uppercase tracking-[0.12em] text-ink-muted">
                 Draft
               </span>
             )}
@@ -390,7 +390,7 @@ const NOTE_STATUS: Record<KanjiNoteSave, string> = {
 
 function KanjiNoteField({ char }: { char: string }) {
   const { text, isLoading, error, refetch, save, saveState } = useKanjiNote(char)
-  if (isLoading) return <SkeletonBlock className="h-20 w-full rounded-xl" />
+  if (isLoading) return <SkeletonBlock className="h-20 w-full rounded-md" />
   if (error || text === undefined) return <ErrorState message="We couldn't load your note." onRetry={refetch} />
   return <NoteEditor initial={text} onSave={save} saveState={saveState} />
 }
@@ -407,7 +407,7 @@ function NoteEditor({ initial, onSave, saveState }: { initial: string; onSave: (
 
   return (
     <div>
-      <label htmlFor="kanji-note" className="text-sm font-semibold text-on-surface">
+      <label htmlFor="kanji-note" className="text-sm font-semibold text-ink">
         Your note
       </label>
       <textarea
@@ -420,9 +420,9 @@ function NoteEditor({ initial, onSave, saveState }: { initial: string; onSave: (
         rows={2}
         maxLength={NOTE_MAX_LENGTH}
         placeholder="Write your own way to remember it"
-        className="mt-1 w-full resize-y rounded-xl border border-outline-variant/60 bg-surface px-3 py-2 text-base text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="mt-1 w-full resize-y rounded-md border border-line bg-surface px-3 py-2 text-base text-ink placeholder:text-ink-subtle focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       />
-      <p aria-live="polite" className="min-h-4 text-xs text-on-surface-variant">
+      <p aria-live="polite" className="min-h-4 text-xs text-ink-muted">
         {edited ? NOTE_STATUS[saveState] : ''}
       </p>
     </div>
@@ -439,12 +439,12 @@ function LookAlikes({ entry, indexes }: { entry: KanjiEntry; indexes: KanjiLevel
           const row = byChar.get(l.char)
           const body = (
             <>
-              <span lang="ja" className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-surface-container-high font-jp text-3xl text-on-surface">
+              <span lang="ja" className="flex h-14 w-14 shrink-0 items-center justify-center rounded-md bg-surface-hover font-ja text-3xl text-ink">
                 {l.char}
               </span>
               <span className="min-w-0">
-                <span className="block font-semibold text-on-surface">{row?.meaning ?? 'Not in N5–N4'}</span>
-                {l.note && <span className="block text-sm text-on-surface-variant">{l.note}</span>}
+                <span className="block font-semibold text-ink">{row?.meaning ?? 'Not in N5–N4'}</span>
+                {l.note && <span className="block text-sm text-ink-muted">{l.note}</span>}
               </span>
             </>
           )
@@ -453,7 +453,7 @@ function LookAlikes({ entry, indexes }: { entry: KanjiEntry; indexes: KanjiLevel
               {row ? (
                 <Link
                   to={kanjiCharPath(l.char, row.level)}
-                  className={cn(PANEL, 'flex items-center gap-3 p-3 hover:bg-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:p-3')}
+                  className={cn(PANEL, 'flex items-center gap-3 p-3 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:p-3')}
                 >
                   {body}
                 </Link>

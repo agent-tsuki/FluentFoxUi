@@ -14,12 +14,12 @@ export function SettingToggle({ icon, label, description, checked, onChange, dis
   return (
     <div className="flex items-center justify-between gap-4">
       <div className="flex items-center gap-4">
-        <div className="w-10 h-10 bg-surface-container rounded-lg flex items-center justify-center text-on-surface-variant flex-shrink-0">
+        <div className="w-10 h-10 bg-surface-sunken rounded-sm flex items-center justify-center text-ink-muted flex-shrink-0">
           <Icon name={icon} className="text-xl" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-on-surface font-body">{label}</p>
-          <p className="text-xs text-on-surface-variant font-body">{description}</p>
+          <p className="text-sm font-semibold text-ink font-sans">{label}</p>
+          <p className="text-xs text-ink-muted font-sans">{description}</p>
         </div>
       </div>
       <button
@@ -30,7 +30,7 @@ export function SettingToggle({ icon, label, description, checked, onChange, dis
         disabled={disabled}
         onClick={() => onChange(!checked)}
         className={`relative w-11 h-6 flex-shrink-0 rounded-full transition-colors disabled:opacity-50 ${
-          checked ? 'bg-primary' : 'bg-surface-container-highest'
+          checked ? 'bg-primary' : 'bg-surface-hover'
         }`}
       >
         <span

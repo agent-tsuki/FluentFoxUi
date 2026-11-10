@@ -47,7 +47,7 @@ export function CourseHero({ course, playback, sampleVideoId, playing, onStartWa
     <header className="mx-auto max-w-6xl px-4 pb-8 pt-6 sm:px-6 md:px-10">
       <Link
         to="/classes"
-        className="-ml-1 mb-3 inline-flex min-h-11 items-center gap-2 px-1 text-sm font-semibold text-on-surface-variant transition-colors hover:text-on-surface"
+        className="-ml-1 mb-3 inline-flex min-h-11 items-center gap-2 px-1 text-sm font-semibold text-ink-muted transition-colors hover:text-ink"
       >
         <Icon name="arrow_back" className="text-lg" />
         All classes
@@ -55,30 +55,30 @@ export function CourseHero({ course, playback, sampleVideoId, playing, onStartWa
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-center lg:gap-12">
         <div className="space-y-4">
-          <p className="flex flex-wrap items-center gap-x-2 text-sm text-on-surface-variant">
+          <p className="flex flex-wrap items-center gap-x-2 text-sm text-ink-muted">
             {crumbs.map((crumb, i) => (
               <span key={crumb} className="inline-flex items-center gap-2">
-                {i > 0 && <span aria-hidden="true" className="text-outline">/</span>}
+                {i > 0 && <span aria-hidden="true" className="text-line-strong">/</span>}
                 {crumb}
               </span>
             ))}
           </p>
 
           <div className="space-y-2">
-            <h1 className="font-headline text-3xl font-extrabold leading-tight tracking-tight text-on-surface md:text-4xl">{course.title}</h1>
-            <p className="text-base text-on-surface-variant md:text-lg">
+            <h1 className="font-display text-3xl font-extrabold leading-tight tracking-tight text-ink md:text-4xl">{course.title}</h1>
+            <p className="text-base text-ink-muted md:text-lg">
               by{' '}
-              <a href="#teacher" className="font-medium text-on-surface underline-offset-4 hover:underline">
+              <a href="#teacher" className="font-medium text-ink underline-offset-4 hover:underline">
                 {course.channel.name}
               </a>
             </p>
           </div>
 
-          {course.summary && <p className="max-w-xl text-base leading-relaxed text-on-surface-variant">{course.summary}</p>}
+          {course.summary && <p className="max-w-xl text-base leading-relaxed text-ink-muted">{course.summary}</p>}
 
           {!course.isFree && course.priceNote && (
-            <p className="inline-flex items-center gap-2 text-sm font-semibold text-on-surface">
-              <Icon name="payments" className="text-base text-on-surface-variant" />
+            <p className="inline-flex items-center gap-2 text-sm font-semibold text-ink">
+              <Icon name="payments" className="text-base text-ink-muted" />
               {course.priceNote}
             </p>
           )}
@@ -102,8 +102,8 @@ export function CourseHero({ course, playback, sampleVideoId, playing, onStartWa
           </div>
 
           {(facts.length > 0 || course.tags.length > 0) && (
-            <p className="flex flex-wrap gap-x-6 gap-y-1 pt-1 text-sm text-on-surface-variant">
-              {facts.map(f => <span key={f} className="font-semibold text-on-surface">{f}</span>)}
+            <p className="flex flex-wrap gap-x-6 gap-y-1 pt-1 text-sm text-ink-muted">
+              {facts.map(f => <span key={f} className="font-semibold text-ink">{f}</span>)}
               {course.tags.slice(0, 5).map(tag => <span key={tag}>{tag}</span>)}
             </p>
           )}
@@ -143,7 +143,7 @@ function HeroMedia({ course, playback, sampleVideoId, playing, externalUrl, onPl
   const caption = playback === 'external' ? `Open on ${PLATFORM_META[course.platform].label}` : sampleVideoId ? 'Sample lesson' : 'Play the course'
   const box = cn(
     order,
-    'group relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-2xl bg-surface-container-high shadow-elevation-2',
+    'group relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl bg-surface-hover shadow-elevation-2',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
   )
   const content = (

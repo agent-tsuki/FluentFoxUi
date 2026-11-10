@@ -18,14 +18,14 @@ interface ChannelStatusPanelProps {
 export function ChannelStatusPanel(props: ChannelStatusPanelProps) {
   const { isPublished, lastSyncedAt, canPublish, canSync, publishing, syncing, onTogglePublished, onSync } = props
   return (
-    <section aria-label="Channel status" className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-outline-variant/50 bg-surface-container-low p-4 sm:p-5">
+    <section aria-label="Channel status" className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-line bg-surface-sunken p-4 sm:p-5">
       <div className="space-y-0.5">
         {canPublish ? (
           <Switch checked={isPublished} onChange={onTogglePublished} busy={publishing} label={isPublished ? 'Published' : 'Hidden from learners'} />
         ) : (
-          <p className="text-sm font-medium text-on-surface">{isPublished ? 'Published' : 'Hidden from learners'}</p>
+          <p className="text-sm font-medium text-ink">{isPublished ? 'Published' : 'Hidden from learners'}</p>
         )}
-        <p className="text-xs text-on-surface-variant">
+        <p className="text-xs text-ink-muted">
           Last synced{' '}
           {lastSyncedAt ? <time dateTime={lastSyncedAt} title={formatDateTime(lastSyncedAt)}>{syncedLabel(lastSyncedAt)}</time> : 'never'}
         </p>

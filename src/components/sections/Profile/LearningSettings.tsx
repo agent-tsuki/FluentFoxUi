@@ -19,9 +19,9 @@ export function LearningSettings() {
     return (
       <LoadingState label="Loading learning settings…">
         <div className="space-y-4">
-          <SkeletonBlock className="h-14 w-full rounded-xl" />
-          <SkeletonBlock className="h-14 w-full rounded-xl" />
-          <SkeletonBlock className="h-14 w-full rounded-xl" />
+          <SkeletonBlock className="h-14 w-full rounded-md" />
+          <SkeletonBlock className="h-14 w-full rounded-md" />
+          <SkeletonBlock className="h-14 w-full rounded-md" />
         </div>
       </LoadingState>
     )
@@ -71,7 +71,7 @@ function SettingsEditor({ saved, save }: SettingsEditorProps) {
       <LearningSettingsForm draft={draft} errors={errors} onChange={onChange} />
       <div className="flex flex-wrap items-center justify-end gap-3">
         {message && (
-          <p role={message.tone === 'error' ? 'alert' : 'status'} className={`mr-auto text-sm font-body ${message.tone === 'error' ? 'text-error' : 'text-success'}`}>
+          <p role={message.tone === 'error' ? 'alert' : 'status'} className={`mr-auto text-sm font-sans ${message.tone === 'error' ? 'text-error' : 'text-success'}`}>
             {message.text}
           </p>
         )}

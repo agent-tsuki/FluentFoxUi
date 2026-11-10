@@ -8,11 +8,11 @@ import { unitLearnPath } from '@/components/kanaCourse/unitLinks'
 /** Per-unit results of a skip test: score, then "Tested out" or a link to learn the unit. */
 export function SkipResultsList({ scores }: { scores: UnitScore[] }) {
   return (
-    <section aria-labelledby="skip-units" className="rounded-2xl border border-outline-variant/40 bg-surface-container-low p-4">
-      <h3 id="skip-units" className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
+    <section aria-labelledby="skip-units" className="rounded-xl border border-line bg-surface-sunken p-4">
+      <h3 id="skip-units" className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
         Unit by unit
       </h3>
-      <ul className="flex flex-col divide-y divide-outline-variant/30">
+      <ul className="flex flex-col divide-y divide-line">
         {scores.map((s) => (
           <UnitRow key={s.unit.id} score={s} />
         ))}
@@ -27,8 +27,8 @@ const UnitRow = memo(function UnitRow({ score: { unit, correct, total, passed } 
   return (
     <li className="flex min-h-14 items-center gap-3 py-2">
       <div className="min-w-0 flex-1">
-        <p className="truncate font-semibold text-on-surface">{unit.title}</p>
-        <p className="text-sm tabular-nums text-on-surface-variant">
+        <p className="truncate font-semibold text-ink">{unit.title}</p>
+        <p className="text-sm tabular-nums text-ink-muted">
           {correct}/{total} · {percent}%
         </p>
       </div>

@@ -6,26 +6,33 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Concept home page palette (CSS-variable-backed; see --home-* in src/index.css)
-        home: {
-          'canvas': 'rgb(var(--home-canvas) / <alpha-value>)',
-          'hero': 'rgb(var(--home-hero) / <alpha-value>)',
-          'ink': 'rgb(var(--home-ink) / <alpha-value>)',
-          'muted': 'rgb(var(--home-muted) / <alpha-value>)',
-          'subtle': 'rgb(var(--home-subtle) / <alpha-value>)',
-          'line': 'rgb(var(--home-line) / <alpha-value>)',
-          'line-strong': 'rgb(var(--home-line-strong) / <alpha-value>)',
-          'accent': 'rgb(var(--home-accent) / <alpha-value>)',
-          'accent-hover': 'rgb(var(--home-accent-hover) / <alpha-value>)',
-          'on-accent': 'rgb(var(--home-on-accent) / <alpha-value>)',
-          'tile': 'rgb(var(--home-tile) / <alpha-value>)',
-          'sage': 'rgb(var(--home-sage) / <alpha-value>)',
-          'mint': 'rgb(var(--home-mint) / <alpha-value>)',
-          'peach': 'rgb(var(--home-peach) / <alpha-value>)',
-          'sand': 'rgb(var(--home-sand) / <alpha-value>)',
-          'panel': 'rgb(var(--home-panel) / <alpha-value>)',
-          'leaf': 'rgb(var(--home-leaf) / <alpha-value>)',
-        },
+        /* ── FoxSensei design system ── */
+        'surface-raised':  'rgb(var(--surface-raised) / <alpha-value>)',
+        'surface-sunken':  'rgb(var(--surface-sunken) / <alpha-value>)',
+        'surface-hover':   'rgb(var(--surface-hover) / <alpha-value>)',
+        ink:               'rgb(var(--ink) / <alpha-value>)',
+        'ink-muted':       'rgb(var(--ink-muted) / <alpha-value>)',
+        'ink-subtle':      'rgb(var(--ink-subtle) / <alpha-value>)',
+        line:              'rgb(var(--line) / <alpha-value>)',
+        'line-strong':     'rgb(var(--line-strong) / <alpha-value>)',
+        'primary-hover':   'rgb(var(--primary-hover) / <alpha-value>)',
+        'on-primary':      'rgb(var(--on-primary) / <alpha-value>)',
+        'primary-soft':    'rgb(var(--primary-soft) / <alpha-value>)',
+        'primary-ink':     'rgb(var(--primary-ink) / <alpha-value>)',
+        leaf:              'rgb(var(--leaf) / <alpha-value>)',
+        'leaf-soft':       'rgb(var(--leaf-soft) / <alpha-value>)',
+        'leaf-ink':        'rgb(var(--leaf-ink) / <alpha-value>)',
+        'success-soft':    'rgb(var(--success-soft) / <alpha-value>)',
+        'success-ink':     'rgb(var(--success-ink) / <alpha-value>)',
+        'warning-soft':    'rgb(var(--warning-soft) / <alpha-value>)',
+        'warning-ink':     'rgb(var(--warning-ink) / <alpha-value>)',
+        'info-soft':       'rgb(var(--info-soft) / <alpha-value>)',
+        'info-ink':        'rgb(var(--info-ink) / <alpha-value>)',
+        danger:            'rgb(var(--danger) / <alpha-value>)',
+        'danger-soft':     'rgb(var(--danger-soft) / <alpha-value>)',
+        'danger-ink':      'rgb(var(--danger-ink) / <alpha-value>)',
+        focus:             'rgb(var(--focus) / <alpha-value>)',
+
         // Grammar diagram tones (scoped by a .diagram-tone-* class; see src/index.css)
         tone: 'rgb(var(--tone) / <alpha-value>)',
         'tone-soft': 'rgb(var(--tone-soft) / <alpha-value>)',
@@ -40,7 +47,6 @@ const config: Config = {
         'primary-container': '#B35223',
         'primary-fixed': '#FFE8C9',
         'primary-fixed-dim': '#FF9F5C',
-        'on-primary': '#ffffff',
         'on-primary-fixed': '#3D1A05',
         'on-primary-fixed-variant': '#B84A1E',
         'on-primary-container': '#FFF0E6',
@@ -59,22 +65,9 @@ const config: Config = {
 
         tertiary: '#005a7d',
         'surface-variant': '#e1e3e4',
-        'surface-container': '#edeeef',
         'on-error-container': '#93000a',
         /* ── CSS-variable-backed tokens (light/dark auto-switch) ── */
         surface:                   'rgb(var(--surface) / <alpha-value>)',
-        background:                'rgb(var(--background) / <alpha-value>)',
-        'surface-dim':             'rgb(var(--surface-dim) / <alpha-value>)',
-        'surface-bright':          'rgb(var(--surface-bright) / <alpha-value>)',
-        'surface-container-lowest':'rgb(var(--surface-container-lowest) / <alpha-value>)',
-        'surface-container-low':   'rgb(var(--surface-container-low) / <alpha-value>)',
-        'surface-container':       'rgb(var(--surface-container) / <alpha-value>)',
-        'surface-container-high':  'rgb(var(--surface-container-high) / <alpha-value>)',
-        'surface-container-highest':'rgb(var(--surface-container-highest) / <alpha-value>)',
-        'on-surface':              'rgb(var(--on-surface) / <alpha-value>)',
-        'on-surface-variant':      'rgb(var(--on-surface-variant) / <alpha-value>)',
-        outline:                   'rgb(var(--outline) / <alpha-value>)',
-        'outline-variant':         'rgb(var(--outline-variant) / <alpha-value>)',
 
         /* ── Primary — fox orange (dimmed in dark mode; see src/index.css) ── */
         primary: 'rgb(var(--primary) / <alpha-value>)',
@@ -110,30 +103,55 @@ const config: Config = {
         'inverse-on-surface': '#f0f1f2',
       },
       fontFamily: {
-        headline: ['Plus Jakarta Sans', 'sans-serif'],
-        body: ['Inter', 'sans-serif'],
-        label: ['Inter', 'sans-serif'],
-        // Rounded Japanese face for homepage kana/kanji; loaded as a glyph subset in index.html.
-        jp: ['Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'sans-serif'],
+        sans: ['DM Sans', 'Noto Sans JP', 'Hiragino Sans', 'system-ui', 'sans-serif'],
+        display: ['Plus Jakarta Sans', 'Noto Sans JP', 'Hiragino Sans', 'system-ui', 'sans-serif'],
+        // Full-coverage Japanese: sentences, vocabulary and kanji study.
+        ja: ['Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', 'sans-serif'],
+        // Rounded display kana only. It is a glyph subset, so never use it for running text or kanji study.
+        'ja-display': ['Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Noto Sans JP', 'sans-serif'],
       },
       fontSize: {
         '2xs': ['0.6875rem', { lineHeight: '0.875rem' }], // 11px
+        // Design-system type scale. display, h1 and ja-lg step down below 1024px (see :root in index.css).
+        display: ['var(--text-display)', { lineHeight: 'var(--leading-display)', letterSpacing: '-0.02em', fontWeight: '700' }],
+        h1: ['var(--text-h1)', { lineHeight: 'var(--leading-h1)', letterSpacing: '-0.015em', fontWeight: '700' }],
+        h2: ['1.625rem', { lineHeight: '2.125rem', letterSpacing: '-0.01em', fontWeight: '700' }],
+        h3: ['1.1875rem', { lineHeight: '1.75rem', fontWeight: '600' }],
+        'body-lg': ['1.125rem', { lineHeight: '1.875rem' }],
+        body: ['1rem', { lineHeight: '1.625rem' }],
+        label: ['0.875rem', { lineHeight: '1.25rem', fontWeight: '600' }],
+        caption: ['0.8125rem', { lineHeight: '1.125rem', fontWeight: '500' }],
+        eyebrow: ['0.75rem', { lineHeight: '1rem', letterSpacing: '0.12em', fontWeight: '700' }],
+        'kana-display': ['4rem', { lineHeight: '4.5rem', fontWeight: '700' }],
+        'ja-lg': ['var(--text-ja-lg)', { lineHeight: 'var(--leading-ja-lg)', fontWeight: '500' }],
+        'ja-md': ['1.375rem', { lineHeight: '2.5rem', fontWeight: '500' }],
+        'ja-sm': ['1.0625rem', { lineHeight: '1.875rem', fontWeight: '500' }],
+        furigana: ['0.6875rem', { lineHeight: '0.875rem', fontWeight: '500' }],
         'display-lg': ['clamp(2.5rem, 5vw, 3.75rem)', { lineHeight: '1.1' }],
         'display-md': ['clamp(2rem, 4vw, 3rem)', { lineHeight: '1.2' }],
         'display-sm': ['clamp(1.75rem, 3vw, 2.25rem)', { lineHeight: '1.25' }],
       },
       spacing: {
-        // Fixed navbar height — single source of truth (logo 50px + comfortable padding).
-        // Consumed as `h-nav` (nav itself) and `mt-nav`/`pt-nav`/`scroll-mt-nav` (offsets for content below it).
-        nav: '80px',
+        // Fixed navbar height: single source of truth (`h-nav`, `pt-nav`, `scroll-mt-nav`).
+        nav: '64px',
+        'chapter-bar': '56px',
+        'touch-target': '44px',
+        reading: '680px',
+        sidebar: '288px',
       },
       borderRadius: {
-        // `full` MUST stay 9999px so avatars, pills, and spinners render truly round.
-        // Scale is monotonic: DEFAULT 2 < lg 4 < xl 8 < (2xl 16 < 3xl 24 from Tailwind) < full.
-        DEFAULT: '0.125rem',
-        lg: '0.25rem',
-        xl: '0.5rem',
+        // sm badges < md controls < lg cards and wells < xl sheets and sidebars < full.
+        DEFAULT: '0.25rem',
+        sm: '0.25rem',
+        md: '0.5rem',
+        lg: '0.75rem',
+        xl: '1rem',
         full: '9999px',
+      },
+      transitionDuration: {
+        fast: '120ms',
+        base: '200ms',
+        slow: '320ms',
       },
       boxShadow: {
         'elevation-1': 'var(--shadow-elevation-1)',

@@ -94,14 +94,14 @@ export function SessionQuestion({ entry, mark, isLast, onSubmit, onNext }: Sessi
       <QuestionPromptView ref={headingRef} question={question} view={view} onReplay={play} />
       <p
         role="status"
-        className={cn('mb-3 flex min-h-7 flex-wrap items-center justify-center gap-1.5 text-center font-bold', mark?.correct ? 'text-success' : 'text-on-surface')}
+        className={cn('mb-3 flex min-h-7 flex-wrap items-center justify-center gap-1.5 text-center font-bold', mark?.correct ? 'text-success' : 'text-ink')}
       >
         {mark && (
           <>
             <Icon name={mark.correct ? 'check_circle' : 'close'} filled={mark.correct} className="text-xl" />
             {mark.correct ? 'Correct!' : 'Not quite. It’s'}
             {!mark.correct && (
-              <span lang={view.optionsJapanese ? 'ja' : undefined} className={view.optionsJapanese ? 'font-jp' : undefined}>
+              <span lang={view.optionsJapanese ? 'ja' : undefined} className={view.optionsJapanese ? 'font-ja' : undefined}>
                 {question.correct_answer}
               </span>
             )}
@@ -109,8 +109,8 @@ export function SessionQuestion({ entry, mark, isLast, onSubmit, onNext }: Sessi
         )}
       </p>
       {mark && question.sentence?.explanation && (
-        <p className="mb-3 text-center text-sm text-on-surface-variant">
-          <span lang="ja" className="font-jp text-on-surface">
+        <p className="mb-3 text-center text-sm text-ink-muted">
+          <span lang="ja" className="font-ja text-ink">
             {question.sentence.filled}
           </span>{' '}
           · {question.sentence.explanation}

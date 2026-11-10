@@ -30,11 +30,11 @@ interface CharCardProps {
  * these classes and markers.
  */
 export const MASTERY_SURFACE: Record<KanaMastery, string> = {
-  new: 'bg-surface-container-lowest dark:bg-surface-container-low border-outline-variant dark:border-outline/60',
-  learning: 'bg-surface-container-lowest dark:bg-surface-container-low border-error/50',
-  familiar: 'bg-surface-container-lowest dark:bg-surface-container-low border-warning/60',
-  strong: 'bg-surface-container-lowest dark:bg-surface-container-low border-info/60',
-  mastered: 'bg-surface-container-lowest dark:bg-surface-container-low border-success',
+  new: 'bg-surface-raised border-line',
+  learning: 'bg-surface-raised border-error/50',
+  familiar: 'bg-surface-raised border-warning/60',
+  strong: 'bg-surface-raised border-info/60',
+  mastered: 'bg-surface-raised border-success',
 }
 
 /** How many progress dots a level shows in the cell corner (and the legend). */
@@ -50,10 +50,10 @@ const TINT: Record<KanaMastery, string | null> = {
 }
 
 const ROMAJI: Record<KanaMastery, string> = {
-  new: 'text-on-surface-variant',
-  learning: 'text-on-surface-variant',
-  familiar: 'text-on-surface-variant',
-  strong: 'text-on-surface-variant',
+  new: 'text-ink-muted',
+  learning: 'text-ink-muted',
+  familiar: 'text-ink-muted',
+  strong: 'text-ink-muted',
   mastered: 'text-success',
 }
 
@@ -108,7 +108,7 @@ export const CharCard = memo(function CharCard({
   const s = SIZE[size]
 
   if (char.isEmpty) {
-    return <div className={cn('rounded-xl border border-dotted border-outline-variant dark:border-outline/50', s.cell)} aria-hidden />
+    return <div className={cn('rounded-md border border-dotted border-line', s.cell)} aria-hidden />
   }
 
   const base = char.isCompound ? char.character[0] : char.character
@@ -122,7 +122,7 @@ export const CharCard = memo(function CharCard({
       aria-label={label}
       onClick={() => onSelect?.(char)}
       className={cn(
-        'relative flex w-full min-w-0 overflow-hidden cursor-pointer select-none flex-col items-center justify-center gap-1 rounded-xl border transition-colors duration-200',
+        'relative flex w-full min-w-0 overflow-hidden cursor-pointer select-none flex-col items-center justify-center gap-1 rounded-md border transition-colors duration-200',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
         'hover:border-primary/70',
         s.cell,
@@ -134,9 +134,9 @@ export const CharCard = memo(function CharCard({
     >
       <MasteryMarks mastery={mastery} />
 
-      <span className="relative flex items-baseline font-jp font-bold leading-none" lang="ja">
-        <span className={cn(s.glyph, 'text-on-surface')}>{base}</span>
-        {small && <span className={cn(s.small, 'text-on-surface-variant')}>{small}</span>}
+      <span className="relative flex items-baseline font-ja-display font-bold leading-none" lang="ja">
+        <span className={cn(s.glyph, 'text-ink')}>{base}</span>
+        {small && <span className={cn(s.small, 'text-ink-muted')}>{small}</span>}
       </span>
 
       {showRomaji && (

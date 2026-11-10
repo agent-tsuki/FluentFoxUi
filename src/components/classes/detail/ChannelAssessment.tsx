@@ -18,7 +18,7 @@ function PointList({ title, items, tone }: { title: string; items: string[]; ton
       <h4 className={cn('text-xs font-bold uppercase tracking-[0.18em]', t.color)}>{title}</h4>
       <ul className="space-y-2">
         {items.map(item => (
-          <li key={item} className="flex items-start gap-2 text-sm leading-relaxed text-on-surface-variant">
+          <li key={item} className="flex items-start gap-2 text-sm leading-relaxed text-ink-muted">
             <Icon name={t.icon} className={cn('mt-0.5 shrink-0 text-base', t.color)} />
             {item}
           </li>
@@ -42,14 +42,14 @@ interface ChannelAssessmentProps {
 export function ChannelAssessment({ channel, courseSummary }: ChannelAssessmentProps) {
   const showStyle = !isRepeatedText(channel.teachingStyle, courseSummary, channel.description)
   return (
-    <div className="space-y-6 border-t border-outline-variant/40 pt-6">
+    <div className="space-y-6 border-t border-line pt-6">
       {showStyle && (
         <div className="space-y-2">
-          <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">
+          <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.18em] text-ink-muted">
             <Icon name="history_edu" className="text-base" />
             Teaching style
           </h4>
-          <p className="max-w-prose text-sm leading-relaxed text-on-surface">{channel.teachingStyle}</p>
+          <p className="max-w-prose text-sm leading-relaxed text-ink">{channel.teachingStyle}</p>
         </div>
       )}
 
@@ -61,9 +61,9 @@ export function ChannelAssessment({ channel, courseSummary }: ChannelAssessmentP
       </div>
 
       {channel.verdict && (
-        <figure className="rounded-xl border-l-4 border-primary bg-surface-container-low px-5 py-4">
-          <figcaption className="text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">Our verdict</figcaption>
-          <blockquote className="mt-1 font-headline text-base font-semibold text-on-surface">{channel.verdict}</blockquote>
+        <figure className="rounded-md border-l-4 border-primary bg-surface-sunken px-5 py-4">
+          <figcaption className="text-xs font-bold uppercase tracking-[0.18em] text-ink-muted">Our verdict</figcaption>
+          <blockquote className="mt-1 font-display text-base font-semibold text-ink">{channel.verdict}</blockquote>
         </figure>
       )}
     </div>

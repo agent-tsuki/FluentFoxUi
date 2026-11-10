@@ -50,8 +50,8 @@ export function SocialButtonShell({ size, label, onClick, disabled, hoverHandler
       aria-label={label}
       {...hoverHandlers}
       className={cn(
-        'relative flex w-full items-center justify-center overflow-hidden rounded-xl select-none',
-        'border border-surface-container-high bg-surface-container-lowest',
+        'relative flex w-full items-center justify-center overflow-hidden rounded-md select-none',
+        'border border-surface-hover bg-surface-raised',
         'outline-none focus-visible:ring-2 focus-visible:ring-primary',
         HEIGHT[size],
         disabled && 'opacity-50 cursor-not-allowed',

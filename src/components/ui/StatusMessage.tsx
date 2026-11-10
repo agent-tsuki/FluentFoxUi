@@ -24,7 +24,7 @@ export function StatusMessage({ tone, message, className }: StatusMessageProps) 
   return (
     <p
       role={tone === 'error' ? 'alert' : 'status'}
-      className={cn('flex items-start gap-2 rounded-xl px-4 py-3 text-sm font-medium', box, className)}
+      className={cn('flex items-start gap-2 rounded-md px-4 py-3 text-sm font-medium', box, className)}
     >
       <Icon name={icon} className="mt-px text-base" />
       <span>{message}</span>

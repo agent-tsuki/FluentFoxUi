@@ -10,8 +10,8 @@ export function DashboardPageHeader({ eyebrow, title, description, actions }: { 
     <header className="flex flex-wrap items-end justify-between gap-4">
       <div className="space-y-1.5">
         <Eyebrow variant="plain">{eyebrow}</Eyebrow>
-        <h1 className="font-headline text-3xl font-extrabold tracking-tight text-on-surface sm:text-4xl">{title}</h1>
-        {description && <p className="max-w-prose text-on-surface-variant">{description}</p>}
+        <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">{title}</h1>
+        {description && <p className="max-w-prose text-ink-muted">{description}</p>}
       </div>
       {actions}
     </header>
@@ -30,11 +30,11 @@ interface PanelProps {
 /** A titled card holding one chart or list. */
 export function Panel({ title, description, actions, className, children }: PanelProps) {
   return (
-    <section className={cn('min-w-0 space-y-4 rounded-xl bg-surface-container-low p-5 sm:p-6', className)}>
+    <section className={cn('min-w-0 space-y-4 rounded-md bg-surface-sunken p-5 sm:p-6', className)}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-0.5">
-          <h2 className="font-headline text-lg font-bold text-on-surface">{title}</h2>
-          {description && <p className="text-sm text-on-surface-variant">{description}</p>}
+          <h2 className="font-display text-lg font-bold text-ink">{title}</h2>
+          {description && <p className="text-sm text-ink-muted">{description}</p>}
         </div>
         {actions}
       </div>
@@ -57,24 +57,24 @@ interface StatTileProps {
 }
 
 const TREND_ICON: Record<Trend, string> = { up: 'north_east', down: 'south', flat: 'swap_horiz' }
-const TREND_TONE: Record<Trend, string> = { up: 'text-success', down: 'text-warning', flat: 'text-on-surface-variant' }
+const TREND_TONE: Record<Trend, string> = { up: 'text-success', down: 'text-warning', flat: 'text-ink-muted' }
 
 /** One headline number: label, value, optional change and hint. */
 export function StatTile({ label, value, hint, icon, change, className }: StatTileProps) {
   return (
-    <div className={cn('min-w-0 space-y-1 rounded-xl bg-surface-container-low p-4 sm:p-5', className)}>
-      <p className="flex items-center gap-1.5 text-xs font-semibold text-on-surface-variant">
+    <div className={cn('min-w-0 space-y-1 rounded-md bg-surface-sunken p-4 sm:p-5', className)}>
+      <p className="flex items-center gap-1.5 text-xs font-semibold text-ink-muted">
         {icon && <Icon name={icon} className="text-base" />}
         {label}
       </p>
-      <p className="font-headline text-2xl font-extrabold tracking-tight text-on-surface tabular-nums sm:text-3xl">{value}</p>
+      <p className="font-display text-2xl font-extrabold tracking-tight text-ink tabular-nums sm:text-3xl">{value}</p>
       {change && (
         <p className={cn('flex items-center gap-1 text-xs font-semibold', TREND_TONE[change.trend])}>
           <Icon name={TREND_ICON[change.trend]} className="text-sm" />
           {change.label}
         </p>
       )}
-      {hint && <p className="text-xs text-on-surface-variant">{hint}</p>}
+      {hint && <p className="text-xs text-ink-muted">{hint}</p>}
     </div>
   )
 }
@@ -95,7 +95,7 @@ interface SegmentedProps<T extends string | number> {
 /** A small segmented control (time range, track). */
 export function Segmented<T extends string | number>({ label, value, options, onChange, className }: SegmentedProps<T>) {
   return (
-    <div role="radiogroup" aria-label={label} className={cn('inline-flex flex-wrap gap-1 rounded-full bg-surface-container p-1', className)}>
+    <div role="radiogroup" aria-label={label} className={cn('inline-flex flex-wrap gap-1 rounded-full bg-surface-sunken p-1', className)}>
       {options.map((o) => {
         const checked = o.value === value
         return (
@@ -107,7 +107,7 @@ export function Segmented<T extends string | number>({ label, value, options, on
             onClick={() => onChange(o.value)}
             className={cn(
               'min-h-11 rounded-full px-3.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-              checked ? 'bg-on-surface text-surface' : 'text-on-surface-variant hover:text-on-surface',
+              checked ? 'bg-ink text-surface' : 'text-ink-muted hover:text-ink',
             )}
           >
             {o.label}
@@ -120,7 +120,7 @@ export function Segmented<T extends string | number>({ label, value, options, on
 
 /** A panel-sized placeholder while a chart's data loads. */
 export function PanelSkeleton({ className }: { className?: string }) {
-  return <div aria-hidden className={cn('h-64 animate-pulse rounded-xl bg-surface-container-high', className)} />
+  return <div aria-hidden className={cn('h-64 animate-pulse rounded-md bg-surface-hover', className)} />
 }
 
 interface AsyncBlockProps<T> {

@@ -27,16 +27,16 @@ export function PathBoard({ stops, current, revealed, onReveal, onPrev, onNext }
   const next = current < stops.length - 1 ? stops[current + 1] : null
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl bg-surface-container-lowest text-on-surface shadow-elevation-3 dark:ring-1 dark:ring-on-surface-inverse/10">
+    <div className="flex flex-col overflow-hidden rounded-xl bg-surface-raised text-ink shadow-elevation-3 dark:ring-1 dark:ring-on-surface-inverse/10">
       <div className="flex min-h-56 flex-1 flex-col gap-3.5 px-5 pb-6 pt-7 sm:px-7">
-        <span className="text-xs font-extrabold uppercase tracking-[0.14em] text-on-surface-variant">
+        <span className="text-xs font-extrabold uppercase tracking-[0.14em] text-ink-muted">
           {locked ? PATH_COPY.promptLocked : PATH_COPY.promptOpen}
         </span>
         <p
           lang="ja"
           aria-hidden={locked || undefined}
           className={cn(
-            'font-jp m-0 text-[clamp(1.625rem,3.2vw,2.5rem)] font-bold leading-snug text-on-surface',
+            'font-ja-display m-0 text-[clamp(1.625rem,3.2vw,2.5rem)] font-bold leading-snug text-ink',
             locked && 'select-none blur-[6px]'
           )}
         >
@@ -44,7 +44,7 @@ export function PathBoard({ stops, current, revealed, onReveal, onPrev, onNext }
         </p>
 
         {locked ? (
-          <span className="text-base font-semibold text-on-surface-variant">{PATH_COPY.lockedNote}</span>
+          <span className="text-base font-semibold text-ink-muted">{PATH_COPY.lockedNote}</span>
         ) : revealed ? (
           <motion.div
             role="status"
@@ -53,7 +53,7 @@ export function PathBoard({ stops, current, revealed, onReveal, onPrev, onNext }
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: durations.resize, ease: easings.out }}
           >
-            <span className="text-base italic text-on-surface-variant md:text-lg">{stop.reading}</span>
+            <span className="text-base italic text-ink-muted md:text-lg">{stop.reading}</span>
             <span className="text-base font-bold leading-normal md:text-lg">{stop.meaning}</span>
           </motion.div>
         ) : (
@@ -61,7 +61,7 @@ export function PathBoard({ stops, current, revealed, onReveal, onPrev, onNext }
             type="button"
             variant="outline"
             onClick={onReveal}
-            className="min-h-11 self-start font-headline"
+            className="min-h-11 self-start font-display"
           >
             {PATH_COPY.revealLabel}
           </Button>
@@ -87,7 +87,7 @@ interface BoardButtonProps {
 function BoardButton({ direction, target, onClick }: BoardButtonProps) {
   const isPrev = direction === 'prev'
   const label = target ? (
-    <span lang="ja" className="font-jp">
+    <span lang="ja" className="font-ja-display">
       {target.ja}
     </span>
   ) : null
@@ -98,7 +98,7 @@ function BoardButton({ direction, target, onClick }: BoardButtonProps) {
       onClick={onClick}
       disabled={!target}
       className={cn(
-        'min-h-12 flex-1 rounded-xl px-3.5 font-headline text-[0.9375rem] font-bold leading-tight transition-colors duration-200',
+        'min-h-12 flex-1 rounded-md px-3.5 font-display text-[0.9375rem] font-bold leading-tight transition-colors duration-200',
         'text-on-surface-inverse hover:bg-on-surface-inverse/10 disabled:cursor-default disabled:text-on-surface-inverse-variant/70 disabled:hover:bg-transparent',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-fixed-dim',
         isPrev ? 'text-left' : 'text-right'

@@ -64,11 +64,11 @@ export function GoogleAuthButton({ onClick, disabled, size = 'md' }: GoogleAuthB
       </AnimatePresence>
 
       {/* Wordmark */}
-      <span className={`relative z-10 flex items-center font-headline font-bold ${TEXT[size]}`}>
+      <span className={`relative z-10 flex items-center font-display font-bold ${TEXT[size]}`}>
         {LETTERS.map((letter, i) => (
           <motion.span
             key={i}
-            className="inline-block text-on-surface transition-colors duration-200"
+            className="inline-block text-ink transition-colors duration-200"
             style={hovered ? { color: GOOGLE_COLORS[i] } : undefined}
             initial={false}
             animate={animate ? { y: [0, -5, 0], scale: [1, 1.3, 1] } : { y: 0, scale: 1 }}

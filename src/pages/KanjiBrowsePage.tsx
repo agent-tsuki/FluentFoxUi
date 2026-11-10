@@ -26,7 +26,7 @@ const STROKE_RANGES: Record<string, { label: string; min?: number; max?: number 
 const SORTS: Record<KanjiSort, string> = { course: 'Course order', strokes: 'Fewest strokes', freq: 'Most common' }
 
 const FIELD =
-  'min-h-11 rounded-xl border border-outline-variant/60 bg-surface-container-lowest px-3 text-sm text-on-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:bg-surface-container-low'
+  'min-h-11 rounded-md bg-surface-raised shadow-elevation-1 px-3 text-sm text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-primary'
 
 /**
  * Browse page of a level (/kanji/<level>/browse): search by meaning, reading
@@ -100,10 +100,10 @@ export function KanjiBrowsePage() {
                   className={cn(
                     'inline-flex min-h-11 items-center gap-1 rounded-full border px-3.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
                     soon
-                      ? 'cursor-not-allowed border-outline-variant/40 text-on-surface-variant/70'
+                      ? 'cursor-not-allowed border-line text-ink-subtle'
                       : active
                         ? 'border-primary bg-primary/10 text-primary'
-                        : 'border-outline-variant/60 text-on-surface-variant hover:bg-surface-container-low',
+                        : 'border-line text-ink-muted hover:bg-surface-hover',
                   )}
                 >
                   {l.label}
@@ -138,7 +138,7 @@ export function KanjiBrowsePage() {
               onClick={() => update({ part: undefined })}
               className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-primary bg-primary/10 px-3.5 text-sm font-semibold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
-              Contains <span lang="ja" className="font-jp text-base">{part}</span>
+              Contains <span lang="ja" className="font-ja text-base">{part}</span>
               <Icon name="close" className="text-base" />
               <span className="sr-only">Remove part filter</span>
             </button>
@@ -152,7 +152,7 @@ export function KanjiBrowsePage() {
         <LoadingState label="Searching…">
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-7">
             {Array.from({ length: 14 }, (_, i) => (
-              <SkeletonBlock key={i} className="h-28 rounded-2xl" />
+              <SkeletonBlock key={i} className="h-28 rounded-xl" />
             ))}
           </div>
         </LoadingState>
@@ -166,7 +166,7 @@ export function KanjiBrowsePage() {
         />
       ) : rows ? (
         <>
-          <p aria-live="polite" className="text-sm tabular-nums text-on-surface-variant">
+          <p aria-live="polite" className="text-sm tabular-nums text-ink-muted">
             {rows.length} kanji
           </p>
           <ul className="grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-7">
@@ -185,14 +185,14 @@ const KanjiTile = memo(function KanjiTile({ row, stage }: { row: KanjiIndexRow; 
     <li>
       <Link
         to={kanjiCharPath(row.char, 'browse')}
-        className="flex h-full flex-col items-center rounded-2xl border border-outline-variant/60 bg-surface-container-lowest px-2 pb-3 pt-2 text-center transition-colors hover:border-primary/60 hover:bg-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:bg-surface-container-low"
+        className="flex h-full flex-col items-center rounded-xl bg-surface-raised shadow-elevation-1 px-2 pb-3 pt-2 text-center transition-colors hover:border-primary/60 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       >
-        <span className="self-end text-2xs font-semibold uppercase text-on-surface-variant">{row.level}</span>
-        <span lang="ja" className="font-jp text-4xl font-bold leading-tight text-on-surface">
+        <span className="self-end text-2xs font-semibold uppercase text-ink-muted">{row.level}</span>
+        <span lang="ja" className="font-ja text-4xl font-bold leading-tight text-ink">
           {row.char}
         </span>
-        <span className="mt-1 line-clamp-1 text-sm font-semibold text-on-surface">{row.meaning}</span>
-        <span lang="ja" className="font-jp text-xs text-on-surface-variant">
+        <span className="mt-1 line-clamp-1 text-sm font-semibold text-ink">{row.meaning}</span>
+        <span lang="ja" className="font-ja text-xs text-ink-muted">
           {row.keyReading}
         </span>
         {stage !== 'new' && <span className={cn('mt-1 text-2xs font-semibold', MASTERY_TONE[stage].text)}>{KANJI_STAGE_LABEL[stage]}</span>}

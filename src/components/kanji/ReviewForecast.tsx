@@ -12,7 +12,7 @@ export function ReviewForecast({ counts, className }: { counts: number[]; classN
   const max = Math.max(1, ...counts)
   return (
     <div className={className}>
-      <h3 className="text-xs font-semibold text-on-surface-variant">Next 7 days</h3>
+      <h3 className="text-xs font-semibold text-ink-muted">Next 7 days</h3>
       <ol className="mt-2 grid max-w-md grid-cols-7 gap-1.5">
         {counts.map((n, i) => (
           <li key={i} className="flex flex-col items-center gap-1">
@@ -23,8 +23,8 @@ export function ReviewForecast({ counts, className }: { counts: number[]; classN
                 style={{ height: `${Math.max(n > 0 ? 10 : 3, (n / max) * 100)}%` }}
               />
             </span>
-            <span className="text-xs font-semibold tabular-nums text-on-surface">{n}</span>
-            <span className="text-2xs text-on-surface-variant">{i === 0 ? 'Today' : DAY_NAMES[(today + i) % 7]}</span>
+            <span className="text-xs font-semibold tabular-nums text-ink">{n}</span>
+            <span className="text-2xs text-ink-muted">{i === 0 ? 'Today' : DAY_NAMES[(today + i) % 7]}</span>
           </li>
         ))}
       </ol>

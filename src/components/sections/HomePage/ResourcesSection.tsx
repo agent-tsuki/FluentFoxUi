@@ -14,13 +14,13 @@ import {
 const BANNER_TONE: Record<ResourceTone, string> = {
   primary: 'bg-primary/10 text-primary',
   info: 'bg-info/10 text-info',
-  neutral: 'bg-surface-container text-on-surface-variant',
+  neutral: 'bg-surface-sunken text-ink-muted',
 }
 
 const BADGE_TONE: Record<ResourceBadgeTone, string> = {
   success: 'bg-success/10 text-success',
-  info: 'bg-surface-container-lowest text-info',
-  neutral: 'bg-surface-container-lowest text-on-surface-variant',
+  info: 'bg-surface-raised text-info',
+  neutral: 'bg-surface-raised text-ink-muted',
 }
 
 const FOCUS_RING =
@@ -39,11 +39,11 @@ export function ResourcesSection() {
           <Eyebrow className="!mb-0">{COPY.eyebrow}</Eyebrow>
           <h2
             id="resources-title"
-            className="font-headline text-display-md font-extrabold leading-[1.08] tracking-[-0.035em] text-on-surface"
+            className="font-display text-display-md font-extrabold leading-[1.08] tracking-[-0.035em] text-ink"
           >
             {COPY.title}
           </h2>
-          <p className="text-lg leading-relaxed text-on-surface-variant">{COPY.description}</p>
+          <p className="text-lg leading-relaxed text-ink-muted">{COPY.description}</p>
         </FadeIn>
 
         <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -75,12 +75,12 @@ function ResourceCard({ resource }: ResourceCardProps) {
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        'group flex w-full flex-col overflow-hidden rounded-2xl border border-outline-variant/60 bg-surface-container-lowest transition-[border-color,box-shadow] duration-200 hover:border-outline-variant hover:shadow-elevation-1',
+        'group flex w-full flex-col overflow-hidden rounded-xl border border-line bg-surface-raised transition-[border-color,box-shadow] duration-200 hover:border-line hover:shadow-elevation-1',
         FOCUS_RING,
       )}
     >
       <div className={cn('relative flex h-36 items-center justify-center', BANNER_TONE[resource.tone])}>
-        <span lang="ja" aria-hidden="true" className="font-jp text-6xl font-bold">
+        <span lang="ja" aria-hidden="true" className="font-ja-display text-6xl font-bold">
           {resource.glyph}
         </span>
         <span
@@ -94,9 +94,9 @@ function ResourceCard({ resource }: ResourceCardProps) {
       </div>
       <div className="flex flex-1 flex-col gap-2 p-5 sm:p-6">
         <span className="text-xs font-extrabold tracking-[0.1em] text-primary">{resource.provider}</span>
-        <h3 className="font-headline text-lg font-extrabold text-on-surface">{resource.title}</h3>
-        <p className="text-base leading-normal text-on-surface-variant">
-          <strong className="font-bold text-on-surface">{resource.bestAt}</strong> {resource.description}
+        <h3 className="font-display text-lg font-extrabold text-ink">{resource.title}</h3>
+        <p className="text-base leading-normal text-ink-muted">
+          <strong className="font-bold text-ink">{resource.bestAt}</strong> {resource.description}
         </p>
         <span className="mt-auto inline-flex items-center gap-1.5 pt-2 text-base font-bold text-primary">
           {/* Underline the words only; the arrow nudges instead. */}

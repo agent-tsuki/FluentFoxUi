@@ -24,17 +24,17 @@ export const CourseRow = memo(function CourseRow({ course, channelName, canEdit,
   const syncing = busy === `sync:${course.id}`
   const toggling = busy === `vis:${course.id}`
   return (
-    <tr className="border-b border-outline-variant/40 align-middle last:border-b-0">
+    <tr className="border-b border-line align-middle last:border-b-0">
       <th scope="row" className="max-w-[16rem] py-3 pr-4 text-left font-normal">
         {canEdit ? (
-          <Link to={`/admin/classes/courses/${course.id}`} className="font-semibold text-on-surface hover:text-primary hover:underline">{course.title}</Link>
+          <Link to={`/admin/classes/courses/${course.id}`} className="font-semibold text-ink hover:text-primary hover:underline">{course.title}</Link>
         ) : (
-          <span className="font-semibold text-on-surface">{course.title}</span>
+          <span className="font-semibold text-ink">{course.title}</span>
         )}
-        <span className="block truncate text-xs text-on-surface-variant">{course.slug}</span>
+        <span className="block truncate text-xs text-ink-muted">{course.slug}</span>
       </th>
-      <td className="py-3 pr-4 text-sm text-on-surface-variant">{channelName}</td>
-      <td className="py-3 pr-4 text-sm text-on-surface-variant">{PLATFORM_LABEL[course.platform]}</td>
+      <td className="py-3 pr-4 text-sm text-ink-muted">{channelName}</td>
+      <td className="py-3 pr-4 text-sm text-ink-muted">{PLATFORM_LABEL[course.platform]}</td>
       <td className="py-3 pr-4"><Chip>{course.level}</Chip></td>
       <td className="py-3 pr-4">{course.isFree ? <Chip tone="success">Free</Chip> : <Chip>Paid</Chip>}</td>
       <td className="py-3 pr-4">
@@ -45,10 +45,10 @@ export const CourseRow = memo(function CourseRow({ course, channelName, canEdit,
       <td className="py-3 pr-4">
         {canPublish
           ? <Switch hideLabel label={`Featured: ${course.title}`} checked={course.isFeatured} busy={toggling} onChange={v => onVisibility(course, { isFeatured: v })} />
-          : course.isFeatured ? <Chip tone="primary">Featured</Chip> : <span className="text-sm text-on-surface-variant">—</span>}
+          : course.isFeatured ? <Chip tone="primary">Featured</Chip> : <span className="text-sm text-ink-muted">—</span>}
       </td>
-      <td className="py-3 pr-4 text-sm tabular-nums text-on-surface-variant">{course.sortOrder}</td>
-      <td className="whitespace-nowrap py-3 pr-4 text-sm text-on-surface-variant">{syncedLabel(course.lastSyncedAt)}</td>
+      <td className="py-3 pr-4 text-sm tabular-nums text-ink-muted">{course.sortOrder}</td>
+      <td className="whitespace-nowrap py-3 pr-4 text-sm text-ink-muted">{syncedLabel(course.lastSyncedAt)}</td>
       <td className="py-3 text-right">
         {canSync && course.platform === 'youtube' && course.playlistId && (
           <button
@@ -56,7 +56,7 @@ export const CourseRow = memo(function CourseRow({ course, channelName, canEdit,
             onClick={() => onSync(course)}
             disabled={syncing}
             aria-label={`Sync playlist for ${course.title}`}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface disabled:opacity-60"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full text-ink-muted hover:bg-surface-hover hover:text-ink disabled:opacity-60"
           >
             <Icon name={syncing ? 'progress_activity' : 'refresh'} className={syncing ? 'animate-spin text-xl' : 'text-xl'} />
           </button>

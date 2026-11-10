@@ -19,7 +19,7 @@ import { useKanjiOverlayLink } from './kanjiOverlays'
 const KanjiUnitPanel = lazy(() => import('./KanjiUnitPanel').then((m) => ({ default: m.KanjiUnitPanel })))
 
 const QUIET_LINK =
-  'inline-flex min-h-11 shrink-0 items-center gap-0.5 rounded-xl px-2 text-sm font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
+  'inline-flex min-h-11 shrink-0 items-center gap-0.5 rounded-md px-2 text-sm font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
 
 /**
  * KanjiCurriculumGroup — one themed group of a level's units: header with
@@ -43,10 +43,10 @@ export function KanjiCurriculumGroup({ group, units, nextId }: KanjiCurriculumGr
       <div className="mb-3 flex items-end justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline gap-x-2">
-            <h2 id={headingId} className="font-headline text-xl font-bold text-on-surface md:text-2xl">
+            <h2 id={headingId} className="font-display text-xl font-bold text-ink md:text-2xl">
               {group.title}
             </h2>
-            <span className="text-sm tabular-nums text-on-surface-variant">
+            <span className="text-sm tabular-nums text-ink-muted">
               {done} of {units.length} done
             </span>
           </div>
@@ -60,7 +60,7 @@ export function KanjiCurriculumGroup({ group, units, nextId }: KanjiCurriculumGr
           />
         </div>
         {allTestedOut ? (
-          <span className="inline-flex min-h-11 shrink-0 items-center gap-1 px-2 text-sm font-semibold text-on-surface-variant">
+          <span className="inline-flex min-h-11 shrink-0 items-center gap-1 px-2 text-sm font-semibold text-ink-muted">
             <span aria-hidden className="flex">
               <Icon name="verified" filled className="text-base text-success" />
             </span>
@@ -125,26 +125,25 @@ const KanjiUnitRow = memo(function KanjiUnitRow({ view, isNext }: KanjiUnitRowPr
           'group relative flex min-h-16 w-full items-center gap-3 px-3 py-3 text-left transition-colors sm:px-4',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary',
           HASH_SCROLL_MARGIN,
-          isNext && 'before:absolute before:inset-y-0 before:left-0 before:w-0.5 before:bg-primary',
-          open ? 'bg-surface-container-low' : 'hover:bg-surface-container-low',
+          open ? 'bg-surface-sunken' : 'hover:bg-surface-hover',
         )}
       >
         <StatusIcon state={view.state} />
-        <span className="w-5 shrink-0 text-sm tabular-nums text-on-surface-variant">
+        <span className="w-5 shrink-0 text-sm tabular-nums text-ink-muted">
           <span className="sr-only">Unit </span>
           {number}
         </span>
         <span className="min-w-0 flex-1 sm:flex sm:items-center sm:gap-3">
           <span className="flex flex-wrap items-baseline gap-x-3 sm:min-w-0 sm:flex-1">
-            <span className="font-bold text-on-surface sm:w-44 sm:shrink-0">{unit.title}</span>
-            <span lang="ja" className="font-jp text-base tracking-wide text-on-surface-variant sm:text-lg">
+            <span className="font-bold text-ink sm:w-44 sm:shrink-0">{unit.title}</span>
+            <span lang="ja" className="font-ja text-base tracking-wide text-ink-muted sm:text-lg">
               {unit.kanji.join('')}
             </span>
           </span>
           <span
             className={cn(
               'mt-0.5 block whitespace-nowrap text-xs tabular-nums sm:mt-0 sm:shrink-0 sm:text-right sm:text-sm',
-              isNext ? 'font-semibold text-primary' : 'text-on-surface-variant',
+              isNext ? 'font-semibold text-primary' : 'text-ink-muted',
             )}
           >
             {kanjiUnitStatusText(view, isNext)}
@@ -153,17 +152,17 @@ const KanjiUnitRow = memo(function KanjiUnitRow({ view, isNext }: KanjiUnitRowPr
         <span aria-hidden className="flex shrink-0">
           <Icon
             name="expand_more"
-            className={cn('text-xl text-on-surface-variant transition-transform duration-200 motion-reduce:transition-none', open && 'rotate-180')}
+            className={cn('text-xl text-ink-muted transition-transform duration-200 motion-reduce:transition-none', open && 'rotate-180')}
           />
         </span>
       </button>
       {open && accordion && (
-        <div id={panelId} role="region" aria-labelledby={`unit-${unit.id}`} className="border-t border-outline-variant/40 bg-surface">
+        <div id={panelId} role="region" aria-labelledby={`unit-${unit.id}`} className="border-t border-line bg-surface">
           <Suspense
             fallback={
               <LoadingState label="Loading the unit…" className="space-y-3 p-6">
-                <SkeletonBlock className="h-6 w-40 rounded-xl" />
-                <SkeletonBlock className="h-24 w-full rounded-2xl" />
+                <SkeletonBlock className="h-6 w-40 rounded-md" />
+                <SkeletonBlock className="h-24 w-full rounded-xl" />
               </LoadingState>
             }
           >
@@ -197,22 +196,22 @@ export function KanjiLevelTestRow({ result, kanjiCount }: { result?: FinalTestRe
     <div className={ROW_LIST}>
       <Link
         to={overlayLink({ test: 'level' })}
-        className="group flex min-h-16 items-center gap-3 px-3 py-3 hover:bg-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary sm:px-4"
+        className="group flex min-h-16 items-center gap-3 px-3 py-3 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary sm:px-4"
       >
         <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
           <Icon name={passed ? 'workspace_premium' : 'emoji_events'} filled={passed} className={cn('text-2xl', passed ? 'text-success' : 'text-primary')} />
         </span>
         <span className="min-w-0 flex-1 sm:flex sm:items-center sm:gap-3">
           <span className="block min-w-0 sm:flex-1">
-            <span className="block font-bold text-on-surface">{level.title} level test</span>
-            <span className="block text-xs tabular-nums text-on-surface-variant sm:text-sm">{levelTestMeta(level, kanjiCount)}</span>
+            <span className="block font-bold text-ink">{level.title} level test</span>
+            <span className="block text-xs tabular-nums text-ink-muted sm:text-sm">{levelTestMeta(level, kanjiCount)}</span>
           </span>
-          <span className={cn('mt-0.5 block whitespace-nowrap text-xs tabular-nums sm:mt-0 sm:text-sm', passed ? 'font-semibold text-on-surface' : 'text-on-surface-variant')}>
+          <span className={cn('mt-0.5 block whitespace-nowrap text-xs tabular-nums sm:mt-0 sm:text-sm', passed ? 'font-semibold text-ink' : 'text-ink-muted')}>
             {status}
           </span>
         </span>
         <span aria-hidden className="flex shrink-0">
-          <Icon name="chevron_right" className="text-xl text-on-surface-variant transition-transform motion-safe:group-hover:translate-x-0.5" />
+          <Icon name="chevron_right" className="text-xl text-ink-muted transition-transform motion-safe:group-hover:translate-x-0.5" />
         </span>
       </Link>
     </div>

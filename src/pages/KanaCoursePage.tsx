@@ -56,7 +56,7 @@ export function KanaCoursePage() {
         </div>
         <CourseRail byId={byId} className="mt-10 lg:mt-0" />
       </div>
-      <p className="mt-10 text-xs text-on-surface-variant">Progress is saved to your account when you are signed in; print marks stay on this device.</p>
+      <p className="mt-10 text-xs text-ink-muted">Progress is saved to your account when you are signed in; print marks stay on this device.</p>
       <UnitQuizDialog unit={quizUnit} all={allKana} onClose={accordion.closeOverlay} />
       <SessionDialog open={practice !== null} label={practiceUnit ? `${practiceUnit.title} practice` : 'Practice'} onClose={accordion.closeOverlay}>
         {practice && <KanaPracticeSession key={`${practice.unitId}-${practice.mode}`} mode={practice.mode} unitId={practice.unitId} onExit={accordion.closeOverlay} />}

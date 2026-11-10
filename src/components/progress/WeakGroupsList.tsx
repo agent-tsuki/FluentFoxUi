@@ -11,14 +11,14 @@ export function WeakGroupsList({ groups }: { groups: readonly WeakGroup[] }) {
   return (
     <ul className="grid gap-3 sm:grid-cols-2">
       {groups.map((g) => (
-        <li key={`${g.track}-${g.kind}-${g.slug}`} className="flex flex-col gap-3 rounded-2xl border border-outline-variant/50 bg-surface-container-lowest p-4">
+        <li key={`${g.track}-${g.kind}-${g.slug}`} className="flex flex-col gap-3 rounded-xl border border-line bg-surface-raised p-4">
           <div className="space-y-1">
-            <p className="text-xs text-on-surface-variant">{TRACK_LABEL[g.track]}</p>
-            <h3 className="font-headline text-base font-bold text-on-surface">
+            <p className="text-xs text-ink-muted">{TRACK_LABEL[g.track]}</p>
+            <h3 className="font-display text-base font-bold text-ink">
               <JaText text={g.title} />
             </h3>
-            <p className="text-sm text-on-surface">{g.reason}</p>
-            <p className="text-xs text-on-surface-variant tabular-nums">
+            <p className="text-sm text-ink">{g.reason}</p>
+            <p className="text-xs text-ink-muted tabular-nums">
               {g.reviews} reviews · missed {formatShare(g.lapse_rate)}
             </p>
           </div>

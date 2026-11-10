@@ -16,14 +16,14 @@ export function TodayPanel() {
   return (
     <section
       aria-labelledby="today-heading"
-      className="rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-5 dark:border-outline/60 dark:bg-surface-container-low sm:p-6"
+      className="rounded-xl border border-line bg-surface-raised p-5 sm:p-6"
     >
       <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Today</p>
-      <h2 id="today-heading" className="mt-1.5 font-headline text-xl font-bold text-on-surface md:text-2xl">
+      <h2 id="today-heading" className="mt-1.5 font-display text-xl font-bold text-ink md:text-2xl">
         {summary ? (due > 0 ? `${due} review${due === 1 ? '' : 's'} due` : 'No reviews due right now') : 'Reviews and lessons'}
       </h2>
       {summary && (
-        <p className="mt-1 text-sm tabular-nums text-on-surface-variant">
+        <p className="mt-1 text-sm tabular-nums text-ink-muted">
           {summary.goal.answers_today} of {summary.goal.goal_answers} answers today
           {summary.goal.met && ' · goal met'} · {summary.new_left_today} new left today
         </p>

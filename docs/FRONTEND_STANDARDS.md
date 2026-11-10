@@ -93,8 +93,8 @@ interface CardProps {
 }
 
 const VARIANTS: Record<NonNullable<CardProps['variant']>, string> = {
-  low:    'bg-surface-container-low border border-outline-variant/40',
-  lowest: 'bg-surface-container-lowest border border-outline-variant/30',
+  low:    'bg-surface-container-low border border-line/40',
+  lowest: 'bg-surface-raised border border-line/30',
   dark:   'bg-on-surface text-inverse-on-surface',
 }
 
@@ -145,9 +145,9 @@ in `src/index.css`. **Always** style through tokens so dark mode and theming kee
 
 | Use…                          | Not…                          |
 | ----------------------------- | ----------------------------- |
-| `bg-surface`, `text-on-surface` | `bg-white`, `text-[#191c1d]` |
+| `bg-surface`, `text-ink` | `bg-white`, `text-[#191c1d]` |
 | `text-primary`, `bg-primary`  | `text-[#EA6B44]`              |
-| `border-outline-variant`      | `border-gray-200`            |
+| `border-line`      | `border-gray-200`            |
 | `rounded-2xl` (token scale)   | `rounded-[14px]`             |
 
 - Recurring multi-class patterns (card shell, gradient button, glass panel, pill) become a

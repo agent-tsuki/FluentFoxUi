@@ -178,7 +178,7 @@ function ModalFromUrl() {
 // ─── Layout shell (shared Navbar + Footer + modals) ───────────────────────────
 function Shell() {
   return (
-    <div className="app-shell bg-surface text-on-surface transition-colors duration-300 ease-in-out font-body selection:bg-primary-fixed selection:text-primary min-h-dvh flex flex-col relative overflow-x-clip">
+    <div className="app-shell bg-surface text-ink transition-colors duration-300 ease-in-out font-sans selection:bg-primary-fixed selection:text-primary min-h-dvh flex flex-col relative overflow-x-clip">
       <AmbientBackground />
 
       <div className="relative z-10 flex flex-col min-h-dvh">

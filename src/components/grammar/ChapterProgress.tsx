@@ -20,7 +20,7 @@ export function ChapterProgress({ chapters, completedChapters, className }: Chap
   return (
     <div className={cn('px-4 py-3.5', className)}>
       <div className="flex justify-between items-center mb-2">
-        <span className="text-xs text-on-surface-variant font-medium">Your Progress</span>
+        <span className="text-xs text-ink-muted font-medium">Your Progress</span>
         <span className="text-xs font-bold text-primary">
           {completedCount} / {chapters.length}
         </span>
@@ -31,7 +31,7 @@ export function ChapterProgress({ chapters, completedChapters, className }: Chap
         aria-valuemin={0}
         aria-valuemax={chapters.length}
         aria-valuenow={completedCount}
-        className="h-1.5 bg-surface-container-high rounded-full overflow-hidden"
+        className="h-1.5 bg-surface-sunken rounded-full overflow-hidden"
       >
         <div
           className="h-full bg-primary rounded-full transition-all duration-500"
@@ -39,8 +39,8 @@ export function ChapterProgress({ chapters, completedChapters, className }: Chap
         />
       </div>
       {completedCount > 0 && (
-        <p className="text-xs text-on-surface-variant/60 mt-1.5">
-          {progressPct}% complete — keep going!
+        <p className="text-xs text-ink-muted mt-1.5">
+          {progressPct}% complete
         </p>
       )}
     </div>

@@ -44,22 +44,22 @@ export function ProfilePage() {
           <div className="flex items-center gap-5">
             <SkeletonBlock className="h-20 w-20 rounded-full shrink-0" />
             <div className="space-y-3 flex-1">
-              <SkeletonBlock className="h-6 w-48 rounded-xl" />
-              <SkeletonBlock className="h-4 w-64 rounded-xl" />
+              <SkeletonBlock className="h-6 w-48 rounded-md" />
+              <SkeletonBlock className="h-4 w-64 rounded-md" />
             </div>
           </div>
 
           {/* Tabs skeleton */}
-          <div className="flex gap-8 border-b border-outline-variant pb-4 mt-12">
-            <SkeletonBlock className="h-5 w-28 rounded-xl" />
-            <SkeletonBlock className="h-5 w-36 rounded-xl" />
+          <div className="flex gap-8 border-b border-line pb-4 mt-12">
+            <SkeletonBlock className="h-5 w-28 rounded-md" />
+            <SkeletonBlock className="h-5 w-36 rounded-md" />
           </div>
 
           {/* Form skeleton */}
           <div className="space-y-4 mt-8">
-            <SkeletonBlock className="h-14 w-full rounded-xl" />
-            <SkeletonBlock className="h-14 w-full rounded-xl" />
-            <SkeletonBlock className="h-14 w-full rounded-xl" />
+            <SkeletonBlock className="h-14 w-full rounded-md" />
+            <SkeletonBlock className="h-14 w-full rounded-md" />
+            <SkeletonBlock className="h-14 w-full rounded-md" />
           </div>
         </LoadingState>
       </main>
@@ -89,7 +89,7 @@ export function ProfilePage() {
 
       <div className="space-y-8">
         {/* Tabs */}
-        <div className="flex gap-8 border-b border-outline-variant overflow-x-auto scrollbar-hide">
+        <div className="flex gap-8 border-b border-line overflow-x-auto scrollbar-hide">
           <TabButton
             active={activeTab === 'info'}
             onClick={() => setActiveTab('info')}
@@ -139,8 +139,8 @@ function TabButton({ active, onClick, icon, label }: TabButtonProps) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 pb-4 text-sm font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${
-        active ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'
+      className={`flex items-center gap-2 pb-4 text-sm font-bold uppercase tracking-[0.12em] transition-all relative whitespace-nowrap ${
+        active ? 'text-primary' : 'text-ink-muted hover:text-ink'
       }`}
     >
       <Icon name={icon} className="text-lg" />

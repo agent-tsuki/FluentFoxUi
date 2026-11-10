@@ -18,7 +18,7 @@ interface ChannelOverridesProps {
   actions: ChannelOverrideActions
 }
 
-const muted = 'text-sm text-on-surface-variant'
+const muted = 'text-sm text-ink-muted'
 
 /** The five display fields with a YouTube value and an optional custom override. */
 export function ChannelOverrides({ channel, canEditText, canEditMedia, actions }: ChannelOverridesProps) {
@@ -29,7 +29,7 @@ export function ChannelOverrides({ channel, canEditText, canEditMedia, actions }
   return (
     <div>
       <OverrideFieldRow label="Name" value={name} canEdit={canEditText} {...resetProps('name')}
-        preview={<p className="font-headline text-lg font-bold text-on-surface">{name.effective ?? <span className={muted}>Not set</span>}</p>}>
+        preview={<p className="font-display text-lg font-bold text-ink">{name.effective ?? <span className={muted}>Not set</span>}</p>}>
         <InlineTextEditor label="Channel name" initial={name.effective ?? ''} busy={busy === 'text:name'} onSave={v => actions.saveText('name', v)} />
       </OverrideFieldRow>
 
@@ -42,13 +42,13 @@ export function ChannelOverrides({ channel, canEditText, canEditMedia, actions }
 
       <OverrideFieldRow label="Banner" value={banner} canEdit={canEditMedia} {...resetProps('banner_url')}
         preview={banner.effective
-          ? <img src={banner.effective} alt={`${name.effective ?? 'Channel'} banner`} width={640} height={106} loading="lazy" className="aspect-[6/1] w-full max-w-xl rounded-xl object-cover" />
+          ? <img src={banner.effective} alt={`${name.effective ?? 'Channel'} banner`} width={640} height={106} loading="lazy" className="aspect-[6/1] w-full max-w-xl rounded-md object-cover" />
           : <p className={muted}>No banner</p>}>
         <ImageUploadButton label="Banner" hasCustom={banner.custom !== null} busy={busy === 'upload:banner'} onFile={f => actions.upload('banner', f)} />
       </OverrideFieldRow>
 
       <OverrideFieldRow label="Description" value={description} canEdit={canEditText} {...resetProps('description')}
-        preview={<p className="max-w-prose whitespace-pre-line text-sm leading-relaxed text-on-surface">{description.effective || <span className={muted}>No description</span>}</p>}>
+        preview={<p className="max-w-prose whitespace-pre-line text-sm leading-relaxed text-ink">{description.effective || <span className={muted}>No description</span>}</p>}>
         <InlineTextEditor label="Channel description" multiline initial={description.effective ?? ''} busy={busy === 'text:description'} onSave={v => actions.saveText('description', v)} />
       </OverrideFieldRow>
 

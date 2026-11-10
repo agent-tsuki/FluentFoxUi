@@ -85,8 +85,8 @@ export function LineChart({
         <div className={cn('relative', heightClass)}>
           <Gridlines ticks={[min, (min + top) / 2, top]} top={top} min={min} format={format} />
           {reference && (
-            <div aria-hidden className="pointer-events-none absolute inset-x-0 border-t-2 border-dashed border-on-surface/40" style={{ bottom: `${yPct(reference.value)}%` }}>
-              <span className="absolute right-0 -translate-y-full pb-0.5 text-2xs font-semibold text-on-surface-variant">{reference.label}</span>
+            <div aria-hidden className="pointer-events-none absolute inset-x-0 border-t-2 border-dashed border-ink/40" style={{ bottom: `${yPct(reference.value)}%` }}>
+              <span className="absolute right-0 -translate-y-full pb-0.5 text-2xs font-semibold text-ink-muted">{reference.label}</span>
             </div>
           )}
           <svg
@@ -109,7 +109,7 @@ export function LineChart({
           ))}
           {activePoint && active !== null && (
             <>
-              <span aria-hidden className="pointer-events-none absolute inset-y-0 w-px bg-on-surface/30" style={{ left: `${xPct(active)}%` }} />
+              <span aria-hidden className="pointer-events-none absolute inset-y-0 w-px bg-ink/30" style={{ left: `${xPct(active)}%` }} />
               {activePoint.value !== null && (
                 <span
                   aria-hidden

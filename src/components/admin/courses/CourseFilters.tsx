@@ -20,7 +20,7 @@ export function CourseFilters({ value, channels, onChange }: { value: CourseFilt
   return (
     <div role="search" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
       <div className="relative sm:col-span-2 lg:col-span-1">
-        <Icon name="search" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" />
+        <Icon name="search" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
         <TextInput aria-label="Search courses" placeholder="Search title or slug" value={value.search} onChange={e => set('search', e.target.value)} className="pl-10" />
       </div>
       <SelectInput aria-label="Channel" value={value.channelId} onChange={e => set('channelId', e.target.value)}>

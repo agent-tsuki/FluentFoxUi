@@ -26,27 +26,27 @@ export function TestOutCard({ best, emphasis, certificateUnlocked, className }: 
     <Link
       to={`${script.basePath}/skip/all`}
       className={cn(
-        'group flex flex-col gap-4 rounded-2xl border p-4 text-left transition-colors duration-150 sm:flex-row sm:items-center sm:p-5',
+        'group flex flex-col gap-4 rounded-xl border p-4 text-left transition-colors duration-150 sm:flex-row sm:items-center sm:p-5',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
         emphasis
           ? 'border-primary/50 bg-primary/5 hover:bg-primary/10 dark:bg-primary/10 dark:hover:bg-primary/15'
-          : 'border-outline-variant/60 bg-surface-container-lowest hover:bg-surface-container-low dark:border-outline/60 dark:bg-surface-container-low dark:hover:bg-surface-container',
+          : 'border-line bg-surface-raised hover:bg-surface-hover dark:hover:bg-surface-hover',
         className,
       )}
     >
       <span className="flex min-w-0 flex-1 items-start gap-3 sm:gap-4">
         <span
           aria-hidden
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-primary/15"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary dark:bg-primary/15"
         >
           <Icon name="school" className="text-2xl" />
         </span>
         <span className="min-w-0">
-          <span className="block font-headline text-lg font-bold text-on-surface">All {script.label.toLowerCase()}</span>
-          <span className="block text-sm tabular-nums text-on-surface-variant">
+          <span className="block font-display text-lg font-bold text-ink">All {script.label.toLowerCase()}</span>
+          <span className="block text-sm tabular-nums text-ink-muted">
             {scriptKanaCount(script)} kana · {script.units.length} units
           </span>
-          <span className="mt-1 flex items-center gap-1 text-sm text-on-surface-variant">
+          <span className="mt-1 flex items-center gap-1 text-sm text-ink-muted">
             <span aria-hidden className="flex">
               <Icon name="workspace_premium" className="text-base text-primary" />
             </span>
@@ -58,10 +58,10 @@ export function TestOutCard({ best, emphasis, certificateUnlocked, className }: 
         <TestsStatus best={best} passed={passed} />
         <span
           className={cn(
-            'inline-flex min-h-11 items-center gap-1.5 rounded-xl px-4 text-sm font-bold transition-shadow',
+            'inline-flex min-h-11 items-center gap-1.5 rounded-md px-4 text-sm font-bold transition-shadow',
             emphasis
               ? 'bg-primary text-on-primary shadow-elevation-1 group-hover:shadow-elevation-2'
-              : 'border-2 border-outline-variant/60 text-on-surface dark:border-outline/60',
+              : 'border-2 border-line text-ink',
           )}
         >
           {best === undefined ? 'Start test' : 'Retake'}

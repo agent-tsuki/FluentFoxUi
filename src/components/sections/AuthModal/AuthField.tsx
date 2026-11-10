@@ -25,10 +25,10 @@ export function AuthField({ label, labelNote, required, error, hint, trailing, c
 
   return (
     <div>
-      <label htmlFor={id} className="block text-2xs uppercase tracking-widest font-bold text-on-surface-variant px-1 mb-1.5">
+      <label htmlFor={id} className="block text-2xs uppercase tracking-[0.12em] font-bold text-ink-muted px-1 mb-1.5">
         {label}
         {required && <span aria-hidden className="text-error normal-case tracking-normal font-bold"> *</span>}
-        {labelNote && <span className="normal-case text-outline/50 font-normal tracking-normal"> {labelNote}</span>}
+        {labelNote && <span className="normal-case text-line-strong/50 font-normal tracking-normal"> {labelNote}</span>}
       </label>
       <div className="relative">
         <input
@@ -37,8 +37,8 @@ export function AuthField({ label, labelNote, required, error, hint, trailing, c
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
           className={cn(
-            'w-full bg-surface-container-low border-0 rounded-xl px-4 py-3 text-on-surface text-sm outline-none transition-all',
-            'placeholder:text-outline/50 focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest',
+            'w-full bg-surface-sunken border-0 rounded-md px-4 py-3 text-ink text-sm outline-none transition-all',
+            'placeholder:text-line-strong/50 focus:ring-2 focus:ring-primary/20 focus:bg-surface-raised',
             Boolean(error) && 'ring-2 ring-error/40',
             Boolean(trailing) && 'pr-12',
             className,
@@ -48,7 +48,7 @@ export function AuthField({ label, labelNote, required, error, hint, trailing, c
         {trailing && <div className="absolute right-3 top-1/2 -translate-y-1/2">{trailing}</div>}
       </div>
       {error && <div id={errorId} className="mt-1 px-1 text-xs text-error font-medium">{error}</div>}
-      {hint && !error && <p id={hintId} className="mt-1 px-1 text-xs text-on-surface-variant/60">{hint}</p>}
+      {hint && !error && <p id={hintId} className="mt-1 px-1 text-xs text-ink-subtle">{hint}</p>}
     </div>
   )
 }
@@ -66,7 +66,7 @@ export function PasswordToggle({ visible, onToggle }: PasswordToggleProps) {
       onClick={onToggle}
       aria-label={visible ? 'Hide password' : 'Show password'}
       aria-pressed={visible}
-      className="flex size-8 items-center justify-center rounded-full text-outline hover:text-on-surface transition-colors"
+      className="flex size-8 items-center justify-center rounded-full text-line-strong hover:text-ink transition-colors"
     >
       <span aria-hidden className="material-symbols-outlined text-lg">{visible ? 'visibility_off' : 'visibility'}</span>
     </button>

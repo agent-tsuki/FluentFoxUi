@@ -22,13 +22,13 @@ export function HomeHero() {
           {HERO_COPY.eyebrow}
         </Eyebrow>
 
-        <h1 className="text-balance font-headline text-[clamp(2.6rem,5.2vw,4.4rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-on-surface">
+        <h1 className="text-balance font-display text-[clamp(2.6rem,5.2vw,4.4rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink">
           {HERO_COPY.titleLead}
           <br />
           <span className="italic text-primary">{HERO_COPY.titleAccent}</span>
         </h1>
 
-        <p className="max-w-[34ch] text-pretty text-lg leading-relaxed text-on-surface-variant md:text-[1.1875rem]">
+        <p className="max-w-[34ch] text-pretty text-lg leading-relaxed text-ink-muted md:text-[1.1875rem]">
           {HERO_COPY.description}
         </p>
 
@@ -43,13 +43,13 @@ export function HomeHero() {
           </Button>
           <a
             href={`#${HERO_COPY.secondaryCtaTarget}`}
-            className="inline-flex min-h-11 items-center rounded-xl border-[1.5px] border-outline-variant bg-surface-container-lowest px-6 py-[0.9375rem] text-[1.0625rem] font-bold text-on-surface transition-colors duration-200 hover:border-primary hover:text-primary"
+            className="inline-flex min-h-11 items-center rounded-md border-[1.5px] border-line bg-surface-raised px-6 py-[0.9375rem] text-[1.0625rem] font-bold text-ink transition-colors duration-200 hover:border-primary hover:text-primary"
           >
             {HERO_COPY.secondaryCta}
           </a>
         </div>
 
-        <p className="flex items-center gap-2 text-[0.9375rem] text-on-surface-variant">
+        <p className="flex items-center gap-2 text-[0.9375rem] text-ink-muted">
           <Icon name="check" className="flex-none text-lg font-bold text-success" />
           <span>{HERO_COPY.note}</span>
         </p>

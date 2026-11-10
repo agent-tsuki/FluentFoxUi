@@ -43,14 +43,14 @@ export class ErrorBoundary extends Component<Props, State> {
           </div>
 
           <div className="space-y-2 max-w-md">
-            <h2 className="text-2xl font-bold font-headline text-on-surface tracking-tighter">
+            <h2 className="text-2xl font-bold font-display text-ink tracking-tighter">
               Something went wrong
             </h2>
-            <p className="text-on-surface-variant text-sm leading-relaxed">
+            <p className="text-ink-muted text-sm leading-relaxed">
               An unexpected error occurred. You can try refreshing the page or going back home.
             </p>
             {IS_DEV && this.state.error && (
-              <pre className="mt-4 p-4 bg-surface-container rounded-lg text-xs text-error text-left overflow-auto max-h-40">
+              <pre className="mt-4 p-4 bg-surface-sunken rounded-sm text-xs text-error text-left overflow-auto max-h-40">
                 {this.state.error.message}
               </pre>
             )}
@@ -59,14 +59,14 @@ export class ErrorBoundary extends Component<Props, State> {
           <div className="flex gap-4">
             <button
               onClick={this.handleReset}
-              className="px-6 py-2.5 bg-primary text-on-primary rounded-lg font-bold text-sm hover:scale-[1.02] active:scale-[0.98] transition-transform"
+              className="px-6 py-2.5 bg-primary text-on-primary rounded-sm font-bold text-sm hover:scale-[1.02] active:scale-[0.98] transition-transform"
             >
               Try Again
             </button>
             <Link
               to="/"
               onClick={this.handleReset}
-              className="px-6 py-2.5 border border-outline-variant rounded-lg text-on-surface-variant font-bold text-sm hover:text-on-surface transition-colors"
+              className="px-6 py-2.5 border border-line rounded-sm text-ink-muted font-bold text-sm hover:text-ink transition-colors"
             >
               Go Home
             </Link>

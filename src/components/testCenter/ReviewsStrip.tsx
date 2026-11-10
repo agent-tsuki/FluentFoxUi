@@ -24,16 +24,16 @@ export function ReviewsStrip({ className }: { className?: string }) {
     <section
       aria-label="Reviews"
       className={cn(
-        'flex items-center gap-3 rounded-2xl border border-outline-variant/60 bg-surface-container-lowest/90 px-4 py-3 shadow-elevation-1 backdrop-blur-md dark:border-outline/60 dark:bg-surface-container-low/90',
+        'flex items-center gap-3 rounded-xl border border-line bg-surface-raised/90 px-4 py-3 shadow-elevation-1 backdrop-blur-md/90',
         className,
       )}
     >
-      <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+      <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
         <Icon name="schedule" className="text-xl" />
       </span>
       <p className="min-w-0 flex-1 text-sm">
-        <span className="block font-bold text-on-surface">{due > 0 ? `${due} review${due === 1 ? '' : 's'} due` : 'Reviews'}</span>
-        <span className="block truncate text-on-surface-variant">
+        <span className="block font-bold text-ink">{due > 0 ? `${due} review${due === 1 ? '' : 's'} due` : 'Reviews'}</span>
+        <span className="block truncate text-ink-muted">
           {due > 0
             ? 'Cards from what you’ve learned, at the right time to remember them.'
             : later > 0
@@ -45,7 +45,7 @@ export function ReviewsStrip({ className }: { className?: string }) {
         to={reviewPath()}
         onClick={gateReview()}
         className={cn(
-          'inline-flex min-h-10 shrink-0 items-center gap-1 rounded-xl px-3 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+          'inline-flex min-h-10 shrink-0 items-center gap-1 rounded-md px-3 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
           due > 0 ? 'bg-primary text-on-primary hover:bg-primary/90' : 'text-primary hover:bg-primary/10',
         )}
       >

@@ -10,7 +10,7 @@ export function MasteryChip({ level, className }: { level: MasteryLevel; classNa
       className={cn('inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold', MASTERY_TONE[level].soft, className)}
     >
       <span aria-hidden className={cn('h-1.5 w-1.5 rounded-full', MASTERY_TONE[level].fill)} />
-      <span className="text-on-surface">{MASTERY_LABEL[level]}</span>
+      <span className="text-ink">{MASTERY_LABEL[level]}</span>
     </span>
   )
 }

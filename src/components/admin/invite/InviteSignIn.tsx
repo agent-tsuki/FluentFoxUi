@@ -13,8 +13,8 @@ export function InviteSignIn({ returnTo, emailMasked }: { returnTo: string; emai
   const { openModal } = useModal()
   return (
     <div className="space-y-3">
-      <p className="text-sm text-on-surface-variant">
-        Sign in with <span className="font-semibold text-on-surface">{emailMasked}</span> to accept.
+      <p className="text-sm text-ink-muted">
+        Sign in with <span className="font-semibold text-ink">{emailMasked}</span> to accept.
       </p>
       <Button type="button" variant="outline" className="flex min-h-11 w-full items-center justify-center gap-2 text-sm" onClick={() => authService.startGoogleOAuth(returnTo)}>
         <Icon name="account_circle" className="text-lg" />

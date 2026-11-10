@@ -1,31 +1,29 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import type { DropdownItem } from '@/types'
+import type { TopNavChild } from '@/lib/content/nav'
 import { Icon } from '@/components/ui/Icon'
+import { cn } from '@/lib/cn'
 
 interface NavDropdownProps {
   label: string
-  items: DropdownItem[]
+  items: readonly TopNavChild[]
+  active: boolean
+  className: string
 }
 
-export function NavDropdown({ label, items }: NavDropdownProps) {
+/** A course's small menu in the top nav. Click or tap toggles it; outside click and Escape close it. */
+export function NavDropdown({ label, items, active, className }: NavDropdownProps) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
 
-  // Close on outside click / Escape (click/tap is the primary toggle — see CLAUDE.md
-  // "never gate a required interaction behind hover alone").
   useEffect(() => {
     if (!open) return
-
     function onPointerDown(e: PointerEvent) {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
-        setOpen(false)
-      }
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false)
     }
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') setOpen(false)
     }
-
     document.addEventListener('pointerdown', onPointerDown)
     document.addEventListener('keydown', onKeyDown)
     return () => {
@@ -35,33 +33,31 @@ export function NavDropdown({ label, items }: NavDropdownProps) {
   }, [open])
 
   return (
-    <div ref={rootRef} className="relative group">
-      <button
-        type="button"
-        onClick={() => setOpen(v => !v)}
-        aria-haspopup="true"
-        aria-expanded={open}
-        className="flex items-center gap-1 cursor-pointer text-on-surface-variant group-hover:text-on-surface group-hover:scale-105 transition-all duration-200"
-      >
+    <div ref={rootRef} className="relative">
+      <button type="button" onClick={() => setOpen((v) => !v)} aria-haspopup="true" aria-expanded={open} aria-current={active ? 'page' : undefined} className={cn(className, 'gap-1')}>
         {label}
-        <Icon name="keyboard_arrow_down" className="text-xs" />
+        <Icon name="expand_more" className={cn('text-lg transition-transform duration-base', open && 'rotate-180')} />
       </button>
-      <div
-        className={`transition-all duration-150 absolute top-[calc(100%+0.5rem)] left-1/2 -translate-x-1/2 min-w-[10rem] bg-surface-container-lowest shadow-elevation-2 rounded-xl p-2 border border-outline-variant/30 ${
-          open ? 'visible opacity-100' : 'invisible opacity-0'
-        }`}
-      >
-        {items.map((item) => (
-          <Link
-            key={item.href}
-            to={item.href}
-            onClick={() => setOpen(false)}
-            className="block px-4 py-2 hover:bg-surface-container rounded-lg text-on-surface-variant hover:text-on-surface text-sm whitespace-nowrap transition-colors"
-          >
-            {item.label}
-          </Link>
-        ))}
-      </div>
+      {open && (
+        <div className="absolute left-0 top-[calc(100%+0.5rem)] w-80 rounded-lg bg-surface-raised p-2 shadow-elevation-2">
+          {items.map((item) => (
+            <Link
+              key={item.href}
+              to={item.href}
+              onClick={() => setOpen(false)}
+              className="grid min-h-touch-target grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-3 rounded-md px-3 py-2.5 text-ink hover:bg-surface-hover"
+            >
+              <span aria-hidden lang="ja" className="grid size-10 place-items-center rounded-md bg-surface-sunken font-ja-display text-xl font-bold">
+                {item.glyph}
+              </span>
+              <span>
+                <span className="block text-label">{item.label}</span>
+                <span className="block text-caption text-ink-muted">{item.description}</span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

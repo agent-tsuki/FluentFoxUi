@@ -23,7 +23,7 @@ export const QuestionPromptView = forwardRef<HTMLHeadingElement, QuestionPromptV
   const length = Array.from(prompt).length
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 py-4 text-center">
-      <h2 ref={ref} tabIndex={-1} className="text-sm font-semibold text-on-surface-variant focus:outline-none">
+      <h2 ref={ref} tabIndex={-1} className="text-sm font-semibold text-ink-muted focus:outline-none">
         {view.ask}
         {view.display !== 'audio' && <span className="sr-only"> {prompt}</span>}
       </h2>
@@ -32,7 +32,7 @@ export const QuestionPromptView = forwardRef<HTMLHeadingElement, QuestionPromptV
           lang="ja"
           aria-hidden="true"
           className={cn(
-            'font-jp font-bold leading-none text-on-surface',
+            'font-ja font-bold leading-none text-ink',
             length <= 2 ? 'text-8xl sm:text-9xl' : length <= 4 ? 'text-6xl sm:text-8xl' : 'text-5xl sm:text-7xl',
           )}
         >
@@ -41,21 +41,21 @@ export const QuestionPromptView = forwardRef<HTMLHeadingElement, QuestionPromptV
       )}
       {view.display === 'sentence' && (
         <div aria-hidden="true" className="max-w-xl space-y-3">
-          <p lang="ja" className="font-jp text-2xl font-medium leading-relaxed text-on-surface sm:text-3xl">
+          <p lang="ja" className="font-ja text-2xl font-medium leading-relaxed text-ink sm:text-3xl">
             {prompt.split(SENTENCE_GAP).map((part, i, parts) => (
               <span key={i}>
                 {part}
-                {i < parts.length - 1 && <span className="mx-1 inline-block w-14 border-b-2 border-on-surface-variant align-baseline" />}
+                {i < parts.length - 1 && <span className="mx-1 inline-block w-14 border-b-2 border-ink-muted align-baseline" />}
               </span>
             ))}
           </p>
-          {question.sentence?.translation && <p className="text-sm text-on-surface-variant">{question.sentence.translation}</p>}
+          {question.sentence?.translation && <p className="text-sm text-ink-muted">{question.sentence.translation}</p>}
         </div>
       )}
       {view.display === 'latin' && (
         <p
           aria-hidden="true"
-          className={cn('break-words font-headline font-extrabold text-primary', length <= 5 ? 'text-6xl sm:text-7xl' : 'text-4xl sm:text-5xl')}
+          className={cn('break-words font-display font-extrabold text-primary', length <= 5 ? 'text-6xl sm:text-7xl' : 'text-4xl sm:text-5xl')}
         >
           {prompt}
         </p>
@@ -70,7 +70,7 @@ export const QuestionPromptView = forwardRef<HTMLHeadingElement, QuestionPromptV
           >
             <Icon name="volume_up" className="text-5xl" />
           </button>
-          <p className="text-xs text-on-surface-variant">
+          <p className="text-xs text-ink-muted">
             Tap to hear it again<span className="hidden sm:inline"> · press R</span>
           </p>
         </>

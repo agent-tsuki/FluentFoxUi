@@ -74,7 +74,7 @@ export function KanjiTestsPage() {
                 to={kanjiUnitQuizPath(level.id, u.unit.id)}
                 leading={u.number}
                 title={u.unit.title}
-                detail={<span lang="ja" className="font-jp">{u.unit.kanji.join(' ')}</span>}
+                detail={<span lang="ja" className="font-ja">{u.unit.kanji.join(' ')}</span>}
                 best={u.quizBest}
                 passed={u.done.quiz}
               />
@@ -97,14 +97,14 @@ export function KanjiTestsPage() {
           </li>
         </ul>
         {levelTest?.passedAt ? (
-          <section aria-labelledby="certificate-title" className="mt-4 rounded-2xl border border-outline-variant/40 bg-surface-container-low p-5">
+          <section aria-labelledby="certificate-title" className="mt-4 rounded-xl border border-line bg-surface-sunken p-5">
             <div className="flex items-start gap-3">
               <Icon name="verified" filled className="text-3xl text-primary" />
               <div>
-                <h3 id="certificate-title" className="font-headline text-lg font-bold text-on-surface">
+                <h3 id="certificate-title" className="font-display text-lg font-bold text-ink">
                   {level.certificateTitle}
                 </h3>
-                <p className="text-sm text-on-surface-variant">
+                <p className="text-sm text-ink-muted">
                   Passed on {new Date(levelTest.passedAt).toLocaleDateString(undefined, { dateStyle: 'long' })} · best score {formatPercent(levelTest.best)}
                 </p>
               </div>
@@ -125,10 +125,10 @@ export function KanjiTestsPage() {
               }
               downloadLabel="Download certificate (PDF)"
             />
-            <p className="mt-2 text-xs text-on-surface-variant">A FoxSensei course certificate, not an official JLPT result.</p>
+            <p className="mt-2 text-xs text-ink-muted">A FoxSensei course certificate, not an official JLPT result.</p>
           </section>
         ) : (
-          <p className="mt-3 flex items-center gap-2 text-sm text-on-surface-variant">
+          <p className="mt-3 flex items-center gap-2 text-sm text-ink-muted">
             <Icon name="workspace_premium" className="text-lg text-primary" />
             Your certificate appears here once you pass.
           </p>

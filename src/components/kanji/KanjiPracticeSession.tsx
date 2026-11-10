@@ -212,11 +212,11 @@ function Flashcards({ title, targets, onExit, onFinish }: ModeProps) {
       <PracticeShell title={title} progress={1} onExit={onExit}>
         <div role="status" className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
           <Icon name="celebration" className="text-5xl text-primary" />
-          <p className="font-headline text-2xl font-extrabold text-on-surface">
+          <p className="font-display text-2xl font-extrabold text-ink">
             You knew {deck.length - missed.length} of {deck.length}
           </p>
           {missed.length > 0 && (
-            <p lang="ja" className="font-jp text-3xl tracking-wider text-on-surface">
+            <p lang="ja" className="font-ja text-3xl tracking-wider text-ink">
               {missed.map((m) => m.char).join(' ')}
             </p>
           )}
@@ -247,20 +247,20 @@ function Flashcards({ title, targets, onExit, onFinish }: ModeProps) {
         type="button"
         onClick={() => setFlipped((f) => !f)}
         aria-label={flipped ? `${card.char}: ${card.meanings[0]}, ${keyReadingLabel(card)}` : `${card.char}. Show the answer`}
-        className="flex flex-1 flex-col items-center justify-center gap-3 rounded-3xl border border-outline-variant/60 bg-surface-container-lowest p-6 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:bg-surface-container-low"
+        className="flex flex-1 flex-col items-center justify-center gap-3 rounded-3xl bg-surface-raised shadow-elevation-1 p-6 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       >
-        <span lang="ja" className="font-jp text-8xl font-bold leading-none text-on-surface sm:text-9xl">
+        <span lang="ja" className="font-ja text-8xl font-bold leading-none text-ink sm:text-9xl">
           {card.char}
         </span>
         {flipped ? (
           <span className="space-y-1">
-            <span className="block font-headline text-2xl font-bold text-on-surface">{card.meanings[0]}</span>
-            <span lang="ja" className="block font-jp text-xl text-primary">
+            <span className="block font-display text-2xl font-bold text-ink">{card.meanings[0]}</span>
+            <span lang="ja" className="block font-ja text-xl text-primary">
               {keyReadingLabel(card)}
             </span>
             {key && (
-              <span className="block text-sm text-on-surface-variant">
-                <span lang="ja" className="font-jp">
+              <span className="block text-sm text-ink-muted">
+                <span lang="ja" className="font-ja">
                   {key.word}（{key.reading}）
                 </span>{' '}
                 {key.meaning}
@@ -268,7 +268,7 @@ function Flashcards({ title, targets, onExit, onFinish }: ModeProps) {
             )}
           </span>
         ) : (
-          <span className="text-sm text-on-surface-variant">Think of its meaning and reading, then tap to check.</span>
+          <span className="text-sm text-ink-muted">Think of its meaning and reading, then tap to check.</span>
         )}
       </button>
       <div className="mt-4 grid grid-cols-2 gap-3">
@@ -312,7 +312,7 @@ function Writing({ title, targets, onExit, onFinish }: ModeProps) {
       <PracticeShell title={title} progress={1} onExit={onExit}>
         <div role="status" className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
           <Icon name="celebration" className="text-5xl text-primary" />
-          <p className="font-headline text-2xl font-extrabold text-on-surface">You wrote {deck.length} kanji from memory</p>
+          <p className="font-display text-2xl font-extrabold text-ink">You wrote {deck.length} kanji from memory</p>
           <Button variant="outline" onClick={onExit} className="min-h-12">
             Back
           </Button>
@@ -329,9 +329,9 @@ function Writing({ title, targets, onExit, onFinish }: ModeProps) {
 
   return (
     <PracticeShell title={title} progress={at / deck.length} status={`${at + 1} / ${deck.length}`} onExit={onExit}>
-      <p className="mb-4 text-center text-on-surface">
+      <p className="mb-4 text-center text-ink">
         Write the kanji for <span className="font-bold">“{card.meanings[0]}”</span>{' '}
-        <span lang="ja" className="font-jp text-on-surface-variant">
+        <span lang="ja" className="font-ja text-ink-muted">
           {keyReadingLabel(card)}
         </span>
       </p>
@@ -347,5 +347,5 @@ function WritingPad({ char, onDone }: { char: string; onDone: () => void }) {
   const strokes = useKanjiStrokes(char)
   if (strokes.status === 'ready') return <TracePad glyph={kanjiGlyph(strokes.data)} guide="none" verb="written from memory" onComplete={onDone} />
   if (strokes.status === 'loading') return <LoadingState label="Loading…" />
-  return <p className="text-center text-sm text-on-surface-variant">Stroke data isn’t available for this kanji, so skip it.</p>
+  return <p className="text-center text-sm text-ink-muted">Stroke data isn’t available for this kanji, so skip it.</p>
 }

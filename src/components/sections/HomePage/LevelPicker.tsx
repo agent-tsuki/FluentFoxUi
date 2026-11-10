@@ -17,7 +17,7 @@ import { JaText } from './JaText'
 
 const CARD_STATE = {
   selected: 'border-primary bg-primary/5 shadow-elevation-2',
-  idle: 'border-outline-variant bg-surface-container-lowest hover:border-primary/70',
+  idle: 'border-line bg-surface-raised hover:border-primary/70',
 } as const
 
 /**
@@ -34,7 +34,7 @@ export function LevelPicker() {
     <section
       id="start"
       aria-labelledby="level-picker-title"
-      className="scroll-mt-nav bg-surface-container-lowest border-y border-outline-variant/60"
+      className="scroll-mt-nav bg-surface-raised border-y border-line"
     >
       <div className="max-w-7xl mx-auto px-6 md:px-10 py-20 md:py-24 flex flex-col gap-9">
         <FadeIn className="flex flex-col max-w-3xl">
@@ -42,11 +42,11 @@ export function LevelPicker() {
           <Eyebrow>{COPY.eyebrow}</Eyebrow>
           <h2
             id="level-picker-title"
-            className="mt-1.5 font-headline text-display-md font-extrabold tracking-tight text-on-surface"
+            className="mt-1.5 font-display text-display-md font-extrabold tracking-tight text-ink"
           >
             {COPY.title}
           </h2>
-          <p className="mt-3.5 font-body text-lg leading-relaxed text-on-surface-variant">{COPY.description}</p>
+          <p className="mt-3.5 font-sans text-lg leading-relaxed text-ink-muted">{COPY.description}</p>
         </FadeIn>
 
         <FadeIn delay={100}>
@@ -60,20 +60,20 @@ export function LevelPicker() {
                   aria-pressed={selected}
                   onClick={() => setLevel(opt.id)}
                   className={cn(
-                    'min-h-11 min-w-0 flex flex-col gap-2.5 p-6 rounded-2xl border-2 text-left',
+                    'min-h-11 min-w-0 flex flex-col gap-2.5 p-6 rounded-xl border-2 text-left',
                     'transition-[border-color,background-color,box-shadow] duration-200 ease-out',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-                    'focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest',
+                    'focus-visible:ring-offset-2 focus-visible:ring-offset-surface-raised',
                     selected ? CARD_STATE.selected : CARD_STATE.idle,
                   )}
                 >
-                  <span lang="ja" aria-hidden="true" className="font-jp font-bold text-4xl leading-none text-primary">
+                  <span lang="ja" aria-hidden="true" className="font-ja-display font-bold text-4xl leading-none text-primary">
                     {opt.glyph}
                   </span>
-                  <span className="font-headline text-lg font-extrabold tracking-tight text-on-surface">
+                  <span className="font-display text-lg font-extrabold tracking-tight text-ink">
                     {opt.title}
                   </span>
-                  <span className="font-body text-base leading-normal text-on-surface-variant">{opt.sub}</span>
+                  <span className="font-sans text-base leading-normal text-ink-muted">{opt.sub}</span>
                 </button>
               )
             })}
@@ -81,7 +81,7 @@ export function LevelPicker() {
         </FadeIn>
 
         <FadeIn delay={200}>
-          <div className="rounded-3xl bg-surface-container-low p-6 md:p-8">
+          <div className="rounded-3xl bg-surface-sunken p-6 md:p-8">
             {/* Persistent live region: announces the new plan when a level is picked. */}
             <span className="sr-only" aria-live="polite">{`${COPY.panelEyebrow}: ${plan.heading}`}</span>
             <AnimatePresence mode="wait" initial={false}>
@@ -94,20 +94,20 @@ export function LevelPicker() {
                 className="flex flex-col lg:flex-row gap-8 items-start"
               >
                 <div className="w-full lg:flex-1 min-w-0 flex flex-col gap-2.5">
-                  <span className="font-label text-xs font-bold uppercase tracking-[0.12em] text-on-surface-variant">
+                  <span className="font-sans text-xs font-bold uppercase tracking-[0.12em] text-ink-muted">
                     {COPY.panelEyebrow}
                   </span>
-                  <p className="font-headline text-2xl font-extrabold tracking-tight leading-tight text-on-surface">
+                  <p className="font-display text-2xl font-extrabold tracking-tight leading-tight text-ink">
                     <JaText text={plan.heading} />
                   </p>
-                  <p className="font-body text-base leading-relaxed text-on-surface-variant">
+                  <p className="font-sans text-base leading-relaxed text-ink-muted">
                     <JaText text={plan.note} />
                   </p>
                   <Button
                     type="button"
                     onClick={startLearning}
                     {...prefetch}
-                    className="self-start mt-2 min-h-12 text-base font-headline"
+                    className="self-start mt-2 min-h-12 text-base font-display"
                   >
                     {plan.cta}
                   </Button>
@@ -117,12 +117,12 @@ export function LevelPicker() {
                   {plan.days.map(day => (
                     <li
                       key={day.when}
-                      className="flex gap-4 items-start rounded-2xl border border-outline-variant/60 bg-surface-container-lowest px-5 py-4"
+                      className="flex gap-4 items-start rounded-xl border border-line bg-surface-raised px-5 py-4"
                     >
-                      <span className="shrink-0 w-20 pt-0.5 font-label text-sm font-extrabold text-primary">
+                      <span className="shrink-0 w-20 pt-0.5 font-sans text-sm font-extrabold text-primary">
                         {day.when}
                       </span>
-                      <span className="min-w-0 font-body text-base leading-normal text-on-surface">
+                      <span className="min-w-0 font-sans text-base leading-normal text-ink">
                         <JaText text={day.what} />
                       </span>
                     </li>

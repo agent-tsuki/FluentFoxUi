@@ -97,17 +97,17 @@ export function VerifyPendingPage() {
 
   return (
     <main className="min-h-[80vh] flex items-center justify-center px-4 pt-28 pb-20">
-      <div className="w-full max-w-md bg-surface-container-lowest rounded-2xl shadow-elevation-3 border border-outline-variant/40 p-8 md:p-10">
+      <div className="w-full max-w-md bg-surface-raised rounded-xl shadow-elevation-3 border border-line p-8 md:p-10">
         <div className="text-center">
           <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-6">
             <Icon name="mark_email_unread" className="text-3xl" />
           </div>
-          <h1 className="text-2xl font-headline font-bold text-on-surface tracking-tight mb-3">
+          <h1 className="text-2xl font-display font-bold text-ink tracking-tight mb-3">
             Verify your email
           </h1>
-          <p className="text-sm text-on-surface-variant leading-relaxed">
+          <p className="text-sm text-ink-muted leading-relaxed">
             We sent a verification link to{' '}
-            <span className="font-bold text-on-surface break-all">{email || 'your email address'}</span>.
+            <span className="font-bold text-ink break-all">{email || 'your email address'}</span>.
             Click it to continue.
           </p>
         </div>
@@ -118,7 +118,7 @@ export function VerifyPendingPage() {
             variant="primary"
             onClick={() => void checkVerified()}
             disabled={checking}
-            className="w-full py-3.5 font-headline disabled:opacity-60 disabled:scale-100"
+            className="w-full py-3.5 font-display disabled:opacity-60 disabled:scale-100"
           >
             {checking ? 'Checking…' : "I've verified"}
           </Button>
@@ -127,7 +127,7 @@ export function VerifyPendingPage() {
             variant="outline"
             onClick={() => void resend()}
             disabled={resending || cooldown.isRunning || dailyLimited}
-            className="w-full py-3 font-headline disabled:opacity-60 disabled:scale-100 disabled:cursor-not-allowed"
+            className="w-full py-3 font-display disabled:opacity-60 disabled:scale-100 disabled:cursor-not-allowed"
           >
             {resendLabel}
           </Button>
@@ -142,7 +142,7 @@ export function VerifyPendingPage() {
           </p>
         )}
 
-        <div className="mt-8 border-t border-surface-container-high pt-6">
+        <div className="mt-8 border-t border-surface-hover pt-6">
           <AnimatePresence mode="wait" initial={false}>
             {changing ? (
               <motion.div key="form" variants={reducedMotion ? undefined : swapVariants} initial="initial" animate="animate" exit="exit">
@@ -165,7 +165,7 @@ export function VerifyPendingPage() {
                 <button type="button" onClick={() => { setFeedback(null); setChanging(true) }} className="font-bold text-primary hover:underline">
                   Wrong email? Change it
                 </button>
-                <button type="button" onClick={logout} className="text-on-surface-variant hover:text-on-surface transition-colors">
+                <button type="button" onClick={logout} className="text-ink-muted hover:text-ink transition-colors">
                   Log out
                 </button>
               </motion.div>
@@ -231,8 +231,8 @@ function ChangeEmailForm({ currentEmail, cooldownActive, onCancel, onChanged, on
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      <p className="text-xs text-on-surface-variant">
-        Currently <span className="font-bold text-on-surface break-all">{currentEmail || 'unknown'}</span>
+      <p className="text-xs text-ink-muted">
+        Currently <span className="font-bold text-ink break-all">{currentEmail || 'unknown'}</span>
       </p>
       <AuthField
         label="New email"
@@ -265,7 +265,7 @@ function ChangeEmailForm({ currentEmail, cooldownActive, onCancel, onChanged, on
           type="submit"
           variant="primary"
           disabled={saving || cooldownActive}
-          className="flex-1 py-3 font-headline disabled:opacity-60 disabled:scale-100 disabled:cursor-not-allowed"
+          className="flex-1 py-3 font-display disabled:opacity-60 disabled:scale-100 disabled:cursor-not-allowed"
         >
           {saving ? 'Saving…' : 'Update email'}
         </Button>

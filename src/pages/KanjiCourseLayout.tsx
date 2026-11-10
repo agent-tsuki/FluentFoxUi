@@ -15,6 +15,7 @@ import { kanjiPageFor, kanjiPagesFor } from '@/components/kanji/kanjiPages'
 import { KanjiTestOverlays } from '@/components/kanji/KanjiTestOverlays'
 import { buildKanjiCourseContext } from '@/pages/kanjiCourseContext'
 import { cn } from '@/lib/cn'
+import { useRecordLesson } from '@/store/lessonStore'
 
 function kanjiSkeletonVariant(pageId: ReturnType<typeof kanjiPageFor>['id']): CourseSkeletonVariant {
   if (pageId === 'course') return 'course'
@@ -40,6 +41,7 @@ export function KanjiCourseLayout() {
     [level, index],
   )
   const page = kanjiPageFor(pages, pathname)
+  useRecordLesson({ course: 'kanji', href: page.to, label: `Kanji ${level.label}` })
 
   // Start the page's code download now, alongside the course data, not after it.
   useEffect(() => {
@@ -69,7 +71,7 @@ export function KanjiCourseLayout() {
   }))
 
   return (
-    <main className="pb-24 pt-nav">
+    <main id="lesson" className="lesson-solid pb-24 pt-nav">
       <div className={COURSE_CONTAINER}>
         <KanjiCourseHeader
           variant={page.id === 'course' ? 'course' : 'section'}

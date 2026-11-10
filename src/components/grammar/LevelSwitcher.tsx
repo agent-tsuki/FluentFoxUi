@@ -16,7 +16,7 @@ interface LevelSwitcherProps {
 }
 
 const SEGMENT_SIZE: Record<LevelSwitcherSize, string> = {
-  sm: 'py-1.5',
+  sm: 'min-h-9',
   md: 'min-h-11',
 }
 
@@ -32,7 +32,7 @@ export function LevelSwitcher({ level, size = 'sm', className }: LevelSwitcherPr
     <div
       role="group"
       aria-label="JLPT level"
-      className={cn('grid grid-cols-5 gap-1 p-1 bg-surface-container-high rounded-xl', className)}
+      className={cn('grid grid-cols-5 gap-1 p-1 bg-surface-sunken rounded-md', className)}
     >
       {GRAMMAR_LEVELS.map(l => {
         const label = l.toUpperCase()
@@ -40,15 +40,15 @@ export function LevelSwitcher({ level, size = 'sm', className }: LevelSwitcherPr
           return (
             <div
               key={l}
-              title={`${label} — Coming Soon`}
+              title={`${label}: coming soon`}
               className={cn(
-                'relative rounded-lg text-xs font-bold flex items-center justify-center gap-0.5 cursor-not-allowed text-on-surface-variant/40 select-none',
+                'relative rounded-sm text-xs font-bold flex items-center justify-center gap-0.5 cursor-not-allowed text-ink-subtle select-none',
                 SEGMENT_SIZE[size],
               )}
             >
               <Icon name="lock" className="text-xs leading-none" />
               <span aria-hidden>{label}</span>
-              <span className="sr-only">{label} — locked, coming soon</span>
+              <span className="sr-only">{label}, coming soon</span>
             </div>
           )
         }
@@ -60,12 +60,12 @@ export function LevelSwitcher({ level, size = 'sm', className }: LevelSwitcherPr
             to={`/grammar/${l}/1`}
             aria-current={isActive ? 'page' : undefined}
             className={cn(
-              'rounded-lg text-xs font-bold flex items-center justify-center transition-all duration-200',
+              'rounded-sm text-xs font-bold flex items-center justify-center transition-all duration-200',
               'outline-none focus-visible:ring-2 focus-visible:ring-primary',
               SEGMENT_SIZE[size],
               isActive
                 ? 'bg-primary text-on-primary shadow-sm'
-                : 'text-on-surface-variant hover:text-on-surface',
+                : 'text-ink-muted hover:text-ink',
             )}
           >
             {label}

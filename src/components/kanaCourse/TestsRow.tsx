@@ -6,7 +6,7 @@ import { TestsStatus } from './TestsStatus'
 
 /** The bordered, divided list that holds TestsRow / download rows. */
 export const TESTS_LIST =
-  'divide-y divide-outline-variant/60 overflow-hidden rounded-2xl border border-outline-variant/60 bg-surface-container-lowest dark:divide-outline/40 dark:border-outline/60 dark:bg-surface-container-low'
+  'divide-y divide-line overflow-hidden rounded-xl bg-surface-raised shadow-elevation-1 dark:divide-line-strong/40'
 
 interface TestsRowProps {
   to: string
@@ -28,25 +28,25 @@ export const TestsRow = memo(function TestsRow({ to, leading, title, detail, bes
       to={to}
       className={cn(
         'group flex min-h-16 items-center gap-3 px-3 py-3 text-left transition-colors duration-150 sm:gap-4 sm:px-4',
-        'hover:bg-surface-container-low dark:hover:bg-surface-container',
+        'hover:bg-surface-hover dark:hover:bg-surface-hover',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary',
       )}
     >
       <span
         aria-hidden
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-container text-sm font-bold tabular-nums text-on-surface-variant dark:bg-surface-container-high"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-surface-sunken text-sm font-bold tabular-nums text-ink-muted dark:bg-surface-hover"
       >
         {leading}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-base font-bold leading-snug text-on-surface">{title}</span>
-        {detail && <span className="block truncate text-xs text-on-surface-variant">{detail}</span>}
+        <span className="block text-base font-bold leading-snug text-ink">{title}</span>
+        {detail && <span className="block truncate text-xs text-ink-muted">{detail}</span>}
       </span>
       <TestsStatus best={best} passed={passed} className="shrink-0" />
       <span aria-hidden className="-mr-1 flex shrink-0">
         <Icon
           name="chevron_right"
-          className="text-xl text-on-surface-variant transition-transform motion-safe:group-hover:translate-x-0.5"
+          className="text-xl text-ink-muted transition-transform motion-safe:group-hover:translate-x-0.5"
         />
       </span>
     </Link>

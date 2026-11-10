@@ -17,17 +17,17 @@ interface FormFieldProps {
 export function FormField({ label, htmlFor, hint, className, children }: FormFieldProps) {
   return (
     <div className={cn('space-y-2', className)}>
-      <label htmlFor={htmlFor} className="block font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+      <label htmlFor={htmlFor} className="block font-sans text-xs font-bold uppercase tracking-[0.12em] text-ink-muted">
         {label}
       </label>
       {children}
-      {hint && <p className="text-xs text-on-surface-variant">{hint}</p>}
+      {hint && <p className="text-xs text-ink-muted">{hint}</p>}
     </div>
   )
 }
 
 const CONTROL =
-  'w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-4 py-2.5 font-body text-base text-on-surface transition-colors placeholder:text-on-surface-variant/70 focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-60'
+  'w-full rounded-md border border-line bg-surface-raised px-4 py-2.5 font-sans text-base text-ink transition-colors placeholder:text-ink-subtle focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-60'
 
 /** TextInput — the shared single-line input. */
 export function TextInput({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
@@ -46,7 +46,7 @@ export function SelectInput({ className, children, ...props }: SelectHTMLAttribu
       <select className={cn(CONTROL, 'appearance-none pr-10')} {...props}>
         {children}
       </select>
-      <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-on-surface-variant">
+      <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-ink-muted">
         <Icon name="expand_more" />
       </span>
     </div>

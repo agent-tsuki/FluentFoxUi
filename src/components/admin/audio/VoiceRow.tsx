@@ -28,10 +28,10 @@ export const VoiceRow = memo(function VoiceRow({ voice, speakers, busy, onPrevie
     <li className="grid gap-4 py-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] lg:items-center">
       <div className="min-w-0 space-y-2">
         <div className="flex flex-wrap items-baseline gap-x-2">
-          <span className="rounded-md bg-surface-container-high px-2 py-0.5 font-mono text-xs font-bold text-on-surface">{voice.key}</span>
-          <span className="text-sm font-semibold text-on-surface">{voiceKeyLabel(voice.key)}</span>
+          <span className="rounded-md bg-surface-hover px-2 py-0.5 font-mono text-xs font-bold text-ink">{voice.key}</span>
+          <span className="text-sm font-semibold text-ink">{voiceKeyLabel(voice.key)}</span>
         </div>
-        <p className="truncate text-sm text-on-surface-variant" lang="ja">
+        <p className="truncate text-sm text-ink-muted" lang="ja">
           {voiceName(voice)}
         </p>
         <div className="space-y-1">
@@ -42,7 +42,7 @@ export const VoiceRow = memo(function VoiceRow({ voice, speakers, busy, onPrevie
             valueText={`${voice.ready} of ${voice.clips} clips`}
             tone={complete ? 'success' : 'primary'}
           />
-          <p className="text-xs text-on-surface-variant">
+          <p className="text-xs text-ink-muted">
             {voice.clips === 0
               ? 'No course text uses this voice.'
               : complete

@@ -127,9 +127,9 @@ export function TracePad({ glyph, onComplete, guide = 'full', verb = 'traced' }:
         data-trace-pad
         viewBox={`0 0 ${glyph.width} ${CELL}`}
         className={cn(
-          'w-full touch-none select-none rounded-2xl border bg-surface-container-low',
+          'w-full touch-none select-none rounded-xl border bg-surface-sunken',
           glyph.width > CELL ? 'max-w-[22rem]' : 'max-w-[18rem]',
-          complete ? 'border-success/60' : 'border-outline-variant/50',
+          complete ? 'border-success/60' : 'border-line',
           !complete && 'cursor-crosshair',
         )}
         style={{ aspectRatio: `${glyph.width} / ${CELL}` }}
@@ -155,10 +155,10 @@ export function TracePad({ glyph, onComplete, guide = 'full', verb = 'traced' }:
                 : guide === 'none'
                   ? 'stroke-transparent'
                   : guide === 'faded'
-                    ? 'stroke-outline-variant/30'
+                    ? 'stroke-line/30'
                     : i === done
                       ? 'stroke-primary/25'
-                      : 'stroke-outline-variant/60',
+                      : 'stroke-line/60',
             )}
           />
         ))}
@@ -201,7 +201,7 @@ function TraceStatus({ done, total, hint, verb, onReset }: TraceStatusProps) {
   const complete = done >= total
   return (
     <div className="flex w-full flex-wrap items-center justify-between gap-x-4 gap-y-1">
-      <p aria-live="polite" className="text-sm text-on-surface-variant">
+      <p aria-live="polite" className="text-sm text-ink-muted">
         {complete ? (
           <span className="inline-flex items-center gap-1.5 font-semibold text-success">
             <Icon name="check_circle" filled className="text-xl" />
@@ -218,7 +218,7 @@ function TraceStatus({ done, total, hint, verb, onReset }: TraceStatusProps) {
         <button
           type="button"
           onClick={onReset}
-          className="-mr-3 inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-primary outline-none hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-primary"
+          className="-mr-3 inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-sm font-semibold text-primary outline-none hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-primary"
         >
           <Icon name="refresh" className="text-xl" />
           {complete ? 'Again' : 'Start over'}

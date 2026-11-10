@@ -37,13 +37,13 @@ export function LocationAccess({ onSaved }: { onSaved: () => void }) {
   if (permission === null) return null
 
   return (
-    <div className="flex items-start justify-between gap-4 flex-wrap rounded-xl bg-surface-container px-4 py-3">
+    <div className="flex items-start justify-between gap-4 flex-wrap rounded-md bg-surface-sunken px-4 py-3">
       <div className="flex items-start gap-3">
         <Icon name="location_on" className="text-xl text-primary shrink-0" />
         <div className="space-y-1">
-          <p className="text-sm font-semibold text-on-surface">Login location</p>
-          <p className="text-xs text-on-surface-variant">{STATUS_TEXT[permission]}</p>
-          {result && <p role="status" className="text-xs text-on-surface">{RESULT_MESSAGES[result]}</p>}
+          <p className="text-sm font-semibold text-ink">Login location</p>
+          <p className="text-xs text-ink-muted">{STATUS_TEXT[permission]}</p>
+          {result && <p role="status" className="text-xs text-ink">{RESULT_MESSAGES[result]}</p>}
         </div>
       </div>
       {permission !== 'unsupported' && (

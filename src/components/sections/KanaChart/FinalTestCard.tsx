@@ -26,25 +26,25 @@ export function FinalTestCard({ className }: FinalTestCardProps) {
     <article
       aria-labelledby="final-test-title"
       className={cn(
-        'flex flex-col gap-4 rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-4 sm:flex-row sm:items-center sm:p-5 lg:flex-col lg:items-stretch dark:border-outline/60 dark:bg-surface-container-low',
+        'flex flex-col gap-4 rounded-xl border border-line bg-surface-raised p-4 sm:flex-row sm:items-center sm:p-5 lg:flex-col lg:items-stretch',
         className,
       )}
     >
       <div className="flex min-w-0 flex-1 items-start gap-3 sm:gap-4">
         <span
           aria-hidden
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-primary/15"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary dark:bg-primary/15"
         >
           <Icon name="emoji_events" className="text-2xl" />
         </span>
         <div className="min-w-0">
-          <h3 id="final-test-title" className="font-headline text-lg font-bold text-on-surface">
+          <h3 id="final-test-title" className="font-display text-lg font-bold text-ink">
             Final {lower} test
           </h3>
-          <p className="text-sm tabular-nums text-on-surface-variant">
+          <p className="text-sm tabular-nums text-ink-muted">
             All {scriptKanaCount(script)} {lower} · {script.finalTest.minutes} min · {formatPercent(script.finalTest.passMark)} to pass
           </p>
-          <p className="mt-1 text-sm text-on-surface-variant">
+          <p className="mt-1 text-sm text-ink-muted">
             Open any time. We suggest it after the {script.units.length} units.
           </p>
         </div>

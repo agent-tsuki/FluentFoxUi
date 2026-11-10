@@ -69,7 +69,7 @@ function ActivityCharts({ days, range }: { days: CalendarDay[]; range: RangeDays
         icon="insights"
         title="No study in this window yet"
         description="Answer a few cards in a lesson or review and your habits, time and accuracy appear here."
-        className="rounded-xl bg-surface-container-low"
+        className="rounded-md bg-surface-sunken"
       />
     )
   }

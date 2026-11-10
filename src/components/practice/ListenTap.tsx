@@ -146,8 +146,8 @@ function ListenTapSession({ kana, all, script, focusIds, onAnswer, onExit, onCom
       <PracticeShell title={TITLE} onExit={onExit}>
         <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center">
           <Icon name="volume_up" className="text-5xl text-primary" />
-          <p className="font-headline text-xl font-bold text-on-surface">Turn your sound on</p>
-          <p className="max-w-xs text-on-surface-variant">You’ll hear {rounds.length} kana. Tap the one you heard.</p>
+          <p className="font-display text-xl font-bold text-ink">Turn your sound on</p>
+          <p className="max-w-xs text-ink-muted">You’ll hear {rounds.length} kana. Tap the one you heard.</p>
         </div>
         <Button onClick={() => setPhase('playing')} className="min-h-14 w-full">Start listening</Button>
       </PracticeShell>

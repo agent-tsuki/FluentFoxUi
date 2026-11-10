@@ -16,11 +16,11 @@ export function StepProgress<S extends string>({ steps, done, completed, classNa
         {steps.map((step) => (
           <span
             key={step}
-            className={cn('h-1.5 flex-1 rounded-full', done[step] ? 'bg-primary' : 'bg-outline-variant/60')}
+            className={cn('h-1.5 flex-1 rounded-full', done[step] ? 'bg-primary' : 'bg-line/60')}
           />
         ))}
       </span>
-      <span className="shrink-0 text-xs font-medium text-on-surface-variant">
+      <span className="shrink-0 text-xs font-medium text-ink-muted">
         {completed} of {steps.length} steps
       </span>
     </div>

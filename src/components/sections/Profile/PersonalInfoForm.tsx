@@ -102,11 +102,11 @@ export function PersonalInfoForm({ profile, onSaved }: PersonalInfoFormProps) {
   }
 
   return (
-    <div className="bg-surface-container-low rounded-xl overflow-hidden">
-      <div className="flex items-center justify-between px-8 py-6 border-b border-outline-variant">
+    <div className="bg-surface-sunken rounded-md overflow-hidden">
+      <div className="flex items-center justify-between px-8 py-6 border-b border-line">
         <div>
-          <h2 className="text-lg font-bold text-on-surface font-headline">Personal Information</h2>
-          <p className="text-xs text-on-surface-variant font-body mt-0.5">
+          <h2 className="text-lg font-bold text-ink font-display">Personal Information</h2>
+          <p className="text-xs text-ink-muted font-sans mt-0.5">
             Update your name, location, and learning goal
           </p>
         </div>
@@ -217,10 +217,10 @@ export function PersonalInfoForm({ profile, onSaved }: PersonalInfoFormProps) {
                   type="button"
                   aria-pressed={form.targetLevel === lvl}
                   onClick={() => set('targetLevel', form.targetLevel === lvl ? '' : lvl)}
-                  className={`px-4 py-2 rounded-full font-semibold text-sm transition-all font-label ${
+                  className={`px-4 py-2 rounded-full font-semibold text-sm transition-all font-sans ${
                     form.targetLevel === lvl
                       ? 'bg-primary text-on-primary'
-                      : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container'
+                      : 'bg-surface-hover text-ink-muted hover:bg-surface-hover'
                   }`}
                 >
                   {lvl}
@@ -248,9 +248,9 @@ export function PersonalInfoForm({ profile, onSaved }: PersonalInfoFormProps) {
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <div className="space-y-2">
-      <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label block">
+      <span className="text-xs font-bold uppercase tracking-[0.12em] text-ink-muted font-sans block">
         {label}
-        {hint && <span className="ml-2 normal-case tracking-normal font-medium text-on-surface-variant/70">{hint}</span>}
+        {hint && <span className="ml-2 normal-case tracking-normal font-medium text-ink-subtle">{hint}</span>}
       </span>
       {children}
     </div>
@@ -258,7 +258,7 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
 }
 
 function Value({ children }: { children: React.ReactNode }) {
-  return <p className="text-base font-medium text-on-surface font-body py-1 break-words">{children}</p>
+  return <p className="text-base font-medium text-ink font-sans py-1 break-words">{children}</p>
 }
 
 function Select({ value, onChange, children }: { value: string; onChange: (value: string) => void; children: React.ReactNode }) {
@@ -267,7 +267,7 @@ function Select({ value, onChange, children }: { value: string; onChange: (value
       <select value={value} onChange={e => onChange(e.target.value)} className={selectCls}>
         {children}
       </select>
-      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-on-surface-variant">
+      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-ink-muted">
         <Icon name="expand_more" />
       </div>
     </div>
@@ -275,7 +275,7 @@ function Select({ value, onChange, children }: { value: string; onChange: (value
 }
 
 const inputCls =
-  'w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-base text-on-surface font-medium focus:outline-none focus:ring-2 focus:ring-primary transition-all font-body placeholder:text-on-surface-variant/50'
+  'w-full bg-surface-raised border border-line rounded-sm px-4 py-3 text-base text-ink font-medium focus:outline-none focus:ring-2 focus:ring-primary transition-all font-sans placeholder:text-ink-subtle'
 
 const selectCls =
-  'w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-base text-on-surface font-medium focus:outline-none focus:ring-2 focus:ring-primary transition-all cursor-pointer font-body'
+  'w-full appearance-none bg-surface-raised border border-line rounded-sm px-4 py-3 text-base text-ink font-medium focus:outline-none focus:ring-2 focus:ring-primary transition-all cursor-pointer font-sans'

@@ -120,7 +120,7 @@ const Station = memo(function Station({
       aria-pressed={isCurrent}
       aria-label={`Stop ${index + 1}: ${stop.en}${locked ? PATH_COPY.plannedSuffix : ''}`}
       onClick={() => onSelect(index)}
-      className="group flex min-w-0 flex-col items-center gap-2.5 rounded-2xl px-1 pb-2 pt-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-fixed-dim focus-visible:ring-offset-2 focus-visible:ring-offset-surface-inverse"
+      className="group flex min-w-0 flex-col items-center gap-2.5 rounded-xl px-1 pb-2 pt-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-fixed-dim focus-visible:ring-offset-2 focus-visible:ring-offset-surface-inverse"
       initial={reducedMotion ? false : { opacity: 0, y: 12, scale: 0.92 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true }}
@@ -139,7 +139,7 @@ const Station = memo(function Station({
         )}
         <span
           className={cn(
-            'relative z-[1] flex h-12 w-12 items-center justify-center rounded-full border-[3px] font-headline text-lg font-extrabold transition-colors duration-300',
+            'relative z-[1] flex h-12 w-12 items-center justify-center rounded-full border-[3px] font-display text-lg font-extrabold transition-colors duration-300',
             isCurrent && 'border-primary-fixed-dim bg-primary text-on-primary',
             isDone && 'border-primary-fixed-dim bg-primary-fixed-dim text-surface-inverse',
             !isCurrent &&
@@ -162,7 +162,7 @@ const Station = memo(function Station({
       <span
         lang="ja"
         className={cn(
-          'font-jp max-w-full break-keep text-[clamp(0.8125rem,2vw,1.25rem)] font-bold leading-tight',
+          'font-ja-display max-w-full break-keep text-[clamp(0.8125rem,2vw,1.25rem)] font-bold leading-tight',
           isCurrent ? 'text-on-surface-inverse' : 'text-on-surface-inverse-variant'
         )}
       >

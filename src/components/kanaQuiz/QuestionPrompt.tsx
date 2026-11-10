@@ -32,7 +32,7 @@ export const QuestionPrompt = forwardRef<HTMLHeadingElement, QuestionPromptProps
   const kanaLength = Array.from(target.character).length
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 py-4 text-center">
-      <h2 ref={ref} tabIndex={-1} className="text-sm font-semibold text-on-surface-variant focus:outline-none">
+      <h2 ref={ref} tabIndex={-1} className="text-sm font-semibold text-ink-muted focus:outline-none">
         <span className="sr-only">Question {number} of {total}. </span>
         {question.prompt ?? ASK[kind]}
         {kind === 'read' && <span className="sr-only"> {target.character}</span>}
@@ -43,7 +43,7 @@ export const QuestionPrompt = forwardRef<HTMLHeadingElement, QuestionPromptProps
           lang="ja"
           aria-hidden="true"
           className={cn(
-            'font-jp font-bold leading-none text-on-surface',
+            'font-ja-display font-bold leading-none text-ink',
             kanaLength <= 2 ? 'text-8xl sm:text-9xl' : kanaLength <= 4 ? 'text-6xl sm:text-8xl' : 'text-5xl sm:text-7xl',
           )}
         >
@@ -54,7 +54,7 @@ export const QuestionPrompt = forwardRef<HTMLHeadingElement, QuestionPromptProps
         <p
           aria-hidden="true"
           className={cn(
-            'break-all font-headline font-extrabold text-primary',
+            'break-all font-display font-extrabold text-primary',
             target.romaji.length <= 5 ? 'text-6xl sm:text-7xl' : 'text-5xl sm:text-6xl',
           )}
         >
@@ -75,12 +75,12 @@ export const QuestionPrompt = forwardRef<HTMLHeadingElement, QuestionPromptProps
               className={cn('text-5xl', loading && 'animate-spin motion-reduce:animate-none')}
             />
           </button>
-          <p className="text-xs text-on-surface-variant">
+          <p className="text-xs text-ink-muted">
             Tap to hear it again<span className="hidden sm:inline"> · press R</span>
           </p>
         </>
       )}
-      {question.hint && <p className="text-sm font-medium text-on-surface-variant">{question.hint}</p>}
+      {question.hint && <p className="text-sm font-medium text-ink-muted">{question.hint}</p>}
     </div>
   )
 })

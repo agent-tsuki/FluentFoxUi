@@ -17,9 +17,9 @@ interface MatchTileProps {
 }
 
 const STATE_CLASSES: Record<MatchTileState, string> = {
-  idle: 'border-outline-variant/60 bg-surface-container-lowest text-on-surface hover:border-primary/60 hover:bg-surface-container-low dark:border-outline/60 dark:bg-surface-container-low',
-  selected: 'border-primary bg-primary/10 text-on-surface ring-2 ring-primary/30',
-  matched: 'border-success/50 bg-success/10 text-on-surface-variant',
+  idle: 'border-line bg-surface-raised text-ink hover:border-primary/60 hover:bg-surface-hover',
+  selected: 'border-primary bg-primary/10 text-ink ring-2 ring-primary/30',
+  matched: 'border-success/50 bg-success/10 text-ink-muted',
   wrong: 'border-error bg-error-container text-on-error-container',
 }
 
@@ -39,13 +39,13 @@ export const MatchTile = memo(function MatchTile({ id, side, character, state, r
       animate={state === 'wrong' && !reducedMotion ? SHAKE : REST}
       transition={{ duration: 0.35 }}
       className={cn(
-        'relative flex h-14 w-full items-center justify-center rounded-2xl border-2 transition-colors duration-200 sm:h-16',
+        'relative flex h-14 w-full items-center justify-center rounded-xl border-2 transition-colors duration-200 sm:h-16',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
         STATE_CLASSES[state],
         matched && 'cursor-default',
       )}
     >
-      <span lang="ja" className={cn('font-jp text-3xl font-bold leading-none sm:text-4xl', matched && 'opacity-60')}>
+      <span lang="ja" className={cn('font-ja text-3xl font-bold leading-none sm:text-4xl', matched && 'opacity-60')}>
         {character}
       </span>
       {matched && <Icon name="check_circle" filled className="absolute right-2 top-1/2 -translate-y-1/2 text-xl text-success" />}

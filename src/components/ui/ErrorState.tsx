@@ -32,8 +32,8 @@ export function ErrorState({
       </div>
 
       <div className="max-w-sm space-y-1">
-        <h3 className="font-headline text-lg font-bold text-on-surface">{title}</h3>
-        <p className="text-sm leading-relaxed text-on-surface-variant">{message}</p>
+        <h3 className="font-display text-lg font-bold text-ink">{title}</h3>
+        <p className="text-sm leading-relaxed text-ink-muted">{message}</p>
       </div>
 
       {onRetry && (

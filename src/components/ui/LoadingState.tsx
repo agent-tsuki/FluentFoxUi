@@ -30,19 +30,19 @@ interface SkeletonBlockProps {
 /**
  * SkeletonBlock — single shimmering placeholder rectangle. Compose several inside
  * <LoadingState> to mirror the real content shape. Has no default border-radius —
- * always pass one explicitly (`rounded-xl` for panels, `rounded-full` for
+ * always pass one explicitly (`rounded-md` for panels, `rounded-full` for
  * avatars/circles) since utility classes here are not de-duplicated by `cn()`.
  */
 export function SkeletonBlock({ className }: SkeletonBlockProps) {
-  return <div className={cn('bg-surface-container-high animate-shimmer', className)} aria-hidden="true" />
+  return <div className={cn('bg-surface-hover animate-shimmer', className)} aria-hidden="true" />
 }
 
 function DefaultSkeleton() {
   return (
     <div className="space-y-3">
-      <SkeletonBlock className="h-6 w-2/3 rounded-xl" />
-      <SkeletonBlock className="h-4 w-full rounded-xl" />
-      <SkeletonBlock className="h-4 w-5/6 rounded-xl" />
+      <SkeletonBlock className="h-6 w-2/3 rounded-md" />
+      <SkeletonBlock className="h-4 w-full rounded-md" />
+      <SkeletonBlock className="h-4 w-5/6 rounded-md" />
     </div>
   )
 }

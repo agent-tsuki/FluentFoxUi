@@ -21,13 +21,13 @@ export const InviteItem = memo(function InviteItem({ invite, channelNames, busy,
     <li className="flex flex-col gap-3 py-4 sm:flex-row sm:items-start sm:justify-between">
       <div className="min-w-0 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="break-all font-semibold text-on-surface">{invite.email}</span>
+          <span className="break-all font-semibold text-ink">{invite.email}</span>
           <Chip tone={STATUS_TONE[invite.status]}>{invite.status}</Chip>
         </div>
-        <ul className="text-xs text-on-surface-variant">
+        <ul className="text-xs text-ink-muted">
           {invite.grants.map(g => <li key={`${g.permission}:${g.resourceType}:${g.resourceId}`}>{describeGrant(g, channelNames.get(g.resourceId))}</li>)}
         </ul>
-        <p className="text-xs text-on-surface-variant">
+        <p className="text-xs text-ink-muted">
           {invite.status === 'accepted' && invite.acceptedAt ? `Accepted ${formatDateTime(invite.acceptedAt)}` : `Sent ${formatDateTime(invite.createdAt)} · expires ${formatDateTime(invite.expiresAt)}`}
         </p>
       </div>

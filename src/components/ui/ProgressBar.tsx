@@ -51,7 +51,7 @@ export function ProgressBar({
       aria-valuemax={safeMax}
       aria-valuenow={clamped}
       aria-valuetext={valueText ?? `${clamped} of ${safeMax}`}
-      className={cn('w-full overflow-hidden rounded-full bg-outline-variant/40', SIZES[size], className)}
+      className={cn('w-full overflow-hidden rounded-full bg-surface-sunken', SIZES[size], className)}
     >
       <div
         className={cn('h-full rounded-full transition-[width] duration-500 ease-out motion-reduce:transition-none', TONES[tone])}

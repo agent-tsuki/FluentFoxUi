@@ -48,14 +48,14 @@ export function StreakCalendar({ data, showHeading = true }: StreakCalendarProps
       {showHeading && (
       <div className="space-y-1">
         <Eyebrow variant="plain">Consistency</Eyebrow>
-        <h2 className="text-2xl font-extrabold tracking-tight text-on-surface font-headline">
+        <h2 className="text-2xl font-extrabold tracking-tight text-ink font-display">
           Streak Calendar
         </h2>
       </div>
       )}
 
       {/* Calendar card */}
-      <div className="bg-surface-container-lowest rounded-xl p-6 shadow-elevation-1 overflow-x-auto">
+      <div className="bg-surface-raised rounded-md p-6 shadow-elevation-1 overflow-x-auto">
         <div style={{ minWidth: `${weeks.length * (CELL + GAP) + 36}px` }}>
 
           {/* Month labels row */}
@@ -66,7 +66,7 @@ export function StreakCalendar({ data, showHeading = true }: StreakCalendarProps
                 <div
                   key={i}
                   style={{ width: CELL + GAP, flexShrink: 0 }}
-                  className="text-[10px] font-semibold text-on-surface-variant font-label"
+                  className="text-[10px] font-semibold text-ink-muted font-sans"
                 >
                   {ml ? ml.label : ''}
                 </div>
@@ -83,8 +83,8 @@ export function StreakCalendar({ data, showHeading = true }: StreakCalendarProps
                 <div
                   key={d}
                   style={{ height: CELL }}
-                  className={`text-[10px] font-semibold font-label text-right pr-1 leading-none flex items-center justify-end ${
-                    i % 2 === 0 ? 'text-on-surface-variant' : 'text-transparent'
+                  className={`text-[10px] font-semibold font-sans text-right pr-1 leading-none flex items-center justify-end ${
+                    i % 2 === 0 ? 'text-ink-muted' : 'text-transparent'
                   }`}
                 >
                   {d}
@@ -115,12 +115,12 @@ export function StreakCalendar({ data, showHeading = true }: StreakCalendarProps
                       cell.isPlaceholder
                         ? 'opacity-0'
                         : cell.minutes === 0
-                          ? 'relative bg-surface-container-high cursor-default'
+                          ? 'relative bg-surface-hover cursor-default'
                           : 'relative cursor-pointer transition-opacity hover:opacity-80'
                     }
                   >
                     {cell.goalMet && !cell.isPlaceholder && (
-                      <span aria-hidden className="absolute inset-0 m-auto h-1.5 w-1.5 rounded-full bg-success ring-1 ring-surface-container-lowest" />
+                      <span aria-hidden className="absolute inset-0 m-auto h-1.5 w-1.5 rounded-full bg-success ring-1 ring-surface-raised" />
                     )}
                   </div>
                 ))}
@@ -131,7 +131,7 @@ export function StreakCalendar({ data, showHeading = true }: StreakCalendarProps
           {/* Legend + tooltip row */}
           <div className="flex items-center justify-between mt-3 flex-wrap gap-2" style={{ paddingLeft: 36 }}>
             {/* Tooltip */}
-            <p className="text-xs text-on-surface-variant font-body h-4">
+            <p className="text-xs text-ink-muted font-sans h-4">
               {tooltip
                 ? `${formatLongDate(tooltip.date)} — ${tooltip.minutes === 0 ? 'No activity' : formatMinutes(tooltip.minutes)}${tooltip.goalMet ? ' · goal met' : ''}`
                 : 'Hover a day for details · dots mark days the goal was met'}
@@ -139,7 +139,7 @@ export function StreakCalendar({ data, showHeading = true }: StreakCalendarProps
 
             {/* Scale legend */}
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] text-on-surface-variant font-label">Less</span>
+              <span className="text-[10px] text-ink-muted font-sans">Less</span>
               {[0, 0.22, 0.48, 0.75, 1].map((alpha, i) => (
                 <div
                   key={i}
@@ -149,10 +149,10 @@ export function StreakCalendar({ data, showHeading = true }: StreakCalendarProps
                       ? undefined
                       : `rgb(var(--primary) / ${alpha})`,
                   }}
-                  className={alpha === 0 ? 'bg-surface-container-high' : ''}
+                  className={alpha === 0 ? 'bg-surface-hover' : ''}
                 />
               ))}
-              <span className="text-[10px] text-on-surface-variant font-label">More</span>
+              <span className="text-[10px] text-ink-muted font-sans">More</span>
             </div>
           </div>
         </div>
@@ -163,21 +163,21 @@ export function StreakCalendar({ data, showHeading = true }: StreakCalendarProps
         {stats.map(s => (
           <div
             key={s.label}
-            className={`bg-surface-container-low rounded-xl p-5 flex items-center gap-4 ${
+            className={`bg-surface-sunken rounded-md p-5 flex items-center gap-4 ${
               s.accent ? 'border-b-4 border-primary' : ''
             }`}
           >
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-              s.accent ? 'bg-primary/10 text-primary' : 'bg-surface-container text-on-surface-variant'
+            <div className={`w-10 h-10 rounded-sm flex items-center justify-center flex-shrink-0 ${
+              s.accent ? 'bg-primary/10 text-primary' : 'bg-surface-sunken text-ink-muted'
             }`}>
               <Icon name={s.icon} className="text-xl" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant font-label truncate">
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-ink-muted font-sans truncate">
                 {s.label}
               </p>
-              <p className={`text-xl font-extrabold tracking-tight font-headline ${
-                s.accent ? 'text-primary' : 'text-on-surface'
+              <p className={`text-xl font-extrabold tracking-tight font-display ${
+                s.accent ? 'text-primary' : 'text-ink'
               }`}>
                 {s.value}
               </p>

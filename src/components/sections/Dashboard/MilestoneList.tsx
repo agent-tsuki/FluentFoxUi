@@ -11,7 +11,7 @@ export function MilestoneList({ milestones }: MilestoneListProps) {
     <section className="space-y-6">
       <div className="space-y-1">
         <Eyebrow variant="plain">Achievements</Eyebrow>
-        <h2 className="text-2xl font-extrabold tracking-tight text-on-surface font-headline">
+        <h2 className="text-2xl font-extrabold tracking-tight text-ink font-display">
           Milestones
         </h2>
       </div>
@@ -27,28 +27,28 @@ export function MilestoneList({ milestones }: MilestoneListProps) {
           return (
             <div
               key={milestone.id}
-              className="bg-surface-container-low p-6 rounded-xl flex items-center gap-6 group transition-all hover:bg-surface-container-lowest hover:shadow-elevation-2"
+              className="bg-surface-sunken p-6 rounded-md flex items-center gap-6 group transition-all hover:bg-surface-raised hover:shadow-elevation-2"
             >
               {/* Icon */}
-              <div className="w-16 h-16 bg-surface-container-lowest rounded-lg flex items-center justify-center shadow-elevation-1 group-hover:scale-110 duration-300 flex-shrink-0">
+              <div className="w-16 h-16 bg-surface-raised rounded-sm flex items-center justify-center shadow-elevation-1 group-hover:scale-110 duration-300 flex-shrink-0">
                 <Icon name={milestone.icon} className={`text-4xl ${milestone.colorClass}`} filled />
               </div>
 
               {/* Content */}
               <div className="flex-1 min-w-0 space-y-2">
                 <div className="flex items-center justify-between gap-4">
-                  <p className="font-bold text-on-surface font-label">{milestone.title}</p>
-                  <span className="text-xs font-semibold text-on-surface-variant font-label whitespace-nowrap flex-shrink-0">
+                  <p className="font-bold text-ink font-sans">{milestone.title}</p>
+                  <span className="text-xs font-semibold text-ink-muted font-sans whitespace-nowrap flex-shrink-0">
                     {milestone.progressValue.toLocaleString()} / {milestone.progressMax.toLocaleString()}
                   </span>
                 </div>
-                <div className="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden">
+                <div className="w-full bg-surface-hover h-1.5 rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all ${barColor}`}
                     style={{ width: `${pct}%` }}
                   />
                 </div>
-                <p className="text-xs text-on-surface-variant font-body">{milestone.subtitle}</p>
+                <p className="text-xs text-ink-muted font-sans">{milestone.subtitle}</p>
               </div>
             </div>
           )

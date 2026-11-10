@@ -148,10 +148,10 @@ export function AccountSettings() {
   return (
     <div className="space-y-6">
       {/* Appearance */}
-      <div className="bg-surface-container-low rounded-xl overflow-hidden">
-        <div className="px-8 py-6 border-b border-outline-variant">
-          <h2 className="text-lg font-bold text-on-surface font-headline">Appearance</h2>
-          <p className="text-xs text-on-surface-variant font-body mt-0.5">
+      <div className="bg-surface-sunken rounded-md overflow-hidden">
+        <div className="px-8 py-6 border-b border-line">
+          <h2 className="text-lg font-bold text-ink font-display">Appearance</h2>
+          <p className="text-xs text-ink-muted font-sans mt-0.5">
             Customize how FoxSensei looks for you
           </p>
         </div>
@@ -166,12 +166,12 @@ export function AccountSettings() {
 
           {/* Theme: the device's setting until the learner picks one; the pick stays in this browser */}
           <div className="flex items-start gap-4">
-            <div className="w-10 h-10 bg-surface-container rounded-lg flex items-center justify-center text-on-surface-variant flex-shrink-0 mt-0.5">
+            <div className="w-10 h-10 bg-surface-sunken rounded-sm flex items-center justify-center text-ink-muted flex-shrink-0 mt-0.5">
               <Icon name="dark_mode" className="text-xl" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-semibold text-on-surface font-body">Theme</p>
-              <p className="text-xs text-on-surface-variant font-body mb-3">System follows this device. Your pick is saved in this browser only.</p>
+              <p className="text-sm font-semibold text-ink font-sans">Theme</p>
+              <p className="text-xs text-ink-muted font-sans mb-3">System follows this device. Your pick is saved in this browser only.</p>
               <div role="radiogroup" aria-label="Theme" className="flex gap-3">
                 {THEME_OPTIONS.map(opt => (
                   <button
@@ -180,15 +180,15 @@ export function AccountSettings() {
                     role="radio"
                     aria-checked={themeChoice === opt.value}
                     onClick={() => setThemeChoice(opt.value)}
-                    className={`flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl border-[1.5px] transition-all text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                    className={`flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-md border-[1.5px] transition-all text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                       themeChoice === opt.value
                         ? 'border-primary bg-primary/[0.08]'
-                        : 'border-outline-variant/40 bg-transparent'
+                        : 'border-line bg-transparent'
                     }`}
                   >
                     <Icon name={opt.icon} className="text-xl" />
-                    <span className="text-2xs font-bold font-label text-on-surface">{opt.label}</span>
-                    <span className="text-2xs text-on-surface-variant font-body leading-tight">{opt.desc}</span>
+                    <span className="text-2xs font-bold font-sans text-ink">{opt.label}</span>
+                    <span className="text-2xs text-ink-muted font-sans leading-tight">{opt.desc}</span>
                   </button>
                 ))}
               </div>
@@ -197,26 +197,26 @@ export function AccountSettings() {
 
           {/* Background animation selector */}
           <div className="flex items-start gap-4">
-            <div className="w-10 h-10 bg-surface-container rounded-lg flex items-center justify-center text-on-surface-variant flex-shrink-0 mt-0.5">
+            <div className="w-10 h-10 bg-surface-sunken rounded-sm flex items-center justify-center text-ink-muted flex-shrink-0 mt-0.5">
               <Icon name="animation" className="text-xl" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-semibold text-on-surface font-body">Background Animation</p>
-              <p className="text-xs text-on-surface-variant font-body mb-3">Choose the animated background across all pages</p>
+              <p className="text-sm font-semibold text-ink font-sans">Background Animation</p>
+              <p className="text-xs text-ink-muted font-sans mb-3">Choose the animated background across all pages</p>
               <div className="flex gap-3">
                 {BG_OPTIONS.map(opt => (
                   <button
                     key={opt.value}
                     onClick={() => setBackgroundAnimation(opt.value)}
-                    className={`flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl border-[1.5px] transition-all text-center ${
+                    className={`flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-md border-[1.5px] transition-all text-center ${
                       backgroundAnimation === opt.value
                         ? 'border-primary bg-primary/[0.08]'
-                        : 'border-outline-variant/40 bg-transparent'
+                        : 'border-line bg-transparent'
                     }`}
                   >
                     <Icon name={opt.icon} className="text-xl" />
-                    <span className="text-2xs font-bold font-label text-on-surface">{opt.label}</span>
-                    <span className="text-2xs text-on-surface-variant font-body leading-tight">{opt.desc}</span>
+                    <span className="text-2xs font-bold font-sans text-ink">{opt.label}</span>
+                    <span className="text-2xs text-ink-muted font-sans leading-tight">{opt.desc}</span>
                   </button>
                 ))}
               </div>
@@ -226,10 +226,10 @@ export function AccountSettings() {
       </div>
 
       {/* Notifications */}
-      <div className="bg-surface-container-low rounded-xl overflow-hidden">
-        <div className="px-8 py-6 border-b border-outline-variant">
-          <h2 className="text-lg font-bold text-on-surface font-headline">Notifications</h2>
-          <p className="text-xs text-on-surface-variant font-body mt-0.5">
+      <div className="bg-surface-sunken rounded-md overflow-hidden">
+        <div className="px-8 py-6 border-b border-line">
+          <h2 className="text-lg font-bold text-ink font-display">Notifications</h2>
+          <p className="text-xs text-ink-muted font-sans mt-0.5">
             Control what FoxSensei sends you
           </p>
         </div>
@@ -252,24 +252,24 @@ export function AccountSettings() {
       </div>
 
       {/* Security */}
-      <div className="bg-surface-container-low rounded-xl overflow-hidden">
-        <div className="px-8 py-6 border-b border-outline-variant">
-          <h2 className="text-lg font-bold text-on-surface font-headline">Security</h2>
-          <p className="text-xs text-on-surface-variant font-body mt-0.5">
+      <div className="bg-surface-sunken rounded-md overflow-hidden">
+        <div className="px-8 py-6 border-b border-line">
+          <h2 className="text-lg font-bold text-ink font-display">Security</h2>
+          <p className="text-xs text-ink-muted font-sans mt-0.5">
             Keep your account safe
           </p>
         </div>
         <div className="px-8 py-6 space-y-6">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-surface-container rounded-lg flex items-center justify-center text-on-surface-variant flex-shrink-0">
+              <div className="w-10 h-10 bg-surface-sunken rounded-sm flex items-center justify-center text-ink-muted flex-shrink-0">
                 <Icon name="lock_reset" className="text-xl" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-on-surface font-body">Reset password</p>
-                <p className="text-xs text-on-surface-variant font-body mt-0.5">
+                <p className="text-sm font-semibold text-ink font-sans">Reset password</p>
+                <p className="text-xs text-ink-muted font-sans mt-0.5">
                   {user?.email
-                    ? <>We'll email a code to <span className="font-semibold text-on-surface">{user.email}</span></>
+                    ? <>We'll email a code to <span className="font-semibold text-ink">{user.email}</span></>
                     : "We'll email you a code to confirm it's you"}
                 </p>
               </div>
@@ -280,26 +280,26 @@ export function AccountSettings() {
             </Button>
           </div>
 
-          <div className="border-t border-outline-variant" />
+          <div className="border-t border-line" />
 
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-surface-container rounded-lg flex items-center justify-center text-on-surface-variant flex-shrink-0">
+              <div className="w-10 h-10 bg-surface-sunken rounded-sm flex items-center justify-center text-ink-muted flex-shrink-0">
                 <Icon name="link" className="text-xl" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-on-surface font-body">Google account</p>
-                <p className="text-xs text-on-surface-variant font-body mt-0.5">
+                <p className="text-sm font-semibold text-ink font-sans">Google account</p>
+                <p className="text-xs text-ink-muted font-sans mt-0.5">
                   {googleLoading
                     ? 'Checking connection…'
                     : googleConnected
-                      ? <>Connected{googleEmail ? <> as <span className="font-semibold text-on-surface">{googleEmail}</span></> : ''}. You can sign in with Google.</>
+                      ? <>Connected{googleEmail ? <> as <span className="font-semibold text-ink">{googleEmail}</span></> : ''}. You can sign in with Google.</>
                       : 'Connect Google to sign in with either Google or your email and password.'}
                 </p>
               </div>
             </div>
             {googleConnected ? (
-              <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-tertiary-container/50 text-tertiary text-xs font-bold">
+              <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-sm bg-tertiary-container/50 text-tertiary text-xs font-bold">
                 <Icon name="check_circle" className="text-base" />
                 Connected
               </span>
@@ -319,22 +319,22 @@ export function AccountSettings() {
           {googleMessage && (
             <p
               role={googleMessage.tone === 'error' ? 'alert' : 'status'}
-              className={`text-xs font-body ${googleMessage.tone === 'success' ? 'text-tertiary' : 'text-error'}`}
+              className={`text-xs font-sans ${googleMessage.tone === 'success' ? 'text-tertiary' : 'text-error'}`}
             >
               {googleMessage.text}
             </p>
           )}
 
-          <div className="border-t border-outline-variant" />
+          <div className="border-t border-line" />
 
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-surface-container rounded-lg flex items-center justify-center text-on-surface-variant flex-shrink-0">
+              <div className="w-10 h-10 bg-surface-sunken rounded-sm flex items-center justify-center text-ink-muted flex-shrink-0">
                 <Icon name="link" className="text-xl" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-on-surface font-body">X account</p>
-                <p className="text-xs text-on-surface-variant font-body mt-0.5">
+                <p className="text-sm font-semibold text-ink font-sans">X account</p>
+                <p className="text-xs text-ink-muted font-sans mt-0.5">
                   {xLoading
                     ? 'Checking connection…'
                     : xConnected
@@ -344,7 +344,7 @@ export function AccountSettings() {
               </div>
             </div>
             {xConnected ? (
-              <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-tertiary-container/50 text-tertiary text-xs font-bold">
+              <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-sm bg-tertiary-container/50 text-tertiary text-xs font-bold">
                 <Icon name="check_circle" className="text-base" />
                 Connected
               </span>
@@ -364,7 +364,7 @@ export function AccountSettings() {
           {xMessage && (
             <p
               role={xMessage.tone === 'error' ? 'alert' : 'status'}
-              className={`text-xs font-body ${xMessage.tone === 'success' ? 'text-tertiary' : 'text-error'}`}
+              className={`text-xs font-sans ${xMessage.tone === 'success' ? 'text-tertiary' : 'text-error'}`}
             >
               {xMessage.text}
             </p>
@@ -375,10 +375,10 @@ export function AccountSettings() {
       <DevicesSection />
 
       {/* Danger zone */}
-      <div className="bg-surface-container-low rounded-xl overflow-hidden border border-error/20">
-        <div className="px-8 py-6 border-b border-outline-variant">
-          <h2 className="text-lg font-bold text-error font-headline">Danger Zone</h2>
-          <p className="text-xs text-on-surface-variant font-body mt-0.5">
+      <div className="bg-surface-sunken rounded-md overflow-hidden border border-error/20">
+        <div className="px-8 py-6 border-b border-line">
+          <h2 className="text-lg font-bold text-error font-display">Danger Zone</h2>
+          <p className="text-xs text-ink-muted font-sans mt-0.5">
             Irreversible actions — proceed with caution
           </p>
         </div>
@@ -386,8 +386,8 @@ export function AccountSettings() {
           {!showDeleteConfirm ? (
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div>
-                <p className="text-sm font-semibold text-on-surface font-body">Delete Account</p>
-                <p className="text-xs text-on-surface-variant font-body mt-0.5">
+                <p className="text-sm font-semibold text-ink font-sans">Delete Account</p>
+                <p className="text-xs text-ink-muted font-sans mt-0.5">
                   Permanently remove your account and all study data
                 </p>
               </div>
@@ -402,7 +402,7 @@ export function AccountSettings() {
             </div>
           ) : (
             <div className="space-y-4">
-              <p className="text-sm font-semibold text-on-surface font-body">
+              <p className="text-sm font-semibold text-ink font-sans">
                 Are you sure? This cannot be undone.
               </p>
               <div className="flex gap-3">
@@ -414,7 +414,7 @@ export function AccountSettings() {
                   Cancel
                 </Button>
                 <button
-                  className="px-5 py-2 bg-error text-on-error rounded-xl text-sm font-bold transition-all hover:scale-105 active:scale-95"
+                  className="px-5 py-2 bg-error text-on-error rounded-md text-sm font-bold transition-all hover:scale-105 active:scale-95"
                   onClick={() => setShowDeleteConfirm(false)}
                 >
                   Yes, delete my account

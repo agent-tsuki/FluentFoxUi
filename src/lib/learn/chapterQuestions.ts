@@ -1,15 +1,19 @@
 /**
  * A chapter's vocab quiz and exercise come from the learn API (unit quizzes
  * on the vocab_n5 and grammar_n5 tracks). These helpers turn the server's
- * questions into the practice runner's questions (a dropdown in the sentence,
- * typed answers, multiple choice) and the runner's answers back into what the
+ * questions into the practice runner's questions (multiple choice, typed
+ * answers, an exchange to judge) and the runner's answers back into what the
  * server records. Pure.
  */
+import { asset } from '@/lib/assets'
 import { romajiToHiragana, hasLatin } from '@/lib/content/kanji/romaji'
+import { parseRubyLine } from '@/lib/content/listening/rubyText'
 import { SENTENCE_GAP } from '@/lib/learn/questionView'
 import { choiceAnswer, typedAnswer, type GivenAnswer } from '@/lib/learn/practiceSession'
 import type { TestQuestion } from '@/lib/testCenter/types'
 import type { LearnQuestion, SessionStart } from '@/types/learn'
+
+const TRUE_FALSE = ['True', 'False']
 
 export interface ChapterQuestions {
   questions: TestQuestion[]
@@ -55,11 +59,12 @@ export function chapterTestQuestion(q: LearnQuestion, index: number): TestQuesti
       return {
         id,
         format: 'grammar-gap',
-        kind: 'select',
+        kind: 'choice',
         instruction: 'Choose the word that fills the gap',
         prompt: gapPrompt(q.prompt),
         answer: q.correct_answer,
         options: q.options ?? [],
+        optionsJa: true,
         ...sentence,
       }
     case 'grammar_gap_typed':
@@ -86,6 +91,112 @@ export function chapterTestQuestion(q: LearnQuestion, index: number): TestQuesti
         options: q.options ?? [],
         optionsJa: false,
         explanation: q.sentence?.explanation,
+      }
+    case 'exercise_true_false':
+      return {
+        id,
+        format: 'grammar-meaning',
+        kind: 'choice',
+        instruction: 'Read the exchange. Is this true?',
+        prompt: { type: 'exchange', lines: q.exercise?.lines ?? [], statement: q.prompt },
+        answer: q.correct_answer,
+        options: TRUE_FALSE,
+        optionsJa: false,
+        label: 'True or false',
+        explanation: q.sentence?.explanation,
+      }
+    case 'exercise_transform':
+      return {
+        id,
+        format: 'grammar-typed',
+        kind: 'text',
+        instruction: q.exercise?.task ?? 'Type the missing part',
+        source: q.exercise?.source,
+        prompt: gapPrompt(q.prompt),
+        answer: q.correct_answer,
+        compare: 'japanese',
+        accepted,
+        placeholder: 'kana or romaji',
+        label: 'Change the form',
+        ...sentence,
+      }
+    case 'exercise_word_choice':
+      return {
+        id,
+        format: 'grammar-gap',
+        kind: 'choice',
+        instruction: 'Choose the word for the gap',
+        prompt: gapPrompt(q.prompt),
+        answer: q.correct_answer,
+        options: q.options ?? [],
+        optionsJa: true,
+        label: 'Word in a sentence',
+        ...sentence,
+      }
+    case 'exercise_picture': {
+      const { before, after } = gapPrompt(q.prompt)
+      return {
+        id,
+        format: 'grammar-gap',
+        kind: 'choice',
+        instruction: 'Look at the picture and choose',
+        prompt: { type: 'picture', src: asset(q.exercise?.image ?? ''), alt: q.exercise?.alt ?? '', before, after },
+        answer: q.correct_answer,
+        options: q.options ?? [],
+        optionsJa: true,
+        label: 'Look and choose',
+        ...sentence,
+      }
+    }
+    case 'exercise_order':
+      return {
+        id,
+        format: 'grammar-typed',
+        kind: 'tiles',
+        instruction: 'Put the words in order',
+        prompt: { type: 'glyph', text: q.prompt, ja: false },
+        answer: q.correct_answer,
+        tiles: q.exercise?.tiles ?? [],
+        accepted: [q.correct_answer],
+        label: 'Put in order',
+      }
+    case 'exercise_listen':
+      return {
+        id,
+        format: 'grammar-meaning',
+        kind: 'choice',
+        instruction: 'Listen, then choose what it means',
+        prompt: { type: 'audio', text: q.exercise?.say ?? parseRubyLine(q.prompt).spoken, voice: q.exercise?.voice },
+        answer: q.correct_answer,
+        options: q.options ?? [],
+        optionsJa: false,
+        label: 'Listen and choose',
+        explanation: parseRubyLine(q.prompt).spoken,
+      }
+    case 'exercise_reply':
+      return {
+        id,
+        format: 'grammar-gap',
+        kind: 'choice',
+        instruction: 'Choose the natural reply',
+        prompt: { type: 'sentence', text: q.prompt },
+        answer: q.correct_answer,
+        options: q.options ?? [],
+        optionsJa: true,
+        label: 'Choose the reply',
+        explanation: q.sentence?.explanation,
+      }
+    case 'exercise_reading':
+      return {
+        id,
+        format: 'grammar-meaning',
+        kind: 'choice',
+        instruction: 'Read, then answer the question',
+        prompt: { type: 'exchange', lines: q.exercise?.lines ?? [], statement: q.prompt },
+        answer: q.correct_answer,
+        options: q.options ?? [],
+        optionsJa: false,
+        label: 'Read and answer',
       }
     default:
       return null

@@ -105,7 +105,7 @@ const LineText = memo(function LineText({ ruby, script, romaji, lit, playing, la
   const state = (i: number) => (i === lit ? 'rounded-md bg-primary/15 text-primary' : playing && i < lit ? 'text-primary' : undefined)
   return (
     <>
-      <span lang="ja" className={cn('block font-jp leading-relaxed text-on-surface', large ? 'text-xl sm:text-2xl' : 'text-lg sm:text-xl')}>
+      <span lang="ja" className={cn('block font-ja leading-relaxed text-ink', large ? 'text-xl sm:text-2xl' : 'text-lg sm:text-xl')}>
         {ruby.tokens.map((t, i) => (
           <span key={i}>
             {/* Hiragana-only text is spaced by word, the way beginners' readers print it (and wraps at the spaces). */}
@@ -117,7 +117,7 @@ const LineText = memo(function LineText({ ruby, script, romaji, lit, playing, la
         ))}
       </span>
       {romaji && (
-        <span className="mt-0.5 block text-sm text-on-surface-variant">
+        <span className="mt-0.5 block text-sm text-ink-muted">
           {romajiPieces(ruby.tokens).map((p, i) => {
             const space = p.text.startsWith(' ')
             return (
@@ -244,24 +244,24 @@ export function ChapterListening({ level, chapterId }: { level: string; chapterI
 
   if (content.isLoading || (!content.data && !content.error)) {
     return (
-      <LoadingState label="Loading…" className="space-y-3 px-6 py-8 xl:px-10">
-        <SkeletonBlock className="h-10 w-2/3 rounded-xl" />
+      <LoadingState label="Loading…" className="space-y-3 py-2">
+        <SkeletonBlock className="h-10 w-2/3 rounded-md" />
         {Array.from({ length: 4 }, (_, i) => (
-          <SkeletonBlock key={i} className={cn('h-20 rounded-2xl', i % 2 ? 'ml-auto w-3/4' : 'w-3/4')} />
+          <SkeletonBlock key={i} className={cn('h-20 rounded-xl', i % 2 ? 'ml-auto w-3/4' : 'w-3/4')} />
         ))}
       </LoadingState>
     )
   }
   if (content.error) {
     return (
-      <div className="px-6 py-10 xl:px-10">
+      <div className="py-2">
         <ErrorState message="We couldn't load this chapter." onRetry={content.refetch} />
       </div>
     )
   }
   if (!supported || !passage) {
     return (
-      <div className="px-6 py-10 xl:px-10">
+      <div className="py-2">
         <EmptyState
           icon="headphones"
           title={supported ? 'Nothing to listen to here yet' : 'Audio isn’t available here'}
@@ -287,9 +287,9 @@ export function ChapterListening({ level, chapterId }: { level: string; chapterI
   )
 
   return (
-    <div className="px-6 pb-4 pt-8 xl:px-10">
-      <h1 className="font-headline text-2xl font-bold text-on-surface sm:text-3xl">Listen and read</h1>
-      <p className="mt-1 max-w-prose text-sm text-on-surface-variant">
+    <div className="pb-2">
+      <h1 className="font-display text-2xl font-bold text-ink sm:text-3xl">Listen and read</h1>
+      <p className="mt-1 max-w-prose text-sm text-ink-muted">
         Short conversations and passages using this chapter’s words. In a passage each word lights up as it is said; tap a line to hear it again.
       </p>
 
@@ -307,8 +307,8 @@ export function ChapterListening({ level, chapterId }: { level: string; chapterI
                 className={cn(
                   'flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
                   on
-                    ? 'border-on-surface bg-on-surface text-surface'
-                    : 'border-outline-variant text-on-surface-variant hover:text-on-surface dark:border-outline',
+                    ? 'border-ink bg-ink text-surface'
+                    : 'border-line text-ink-muted hover:text-ink',
                 )}
               >
                 <Icon name={p.kind === 'dialogue' ? 'forum' : 'auto_stories'} className="text-lg" />
@@ -339,7 +339,7 @@ export function ChapterListening({ level, chapterId }: { level: string; chapterI
                   <span
                     aria-hidden
                     lang="ja"
-                    className={cn('mb-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-jp text-sm font-bold', tone.avatar)}
+                    className={cn('mb-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-ja text-sm font-bold', tone.avatar)}
                   >
                     {initial(name)}
                   </span>
@@ -352,21 +352,21 @@ export function ChapterListening({ level, chapterId }: { level: string; chapterI
                       right ? 'rounded-br-md' : 'rounded-bl-md',
                       on
                         ? 'border-primary bg-primary/5 dark:bg-primary/10'
-                        : 'border-outline-variant/60 bg-surface-container-lowest hover:bg-surface-container-low dark:border-outline/60 dark:bg-surface-container-low',
+                        : 'border-line bg-surface-raised hover:bg-surface-hover',
                     )}
                   >
                     <span className={cn('mb-1 flex items-center gap-1.5 text-xs font-semibold', tone.name)}>
-                      <span lang="ja" className="font-jp">
+                      <span lang="ja" className="font-ja">
                         {name && written(name, script === 'hiragana' ? 'hiragana' : 'normal')}
                       </span>
-                      <span className="text-on-surface-variant">{speakerIcon(i)}</span>
+                      <span className="text-ink-muted">{speakerIcon(i)}</span>
                     </span>
                     {script === 'hidden' ? (
-                      <span className="block text-sm text-on-surface-variant">Line {i + 1} — listen</span>
+                      <span className="block text-sm text-ink-muted">Line {i + 1} — listen</span>
                     ) : (
                       <LineText {...lineProps(i)} />
                     )}
-                    {english && <span className="mt-1 block text-sm italic text-on-surface-variant">{line.translation}</span>}
+                    {english && <span className="mt-1 block text-sm italic text-ink-muted">{line.translation}</span>}
                     <span className="sr-only">Play this line</span>
                   </button>
                 </li>
@@ -374,19 +374,19 @@ export function ChapterListening({ level, chapterId }: { level: string; chapterI
             })}
           </ol>
         ) : (
-          <div className="rounded-3xl border border-outline-variant/60 bg-surface-container-lowest p-3 dark:border-outline/60 dark:bg-surface-container-low sm:p-5">
+          <div className="rounded-3xl border border-line bg-surface-raised p-3 sm:p-5">
             {passage.speakers[0] && (
-              <p className="mb-2 flex items-center gap-2 px-3 text-xs font-semibold text-on-surface-variant">
+              <p className="mb-2 flex items-center gap-2 px-3 text-xs font-semibold text-ink-muted">
                 <span
                   aria-hidden
                   lang="ja"
-                  className={cn('flex h-7 w-7 items-center justify-center rounded-full font-jp text-xs font-bold', SPEAKER_TONES[0].avatar)}
+                  className={cn('flex h-7 w-7 items-center justify-center rounded-full font-ja text-xs font-bold', SPEAKER_TONES[0].avatar)}
                 >
                   {initial(passage.speakers[0])}
                 </span>
                 <span>
                   Read by{' '}
-                  <span lang="ja" className="font-jp">
+                  <span lang="ja" className="font-ja">
                     {written(passage.speakers[0], script === 'hiragana' ? 'hiragana' : 'normal')}
                   </span>
                 </span>
@@ -405,20 +405,20 @@ export function ChapterListening({ level, chapterId }: { level: string; chapterI
                     onClick={() => playOne(i)}
                     aria-current={current === i ? 'true' : undefined}
                     className={cn(
-                      'flex w-full items-start gap-3 rounded-2xl px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-                      current === i ? 'bg-primary/5 dark:bg-primary/10' : 'hover:bg-surface-container-low',
+                      'flex w-full items-start gap-3 rounded-xl px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                      current === i ? 'bg-primary/5 dark:bg-primary/10' : 'hover:bg-surface-hover',
                     )}
                   >
-                    <span aria-hidden className="mt-1.5 text-on-surface-variant">
+                    <span aria-hidden className="mt-1.5 text-ink-muted">
                       {speakerIcon(i)}
                     </span>
                     <span className="min-w-0 flex-1">
                       {script === 'hidden' ? (
-                        <span className="block py-1 text-sm text-on-surface-variant">Sentence {i + 1} — listen</span>
+                        <span className="block py-1 text-sm text-ink-muted">Sentence {i + 1} — listen</span>
                       ) : (
                         <LineText {...lineProps(i)} large />
                       )}
-                      {english && <span className="mt-1 block text-sm italic text-on-surface-variant">{line.translation}</span>}
+                      {english && <span className="mt-1 block text-sm italic text-ink-muted">{line.translation}</span>}
                     </span>
                     <span className="sr-only">Play this sentence</span>
                   </button>
@@ -440,7 +440,7 @@ export function ChapterListening({ level, chapterId }: { level: string; chapterI
       />
 
       {/* The player: under the text, and kept in view while reading a long passage. */}
-      <div className="sticky bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-10 mt-6 flex flex-wrap items-center gap-x-3.5 gap-y-1 rounded-2xl border border-outline-variant/60 bg-surface/95 px-2.5 py-2 shadow-lg backdrop-blur dark:border-outline/60 sm:gap-x-4 sm:px-4 sm:py-2.5">
+      <div className="sticky bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-10 mt-6 flex flex-wrap items-center gap-x-3.5 gap-y-1 rounded-xl border border-line bg-surface/95 px-2.5 py-2 shadow-lg backdrop-blur sm:gap-x-4 sm:px-4 sm:py-2.5">
         <Button onClick={playingAll ? stop : playAll} className="flex min-h-11 items-center gap-1.5 !px-3 !py-1.5 sm:gap-2 sm:!px-4">
           <Icon name={playingAll ? 'close' : 'play_circle'} className="text-xl" />
           {playingAll ? (
@@ -454,7 +454,7 @@ export function ChapterListening({ level, chapterId }: { level: string; chapterI
             </>
           )}
         </Button>
-        <div role="radiogroup" aria-label="Show the Japanese as" className="flex gap-0.5 rounded-full bg-surface-container p-1 sm:gap-1">
+        <div role="radiogroup" aria-label="Show the Japanese as" className="flex gap-0.5 rounded-full bg-surface-sunken p-1 sm:gap-1">
           {SCRIPTS.map((s) => (
             <button
               key={s.value}
@@ -464,7 +464,7 @@ export function ChapterListening({ level, chapterId }: { level: string; chapterI
               onClick={() => setScript(s.value)}
               className={cn(
                 'min-h-9 rounded-full px-2 text-sm font-semibold transition-colors sm:px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-                script === s.value ? 'bg-on-surface text-surface' : 'text-on-surface-variant hover:text-on-surface',
+                script === s.value ? 'bg-ink text-surface' : 'text-ink-muted hover:text-ink',
               )}
             >
               {s.label}
@@ -475,13 +475,13 @@ export function ChapterListening({ level, chapterId }: { level: string; chapterI
           <Switch checked={romaji} onChange={setRomaji} label="Romaji" disabled={script === 'hidden'} />
           <Switch checked={english} onChange={setEnglish} label="English" />
         </div>
-        <label className="flex items-center gap-1.5 text-sm text-on-surface-variant sm:gap-2">
+        <label className="flex items-center gap-1.5 text-sm text-ink-muted sm:gap-2">
           <Icon name="timer" className="text-lg sm:hidden" />
           <span className="sr-only sm:not-sr-only">Pause</span>
           <select
             value={pause}
             onChange={(e) => setPause(Number(e.target.value) as (typeof PAUSES)[number])}
-            className="min-h-10 rounded-lg border border-outline-variant bg-surface-container-lowest px-1.5 text-on-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:px-2"
+            className="min-h-10 rounded-sm border border-line bg-surface-raised px-1.5 text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:px-2"
           >
             {PAUSES.map((p) => (
               <option key={p} value={p}>

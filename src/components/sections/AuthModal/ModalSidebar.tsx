@@ -58,7 +58,7 @@ export function ModalSidebar({ tab, onGoogle, onX }: ModalSidebarProps) {
 
       {/* Top: branding + per-tab copy (crossfades when the tab changes) */}
       <div className="relative z-10">
-        <div className="text-2xl font-headline font-extrabold tracking-tighter mb-8">
+        <div className="text-2xl font-display font-extrabold tracking-tighter mb-8">
           FoxSensei
         </div>
 
@@ -70,7 +70,7 @@ export function ModalSidebar({ tab, onGoogle, onX }: ModalSidebarProps) {
             animate="animate"
             exit="exit"
           >
-            <h2 className="text-3xl font-headline font-bold leading-tight mb-4 italic">
+            <h2 className="text-3xl font-display font-bold leading-tight mb-4 italic">
               {copy.headline}
             </h2>
             <p className="text-on-primary/80 text-sm leading-relaxed">{copy.body}</p>

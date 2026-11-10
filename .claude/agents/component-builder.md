@@ -19,8 +19,8 @@ components that other engineers reach for by default.
 ## Rules you never break
 1. **Reuse before build.** Check `src/components/ui/` first. If a primitive almost fits, add a prop
    — do not create a near-duplicate. Two components must never share a name.
-2. **Tokens only.** Style with Tailwind design tokens (`bg-surface`, `text-on-surface`,
-   `text-primary`, `border-outline-variant`, radius scale). Never a raw hex/px color, radius, or font.
+2. **Tokens only.** Style with Tailwind design tokens (`bg-surface`, `text-ink`,
+   `text-primary`, `border-line`, radius scale). Never a raw hex/px color, radius, or font.
 3. **Shape:** named `export function ComponentName`; props `interface ComponentNameProps`; variant
    maps as `Record<Variant, string>` (no ternary soup); always accept and merge `className` last via
    `cn()`; keep files < ~150 lines and single-responsibility.

@@ -13,15 +13,15 @@ export function ConfusionList({ pairs }: { pairs: readonly ConfusionPair[] }) {
           <Link
             to={lookAlikeLink(p.track, p.target.char, p.chosen.char)}
             aria-label={`${p.target.char} mixed up with ${p.chosen.char} ${p.times} times. Drill this pair`}
-            className="flex min-h-11 items-center gap-4 rounded-2xl border border-outline-variant/50 bg-surface-container-lowest p-4 transition-colors hover:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="flex min-h-11 items-center gap-4 rounded-xl border border-line bg-surface-raised p-4 transition-colors hover:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
-            <span lang="ja" className="font-jp flex items-center gap-2 text-3xl font-bold text-on-surface">
+            <span lang="ja" className="font-ja flex items-center gap-2 text-3xl font-bold text-ink">
               {p.target.char}
-              <Icon name="swap_horiz" className="text-xl text-on-surface-variant" />
+              <Icon name="swap_horiz" className="text-xl text-ink-muted" />
               {p.chosen.char}
             </span>
-            <span className="min-w-0 flex-1 text-sm text-on-surface-variant">
-              <span className="block font-semibold text-on-surface tabular-nums">{p.times}× mixed up</span>
+            <span className="min-w-0 flex-1 text-sm text-ink-muted">
+              <span className="block font-semibold text-ink tabular-nums">{p.times}× mixed up</span>
               {TRACK_LABEL[p.track]}
             </span>
             <span className="flex items-center gap-1 text-sm font-semibold text-primary">

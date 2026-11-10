@@ -1,6 +1,6 @@
 import type { Ref } from 'react'
 import type { KanaChar } from '@/types'
-import { Eyebrow } from '@/components/ui/SectionHeader'
+import { LessonHeader } from '@/components/lesson/LessonHeader'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { SkeletonBlock } from '@/components/ui/LoadingState'
 import { useKanaScript } from '@/context/KanaScriptContext'
@@ -10,8 +10,8 @@ import { useCourseProgress } from './useCourseProgress'
 import { TextLink } from '@/components/ui/TextLink'
 
 /**
- * CourseHeader — the compact, left-aligned header shared by the four kana
- * course pages: eyebrow, h1, one line, and the course progress line.
+ * CourseHeader: the LessonHeader of the four kana course pages, with the
+ * course progress line.
  * `variant="course"` (the Course page) adds the meta strip and the
  * "Test out" link. The h1 takes `tabIndex={-1}` so the layout can move focus
  * to it on page change.
@@ -31,20 +31,16 @@ export function CourseHeader({ variant, title, description, allKana, headingRef,
   const script = useKanaScript()
 
   return (
-    <header className={cn('pb-5 pt-6 md:pb-6 md:pt-10', className)}>
-      <Eyebrow>Kana course</Eyebrow>
-      <h1
-        ref={headingRef}
-        tabIndex={-1}
-        className="font-headline text-display-sm font-extrabold tracking-tight text-on-surface focus:outline-none"
-      >
-        {title}
-      </h1>
-      <p className="mt-1 max-w-prose text-base text-on-surface-variant">{description}</p>
-
+    <LessonHeader
+      crumbs={[{ label: 'Kana', to: '/kana/hiragana' }, { label: script.label, to: script.basePath }, { label: title }]}
+      title={title}
+      description={description}
+      headingRef={headingRef}
+      className={cn('pb-5 pt-6 md:pb-6 md:pt-8', className)}
+    >
       {isCourse && (
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-x-6">
-          <p className="py-1 text-sm text-on-surface-variant">
+        <div className="flex flex-wrap items-center justify-between gap-x-6">
+          <p className="py-1 text-caption text-ink-muted">
             {script.units.length} units · {allKana?.length || scriptKanaCount(script)} kana · Final test &amp; certificate
           </p>
           <TextLink to={`${script.basePath}/skip/all`} leadingIcon="fast_forward">
@@ -52,11 +48,8 @@ export function CourseHeader({ variant, title, description, allKana, headingRef,
           </TextLink>
         </div>
       )}
-
-      <div className={isCourse ? 'mt-1' : 'mt-4'}>
-        {allKana ? <ProgressLine allKana={allKana} /> : <SkeletonBlock className="h-5 w-72 max-w-full rounded-xl" />}
-      </div>
-    </header>
+      {allKana ? <ProgressLine allKana={allKana} /> : <SkeletonBlock className="h-5 w-72 max-w-full rounded-md" />}
+    </LessonHeader>
   )
 }
 
@@ -71,12 +64,12 @@ function ProgressLine({ allKana }: { allKana: readonly KanaChar[] }) {
         valueText={`${unitsDone} of ${unitsTotal} units finished`}
         className="sm:w-40 sm:shrink-0"
       />
-      <p className="text-sm tabular-nums text-on-surface-variant">
-        <span className="font-semibold text-on-surface">
+      <p className="text-sm tabular-nums text-ink-muted">
+        <span className="font-semibold text-ink">
           {unitsDone} / {unitsTotal}
         </span>{' '}
         units ·{' '}
-        <span className="font-semibold text-on-surface">
+        <span className="font-semibold text-ink">
           {kanaMastered} / {kanaTotal}
         </span>{' '}
         kana mastered

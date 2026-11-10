@@ -9,6 +9,7 @@ import { SectionNav } from '@/components/kanaCourse/SectionNav'
 import { CourseContentSkeleton, type CourseSkeletonVariant } from '@/components/kanaCourse/CourseContentSkeleton'
 import { COURSE_CONTAINER, coursePageFor } from '@/components/kanaCourse/coursePages'
 import { cn } from '@/lib/cn'
+import { useRecordLesson } from '@/store/lessonStore'
 import type { KanaCourseContext } from '@/pages/kanaCourseContext'
 
 /** Where the old `?tab=` values now live, relative to the course base (anything else goes to Chart). */
@@ -40,6 +41,7 @@ export function KanaCourseLayout() {
   const headingRef = useRef<HTMLHeadingElement>(null)
 
   const { sections, isLoading, error, refetch } = useKanaSections()
+  useRecordLesson({ course: 'kana', href: page.to, label: script.label })
 
   // Start the page's code download now, alongside the course data, not after it.
   useEffect(() => {
@@ -82,7 +84,7 @@ export function KanaCourseLayout() {
   }
 
   return (
-    <main className="pb-24 pt-nav">
+    <main id="lesson" className="lesson-solid pb-24 pt-nav">
       <div className={COURSE_CONTAINER}>
         <CourseHeader
           variant={page.id === 'course' ? 'course' : 'section'}

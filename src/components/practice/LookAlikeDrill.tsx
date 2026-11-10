@@ -157,7 +157,7 @@ function LookAlikeSession({ kana, all, isSubset, script, focusIds: priorityIds, 
       <p className="sr-only" aria-live="polite">{announcement}</p>
 
       {unitFallback && index === 0 && !picked && (
-        <p className="mb-2 rounded-xl bg-surface-container-low px-3 py-2 text-center text-sm text-on-surface-variant">
+        <p className="mb-2 rounded-md bg-surface-sunken px-3 py-2 text-center text-sm text-ink-muted">
           This unit has no look-alikes, so you’re drilling every set.
         </p>
       )}
@@ -168,17 +168,17 @@ function LookAlikeSession({ kana, all, isSubset, script, focusIds: priorityIds, 
         tabIndex={-1}
         className="flex flex-1 flex-col items-center justify-center gap-2 py-3 text-center focus:outline-none"
       >
-        <p className="text-sm font-semibold text-on-surface-variant">
+        <p className="text-sm font-semibold text-ink-muted">
           {direction === 'read' ? 'Which reading is this?' : 'Which kana is this?'}
         </p>
         {direction === 'read' ? (
-          <p lang="ja" className="font-jp text-8xl font-bold leading-none text-on-surface sm:text-9xl">
+          <p lang="ja" className="font-ja text-8xl font-bold leading-none text-ink sm:text-9xl">
             <span className="sr-only">Kana: </span>
             {target.character}
           </p>
         ) : (
           <div className="flex items-center gap-3">
-            <p className="font-headline text-6xl font-extrabold text-primary sm:text-7xl">
+            <p className="font-display text-6xl font-extrabold text-primary sm:text-7xl">
               <span className="sr-only">Reading: </span>
               {target.romaji}
             </p>
@@ -220,12 +220,12 @@ function LookAlikeSession({ kana, all, isSubset, script, focusIds: priorityIds, 
             transition={{ duration: durations.enter, ease: easings.out }}
             className="flex flex-col gap-3"
           >
-            <div className="rounded-2xl border border-outline-variant/60 bg-surface-container-low p-4 dark:border-outline/40">
-              <p className={cn('flex items-center gap-1.5 text-sm font-bold', correct ? 'text-success' : 'text-on-surface')}>
+            <div className="rounded-xl border border-line bg-surface-sunken p-4">
+              <p className={cn('flex items-center gap-1.5 text-sm font-bold', correct ? 'text-success' : 'text-ink')}>
                 <Icon name={correct ? 'check_circle' : 'lightbulb'} filled={Boolean(correct)} className={cn('text-lg', !correct && 'text-primary')} />
                 {correct ? 'Correct!' : (
                   <span>
-                    It was <span lang="ja" className="font-jp">{target.character}</span> ({target.romaji})
+                    It was <span lang="ja" className="font-ja">{target.character}</span> ({target.romaji})
                   </span>
                 )}
               </p>
@@ -234,16 +234,16 @@ function LookAlikeSession({ kana, all, isSubset, script, focusIds: priorityIds, 
                   <li
                     key={k.id}
                     className={cn(
-                      'flex min-w-14 flex-col items-center rounded-xl px-2 py-1.5',
-                      k.id === target.id ? 'bg-primary/10 ring-1 ring-primary/40' : 'bg-surface-container',
+                      'flex min-w-14 flex-col items-center rounded-md px-2 py-1.5',
+                      k.id === target.id ? 'bg-primary/10 ring-1 ring-primary/40' : 'bg-surface-sunken',
                     )}
                   >
-                    <span lang="ja" className="font-jp text-3xl font-bold leading-tight text-on-surface">{k.character}</span>
-                    <span className="text-xs font-semibold text-on-surface-variant">{k.romaji}</span>
+                    <span lang="ja" className="font-ja text-3xl font-bold leading-tight text-ink">{k.character}</span>
+                    <span className="text-xs font-semibold text-ink-muted">{k.romaji}</span>
                   </li>
                 ))}
               </ul>
-              <p className="mt-3 text-sm leading-relaxed text-on-surface">
+              <p className="mt-3 text-sm leading-relaxed text-ink">
                 <span className="sr-only">Tip: </span>
                 {round.tip}
               </p>

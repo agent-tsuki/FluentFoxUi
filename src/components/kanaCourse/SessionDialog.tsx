@@ -55,7 +55,7 @@ export function SessionDialog({ open, label, onClose, dismissable = true, childr
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.97, transition: { duration: durations.exit, ease: easings.out } }}
             transition={fade}
-            className="relative flex w-full flex-col overflow-y-auto overscroll-contain bg-surface-container-lowest text-on-surface shadow-elevation-3 outline-none dark:bg-surface-container-lowest dark:backdrop-filter-none sm:max-h-[min(100%,48rem)] sm:max-w-xl sm:rounded-3xl sm:border sm:border-outline-variant/40"
+            className="relative flex w-full flex-col overflow-y-auto overscroll-contain bg-surface-raised text-ink shadow-elevation-3 outline-none dark:bg-surface-raised dark:backdrop-filter-none sm:max-h-[min(100%,48rem)] sm:max-w-xl sm:rounded-3xl sm:border sm:border-line"
           >
             <PracticeShellFill.Provider value={false}>{children}</PracticeShellFill.Provider>
           </motion.div>

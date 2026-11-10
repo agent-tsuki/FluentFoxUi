@@ -57,22 +57,21 @@ export const UnitRow = memo(function UnitRow({ view, isNext, highlighted }: Unit
           'group relative flex min-h-16 w-full items-center gap-3 px-3 py-3 text-left transition-colors duration-700 ease-out motion-reduce:transition-none sm:px-4',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary',
           HASH_SCROLL_MARGIN,
-          isNext && 'before:absolute before:inset-y-0 before:left-0 before:w-0.5 before:bg-primary',
-          highlighted ? 'bg-primary/10' : open ? 'bg-surface-container-low' : 'hover:bg-surface-container-low',
+          highlighted ? 'bg-primary/10' : open ? 'bg-surface-sunken' : 'hover:bg-surface-hover',
         )}
       >
         <StatusIcon state={status.state} />
-        <span className="w-5 shrink-0 text-sm tabular-nums text-on-surface-variant">
+        <span className="w-5 shrink-0 text-sm tabular-nums text-ink-muted">
           <span className="sr-only">Unit </span>
           {number}
         </span>
 
         <span className="min-w-0 flex-1 sm:flex sm:items-center sm:gap-3">
           <span className="flex flex-wrap items-baseline gap-x-3 sm:min-w-0 sm:flex-1 sm:flex-nowrap">
-            <span className="font-bold text-on-surface sm:w-48 sm:shrink-0 lg:w-40 xl:w-48">
+            <span className="font-bold text-ink sm:w-48 sm:shrink-0 lg:w-40 xl:w-48">
               <JaText text={unit.title} />
             </span>
-            <span lang="ja" className="whitespace-nowrap font-jp text-base text-on-surface-variant sm:text-lg lg:text-base xl:text-lg">
+            <span lang="ja" className="whitespace-nowrap font-ja-display text-base text-ink-muted sm:text-lg lg:text-base xl:text-lg">
               {preview.text}
               {preview.truncated && <span aria-hidden>…</span>}
             </span>
@@ -80,7 +79,7 @@ export const UnitRow = memo(function UnitRow({ view, isNext, highlighted }: Unit
           <span
             className={cn(
               'mt-0.5 block whitespace-nowrap text-xs tabular-nums sm:mt-0 sm:shrink-0 sm:text-right sm:text-sm',
-              isNext ? 'font-semibold text-primary' : 'text-on-surface-variant',
+              isNext ? 'font-semibold text-primary' : 'text-ink-muted',
             )}
           >
             {unitStatusText(view, isNext)}
@@ -90,17 +89,17 @@ export const UnitRow = memo(function UnitRow({ view, isNext, highlighted }: Unit
         <span aria-hidden className="flex shrink-0">
           <Icon
             name="expand_more"
-            className={cn('text-xl text-on-surface-variant transition-transform duration-200 motion-reduce:transition-none', open && 'rotate-180')}
+            className={cn('text-xl text-ink-muted transition-transform duration-200 motion-reduce:transition-none', open && 'rotate-180')}
           />
         </span>
       </button>
       {open && accordion && (
-        <div id={panelId} role="region" aria-labelledby={`unit-${unit.id}`} className="border-t border-outline-variant/40 bg-surface">
+        <div id={panelId} role="region" aria-labelledby={`unit-${unit.id}`} className="border-t border-line bg-surface">
           <Suspense
             fallback={
               <LoadingState label="Loading the unit…" className="space-y-3 p-6">
-                <SkeletonBlock className="h-6 w-40 rounded-xl" />
-                <SkeletonBlock className="h-24 w-full rounded-2xl" />
+                <SkeletonBlock className="h-6 w-40 rounded-md" />
+                <SkeletonBlock className="h-24 w-full rounded-xl" />
               </LoadingState>
             }
           >

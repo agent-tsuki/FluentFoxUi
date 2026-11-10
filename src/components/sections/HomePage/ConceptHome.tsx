@@ -5,6 +5,7 @@ import { FallingPetals } from './FallingPetals'
 import { asset } from '@/lib/assets'
 import { HIGH_FETCH_PRIORITY } from '@/lib/fetchPriority'
 import { HowItWorks } from './HowItWorks'
+import { ScrollCue } from './ScrollCue'
 
 /**
  * A concept-led home page: the hero, then "How FoxSensei works", which explains
@@ -15,22 +16,23 @@ export function ConceptHome() {
   const { darkMode } = useUI()
 
   return (
-    <main className="concept-home overflow-x-clip bg-home-canvas text-home-ink">
-      <section id="top" className="relative isolate h-[100svh] min-h-[42rem] overflow-hidden bg-home-hero">
+    <main className="concept-home overflow-x-clip bg-surface text-ink">
+      <section id="top" className="relative isolate h-[100svh] min-h-[42rem] overflow-hidden bg-surface-sunken">
         <HeroImage scene={darkMode ? 'changes' : 'journey'} />
         <div className="concept-hero-wash absolute inset-0" />
         <FallingPetals />
+        <ScrollCue />
 
         <div className="relative z-10 mx-auto flex h-full max-w-[1440px] items-center px-6 pb-14 pt-nav sm:px-10 lg:px-[6%]">
           <div className="max-w-[46rem] pb-10 pt-6">
-            <p className="concept-eyebrow w-fit rounded-full border border-home-line-strong bg-home-tile/40 px-4 py-2 backdrop-blur-sm">A little curiosity goes a long way</p>
-            <h1 className="concept-display mt-8 text-[clamp(2.75rem,5vw,5rem)] leading-[1.06] tracking-[-.03em] text-home-ink">
+            <p className="concept-eyebrow w-fit rounded-sm border border-line-strong bg-surface-raised/40 px-4 py-2 backdrop-blur-sm">A little curiosity goes a long way</p>
+            <h1 className="concept-display mt-8 text-[clamp(2.75rem,5vw,5rem)] leading-[1.06] tracking-[-.03em] text-ink">
               <span className="block">A little Japanese.</span>
               <span className="block">
-                A whole <em className="not-italic text-home-accent">new world.</em>
+                A whole <em className="not-italic text-primary">new world.</em>
               </span>
             </h1>
-            <p className="mt-8 max-w-[31rem] text-base leading-7 text-home-muted sm:text-lg sm:leading-8">
+            <p className="mt-8 max-w-[31rem] text-base leading-7 text-ink-muted sm:text-lg sm:leading-8">
               From your first あ to the stories you’ve always wanted to understand. Your Japanese journey starts with one small discovery.
             </p>
             <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
@@ -38,7 +40,7 @@ export function ConceptHome() {
                 type="button"
                 onClick={startLearning}
                 {...prefetch}
-                className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-home-accent px-7 py-3 text-sm font-bold shadow-elevation-2 text-home-on-accent transition duration-200 hover:-translate-y-0.5 hover:bg-home-accent-hover focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-home-accent"
+                className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-primary px-7 py-3 text-sm font-bold shadow-elevation-2 text-on-primary transition duration-200 hover:-translate-y-0.5 hover:bg-primary-hover focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-primary"
               >
                 Find my starting point
                 <Icon name="arrow_forward" className="text-lg transition-transform duration-200 motion-safe:group-hover:translate-x-0.5" />
@@ -48,8 +50,8 @@ export function ConceptHome() {
                 <Icon name="south" className="text-base transition-transform duration-200 motion-safe:group-hover:translate-y-0.5" />
               </a>
             </div>
-            <p className="mt-10 flex items-center gap-3 text-xs tracking-wide text-home-subtle">
-              <span className="h-px w-8 bg-home-line-strong" aria-hidden="true" />
+            <p className="mt-10 flex items-center gap-3 text-xs tracking-wide text-ink-subtle">
+              <span className="h-px w-8 bg-line-strong" aria-hidden="true" />
               At your pace. On your own path.
             </p>
           </div>

@@ -45,9 +45,9 @@ export function ChannelIntroduction({ channel, courseSummary }: ChannelIntroduct
     <section id="teacher" aria-labelledby="channel-title" className="scroll-mt-40">
       <SectionTitle id="channel-title">{isYouTube ? 'About the teacher' : 'About the provider'}</SectionTitle>
 
-      <div className="overflow-hidden rounded-2xl border border-outline-variant/40 bg-surface-container-lowest">
+      <div className="overflow-hidden rounded-xl border border-line bg-surface-raised">
         {hasStrip && (
-          <div className="relative aspect-[4/1] w-full overflow-hidden bg-surface-container md:aspect-[6/1]">
+          <div className="relative aspect-[4/1] w-full overflow-hidden bg-surface-sunken md:aspect-[6/1]">
             {banner ? (
               <img
                 src={banner}
@@ -83,16 +83,16 @@ export function ChannelIntroduction({ channel, courseSummary }: ChannelIntroduct
           {/* relative z-10: the strip is positioned, so without this it paints over the avatar. */}
           <div className={cn('relative z-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between', hasStrip && '-mt-10 md:-mt-12')}>
             <div className="flex min-w-0 items-start gap-4">
-              <ChannelAvatar name={channel.name} avatarUrl={channel.avatarUrl} size="profile" loading="eager" className="ring-4 ring-surface-container-lowest" />
+              <ChannelAvatar name={channel.name} avatarUrl={channel.avatarUrl} size="profile" loading="eager" className="ring-4 ring-surface-raised" />
               {/* With a strip, the text starts below its bottom edge instead of over the image. */}
               <div className={cn('min-w-0', hasStrip ? 'pt-11 md:pt-14' : 'self-center')}>
-                <h3 className="font-headline text-lg font-extrabold text-on-surface md:text-xl">
+                <h3 className="font-display text-lg font-extrabold text-ink md:text-xl">
                   <span className="line-clamp-2">
                     {channel.name}
                     {isYouTube && <YouTubeLogo title="YouTube" className="ml-2 h-4 align-[-0.125em] md:h-5" />}
                   </span>
                 </h3>
-                {facts.length > 0 && <p className="break-words text-sm text-on-surface-variant">{facts.join(' · ')}</p>}
+                {facts.length > 0 && <p className="break-words text-sm text-ink-muted">{facts.join(' · ')}</p>}
               </div>
             </div>
             <ChannelActions channel={channel} />
@@ -100,10 +100,10 @@ export function ChannelIntroduction({ channel, courseSummary }: ChannelIntroduct
 
           {(channel.description || showIntro) && (
             <div className={cn('grid gap-6', showIntro && channel.description && 'md:grid-cols-[minmax(0,1fr)_18rem]')}>
-              {channel.description && <p className="max-w-prose text-sm leading-relaxed text-on-surface-variant md:text-base">{channel.description}</p>}
+              {channel.description && <p className="max-w-prose text-sm leading-relaxed text-ink-muted md:text-base">{channel.description}</p>}
               {showIntro && channel.introVideoId && (
                 <div className="space-y-2">
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">Channel introduction</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-ink-muted">Channel introduction</p>
                   <VideoEmbed youtubeId={channel.introVideoId} title={`${channel.name} — channel introduction`} />
                 </div>
               )}

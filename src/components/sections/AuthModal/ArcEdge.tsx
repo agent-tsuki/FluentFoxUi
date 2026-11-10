@@ -1,7 +1,7 @@
 import { cn } from '@/lib/cn'
 
 interface ArcEdgeProps {
-  /** Tailwind fill class matching the surface the arc caps, e.g. `fill-surface-container-lowest`. */
+  /** Tailwind fill class matching the surface the arc caps, e.g. `fill-surface-raised`. */
   fillClassName: string
   className?: string
 }

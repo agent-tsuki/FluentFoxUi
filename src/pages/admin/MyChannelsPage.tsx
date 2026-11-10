@@ -22,7 +22,7 @@ export function MyChannelsPage() {
         title="YouTube Channels"
         description="Channels you can edit. Changes go live as soon as you save them."
         actions={canCreate && (
-          <Link to="/admin/classes/channels/new" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 py-2 text-sm font-bold text-on-primary">
+          <Link to="/admin/classes/channels/new" className="inline-flex min-h-11 items-center gap-2 rounded-md bg-primary px-5 py-2 text-sm font-bold text-on-primary">
             <Icon name="add" className="text-base" /> Add channel
           </Link>
         )}
@@ -30,7 +30,7 @@ export function MyChannelsPage() {
       {isLoading ? (
         <LoadingState label="Loading channels…">
           <div className="grid gap-4 sm:grid-cols-2">
-            {[0, 1, 2, 3].map(i => <SkeletonBlock key={i} className="h-24 rounded-2xl" />)}
+            {[0, 1, 2, 3].map(i => <SkeletonBlock key={i} className="h-24 rounded-xl" />)}
           </div>
         </LoadingState>
       ) : error ? (

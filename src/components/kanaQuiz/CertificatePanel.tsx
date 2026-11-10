@@ -23,12 +23,12 @@ export function CertificatePanel({ className }: { className?: string }) {
   }
 
   return (
-    <section aria-labelledby="certificate-title" className={cn('rounded-2xl border border-outline-variant/40 bg-surface-container-low p-5', className)}>
+    <section aria-labelledby="certificate-title" className={cn('rounded-xl border border-line bg-surface-sunken p-5', className)}>
       <div className="flex items-start gap-3">
         <Icon name="verified" filled className="text-3xl text-primary" />
         <div>
-          <h2 id="certificate-title" className="font-headline text-lg font-bold text-on-surface">{script.certificateTitle}</h2>
-          <p className="text-sm text-on-surface-variant">
+          <h2 id="certificate-title" className="font-display text-lg font-bold text-ink">{script.certificateTitle}</h2>
+          <p className="text-sm text-ink-muted">
             Passed on {new Date(passedAt).toLocaleDateString(undefined, { dateStyle: 'long' })} · best score {Math.round(best * 100)}%
           </p>
         </div>

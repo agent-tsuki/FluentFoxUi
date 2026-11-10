@@ -118,7 +118,7 @@ export function ResetPasswordPage() {
             <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-6">
               <Icon name="password" className="text-3xl" />
             </div>
-            <h1 className="text-2xl font-headline font-bold text-on-surface tracking-tight">
+            <h1 className="text-2xl font-display font-bold text-ink tracking-tight">
               Choose a new password
             </h1>
           </div>
@@ -163,7 +163,7 @@ export function ResetPasswordPage() {
                 type="submit"
                 variant="primary"
                 disabled={submitting}
-                className="w-full py-3.5 font-headline disabled:opacity-60 disabled:cursor-wait disabled:scale-100"
+                className="w-full py-3.5 font-display disabled:opacity-60 disabled:cursor-wait disabled:scale-100"
               >
                 {submitting ? 'Resetting…' : 'Reset password'}
               </Button>

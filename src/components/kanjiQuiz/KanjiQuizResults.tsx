@@ -33,18 +33,18 @@ export function KanjiQuizResults({ answers, passMark, score, detail, breakdown, 
   return (
     <div className="flex flex-1 flex-col gap-6">
       <div role="status" className="flex flex-col items-center gap-3 pt-4 text-center">
-        <Icon name={passed === false ? 'school' : 'emoji_events'} className={cn('text-5xl', passed === false ? 'text-on-surface-variant' : 'text-primary')} />
-        <p className="font-headline text-5xl font-extrabold tabular-nums text-on-surface">{pct}%</p>
-        <p className="text-on-surface-variant">
+        <Icon name={passed === false ? 'school' : 'emoji_events'} className={cn('text-5xl', passed === false ? 'text-ink-muted' : 'text-primary')} />
+        <p className="font-display text-5xl font-extrabold tabular-nums text-ink">{pct}%</p>
+        <p className="text-ink-muted">
           {correct} of {total} correct
         </p>
         {passed !== undefined && passMark !== undefined && (
-          <p className={cn('inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-bold', passed ? 'bg-success/15 text-success' : 'bg-surface-container-high text-on-surface')}>
+          <p className={cn('inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-bold', passed ? 'bg-success/15 text-success' : 'bg-surface-hover text-ink')}>
             <Icon name={passed ? 'check_circle' : 'refresh'} filled={passed} className="text-lg" />
             {passed ? 'Passed' : `Not yet — ${Math.round(passMark * 100)}% to pass`}
           </p>
         )}
-        {detail && <div className="text-sm text-on-surface-variant">{detail}</div>}
+        {detail && <div className="text-sm text-ink-muted">{detail}</div>}
       </div>
 
       {breakdown}
@@ -59,8 +59,8 @@ export function KanjiQuizResults({ answers, passMark, score, detail, breakdown, 
 
 function MissedKanji({ kanji, title }: { kanji: KanjiEntry[]; title: string }) {
   return (
-    <section aria-labelledby="quiz-missed" className="rounded-2xl border border-outline-variant/40 bg-surface-container-low p-4">
-      <h3 id="quiz-missed" className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
+    <section aria-labelledby="quiz-missed" className="rounded-xl border border-line bg-surface-sunken p-4">
+      <h3 id="quiz-missed" className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
         {title}
       </h3>
       <ul className="flex flex-wrap gap-2">
@@ -68,12 +68,12 @@ function MissedKanji({ kanji, title }: { kanji: KanjiEntry[]; title: string }) {
           <li key={k.char}>
             <Link
               to={kanjiCharPath(k.char, k.jlpt)}
-              className="flex min-w-16 flex-col items-center rounded-xl bg-surface-container-lowest px-3 py-2 hover:bg-surface-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="flex min-w-16 flex-col items-center rounded-md bg-surface-raised px-3 py-2 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
-              <span lang="ja" className="font-jp text-3xl font-bold text-on-surface">
+              <span lang="ja" className="font-ja text-3xl font-bold text-ink">
                 {k.char}
               </span>
-              <span className="max-w-24 truncate text-xs text-on-surface-variant">{k.meanings[0]}</span>
+              <span className="max-w-24 truncate text-xs text-ink-muted">{k.meanings[0]}</span>
             </Link>
           </li>
         ))}

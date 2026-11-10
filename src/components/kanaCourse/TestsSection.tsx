@@ -22,10 +22,10 @@ export function TestsSection({ id, title, description, className, headerClassNam
   return (
     <section id={id} aria-labelledby={headingId} className={cn('scroll-mt-36', className)}>
       <div className={headerClassName}>
-        <h2 id={headingId} className="font-headline text-xl font-bold text-on-surface md:text-2xl">
+        <h2 id={headingId} className="font-display text-xl font-bold text-ink md:text-2xl">
           {title}
         </h2>
-        {description && <p className="mt-1 max-w-prose text-sm leading-relaxed text-on-surface-variant">{description}</p>}
+        {description && <p className="mt-1 max-w-prose text-sm leading-relaxed text-ink-muted">{description}</p>}
       </div>
       <div className={cn('mt-4', bodyClassName)}>{children}</div>
     </section>

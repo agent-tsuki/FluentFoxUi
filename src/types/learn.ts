@@ -7,7 +7,7 @@
 // ─── Enums (plan §3) ──────────────────────────────────────────────────────────
 
 export type LearningTrack = 'hiragana' | 'katakana' | 'kanji_n5' | 'vocab_n5' | 'grammar_n5'
-export type SrsItemType = 'kana' | 'kanji' | 'vocab' | 'grammar_sentence'
+export type SrsItemType = 'kana' | 'kanji' | 'vocab' | 'grammar_sentence' | 'grammar_exercise'
 export type CardFacet = 'recognition' | 'meaning' | 'reading' | 'writing'
 export type SessionKind = 'lesson' | 'review' | 'practice' | 'unit_quiz' | 'skip_test' | 'final_test'
 export type TestKind = 'unit_quiz' | 'skip' | 'final'
@@ -38,6 +38,14 @@ export type QuestionType =
   | 'grammar_gap_mcq'
   | 'grammar_gap_typed'
   | 'grammar_translate_mcq'
+  | 'exercise_true_false'
+  | 'exercise_transform'
+  | 'exercise_word_choice'
+  | 'exercise_picture'
+  | 'exercise_order'
+  | 'exercise_listen'
+  | 'exercise_reply'
+  | 'exercise_reading'
 
 export type GradeReason =
   | 'fast'
@@ -116,6 +124,27 @@ export interface LearnQuestion {
   is_leech?: boolean
   /** Grammar sentence questions only. The prompt is the sentence with {} at the gap (or read in full to translate). */
   sentence?: SentenceQuestion
+  /** Chapter exercise questions only. */
+  exercise?: ExerciseQuestion
+}
+
+/** What a chapter exercise shows besides its prompt. */
+export interface ExerciseQuestion {
+  /** True/false and reading: the text to read. */
+  lines?: string[]
+  /** Change the form: the sentence to change. */
+  source?: string
+  /** Change the form: what to do. */
+  task?: string
+  /** Picture questions. */
+  image?: string
+  alt?: string
+  /** Put in order: the words, scrambled. */
+  tiles?: string[]
+  /** Listening: the speech engine's cast key. */
+  voice?: string
+  /** Listening: what to speak where the engine misreads the prompt. */
+  say?: string
 }
 
 export interface SentenceQuestion {

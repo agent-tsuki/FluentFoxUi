@@ -12,7 +12,7 @@ export function WhatYouLearn({ items }: { items: string[] }) {
       <SectionTitle id="learn-title">What you'll learn</SectionTitle>
       <ul className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
         {items.map(item => (
-          <li key={item} className="flex items-start gap-3 text-sm leading-relaxed text-on-surface md:text-base">
+          <li key={item} className="flex items-start gap-3 text-sm leading-relaxed text-ink md:text-base">
             <span aria-hidden="true" className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
               <Icon name="check" className="text-base" />
             </span>
@@ -30,7 +30,7 @@ export function Curriculum({ sections }: { sections: ClassCurriculumSection[] })
   return (
     <section id="curriculum" aria-labelledby="curriculum-title" className="scroll-mt-40">
       <SectionTitle id="curriculum-title">Curriculum</SectionTitle>
-      <ol className={cn(DETAIL_CARD, 'divide-y divide-outline-variant/40 overflow-hidden')}>
+      <ol className={cn(DETAIL_CARD, 'divide-y divide-line overflow-hidden')}>
         {sections.map((section, i) => (
           <CurriculumItem key={section.title} section={section} index={i} />
         ))}
@@ -51,21 +51,21 @@ function CurriculumItem({ section, index }: { section: ClassCurriculumSection; i
         disabled={!hasTopics}
         aria-expanded={hasTopics ? open : undefined}
         aria-controls={hasTopics ? panelId : undefined}
-        className="flex min-h-14 w-full items-center gap-4 px-4 py-3 text-left transition-colors enabled:hover:bg-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary md:px-5"
+        className="flex min-h-14 w-full items-center gap-4 px-4 py-3 text-left transition-colors enabled:hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary md:px-5"
       >
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-container-high text-sm font-bold text-on-surface">{index + 1}</span>
-        <span className="flex-1 text-sm font-semibold text-on-surface md:text-base">{section.title}</span>
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-hover text-sm font-bold text-ink">{index + 1}</span>
+        <span className="flex-1 text-sm font-semibold text-ink md:text-base">{section.title}</span>
         {hasTopics && (
           <>
-            <span className="hidden text-xs text-on-surface-variant sm:block">{section.topics.length} topics</span>
-            <Icon name="expand_more" className={cn('text-xl text-on-surface-variant transition-transform duration-200', open && 'rotate-180')} />
+            <span className="hidden text-xs text-ink-muted sm:block">{section.topics.length} topics</span>
+            <Icon name="expand_more" className={cn('text-xl text-ink-muted transition-transform duration-200', open && 'rotate-180')} />
           </>
         )}
       </button>
       {open && (
         <ul id={panelId} className="space-y-2 pb-4 pl-16 pr-5">
           {section.topics.map(topic => (
-            <li key={topic} className="flex items-start gap-2 text-sm text-on-surface-variant">
+            <li key={topic} className="flex items-start gap-2 text-sm text-ink-muted">
               <Icon name="check" className="mt-0.5 shrink-0 text-base text-primary" />
               {topic}
             </li>

@@ -28,14 +28,14 @@ interface CloseButtonProps {
 }
 
 const toneClasses: Record<CloseButtonVariant, { icon: string; circle: string; chip?: string }> = {
-  plain:    { icon: 'text-on-surface-variant group-hover:text-on-surface', circle: 'bg-surface-container-high' },
+  plain:    { icon: 'text-ink-muted group-hover:text-ink', circle: 'bg-surface-hover' },
   floating: {
-    icon:   'text-on-surface-variant group-hover:text-on-surface',
-    circle: 'bg-surface-container-high',
-    chip:   'bg-surface-container-lowest/90 shadow-elevation-1 backdrop-blur-sm md:hidden',
+    icon:   'text-ink-muted group-hover:text-ink',
+    circle: 'bg-surface-hover',
+    chip:   'bg-surface-raised/90 shadow-elevation-1 backdrop-blur-sm md:hidden',
   },
   inverse:  { icon: 'text-on-surface-inverse-variant group-hover:text-on-surface-inverse', circle: 'bg-on-surface-inverse/15' },
-  danger:   { icon: 'text-on-surface-variant group-hover:text-error', circle: 'bg-error/10' },
+  danger:   { icon: 'text-ink-muted group-hover:text-error', circle: 'bg-error/10' },
 }
 
 // The hover circle grows in from the centre, and the X turns a quarter.

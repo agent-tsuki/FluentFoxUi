@@ -51,13 +51,13 @@ export function LoginCodeStep({ challenge, onSuccess, onResend, onBack }: LoginC
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="flex items-start gap-3 rounded-xl bg-primary/10 px-4 py-3 text-sm text-on-surface">
+      <div className="flex items-start gap-3 rounded-md bg-primary/10 px-4 py-3 text-sm text-ink">
         <Icon name="verified" className="text-xl text-primary shrink-0" />
         <div className="space-y-1">
           <p className="font-semibold">Confirm it&apos;s you</p>
-          <p className="text-xs text-on-surface-variant">
+          <p className="text-xs text-ink-muted">
             You&apos;re signing in through a VPN or proxy, so we can&apos;t tell where you really are. We sent a
-            6-digit code to <span className="font-semibold text-on-surface">{challenge.emailHint}</span>.
+            6-digit code to <span className="font-semibold text-ink">{challenge.emailHint}</span>.
           </p>
         </div>
       </div>
@@ -82,13 +82,13 @@ export function LoginCodeStep({ challenge, onSuccess, onResend, onBack }: LoginC
         type="submit"
         variant="primary"
         disabled={loading || code.length !== CODE_LENGTH}
-        className="w-full py-4 font-headline disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
+        className="w-full py-4 font-display disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
       >
         {loading ? 'Checking…' : 'Verify and sign in'}
       </Button>
 
-      <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider">
-        <button type="button" onClick={onBack} className="text-on-surface-variant hover:underline">
+      <div className="flex items-center justify-between text-xs font-bold uppercase tracking-[0.12em]">
+        <button type="button" onClick={onBack} className="text-ink-muted hover:underline">
           Back
         </button>
         <button type="button" onClick={handleResend} disabled={resending} className="text-primary hover:underline disabled:opacity-60">

@@ -13,7 +13,7 @@ export function Eyebrow({ children, variant = 'plain', className = '' }: Eyebrow
     return (
       <span
         className={cn(
-          'inline-block bg-primary/10 text-primary text-2xs font-semibold uppercase tracking-[0.18em] px-4 py-1.5 rounded-full border border-primary/20 mb-4',
+          'mb-4 inline-block rounded-sm bg-primary-soft px-2 py-0.5 text-eyebrow uppercase text-primary-ink',
           className
         )}
       >
@@ -25,7 +25,7 @@ export function Eyebrow({ children, variant = 'plain', className = '' }: Eyebrow
   return (
     <span
       className={cn(
-        'text-xs font-bold tracking-[0.18em] uppercase text-primary font-label block mb-2',
+        'mb-2 block text-eyebrow uppercase text-ink-muted',
         className
       )}
     >
@@ -65,7 +65,7 @@ export function SectionHeader({
         </Eyebrow>
       )}
       <h2 className={cn(
-        'font-headline font-extrabold tracking-tight text-on-surface',
+        'font-display font-extrabold tracking-tight text-ink',
         eyebrowVariant === 'pill' ? 'text-display-md' : 'text-display-sm',
         titleClassName
       )}>
@@ -73,7 +73,7 @@ export function SectionHeader({
       </h2>
       {description && (
         <p className={cn(
-          'text-base text-on-surface-variant font-body',
+          'text-base text-ink-muted font-sans',
           isCenter ? 'max-w-2xl mx-auto' : 'max-w-xl',
           descriptionClassName
         )}>

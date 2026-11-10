@@ -53,15 +53,15 @@ function WorksheetRow({ unit, number, levelTitle, pdfSlug, onDone }: WorksheetRo
         type="button"
         onClick={download}
         disabled={state === 'busy'}
-        className="group flex min-h-16 w-full items-center gap-3 px-3 py-3 text-left hover:bg-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary disabled:opacity-70 sm:gap-4 sm:px-4"
+        className="group flex min-h-16 w-full items-center gap-3 px-3 py-3 text-left hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary disabled:opacity-70 sm:gap-4 sm:px-4"
       >
-        <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-container text-sm font-bold tabular-nums text-on-surface-variant dark:bg-surface-container-high">
+        <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-surface-sunken text-sm font-bold tabular-nums text-ink-muted dark:bg-surface-hover">
           {number}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block font-bold text-on-surface">{unit.title}</span>
-          <span className="block text-xs text-on-surface-variant">
-            <span lang="ja" className="font-jp">{unit.kanji.join(' ')}</span>
+          <span className="block font-bold text-ink">{unit.title}</span>
+          <span className="block text-xs text-ink-muted">
+            <span lang="ja" className="font-ja">{unit.kanji.join(' ')}</span>
             {state === 'error' && <span className="ml-2 font-semibold text-error">Couldn’t make the PDF. Try again.</span>}
           </span>
         </span>

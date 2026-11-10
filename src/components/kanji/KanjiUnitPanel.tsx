@@ -51,8 +51,8 @@ export function KanjiUnitPanel({ unit, number, onStartQuiz, onStartPractice }: K
   if (isLoading) {
     return (
       <LoadingState label="Loading the unit…" className="space-y-3 p-6">
-        <SkeletonBlock className="h-6 w-40 rounded-xl" />
-        <SkeletonBlock className="h-24 w-full rounded-2xl" />
+        <SkeletonBlock className="h-6 w-40 rounded-md" />
+        <SkeletonBlock className="h-24 w-full rounded-xl" />
       </LoadingState>
     )
   }
@@ -71,14 +71,14 @@ export function KanjiUnitPanel({ unit, number, onStartQuiz, onStartPractice }: K
               <button
                 type="button"
                 onClick={() => onStartPractice(mode.id)}
-                className="flex min-h-14 w-full items-center gap-3 rounded-2xl border border-outline-variant/60 bg-surface-container-lowest px-3 py-2 text-left hover:bg-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:bg-surface-container-low"
+                className="flex min-h-14 w-full items-center gap-3 rounded-xl bg-surface-raised shadow-elevation-1 px-3 py-2 text-left hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10">
                   <Icon name={mode.icon} className="text-xl text-primary" />
                 </span>
                 <span className="min-w-0">
-                  <span className="block text-sm font-semibold text-on-surface">{mode.title}</span>
-                  <span className="block text-xs text-on-surface-variant">{mode.summary}</span>
+                  <span className="block text-sm font-semibold text-ink">{mode.title}</span>
+                  <span className="block text-xs text-ink-muted">{mode.summary}</span>
                 </span>
               </button>
             </li>
@@ -96,13 +96,13 @@ export function KanjiUnitPanel({ unit, number, onStartQuiz, onStartPractice }: K
   return (
     <div className="space-y-4 px-3 pb-3 pt-3 sm:px-5">
       {skipped && (
-        <p className="flex items-center gap-2 rounded-xl bg-secondary-container px-3 py-2 text-sm text-on-secondary-container">
+        <p className="flex items-center gap-2 rounded-md bg-secondary-container px-3 py-2 text-sm text-on-secondary-container">
           <Icon name="verified" className="text-lg" />
           <span className="min-w-0 flex-1">You tested out of this unit.</span>
           <button
             type="button"
             onClick={() => store.undoSkip(unit.id)}
-            className="min-h-10 rounded-lg px-2 font-bold underline underline-offset-2 hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="min-h-10 rounded-sm px-2 font-bold underline underline-offset-2 hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             Undo
           </button>

@@ -1,6 +1,7 @@
 # FluentFoxUi — UI/UX Standards ("how the UI/UX must be")
 
-> The reference for **visual design and user experience** in this app. Pairs with
+> The reference for **visual design and user experience** in this app. The source of truth for
+> tokens and components is the FoxSensei design system (`tailwind.config.ts` + `src/index.css`). Pairs with
 > `docs/FRONTEND_STANDARDS.md` (how to write the code) — this doc is about how it must **look and
 > feel**: premium, minimal, authentic, responsive, accessible. The UI/UX agents
 > (`ui-ux-reviewer`, `responsive-auditor`) enforce this.
@@ -29,9 +30,11 @@ No raw hex/`rgb()`/px colors in components. Dark mode is a first-class theme, no
 
 ## 1. Color & theming
 
-- **Tokens only.** Use `surface`, `surface-container-*`, `on-surface`, `on-surface-variant`,
-  `primary`, `outline`, `outline-variant`. Never inline hex (the Hero trust avatars, StatsBar,
-  HowItWorks, Courses currently violate this).
+- **Tokens only.** Grounds: `surface` (page), `surface-raised` (cards, sheets, menus), `surface-sunken`
+  (wells, inputs, tracks), `surface-hover`. Text: `ink`, `ink-muted`, `ink-subtle`. Lines: `line`
+  (hairline), `line-strong` (controls, 3:1). Accent: `primary`, `primary-hover`, `on-primary`,
+  `primary-soft`, `primary-ink`. Calm second hue: `leaf`. Status: `success`, `warning`, `info`,
+  `danger`, each with `-soft` and `-ink`. **Never put opacity on text.**
 - **Dark-mode parity rules:**
   - Never `bg-white`/`text-black`/`bg-black` in components — use surface/on-surface tokens.
   - Never build a "dark panel" with `bg-on-surface` + `text-inverse-on-surface` (those flip in dark
@@ -58,8 +61,10 @@ No raw hex/`rgb()`/px colors in components. Dark mode is a first-class theme, no
 
 ## 3. Typography
 
-- **Families:** `font-headline` (Plus Jakarta Sans) for display/headings, `font-body` (Inter) for
-  everything else. `.japanese-text` stack for Japanese.
+- **Families:** `font-display` (Plus Jakarta Sans) for headings, `font-sans` (DM Sans) for UI and prose,
+  `font-ja` (Noto Sans JP) for Japanese content, `font-ja-display` (Zen Maru Gothic, a glyph subset) only
+  for big display kana. Scale: `text-display`, `h1`, `h2`, `h3`, `body-lg`, `body`, `label`, `caption`,
+  `eyebrow`, `ja-lg`, `ja-md`, `ja-sm`.
 - **Type scale — use the named steps, not arbitrary values.** Replace the 80+ `text-[9px]/[10px]/
   [11px]` usages with `text-xs` (12px) or one defined `text-2xs` (≈11px) for genuine chrome only.
   Minimum on-screen text is **12px** (labels) / **16px** (body). Legal/footnote ≥ 12px.
@@ -77,17 +82,15 @@ No raw hex/`rgb()`/px colors in components. Dark mode is a first-class theme, no
 - **Consistent section rhythm:** one vertical spacing for major sections (e.g. `py-20 md:py-28`),
   applied uniformly (today `py-16/20/24` are mixed).
 - **One nav-height token.** The fixed navbar height is currently guessed as `68px`/`73px`/`pt-24/28/32`
-  in different files. Pin a single value (e.g. `h-16` = 64px) and consume it via `pt-16` /
+  in different files. It is pinned at 64px (`h-nav`) and consume it via `pt-16` /
   `scroll-mt-16` everywhere. Add `viewport-fit=cover` + `env(safe-area-inset-top)` on the fixed nav.
 - Content max width: `max-w-7xl mx-auto` with responsive gutters (`px-6 md:px-10`).
 
 ## 5. Shape & radius
 
-- **Fix the radius scale** (currently `rounded-full` = 12px, which squares off every circle/pill and
-  even the loading spinners). Make it **monotonic** and set `full` back to `9999px`:
-  `sm` 6 · `md`/`lg` 10–12 · `xl` 16 · `2xl` 20 · `full` 9999.
-- **Shape intent:** circles (avatars, icon badges, spinners) = `rounded-full`; pills/chips =
-  `rounded-full`; cards/panels = `rounded-2xl`; inputs/buttons = `rounded-xl`. Consistent everywhere.
+- **Radius scale:** `sm` 4 (badges) < `md` 8 (buttons, inputs, rows) < `lg` 12 (cards, callouts, wells)
+  < `xl` 16 (sheets, sidebars) < `full` (circles).
+- A border **or** a shadow, never both. No coloured left stripes, gradients or glass on lesson surfaces.
 
 ## 6. Iconography
 

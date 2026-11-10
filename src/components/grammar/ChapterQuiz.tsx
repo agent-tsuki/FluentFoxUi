@@ -2,10 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { PracticeShellFill } from '@/components/practice/PracticeShell'
 import { TestGate } from '@/components/learnSession/TestGate'
 import { TestRunner } from '@/components/testCenter/TestRunner'
+import { TestSheet } from '@/components/testCenter/TestSheet'
 import { TestResults } from '@/components/testCenter/TestResults'
 import { TextButton } from '@/components/ui/TextLink'
 import { Icon } from '@/components/ui/Icon'
-import type { AnswerTimerControls } from '@/hooks/useAnswerTimer'
+import type { AnswerBuilder } from '@/hooks/useStudyRecorder'
 import { useLearnTest } from '@/hooks/useLearnTest'
 import { useLearningSettings } from '@/hooks/useLearningSettings'
 import { chapterAnswer, chapterTestQuestions, type ChapterQuestions } from '@/lib/learn/chapterQuestions'
@@ -22,6 +23,10 @@ interface ChapterQuizProps {
   onExit: () => void
   /** Once the server has recorded an attempt (refresh the chapter's progress). */
   onRecorded?: (passed: boolean) => void
+  /** Wait after every answer, so each explanation can be read. */
+  pauseOnRight?: boolean
+  /** Every question on one page, checked together (see TestSheet). */
+  sheet?: boolean
 }
 
 /**
@@ -30,7 +35,7 @@ interface ChapterQuizProps {
  * the chapter's cards, so taking it puts its words and sentences into
  * reviews. Leaving part way still records the attempt.
  */
-export function ChapterQuiz({ track, chapterSlug, title, onExit, onRecorded }: ChapterQuizProps) {
+export function ChapterQuiz({ track, chapterSlug, title, onExit, onRecorded, pauseOnRight, sheet }: ChapterQuizProps) {
   const { settings } = useLearningSettings()
   const passMark = (settings?.chapter_pass_pct ?? DEFAULT_LEARNING_SETTINGS.chapter_pass_pct) / PERCENT
   const [built, setBuilt] = useState<ChapterQuestions | null>(null)
@@ -47,7 +52,7 @@ export function ChapterQuiz({ track, chapterSlug, title, onExit, onRecorded }: C
   const total = built?.questions.length ?? 0
 
   const save = useCallback(
-    (question: TestQuestion, given: string, timer: AnswerTimerControls) => {
+    (question: TestQuestion, given: string, timer: AnswerBuilder) => {
       const card = built?.cards.get(question.id)
       if (!card) return
       answered.current += 1
@@ -78,6 +83,28 @@ export function ChapterQuiz({ track, chapterSlug, title, onExit, onRecorded }: C
     return <TestGate test={test} questionCount={total} title={title} onExit={onExit} />
   }
 
+  const verdict = <ServerVerdict check={check} passMark={passMark} things={track === 'vocab_n5' ? 'words' : 'sentences'} onRetry={test.retryCheck} />
+
+  if (sheet) {
+    return (
+      <PracticeShellFill.Provider value={false}>
+        <div className="py-4">
+          <TestSheet
+            key={test.session.session.id}
+            title={title}
+            questions={built.questions}
+            onAnswer={save}
+            onCheck={finish}
+            onExit={onExit}
+            onAgain={test.retake}
+            doneLabel="Back to the chapter"
+            status={answers ? verdict : undefined}
+          />
+        </div>
+      </PracticeShellFill.Provider>
+    )
+  }
+
   return (
     <PracticeShellFill.Provider value={false}>
       <div className="py-4">
@@ -89,6 +116,7 @@ export function ChapterQuiz({ track, chapterSlug, title, onExit, onRecorded }: C
             onAnswer={save}
             onFinish={finish}
             onExit={leave}
+            pauseOnRight={pauseOnRight}
             leaveNote="Leaving still counts this attempt; questions not answered score as wrong."
           />
         ) : (
@@ -99,7 +127,7 @@ export function ChapterQuiz({ track, chapterSlug, title, onExit, onRecorded }: C
             againLabel="Try again"
             onDone={onExit}
             doneLabel="Back to the chapter"
-            status={<ServerVerdict check={check} passMark={passMark} things={track === 'vocab_n5' ? 'words' : 'sentences'} onRetry={test.retryCheck} />}
+            status={verdict}
           />
         )}
       </div>
@@ -126,14 +154,14 @@ function ServerVerdict({ check, passMark, things, onRetry }: ServerVerdictProps)
       </p>
     )
   }
-  if (check.state !== 'done') return <p className="mx-auto mt-2 max-w-sm text-sm text-on-surface-variant">Saving your result…</p>
+  if (check.state !== 'done') return <p className="mx-auto mt-2 max-w-sm text-sm text-ink-muted">Saving your result…</p>
   const { passed } = check.outcome
   return (
     <p
       className={
         passed
           ? 'mx-auto mt-2 flex max-w-sm items-center justify-center gap-1.5 text-sm font-semibold text-success'
-          : 'mx-auto mt-2 max-w-sm text-sm text-on-surface-variant'
+          : 'mx-auto mt-2 max-w-sm text-sm text-ink-muted'
       }
     >
       {passed && <Icon name="check_circle" filled className="text-lg" />}

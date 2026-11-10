@@ -26,8 +26,8 @@ export const CourseCard = memo(function CourseCard({ course, className, priority
     <Link
       to={`/classes/${course.slug}`}
       className={cn(
-        'group flex h-full flex-col overflow-hidden rounded-xl border border-outline-variant/40 bg-surface-container-lowest',
-        'transition-colors duration-200 hover:border-outline',
+        'group flex h-full flex-col overflow-hidden rounded-md border border-line bg-surface-raised',
+        'transition-colors duration-200 hover:border-line-strong',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
         className,
       )}
@@ -35,14 +35,14 @@ export const CourseCard = memo(function CourseCard({ course, className, priority
       <CardMedia course={course} length={length} priority={priority} />
 
       <div className="space-y-2 p-3">
-        <h3 className="line-clamp-2 font-headline text-sm font-bold leading-snug text-on-surface">{course.title}</h3>
+        <h3 className="line-clamp-2 font-display text-sm font-bold leading-snug text-ink">{course.title}</h3>
 
         <div className="flex min-w-0 items-center gap-2">
           <ChannelAvatar name={course.channel.name} avatarUrl={course.channel.avatarUrl} size="sm" />
-          <span className="truncate text-xs text-on-surface-variant">{course.channel.name}</span>
+          <span className="truncate text-xs text-ink-muted">{course.channel.name}</span>
         </div>
 
-        <p className="flex h-4 items-center gap-1.5 text-xs text-on-surface-variant">
+        <p className="flex h-4 items-center gap-1.5 text-xs text-ink-muted">
           {course.platform === 'youtube' ? <YouTubeLogo className="h-3" /> : <Icon name={meta.icon} className="text-sm" />}
           {meta.label}
           <span aria-hidden="true">·</span>
@@ -62,7 +62,7 @@ export const CourseCard = memo(function CourseCard({ course, className, priority
 /** Always 16:9 so card rows line up, with or without a thumbnail. */
 function CardMedia({ course, length, priority }: { course: ClassCourseCard; length: string; priority: boolean }) {
   return (
-    <div className="relative aspect-video w-full overflow-hidden bg-surface-container-high">
+    <div className="relative aspect-video w-full overflow-hidden bg-surface-hover">
       {course.thumbnailUrl ? (
         <img
           src={course.thumbnailUrl}
@@ -76,7 +76,7 @@ function CardMedia({ course, length, priority }: { course: ClassCourseCard; leng
         />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center">
-          <Icon name={PLATFORM_META[course.platform].icon} className="text-4xl text-on-surface-variant/60" />
+          <Icon name={PLATFORM_META[course.platform].icon} className="text-4xl text-ink-subtle" />
         </div>
       )}
       {length && (

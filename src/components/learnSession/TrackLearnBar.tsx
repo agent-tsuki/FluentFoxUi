@@ -23,10 +23,10 @@ export function TrackLearnBar({ track, className }: TrackLearnBarProps) {
   return (
     <section
       aria-label={`${TRACK_LABEL[track]} reviews and lessons`}
-      className={cn('flex flex-col gap-3 rounded-2xl bg-surface-container-low p-4 sm:flex-row sm:items-center', className)}
+      className={cn('flex flex-col gap-3 rounded-xl bg-surface-sunken p-4 sm:flex-row sm:items-center', className)}
     >
-      <p className="flex-1 text-sm tabular-nums text-on-surface-variant">
-        <strong className="text-on-surface">{due > 0 ? `${due} review${due === 1 ? '' : 's'} due` : 'No reviews due'}</strong>
+      <p className="flex-1 text-sm tabular-nums text-ink-muted">
+        <strong className="text-ink">{due > 0 ? `${due} review${due === 1 ? '' : 's'} due` : 'No reviews due'}</strong>
         {' · '}
         {summary.new_left_today} new left today
       </p>

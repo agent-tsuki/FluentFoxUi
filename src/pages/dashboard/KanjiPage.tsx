@@ -27,7 +27,7 @@ function KanjiSkillSplit() {
                   { key: 'reading', label: 'Reading (漢字 → kana)', share: reading / PERCENT, display: `${Math.round(reading)}%`, fill: 'bg-chart-1' },
                 ]}
               />
-              <p className="text-sm text-on-surface-variant">
+              <p className="text-sm text-ink-muted">
                 {meaning === 0 && reading === 0
                   ? 'Answer some kanji cards to compare the two.'
                   : gap < 5

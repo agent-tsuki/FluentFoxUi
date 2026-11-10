@@ -56,12 +56,12 @@ export function TestResults({
     <PracticeShell title={title} progress={1} onExit={onDone}>
       <div className="pt-8 sm:pt-12">
         <div className="text-center">
-          <p className="font-headline text-6xl font-extrabold tabular-nums text-on-surface">
+          <p className="font-display text-6xl font-extrabold tabular-nums text-ink">
             {right}
-            <span className="text-3xl text-on-surface-variant">/{total}</span>
+            <span className="text-3xl text-ink-muted">/{total}</span>
           </p>
-          <p className={cn('mt-2 text-lg font-bold', ratio >= 0.8 ? 'text-success' : 'text-on-surface')}>{Math.round(ratio * 100)}%</p>
-          {status ?? <p className="mx-auto mt-2 max-w-sm text-sm text-on-surface-variant">{verdict(ratio)}</p>}
+          <p className={cn('mt-2 text-lg font-bold', ratio >= 0.8 ? 'text-success' : 'text-ink')}>{Math.round(ratio * 100)}%</p>
+          {status ?? <p className="mx-auto mt-2 max-w-sm text-sm text-ink-muted">{verdict(ratio)}</p>}
         </div>
 
         <div className="mt-8 flex flex-col items-center gap-3">
@@ -83,7 +83,7 @@ export function TestResults({
 
         {missed.length > 0 && (
           <section aria-labelledby="missed-title" className="mt-10">
-            <h2 id="missed-title" className="mb-3 font-headline text-lg font-bold text-on-surface">
+            <h2 id="missed-title" className="mb-3 font-display text-lg font-bold text-ink">
               To go over
             </h2>
             <ul className="space-y-3">
@@ -92,29 +92,29 @@ export function TestResults({
                 return (
                   <li
                     key={question.id}
-                    className="rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-4 dark:border-outline/60 dark:bg-surface-container-low"
+                    className="rounded-xl border border-line bg-surface-raised p-4"
                   >
-                    <p className="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-muted">
                       {question.label ?? formatDef(question.format).title}
                     </p>
                     <p
                       lang={hasJapanese(prompt) ? 'ja' : undefined}
-                      className={cn('mt-1 text-lg font-semibold text-on-surface', hasJapanese(prompt) && 'font-jp')}
+                      className={cn('mt-1 text-lg font-semibold text-ink', hasJapanese(prompt) && 'font-ja')}
                     >
                       {prompt}
                     </p>
-                    {question.translation && <p className="text-sm text-on-surface-variant">{question.translation}</p>}
+                    {question.translation && <p className="text-sm text-ink-muted">{question.translation}</p>}
                     <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
-                      <dt className="text-on-surface-variant">You</dt>
+                      <dt className="text-ink-muted">You</dt>
                       <dd lang={hasJapanese(given) ? 'ja' : undefined} className="text-error line-through decoration-error/60">
                         {given || '—'}
                       </dd>
-                      <dt className="text-on-surface-variant">Answer</dt>
+                      <dt className="text-ink-muted">Answer</dt>
                       <dd lang={hasJapanese(question.answer) ? 'ja' : undefined} className="font-semibold text-success">
                         {question.answer}
                       </dd>
                     </dl>
-                    {question.explanation && <p className="mt-2 text-sm text-on-surface-variant">{question.explanation}</p>}
+                    {question.explanation && <p className="mt-2 text-sm text-ink-muted">{question.explanation}</p>}
                   </li>
                 )
               })}

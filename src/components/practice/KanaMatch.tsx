@@ -219,15 +219,15 @@ function MatchSession({ pairs, focusIds, script, priorityIds, onAnswer, onExit, 
       onExit={onExit}
     >
       <p className="sr-only" aria-live="polite">{announcement}</p>
-      <p className="mb-3 text-center text-sm text-on-surface-variant">
+      <p className="mb-3 text-center text-sm text-ink-muted">
         Tap a kana, then its twin in the other script.
       </p>
 
       <div ref={gridRef} className="grid grid-cols-2 gap-3 sm:gap-4">
         {SIDES.map((side) => (
           <div key={side} role="group" aria-label={SIDE_LABEL[side].label} className="flex flex-col gap-2">
-            <p className="text-center text-xs font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
-              <span lang="ja" className="font-jp normal-case tracking-normal">{SIDE_LABEL[side].native}</span>
+            <p className="text-center text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
+              <span lang="ja" className="font-ja-display normal-case tracking-normal">{SIDE_LABEL[side].native}</span>
               <span className="sr-only"> ({SIDE_LABEL[side].label})</span>
             </p>
             {(side === 'hiragana' ? round.left : round.right).map((pair) => (
@@ -248,13 +248,13 @@ function MatchSession({ pairs, focusIds, script, priorityIds, onAnswer, onExit, 
       {/* Twin tip (fixed height so the grid doesn't move) */}
       <div className="mt-4 min-h-20" aria-hidden="true">
         {twin && (
-          <div className="flex items-start gap-3 rounded-2xl bg-surface-container-low p-3">
-            <span lang="ja" className="shrink-0 font-jp text-2xl font-bold text-on-surface">
+          <div className="flex items-start gap-3 rounded-xl bg-surface-sunken p-3">
+            <span lang="ja" className="shrink-0 font-ja-display text-2xl font-bold text-ink">
               {twin.hiragana}
-              <span className="mx-1 text-base text-on-surface-variant">↔</span>
+              <span className="mx-1 text-base text-ink-muted">↔</span>
               {twin.katakana}
             </span>
-            <p className="text-sm leading-snug text-on-surface">
+            <p className="text-sm leading-snug text-ink">
               <span className="font-semibold text-primary">Look-alike twins. </span>
               {twin.tip}
             </p>
@@ -269,7 +269,7 @@ function MatchSession({ pairs, focusIds, script, priorityIds, onAnswer, onExit, 
             <Icon name="arrow_forward" className="text-xl" />
           </Button>
         ) : (
-          <p className="text-center text-sm tabular-nums text-on-surface-variant">
+          <p className="text-center text-sm tabular-nums text-ink-muted">
             {matched.size} of {round.pairs.length} pairs
           </p>
         )}

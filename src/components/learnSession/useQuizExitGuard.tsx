@@ -100,7 +100,7 @@ interface LeaveQuizPromptProps {
 function LeaveQuizPrompt({ answered, total, onStay, onLeave }: LeaveQuizPromptProps) {
   const titleId = useId()
   return (
-    <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-container-lowest/85 p-4 backdrop-blur-sm">
+    <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-raised/85 p-4 backdrop-blur-sm">
       <div
         role="alertdialog"
         aria-modal="true"
@@ -110,12 +110,12 @@ function LeaveQuizPrompt({ answered, total, onStay, onLeave }: LeaveQuizPromptPr
           e.stopPropagation()
           onStay()
         }}
-        className="w-full max-w-sm rounded-2xl border border-outline-variant/50 bg-surface-container-lowest p-5 shadow-elevation-3"
+        className="w-full max-w-sm rounded-xl border border-line bg-surface-raised p-5 shadow-elevation-3"
       >
-        <h2 id={titleId} className="font-headline text-lg font-bold text-on-surface">
+        <h2 id={titleId} className="font-display text-lg font-bold text-ink">
           Leave the quiz?
         </h2>
-        <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">
+        <p className="mt-2 text-sm leading-relaxed text-ink-muted">
           You’ve answered {answered} of {total}. Leaving now scores this attempt as it is, with the unanswered questions
           counted as wrong. Your best score stays.
         </p>

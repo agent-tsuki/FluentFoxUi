@@ -5,21 +5,21 @@ export function ClassDetailSkeleton() {
   return (
     <LoadingState label="Loading course…" className="mx-auto max-w-6xl space-y-10 px-4 pt-6 sm:px-6 md:px-10">
       <div className="space-y-3">
-        <SkeletonBlock className="h-4 w-24 rounded-xl" />
+        <SkeletonBlock className="h-4 w-24 rounded-md" />
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-center lg:gap-12">
           <div className="space-y-3">
-            <SkeletonBlock className="h-4 w-56 rounded-xl" />
-            <SkeletonBlock className="h-10 w-3/4 rounded-xl" />
-            <SkeletonBlock className="h-5 w-48 rounded-xl" />
-            <SkeletonBlock className="h-4 w-2/3 rounded-xl" />
-            <SkeletonBlock className="h-11 w-64 rounded-xl" />
+            <SkeletonBlock className="h-4 w-56 rounded-md" />
+            <SkeletonBlock className="h-10 w-3/4 rounded-md" />
+            <SkeletonBlock className="h-5 w-48 rounded-md" />
+            <SkeletonBlock className="h-4 w-2/3 rounded-md" />
+            <SkeletonBlock className="h-11 w-64 rounded-md" />
           </div>
-          <SkeletonBlock className="order-first aspect-video w-full rounded-2xl lg:order-none" />
+          <SkeletonBlock className="order-first aspect-video w-full rounded-xl lg:order-none" />
         </div>
       </div>
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <SkeletonBlock className="h-48 w-full rounded-2xl" />
-        <SkeletonBlock className="hidden h-48 w-full rounded-2xl lg:block" />
+        <SkeletonBlock className="h-48 w-full rounded-xl" />
+        <SkeletonBlock className="hidden h-48 w-full rounded-xl lg:block" />
       </div>
     </LoadingState>
   )

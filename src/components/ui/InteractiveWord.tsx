@@ -84,8 +84,8 @@ export function InteractiveWord({ kanji, reading, meaning, showAll = false }: In
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 4, scale: 0.95 }}
             style={{ transformOrigin: 'bottom center', display: 'block' }}
-            className={`px-4 py-2.5 rounded-xl shadow-elevation-2 border border-outline-variant/20 backdrop-blur-md whitespace-nowrap text-sm flex flex-col items-center gap-1 min-w-max relative ${
-              isAnataTrap ? 'bg-error text-white' : 'bg-surface-container-highest/95 text-on-surface'
+            className={`px-4 py-2.5 rounded-md shadow-elevation-2 border border-line backdrop-blur-md whitespace-nowrap text-sm flex flex-col items-center gap-1 min-w-max relative ${
+              isAnataTrap ? 'bg-error text-white' : 'bg-surface-hover/95 text-ink'
             }`}
           >
             <span className="text-2xs uppercase tracking-[0.2em] opacity-80 font-black leading-none">
@@ -93,7 +93,7 @@ export function InteractiveWord({ kanji, reading, meaning, showAll = false }: In
             </span>
             <span className="font-bold text-base">{meaning}</span>
             <div className={`absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-transparent ${
-              isAnataTrap ? 'border-t-error' : 'border-t-surface-container-highest'
+              isAnataTrap ? 'border-t-error' : 'border-t-surface-hover'
             }`} />
           </motion.span>
         </div>
@@ -116,7 +116,7 @@ export function InteractiveWord({ kanji, reading, meaning, showAll = false }: In
       onKeyDown={handleKeyDown}
     >
       <span className={`border-b-2 border-dotted pb-0.5 font-bold tracking-wider transition-all duration-300 ${
-        isAnataTrap && visible ? 'border-error text-error scale-110' : 'border-primary text-on-surface'
+        isAnataTrap && visible ? 'border-error text-error scale-110' : 'border-primary text-ink'
       }`}>
         {kanji}
       </span>

@@ -41,7 +41,7 @@ export function ChannelAvatar({ name, avatarUrl, size = 'md', loading = 'lazy', 
         loading={loading}
         referrerPolicy="no-referrer"
         onError={() => setFailedUrl(avatarUrl)}
-        className={cn('shrink-0 rounded-full bg-surface-container-high object-cover', s.box, className)}
+        className={cn('shrink-0 rounded-full bg-surface-hover object-cover', s.box, className)}
       />
     )
   }
@@ -49,7 +49,7 @@ export function ChannelAvatar({ name, avatarUrl, size = 'md', loading = 'lazy', 
     <span
       aria-hidden="true"
       className={cn(
-        'flex shrink-0 items-center justify-center rounded-full bg-surface-container-high font-headline font-extrabold text-on-surface-variant',
+        'flex shrink-0 items-center justify-center rounded-full bg-surface-hover font-display font-extrabold text-ink-muted',
         s.box,
         s.text,
         className,

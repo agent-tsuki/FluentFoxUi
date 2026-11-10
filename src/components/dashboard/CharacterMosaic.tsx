@@ -39,7 +39,7 @@ export const CharacterMosaic = memo(function CharacterMosaic({ items, name }: Ch
               onClick={() => setOnly(pressed ? null : level)}
               className={cn(
                 'flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-40',
-                pressed ? 'border-on-surface bg-on-surface text-surface' : 'border-outline-variant/70 text-on-surface-variant hover:text-on-surface',
+                pressed ? 'border-ink bg-ink text-surface' : 'border-line text-ink-muted hover:text-ink',
               )}
             >
               <span aria-hidden className={cn('h-2.5 w-2.5 rounded-full', MASTERY_TONE[level].fill)} />
@@ -54,7 +54,7 @@ export const CharacterMosaic = memo(function CharacterMosaic({ items, name }: Ch
           <li
             key={item.item_id}
             title={`${item.char} · ${MASTERY_LABEL[item.level]}`}
-            className={cn('flex aspect-square items-center justify-center rounded-lg border font-jp text-lg text-on-surface', MASTERY_TONE[item.level].soft)}
+            className={cn('flex aspect-square items-center justify-center rounded-sm border font-ja text-lg text-ink', MASTERY_TONE[item.level].soft)}
           >
             <span aria-hidden>{item.char}</span>
             <span className="sr-only">{`${item.char}: ${MASTERY_LABEL[item.level]}`}</span>

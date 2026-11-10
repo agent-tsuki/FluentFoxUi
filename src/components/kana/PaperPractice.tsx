@@ -14,22 +14,22 @@ const REPS = 10
 export function PaperPractice({ char }: { char: KanaChar }) {
   const sayable = !isKanaMark(char)
   return (
-    <div className="flex gap-3 rounded-2xl border border-primary/25 bg-primary/5 p-4">
+    <div className="flex gap-3 rounded-xl border border-primary/25 bg-primary/5 p-4">
       <Icon name="edit_note" className="mt-0.5 shrink-0 text-2xl text-primary" />
       <div className="min-w-0 space-y-1.5">
-        <p className="text-base font-semibold leading-snug text-on-surface">
+        <p className="text-base font-semibold leading-snug text-ink">
           Write{' '}
-          <span lang="ja" className="font-jp font-bold">
+          <span lang="ja" className="font-ja-display font-bold">
             {char.character}
           </span>{' '}
           {REPS} times on paper
         </p>
-        <p className="text-sm leading-relaxed text-on-surface-variant">
+        <p className="text-sm leading-relaxed text-ink-muted">
           Copy the stroke order from the animation, one stroke at a time.
           {sayable && (
             <>
               {' '}
-              Say “<span className="font-semibold text-on-surface">{char.romaji}</span>” out loud each time you write it. Hand,
+              Say “<span className="font-semibold text-ink">{char.romaji}</span>” out loud each time you write it. Hand,
               eyes and voice together make it stick.
             </>
           )}

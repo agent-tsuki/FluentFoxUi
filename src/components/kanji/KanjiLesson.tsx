@@ -64,8 +64,8 @@ export function KanjiLesson({ entries, batchSize, onFinish, onLearned }: KanjiLe
               aria-label={`${e.char}, ${e.meanings[0]}${seen ? ', learned' : ''}`}
               onClick={() => setAt(i)}
               className={cn(
-                'relative flex h-12 w-12 items-center justify-center rounded-xl border font-jp text-2xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-                i === at ? 'border-primary bg-primary/10 text-on-surface' : 'border-outline-variant/60 text-on-surface-variant hover:bg-surface-container-low',
+                'relative flex h-12 w-12 items-center justify-center rounded-md border font-ja text-2xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                i === at ? 'border-primary bg-primary/10 text-ink' : 'border-line text-ink-muted hover:bg-surface-hover',
                 i > 0 && i % batchSize === 0 && 'ml-3',
               )}
             >
@@ -88,7 +88,7 @@ export function KanjiLesson({ entries, batchSize, onFinish, onLearned }: KanjiLe
         <Button variant="outline" onClick={() => setAt((i) => Math.max(0, i - 1))} disabled={at === 0} className="flex min-h-11 items-center gap-1 disabled:opacity-40">
           <Icon name="arrow_back" className="text-lg" /> Back
         </Button>
-        <p className="text-sm tabular-nums text-on-surface-variant">
+        <p className="text-sm tabular-nums text-ink-muted">
           {at + 1} of {entries.length}
           {endsBatch && ' · end of this set'}
         </p>
@@ -115,59 +115,59 @@ function LessonCard({ entry }: { entry: KanjiEntry }) {
   return (
     <article
       aria-label={`${entry.char}: ${entry.meanings[0]}`}
-      className="mt-4 grid gap-6 rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-4 dark:border-outline/60 dark:bg-surface-container-low sm:grid-cols-[minmax(0,1fr)_13rem] sm:p-6"
+      className="mt-4 grid gap-6 rounded-xl bg-surface-raised shadow-elevation-1 p-4 sm:grid-cols-[minmax(0,1fr)_13rem] sm:p-6"
     >
       <div className="min-w-0 space-y-4">
         <div className="flex items-end gap-4">
-          <p lang="ja" className="font-jp text-7xl font-bold leading-none text-on-surface">
+          <p lang="ja" className="font-ja text-7xl font-bold leading-none text-ink">
             {entry.char}
           </p>
           <div className="min-w-0 pb-1">
-            <p className="font-headline text-2xl font-bold text-on-surface">{entry.meanings[0]}</p>
-            {entry.meanings.length > 1 && <p className="truncate text-sm text-on-surface-variant">{entry.meanings.slice(1, 4).join(', ')}</p>}
+            <p className="font-display text-2xl font-bold text-ink">{entry.meanings[0]}</p>
+            {entry.meanings.length > 1 && <p className="truncate text-sm text-ink-muted">{entry.meanings.slice(1, 4).join(', ')}</p>}
           </div>
         </div>
 
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-on-surface-variant">Learn this reading first</p>
-          <p lang="ja" className="mt-1 font-jp text-2xl font-bold text-primary">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">Learn this reading first</p>
+          <p lang="ja" className="mt-1 font-ja text-2xl font-bold text-primary">
             {keyReadingLabel(entry)}
           </p>
-          <p className="mt-1 text-sm text-on-surface-variant">
-            Also: <span lang="ja" className="font-jp">{[...entry.on, ...entry.kun.filter((k) => !k.affix).map(kunLabel)].filter((r) => r !== keyReadingLabel(entry)).slice(0, 5).join('、') || '—'}</span>
+          <p className="mt-1 text-sm text-ink-muted">
+            Also: <span lang="ja" className="font-ja">{[...entry.on, ...entry.kun.filter((k) => !k.affix).map(kunLabel)].filter((r) => r !== keyReadingLabel(entry)).slice(0, 5).join('、') || '—'}</span>
           </p>
-          {entry.readingTip && <p className="mt-2 text-sm text-on-surface">{entry.readingTip}</p>}
+          {entry.readingTip && <p className="mt-2 text-sm text-ink">{entry.readingTip}</p>}
         </div>
 
         {key && (
-          <div className="flex items-center gap-3 rounded-xl bg-surface-container-low p-3">
+          <div className="flex items-center gap-3 rounded-md bg-surface-sunken p-3">
             <div className="min-w-0 flex-1">
               <p>
-                <span lang="ja" className="font-jp text-xl font-bold text-on-surface">
+                <span lang="ja" className="font-ja text-xl font-bold text-ink">
                   {key.word}
                 </span>{' '}
-                <span lang="ja" className="font-jp text-on-surface-variant">
+                <span lang="ja" className="font-ja text-ink-muted">
                   {key.reading}
                 </span>
               </p>
-              <p className="text-sm text-on-surface-variant">{key.meaning}</p>
+              <p className="text-sm text-ink-muted">{key.meaning}</p>
             </div>
             {supported && <SpeakerButton onClick={() => speak(key.reading)} label={`Play ${key.word}`} loading={loadingText === key.reading} />}
           </div>
         )}
 
         {entry.mnemonic && (
-          <p className="flex gap-2 text-sm text-on-surface">
+          <p className="flex gap-2 text-sm text-ink">
             <Icon name="lightbulb" className="shrink-0 text-lg text-primary" />
             <span>{entry.mnemonic.text}</span>
           </p>
         )}
 
         {others.length > 0 && (
-          <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-on-surface-variant">
+          <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-muted">
             {others.map((v) => (
               <li key={v.word}>
-                <span lang="ja" className="font-jp text-on-surface">
+                <span lang="ja" className="font-ja text-ink">
                   {v.word}
                 </span>{' '}
                 {v.meaning.split(';')[0]}
@@ -183,9 +183,9 @@ function LessonCard({ entry }: { entry: KanjiEntry }) {
         {strokes.status === 'ready' ? (
           <StrokeOrder glyph={kanjiGlyph(strokes.data)} character={entry.char} />
         ) : strokes.status === 'loading' ? (
-          <SkeletonBlock className="aspect-square w-full rounded-2xl" />
+          <SkeletonBlock className="aspect-square w-full rounded-xl" />
         ) : (
-          <p className="text-sm text-on-surface-variant">Stroke order isn’t available right now.</p>
+          <p className="text-sm text-ink-muted">Stroke order isn’t available right now.</p>
         )}
       </div>
     </article>

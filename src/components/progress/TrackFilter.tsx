@@ -16,7 +16,7 @@ const OPTIONS: readonly { value: LearningTrack | undefined; label: string }[] = 
 /** All tracks, or one: a segmented control for the progress page. */
 export function TrackFilter({ value, onChange, className }: TrackFilterProps) {
   return (
-    <div role="radiogroup" aria-label="Track" className={cn('flex flex-wrap gap-1 rounded-full bg-surface-container p-1', className)}>
+    <div role="radiogroup" aria-label="Track" className={cn('flex flex-wrap gap-1 rounded-full bg-surface-sunken p-1', className)}>
       {OPTIONS.map((o) => {
         const checked = o.value === value
         return (
@@ -28,7 +28,7 @@ export function TrackFilter({ value, onChange, className }: TrackFilterProps) {
             onClick={() => onChange(o.value)}
             className={cn(
               'min-h-11 rounded-full px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-              checked ? 'bg-on-surface text-surface' : 'text-on-surface-variant hover:text-on-surface',
+              checked ? 'bg-ink text-surface' : 'text-ink-muted hover:text-ink',
             )}
           >
             {o.label}

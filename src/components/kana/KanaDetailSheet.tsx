@@ -31,14 +31,14 @@ const TITLE_ID = 'kana-detail-sheet-title'
 const SWIPE_DISTANCE = 60
 
 const STEP_BUTTON = cn(
-  'inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-outline-variant/60 text-on-surface-variant sm:size-12',
-  'transition-colors hover:border-outline hover:bg-surface-container-high hover:text-on-surface active:scale-95',
+  'inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-line text-ink-muted sm:size-12',
+  'transition-colors hover:border-line-strong hover:bg-surface-hover hover:text-ink active:scale-95',
   'outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-30',
 )
 
 const PHONE_STEP = cn(
-  'inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-outline-variant/60 text-sm font-semibold text-on-surface',
-  'transition-colors active:bg-surface-container-high outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-30',
+  'inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-md border border-line text-sm font-semibold text-ink',
+  'transition-colors active:bg-surface-hover outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-30',
 )
 
 /**
@@ -114,7 +114,7 @@ export function KanaDetailSheet({ char, onClose, onPrev, onNext }: KanaDetailShe
             exit={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.97, transition: { duration: durations.exit, ease: easings.out } }}
             transition={fade}
             // Solid in dark mode too (not the frosted glass of page cards): nothing behind competes with the strokes.
-            className="relative flex max-h-full w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-outline-variant/40 bg-surface-container-lowest text-on-surface shadow-elevation-3 outline-none dark:bg-surface-container-lowest dark:backdrop-filter-none lg:max-h-[min(100%,46rem)] lg:max-w-4xl"
+            className="relative flex max-h-full w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-line bg-surface-raised text-ink shadow-elevation-3 outline-none dark:bg-surface-raised dark:backdrop-filter-none lg:max-h-[min(100%,46rem)] lg:max-w-4xl"
           >
             <KanaSheetHeader
               char={char}
@@ -129,7 +129,7 @@ export function KanaDetailSheet({ char, onClose, onPrev, onNext }: KanaDetailShe
             >
               {/* Stroke order, the focus: previous / drawing / next. Swipe sideways to step. */}
               <div
-                className="relative px-4 pb-5 pt-1 sm:px-5 lg:pb-6 lg:before:absolute lg:before:inset-y-6 lg:before:right-0 lg:before:w-0.5 lg:before:rounded-full lg:before:bg-outline-variant/40 lg:before:content-['']"
+                className="relative px-4 pb-5 pt-1 sm:px-5 lg:pb-6 lg:before:absolute lg:before:inset-y-6 lg:before:right-0 lg:before:w-0.5 lg:before:rounded-full lg:before:bg-line/40 lg:before:content-['']"
                 onPointerDown={onSwipeStart}
                 onPointerUp={onSwipeEnd}
                 onPointerCancel={() => (swipeStart.current = null)}

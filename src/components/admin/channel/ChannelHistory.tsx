@@ -17,16 +17,16 @@ export function ChannelHistory({ channelId, version }: { channelId: string; vers
   if (!data?.length) return <EmptyState icon="schedule" title="No changes yet" description="Edits, uploads and syncs appear here." className="py-8" />
 
   return (
-    <ol className="divide-y divide-outline-variant/40">
+    <ol className="divide-y divide-line">
       {data.map(entry => (
         <li key={entry.id} className="space-y-1 py-3">
-          <p className="text-sm text-on-surface">
+          <p className="text-sm text-ink">
             <span className="font-semibold">{entry.actorName ?? 'Someone'}</span> changed <span className="font-semibold">{entry.field.replace(/_/g, ' ')}</span>
           </p>
-          <p className="break-words text-xs text-on-surface-variant">
+          <p className="break-words text-xs text-ink-muted">
             {truncate(entry.oldValue)} → {truncate(entry.newValue)}
           </p>
-          <time dateTime={entry.createdAt} title={formatDateTime(entry.createdAt)} className="block text-xs text-on-surface-variant">
+          <time dateTime={entry.createdAt} title={formatDateTime(entry.createdAt)} className="block text-xs text-ink-muted">
             {timeAgo(entry.createdAt)}
           </time>
         </li>

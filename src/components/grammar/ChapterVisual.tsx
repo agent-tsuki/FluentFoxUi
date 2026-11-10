@@ -423,7 +423,7 @@ const visuals: Record<number, VisualSpec> = {
 function DiagramItem({ item }: { item: VisualItem }) {
   const tone = tones[item.tone]
   return (
-    <div className={`min-w-0 rounded-xl border px-3 py-3 text-center shadow-sm ${tone.chip}`}>
+    <div className={`min-w-0 rounded-md border px-3 py-3 text-center shadow-sm ${tone.chip}`}>
       <p lang="ja" className="break-words text-lg font-bold leading-tight">{item.label}</p>
       <p className="mt-1 text-[0.66rem] font-semibold uppercase tracking-[0.1em] opacity-75">{item.note}</p>
     </div>
@@ -437,7 +437,7 @@ function SequenceDiagram({ items }: { items: VisualItem[] }) {
         <div key={`${item.label}-${index}`} className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
           <DiagramItem item={item} />
           {index < items.length - 1 && (
-            <span aria-hidden="true" className="hidden shrink-0 text-lg text-home-accent sm:block">→</span>
+            <span aria-hidden="true" className="hidden shrink-0 text-lg text-primary sm:block">→</span>
           )}
         </div>
       ))}
@@ -451,7 +451,7 @@ function RangeDiagram({ items }: { items: VisualItem[] }) {
       {items.map((item, index) => {
         const tone = tones[item.tone]
         return (
-          <div key={item.label} className={`relative overflow-hidden rounded-xl border px-4 py-4 ${tone.chip}`}>
+          <div key={item.label} className={`relative overflow-hidden rounded-md border px-4 py-4 ${tone.chip}`}>
             <span className={`absolute right-3 top-3 size-2 rounded-full ${tone.dot}`} />
             <span className="text-[0.66rem] font-bold uppercase tracking-[0.12em] opacity-60">Zone {index + 1}</span>
             <p lang="ja" className="mt-2 text-2xl font-bold leading-none">{item.label}</p>
@@ -467,7 +467,7 @@ function ComparisonDiagram({ items }: { items: VisualItem[] }) {
   return (
     <div className="grid items-stretch gap-3 sm:grid-cols-[1fr_auto_1fr]">
       <DiagramItem item={items[0]} />
-      <div aria-hidden="true" className="hidden items-center justify-center text-xl font-bold text-home-accent sm:flex">↔</div>
+      <div aria-hidden="true" className="hidden items-center justify-center text-xl font-bold text-primary sm:flex">↔</div>
       <DiagramItem item={items[1]} />
     </div>
   )
@@ -477,9 +477,9 @@ function ExchangeDiagram({ items }: { items: VisualItem[] }) {
   return (
     <div className="grid items-center gap-3 sm:grid-cols-[1fr_auto_1fr_auto_1fr]">
       <DiagramItem item={items[0]} />
-      <span aria-hidden="true" className="hidden text-xl font-bold text-home-accent sm:block">→</span>
+      <span aria-hidden="true" className="hidden text-xl font-bold text-primary sm:block">→</span>
       <DiagramItem item={items[1]} />
-      <span aria-hidden="true" className="hidden text-xl font-bold text-home-accent sm:block">→</span>
+      <span aria-hidden="true" className="hidden text-xl font-bold text-primary sm:block">→</span>
       <DiagramItem item={items[2]} />
     </div>
   )
@@ -522,7 +522,7 @@ export function ChapterVisual({ chapterId }: { chapterId: number }) {
     const alt = illustration.alt
       ?? `${spec.eyebrow} board: ${spec.items.map((item) => `${item.label} (${item.note})`).join(', ')}.`
     return (
-      <figure className="mb-10 grid items-center gap-6 rounded-2xl border border-home-line bg-home-tile/60 px-5 py-4 sm:px-6 sm:py-4 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] md:gap-10">
+      <figure className="mb-10 grid items-center gap-6 rounded-xl border border-line bg-surface-raised/60 px-5 py-4 sm:px-6 sm:py-4 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] md:gap-10">
         {/* The art has ~10% empty transparent space under the board; the aspect crop trims it. */}
         <img
           src={asset(illustration.src)}
@@ -538,10 +538,10 @@ export function ChapterVisual({ chapterId }: { chapterId: number }) {
           className="mx-auto aspect-[1536/920] w-full max-w-[33rem] select-none object-cover object-top"
         />
         <figcaption className="min-w-0 md:self-end md:pb-3">
-          <p className="text-2xs font-bold uppercase tracking-[0.16em] text-home-accent">{spec.eyebrow}</p>
-          <h2 className="mt-1.5 font-headline text-xl font-bold leading-snug text-home-ink sm:text-2xl">{spec.title}</h2>
+          <p className="text-2xs font-bold uppercase tracking-[0.16em] text-primary">{spec.eyebrow}</p>
+          <h2 className="mt-1.5 font-display text-xl font-bold leading-snug text-ink sm:text-2xl">{spec.title}</h2>
 
-          <div className="mt-5 border-l-2 border-home-accent/60 pl-4">
+          <div className="mt-5">
             <p
               lang="ja"
               className={`flex flex-wrap gap-y-0.5 text-2xl font-bold leading-snug sm:text-[1.75rem] ${
@@ -555,11 +555,11 @@ export function ChapterVisual({ chapterId }: { chapterId: number }) {
                 </span>
               ))}
             </p>
-            <p className="mt-2 text-[0.9375rem] font-medium text-home-ink">{illustration.romaji}</p>
-            <p className="text-[0.9375rem] italic text-home-muted">{illustration.meaning}</p>
+            <p className="mt-2 text-[0.9375rem] font-medium text-ink">{illustration.romaji}</p>
+            <p className="text-[0.9375rem] italic text-ink-muted">{illustration.meaning}</p>
           </div>
 
-          <p className="mt-5 text-sm leading-6 text-home-muted">{spec.caption}</p>
+          <p className="mt-5 text-sm leading-6 text-ink-muted">{spec.caption}</p>
         </figcaption>
       </figure>
     )
@@ -578,25 +578,25 @@ export function ChapterVisual({ chapterId }: { chapterId: number }) {
     : <SequenceDiagram items={spec.items} />
 
   return (
-    <figure className="mb-10 overflow-hidden rounded-2xl border border-home-line-strong bg-home-tile p-5 shadow-elevation-1 sm:p-6">
-      <figcaption className="mb-5 flex flex-col gap-1 border-b border-home-line pb-4 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+    <figure className="mb-10 overflow-hidden rounded-xl border border-line-strong bg-surface-raised p-5 shadow-elevation-1 sm:p-6">
+      <figcaption className="mb-5 flex flex-col gap-1 border-b border-line pb-4 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
         <div>
-          <p className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-home-accent">{spec.eyebrow}</p>
-          <h2 className="mt-1 font-headline text-xl font-bold text-home-ink">{spec.title}</h2>
+          <p className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-primary">{spec.eyebrow}</p>
+          <h2 className="mt-1 font-display text-xl font-bold text-ink">{spec.title}</h2>
         </div>
-        <p className="max-w-md text-sm leading-6 text-home-muted">{spec.caption}</p>
+        <p className="max-w-md text-sm leading-6 text-ink-muted">{spec.caption}</p>
       </figcaption>
       {spec.scene && (
-        <div className="mb-5 overflow-hidden rounded-xl border border-home-line-strong bg-home-tile sm:grid sm:grid-cols-[minmax(0,1.4fr)_minmax(13rem,0.6fr)]">
+        <div className="mb-5 overflow-hidden rounded-md border border-line-strong bg-surface-raised sm:grid sm:grid-cols-[minmax(0,1.4fr)_minmax(13rem,0.6fr)]">
           <img
             src={asset(spec.scene.src)}
             alt={spec.scene.alt}
             className="aspect-[3/2] h-full w-full object-cover"
             loading="lazy"
           />
-          <div className="flex flex-col justify-center bg-home-sage px-5 py-5 sm:px-6">
-            <p className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-home-accent">See it in context</p>
-            <p className="mt-2 text-sm font-medium leading-6 text-home-ink">{spec.scene.caption}</p>
+          <div className="flex flex-col justify-center bg-leaf-soft px-5 py-5 sm:px-6">
+            <p className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-primary">See it in context</p>
+            <p className="mt-2 text-sm font-medium leading-6 text-ink">{spec.scene.caption}</p>
           </div>
         </div>
       )}

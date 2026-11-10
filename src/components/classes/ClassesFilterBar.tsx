@@ -24,7 +24,7 @@ const CHIP = cn(
   FOCUS,
 )
 const CHIP_ON = 'border-primary bg-primary/10 text-primary'
-const CHIP_OFF = 'border-outline-variant/60 text-on-surface-variant hover:border-outline hover:text-on-surface'
+const CHIP_OFF = 'border-line text-ink-muted hover:border-line-strong hover:text-ink'
 
 /**
  * ClassesFilterBar — JLPT level segmented control, platform chips and the
@@ -35,8 +35,8 @@ export function ClassesFilterBar(props: ClassesFilterBarProps) {
   const { levels, level, platform, freeOnly, onLevelChange, onPlatformChange, onFreeOnlyChange } = props
   return (
     <div className="mx-auto max-w-7xl px-6 md:px-10">
-      <div className="flex flex-col gap-2 border-y border-outline-variant/40 py-2 md:h-12 md:flex-row md:items-center md:justify-between md:gap-4 md:py-0">
-        <div role="group" aria-label="JLPT level" className="flex w-fit items-center rounded-xl bg-surface-container p-0.5">
+      <div className="flex flex-col gap-2 border-y border-line py-2 md:h-12 md:flex-row md:items-center md:justify-between md:gap-4 md:py-0">
+        <div role="group" aria-label="JLPT level" className="flex w-fit items-center rounded-md bg-surface-sunken p-0.5">
           {levels.map(l => {
             const active = l.level === level
             return (
@@ -47,10 +47,10 @@ export function ClassesFilterBar(props: ClassesFilterBarProps) {
                 aria-label={l.locked ? `${l.level}, coming soon` : `${l.level}, ${l.count} courses`}
                 onClick={() => onLevelChange(l.level)}
                 className={cn(
-                  'inline-flex h-8 min-w-11 items-center justify-center gap-0.5 rounded-lg px-3 text-xs font-bold transition-colors duration-200',
+                  'inline-flex h-8 min-w-11 items-center justify-center gap-0.5 rounded-sm px-3 text-xs font-bold transition-colors duration-200',
                   HIT_AREA,
                   FOCUS,
-                  active ? 'bg-primary text-on-primary shadow-elevation-1' : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface',
+                  active ? 'bg-primary text-on-primary shadow-elevation-1' : 'text-ink-muted hover:bg-surface-hover hover:text-ink',
                 )}
               >
                 {l.level}
@@ -79,7 +79,7 @@ export function ClassesFilterBar(props: ClassesFilterBarProps) {
               </button>
             )
           })}
-          <span aria-hidden="true" className="mx-1 h-5 w-px shrink-0 bg-outline-variant/60" />
+          <span aria-hidden="true" className="mx-1 h-5 w-px shrink-0 bg-line/60" />
           <button
             type="button"
             aria-pressed={freeOnly}

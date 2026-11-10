@@ -68,7 +68,7 @@ export function StrokeOrder({ glyph, character, className, slow: slowProp, onSlo
         aria-label={`Stroke order for ${character}: ${total} strokes`}
         viewBox={`0 0 ${glyph.width} ${CELL}`}
         className={cn(
-          'w-full rounded-2xl border border-outline-variant/50 bg-surface-container-low',
+          'w-full rounded-xl border border-line bg-surface-sunken',
           className ?? 'max-w-[15rem]',
         )}
         style={{ aspectRatio: `${glyph.width} / ${CELL}` }}
@@ -76,7 +76,7 @@ export function StrokeOrder({ glyph, character, className, slow: slowProp, onSlo
         <CellGuides width={glyph.width} />
         {/* Faint finished shape underneath, so the learner sees where it's heading. */}
         {glyph.strokes.map((s, i) => (
-          <path key={`ghost-${i}`} d={s.d} transform={s.transform || undefined} className="stroke-outline-variant/60" strokeWidth={3} fill="none" strokeLinecap="round" />
+          <path key={`ghost-${i}`} d={s.d} transform={s.transform || undefined} className="stroke-line/60" strokeWidth={3} fill="none" strokeLinecap="round" />
         ))}
         {glyph.strokes.map((s, i) => {
           const delay = i * (draw + gap)
@@ -85,7 +85,7 @@ export function StrokeOrder({ glyph, character, className, slow: slowProp, onSlo
             <g key={i} transform={s.transform || undefined}>
               <motion.path
                 d={s.d}
-                className="stroke-on-surface"
+                className="stroke-ink"
                 strokeWidth={4}
                 fill="none"
                 strokeLinecap="round"
@@ -116,7 +116,7 @@ export function StrokeOrder({ glyph, character, className, slow: slowProp, onSlo
                 <motion.text
                   x={s.number[0]}
                   y={s.number[1]}
-                  className="fill-primary font-body font-bold"
+                  className="fill-primary font-sans font-bold"
                   fontSize={8}
                   initial={animate ? { opacity: 0 } : false}
                   animate={{ opacity: 1 }}
@@ -132,7 +132,7 @@ export function StrokeOrder({ glyph, character, className, slow: slowProp, onSlo
 
       <div className="flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-1">
         {/* Visual only; the drawing's label already gives the stroke count. */}
-        <p aria-hidden className="text-sm font-semibold tabular-nums text-on-surface-variant">
+        <p aria-hidden className="text-sm font-semibold tabular-nums text-ink-muted">
           {done ? `${total} ${total === 1 ? 'stroke' : 'strokes'}` : `Stroke ${current} of ${total}`}
         </p>
         {animate && (
@@ -147,13 +147,13 @@ export function StrokeOrder({ glyph, character, className, slow: slowProp, onSlo
           </div>
         )}
       </div>
-      <p className="w-full text-right text-xs text-on-surface-variant">
+      <p className="w-full text-right text-xs text-ink-muted">
         Stroke data:{' '}
         <a
           href="https://kanjivg.tagaini.net"
           target="_blank"
           rel="noopener noreferrer"
-          className="-my-2 inline-block py-2 underline decoration-outline underline-offset-2 hover:text-on-surface"
+          className="-my-2 inline-block py-2 underline decoration-line-strong underline-offset-2 hover:text-ink"
         >
           KanjiVG
         </a>
@@ -167,7 +167,7 @@ export function StrokeOrder({ glyph, character, className, slow: slowProp, onSlo
 export function CellGuides({ width }: { width: number }) {
   const mid = CELL / 2
   return (
-    <g aria-hidden className="stroke-outline-variant/70" strokeWidth={0.5} strokeDasharray="2 2" fill="none">
+    <g aria-hidden className="stroke-line/70" strokeWidth={0.5} strokeDasharray="2 2" fill="none">
       <line x1={0} y1={mid} x2={width} y2={mid} />
       <line x1={mid} y1={0} x2={mid} y2={CELL} />
     </g>

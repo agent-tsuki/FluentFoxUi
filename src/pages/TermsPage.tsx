@@ -3,16 +3,16 @@ export function TermsPage() {
     <main className="pt-nav pb-20 px-6 max-w-3xl mx-auto">
       <div className="space-y-10">
         <div className="space-y-3">
-          <p className="text-xs uppercase tracking-widest font-bold text-primary">Legal</p>
-          <h1 className="text-4xl md:text-5xl font-headline font-extrabold tracking-tighter text-on-surface">
+          <p className="text-xs uppercase tracking-[0.12em] font-bold text-primary">Legal</p>
+          <h1 className="text-4xl md:text-5xl font-display font-extrabold tracking-tighter text-ink">
             Terms of Service
           </h1>
-          <p className="text-on-surface-variant text-sm">
+          <p className="text-ink-muted text-sm">
             Last updated: April 4, 2026
           </p>
         </div>
 
-        <div className="prose prose-stone dark:prose-invert max-w-none space-y-8 text-on-surface-variant leading-relaxed">
+        <div className="prose prose-stone dark:prose-invert max-w-none space-y-8 text-ink-muted leading-relaxed">
           <Section title="1. Acceptance of Terms">
             By accessing or using FoxSensei ("the Service"), you agree to be bound by these Terms of
             Service. If you do not agree to these terms, please do not use the Service. We reserve
@@ -83,7 +83,7 @@ export function TermsPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="space-y-3">
-      <h2 className="text-lg font-headline font-bold text-on-surface">{title}</h2>
+      <h2 className="text-lg font-display font-bold text-ink">{title}</h2>
       <p className="text-sm leading-relaxed">{children}</p>
     </div>
   )

@@ -39,14 +39,14 @@ export function KanaMasterPanel({ className }: { className?: string }) {
     return (
       <section
         aria-labelledby="kana-master-title"
-        className={cn('rounded-2xl border border-dashed border-outline-variant/60 p-4 dark:border-outline/50', className)}
+        className={cn('rounded-xl border border-dashed border-line p-4', className)}
       >
         <div className="flex items-start gap-3">
           <span aria-hidden className="flex">
-            <Icon name="workspace_premium" className="text-2xl text-on-surface-variant" />
+            <Icon name="workspace_premium" className="text-2xl text-ink-muted" />
           </span>
           <div className="min-w-0 flex-1">
-            <h3 id="kana-master-title" className="font-headline text-base font-bold text-on-surface">Kana master</h3>
+            <h3 id="kana-master-title" className="font-display text-base font-bold text-ink">Kana master</h3>
             <ul className="mt-2 flex flex-wrap gap-2" aria-label="Final tests">
               {SCRIPTS.map((s) => {
                 const ok = Boolean(passed(s.id))
@@ -55,7 +55,7 @@ export function KanaMasterPanel({ className }: { className?: string }) {
                     key={s.id}
                     className={cn(
                       'inline-flex min-h-8 items-center gap-1.5 rounded-full px-3 text-sm font-semibold',
-                      ok ? 'bg-success/15 text-on-surface' : 'bg-surface-container text-on-surface-variant',
+                      ok ? 'bg-success/15 text-ink' : 'bg-surface-sunken text-ink-muted',
                     )}
                   >
                     <Icon name={ok ? 'check_circle' : 'radio_button_unchecked'} filled={ok} className={cn('text-base', ok && 'text-success')} />
@@ -65,7 +65,7 @@ export function KanaMasterPanel({ className }: { className?: string }) {
                 )
               })}
             </ul>
-            <p className="mt-2 text-sm text-on-surface-variant">
+            <p className="mt-2 text-sm text-ink-muted">
               Pass both final tests to earn the Kana master certificate.
               {other && isRegisteredKanaScript(other.id) && (
                 <>
@@ -101,26 +101,26 @@ export function KanaMasterPanel({ className }: { className?: string }) {
   return (
     <section
       aria-labelledby="kana-master-title"
-      className={cn('rounded-2xl border border-primary/40 bg-primary/5 p-5 dark:bg-primary/10', className)}
+      className={cn('rounded-xl border border-primary/40 bg-primary/5 p-5 dark:bg-primary/10', className)}
     >
       <div className="flex items-start gap-3">
         <Icon name="workspace_premium" filled className="text-3xl text-primary" />
         <div className="min-w-0">
-          <h3 id="kana-master-title" className="font-headline text-lg font-bold text-on-surface">Kana master</h3>
-          <p className="text-sm text-on-surface-variant">You passed both — download your Kana master certificate.</p>
+          <h3 id="kana-master-title" className="font-display text-lg font-bold text-ink">Kana master</h3>
+          <p className="text-sm text-ink-muted">You passed both — download your Kana master certificate.</p>
         </div>
       </div>
       <dl className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
         {SCRIPTS.map((s) => {
           const [r, on] = s.id === 'hiragana' ? [hira, hiraPassed] : [kata, kataPassed]
           return (
-            <div key={s.id} className="rounded-xl bg-surface-container-lowest px-4 py-3 dark:bg-surface-container-low">
-              <dt className="flex items-baseline gap-2 text-sm font-semibold text-on-surface">
-                <span lang="ja" className="font-jp text-on-surface-variant">{s.nativeLabel}</span>
+            <div key={s.id} className="rounded-md bg-surface-raised px-4 py-3">
+              <dt className="flex items-baseline gap-2 text-sm font-semibold text-ink">
+                <span lang="ja" className="font-ja-display text-ink-muted">{s.nativeLabel}</span>
                 {s.label}
               </dt>
-              <dd className="mt-0.5 text-sm text-on-surface-variant">
-                <span className="font-bold tabular-nums text-on-surface">{Math.round(r.best * 100)}%</span> · passed{' '}
+              <dd className="mt-0.5 text-sm text-ink-muted">
+                <span className="font-bold tabular-nums text-ink">{Math.round(r.best * 100)}%</span> · passed{' '}
                 {formatDate(on)}
               </dd>
             </div>

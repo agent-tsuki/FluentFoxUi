@@ -41,14 +41,14 @@ export function KanjiWriteStep({ entries, onComplete }: { entries: KanjiEntry[];
   return (
     <div>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm font-semibold tabular-nums text-on-surface">
+        <p className="text-sm font-semibold tabular-nums text-ink">
           Kanji {at + 1} of {entries.length} · {STAGES[stage].title}
         </p>
         <ol aria-label="Writing stages" className="flex gap-1">
           {STAGES.map((s, i) => (
             <li
               key={s.guide}
-              className={cn('rounded-full px-2.5 py-1 text-xs font-semibold', i === stage ? 'bg-primary/10 text-primary' : i < stage ? 'text-success' : 'text-on-surface-variant')}
+              className={cn('rounded-full px-2.5 py-1 text-xs font-semibold', i === stage ? 'bg-primary/10 text-primary' : i < stage ? 'text-success' : 'text-ink-muted')}
             >
               {i < stage && <span className="sr-only">Done: </span>}
               {s.title}
@@ -57,14 +57,14 @@ export function KanjiWriteStep({ entries, onComplete }: { entries: KanjiEntry[];
         </ol>
       </div>
 
-      <p className="mb-3 text-on-surface">
+      <p className="mb-3 text-ink">
         {stage === 2 ? 'Write the kanji for ' : 'Write '}
         <span className="font-bold">“{entry.meanings[0]}”</span>{' '}
-        <span lang="ja" className="font-jp text-on-surface-variant">
+        <span lang="ja" className="font-ja text-ink-muted">
           {keyReadingLabel(entry)}
         </span>
         {stage < 2 && (
-          <span lang="ja" className="ml-2 font-jp text-xl font-bold">
+          <span lang="ja" className="ml-2 font-ja text-xl font-bold">
             {entry.char}
           </span>
         )}
@@ -94,8 +94,8 @@ export function KanjiWriteStep({ entries, onComplete }: { entries: KanjiEntry[];
 
 function WritePad({ char, guide, verb, onDone }: { char: string; guide: TraceGuide; verb: string; onDone: () => void }) {
   const strokes = useKanjiStrokes(char)
-  if (strokes.status === 'loading') return <SkeletonBlock className="mx-auto aspect-square w-full max-w-[18rem] rounded-2xl" />
+  if (strokes.status === 'loading') return <SkeletonBlock className="mx-auto aspect-square w-full max-w-[18rem] rounded-xl" />
   if (strokes.status === 'error') return <ErrorState title="Couldn't load strokes" message="Check your connection and try again." onRetry={strokes.retry} className="py-6" />
-  if (strokes.status === 'missing') return <p className="text-sm text-on-surface-variant">Stroke data isn’t available for this kanji yet.</p>
+  if (strokes.status === 'missing') return <p className="text-sm text-ink-muted">Stroke data isn’t available for this kanji yet.</p>
   return <TracePad glyph={kanjiGlyph(strokes.data)} guide={guide} verb={verb} onComplete={onDone} />
 }

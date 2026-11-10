@@ -5,7 +5,7 @@ import { useJapaneseSpeech } from '@/hooks/useJapaneseSpeech'
 import { cn } from '@/lib/cn'
 import type { TestPrompt, TestQuestion } from '@/lib/testCenter/types'
 
-const GAP_LINE = 'mx-1 inline-block w-16 border-b-2 border-on-surface-variant align-baseline'
+const GAP_LINE = 'mx-1 inline-block w-16 border-b-2 border-ink-muted align-baseline'
 
 /** A line to hear: nothing plays until the learner taps, so browsers allow the sound. */
 function ListenButton({ prompt, compact }: { prompt: Extract<TestPrompt, { type: 'audio' }>; compact: boolean }) {
@@ -32,9 +32,9 @@ function PictureSentence({ prompt, compact }: { prompt: Extract<TestPrompt, { ty
         width={640}
         height={480}
         loading="lazy"
-        className={cn('aspect-[4/3] w-full rounded-2xl border border-outline-variant/60 object-cover', compact ? 'mb-3 max-w-[14rem]' : 'mx-auto mb-5 max-w-xs')}
+        className={cn('aspect-[3/2] w-full rounded-lg bg-surface-sunken object-contain', compact ? 'mb-3 max-w-[14rem]' : 'mx-auto mb-5 max-w-md')}
       />
-      <p lang="ja" className={cn('font-jp font-medium leading-relaxed text-on-surface', compact ? 'text-xl' : 'text-2xl sm:text-3xl')}>
+      <p lang="ja" className={cn('font-ja font-medium leading-relaxed text-ink', compact ? 'text-xl' : 'text-2xl sm:text-3xl')}>
         {prompt.before}
         <span className={GAP_LINE} aria-label="gap" />
         {prompt.after}
@@ -46,14 +46,14 @@ function PictureSentence({ prompt, compact }: { prompt: Extract<TestPrompt, { ty
 function Exchange({ prompt, compact }: { prompt: Extract<TestPrompt, { type: 'exchange' }>; compact: boolean }) {
   return (
     <>
-      <div className={cn('space-y-2 rounded-2xl bg-surface-container-low p-4 text-left', !compact && 'mx-auto max-w-md')}>
+      <div className={cn('space-y-2 rounded-xl bg-surface-sunken p-4 text-left', !compact && 'mx-auto max-w-md')}>
         {prompt.lines.map((line) => (
-          <p key={line} lang="ja" className={cn('font-jp leading-relaxed text-on-surface', compact ? 'text-base' : 'text-lg')}>
+          <p key={line} lang="ja" className={cn('font-ja leading-relaxed text-ink', compact ? 'text-base' : 'text-lg')}>
             {line}
           </p>
         ))}
       </div>
-      <p className={cn('font-headline font-bold text-on-surface', compact ? 'mt-3 text-base' : 'mt-5 text-xl sm:text-2xl')}>{prompt.statement}</p>
+      <p className={cn('font-display font-bold text-ink', compact ? 'mt-3 text-base' : 'mt-5 text-xl sm:text-2xl')}>{prompt.statement}</p>
     </>
   )
 }
@@ -69,7 +69,7 @@ export function QuestionPrompt({ question, slot, compact = false, hints = true }
   return (
     <div className={compact ? 'text-left' : 'my-8 text-center sm:my-10'}>
       {question.source && (
-        <p lang="ja" className={cn('font-jp text-on-surface-variant', compact ? 'mb-1 text-base' : 'mb-4 text-lg')}>
+        <p lang="ja" className={cn('font-ja text-ink-muted', compact ? 'mb-1 text-base' : 'mb-4 text-lg')}>
           {question.source}
         </p>
       )}
@@ -83,30 +83,30 @@ export function QuestionPrompt({ question, slot, compact = false, hints = true }
         <p
           lang={prompt.ja ? 'ja' : undefined}
           className={cn(
-            'font-bold text-on-surface',
+            'font-bold text-ink',
             compact
               ? prompt.ja
-                ? 'font-jp text-2xl'
-                : 'font-headline text-lg'
+                ? 'font-ja text-2xl'
+                : 'font-display text-lg'
               : prompt.ja
-                ? cn('font-jp leading-none', Array.from(prompt.text).length <= 2 ? 'text-7xl sm:text-8xl' : 'text-5xl sm:text-6xl')
-                : 'font-headline text-3xl sm:text-4xl',
+                ? cn('font-ja leading-none', Array.from(prompt.text).length <= 2 ? 'text-7xl sm:text-8xl' : 'text-5xl sm:text-6xl')
+                : 'font-display text-3xl sm:text-4xl',
           )}
         >
           {prompt.text}
         </p>
       ) : prompt.type === 'sentence' ? (
-        <p lang="ja" className={cn('font-jp font-medium leading-relaxed text-on-surface', compact ? 'text-xl' : 'text-2xl sm:text-3xl')}>
+        <p lang="ja" className={cn('font-ja font-medium leading-relaxed text-ink', compact ? 'text-xl' : 'text-2xl sm:text-3xl')}>
           {prompt.text}
         </p>
       ) : (
-        <p lang="ja" className={cn('font-jp font-medium text-on-surface', compact ? 'text-xl leading-[2.2]' : 'text-2xl leading-[2.4] sm:text-3xl sm:leading-[2.2]')}>
+        <p lang="ja" className={cn('font-ja font-medium text-ink', compact ? 'text-xl leading-[2.2]' : 'text-2xl leading-[2.4] sm:text-3xl sm:leading-[2.2]')}>
           {prompt.before}
           {slot ?? <span className={GAP_LINE} aria-label="gap" />}
           {prompt.after}
         </p>
       )}
-      {hints && question.translation && <p className={cn('text-sm text-on-surface-variant', compact ? 'mt-1' : 'mt-3')}>{question.translation}</p>}
+      {hints && question.translation && <p className={cn('text-sm text-ink-muted', compact ? 'mt-1' : 'mt-3')}>{question.translation}</p>}
     </div>
   )
 }

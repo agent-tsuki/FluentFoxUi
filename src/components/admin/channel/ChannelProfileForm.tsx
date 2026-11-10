@@ -77,7 +77,7 @@ export function ChannelProfileForm({ channel, canEdit, saving, onSave }: Channel
               aria-label="Pick accent colour"
               value={HEX.test(form.accentColor) ? form.accentColor : '#000000'}
               onChange={e => set('accentColor', e.target.value)}
-              className="h-11 w-14 shrink-0 cursor-pointer rounded-xl border border-outline-variant bg-surface-container-lowest p-1"
+              className="h-11 w-14 shrink-0 cursor-pointer rounded-md border border-line bg-surface-raised p-1"
             />
             <TextInput id="ch-accent" value={form.accentColor} placeholder="#E53935" aria-invalid={!colorValid} onChange={e => set('accentColor', e.target.value)} className="max-w-[10rem]" />
           </div>
