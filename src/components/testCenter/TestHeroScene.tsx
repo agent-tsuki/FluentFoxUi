@@ -1,4 +1,5 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
+import { asset, hasAsset } from '@/lib/assets'
 
 /** A theme colour from the --scene-* tokens (index.css): dawn in light mode, moonlit in dark. */
 const c = (name: string, alpha = 1) => `rgb(var(--scene-${name}) / ${alpha})`
@@ -64,7 +65,7 @@ const PETALS: [number, number, number][] = [
  * the edges. Pure SVG coloured by theme tokens, so it costs no download and
  * follows the theme. Decorative: hidden from assistive tech.
  */
-export const TestHeroScene = memo(function TestHeroScene({ className }: { className?: string }) {
+const SvgScene = memo(function SvgScene({ className }: { className?: string }) {
   return (
     <svg
       aria-hidden
@@ -159,5 +160,45 @@ export const TestHeroScene = memo(function TestHeroScene({ className }: { classN
         <ellipse key={i} cx={x} cy={y} rx="6" ry="3.5" transform={`rotate(${rot} ${x} ${y})`} fill={c('blossom-deep', 0.8)} />
       ))}
     </svg>
+  )
+})
+
+/** The generated header pictures (scripts/quiz-hero), one per theme. */
+const HERO_LIGHT = '/images/quiz/hero-light.png'
+const HERO_DARK = '/images/quiz/hero-dark.png'
+const HERO_IMG = 'h-full w-full select-none object-cover object-right'
+
+/**
+ * The practice tests header: the generated illustration once both versions are
+ * uploaded, swapped by theme; otherwise (or if one fails to load) the SVG scene.
+ * Decorative: hidden from assistive tech.
+ */
+export const TestHeroScene = memo(function TestHeroScene({ className }: { className?: string }) {
+  const [failed, setFailed] = useState(false)
+  if (failed || !hasAsset(HERO_LIGHT) || !hasAsset(HERO_DARK)) return <SvgScene className={className} />
+
+  return (
+    <div aria-hidden className={className}>
+      <img
+        src={asset(HERO_LIGHT)}
+        alt=""
+        width={1536}
+        height={658}
+        decoding="async"
+        draggable={false}
+        onError={() => setFailed(true)}
+        className={`${HERO_IMG} dark:hidden`}
+      />
+      <img
+        src={asset(HERO_DARK)}
+        alt=""
+        width={1536}
+        height={658}
+        decoding="async"
+        draggable={false}
+        onError={() => setFailed(true)}
+        className={`${HERO_IMG} hidden dark:block`}
+      />
+    </div>
   )
 })
